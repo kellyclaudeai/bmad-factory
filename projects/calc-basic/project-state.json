@@ -1,49 +1,20 @@
 {
   "projectId": "calc-basic",
   "stage": "implementation",
-  "startedAt": "2026-02-13T20:36:00Z",
-  "planningCompletedAt": "2026-02-13T20:42:00Z",
-  "currentPhase": "implementation-wave-1",
+  "startedAt": "2026-02-13T21:03:17Z",
+  "lastHeartbeat": "2026-02-13T21:43:00Z",
+  "completedStories": ["1.1", "1.2", "1.3", "1.4", "1.5"],
+  "pendingStories": ["1.7"],
   "subagents": [
-    {
-      "id": "sa-john-prd",
-      "persona": "John",
-      "role": "Product Manager",
-      "source": "bmm",
-      "status": "complete",
-      "task": "create-prd",
-      "processSession": "neat-lagoon",
-      "startedAt": "2026-02-13T20:39:00Z",
-      "completedAt": "2026-02-13T20:42:00Z"
-    },
-    {
-      "id": "sa-amelia-1.1",
-      "persona": "Amelia",
-      "role": "Developer",
-      "source": "bmm",
-      "status": "active",
-      "task": "dev-story-1.1",
-      "storyId": "1.1",
-      "branch": "story-1-1",
-      "processSession": "neat-cloud",
-      "startedAt": "2026-02-13T20:43:00Z"
-    },
-    {
-      "id": "sa-amelia-1.2",
-      "persona": "Amelia",
-      "role": "Developer",
-      "source": "bmm",
-      "status": "active",
-      "task": "dev-story-1.2",
-      "storyId": "1.2",
-      "branch": "story-1-2",
-      "processSession": "swift-basil",
-      "startedAt": "2026-02-13T20:43:00Z"
-    }
-  ],
-  "stories": ["1.1", "1.2", "1.3", "1.4"],
-  "completedStories": [],
-  "activeStories": ["1.1", "1.2"],
-  "blockedStories": [],
-  "lastHeartbeat": "2026-02-13T20:43:00Z"
+    { "id": "sa-john-prd", "persona": "John", "status": "complete", "task": "create-prd", "startedAt": "2026-02-13T21:03:45Z", "completedAt": "2026-02-13T21:07:00Z" },
+    { "id": "sa-sally-ux", "persona": "Sally", "status": "complete", "task": "create-ux-design", "startedAt": "2026-02-13T21:07:00Z", "completedAt": "2026-02-13T21:12:00Z" },
+    { "id": "sa-winston-arch", "persona": "Winston", "status": "complete", "task": "create-architecture", "startedAt": "2026-02-13T21:12:00Z", "completedAt": "2026-02-13T21:16:00Z" },
+    { "id": "sa-bob-stories", "persona": "Bob", "status": "complete", "task": "create-epics-and-stories", "startedAt": "2026-02-13T21:16:00Z", "completedAt": "2026-02-13T21:21:00Z" },
+    { "id": "sa-amelia-dev-1.1", "persona": "Amelia", "status": "complete", "task": "dev-story-1.1", "startedAt": "2026-02-13T21:21:00Z", "completedAt": "2026-02-13T21:24:20Z" },
+    { "id": "sa-amelia-dev-1.2", "persona": "Amelia", "status": "complete", "task": "dev-story-1.2", "startedAt": "2026-02-13T21:24:30Z", "completedAt": "2026-02-13T21:31:00Z" },
+    { "id": "sa-amelia-dev-1.3", "persona": "Amelia", "status": "complete", "task": "dev-story-1.3", "startedAt": "2026-02-13T21:31:00Z", "completedAt": "2026-02-13T21:35:00Z" },
+    { "id": "sa-amelia-dev-1.4", "persona": "Amelia", "status": "complete", "task": "dev-story-1.4", "startedAt": "2026-02-13T21:35:00Z", "completedAt": "2026-02-13T21:38:00Z" },
+    { "id": "sa-amelia-dev-1.5", "persona": "Amelia", "status": "complete", "task": "dev-story-1.5", "startedAt": "2026-02-13T21:38:00Z", "completedAt": "2026-02-13T21:43:00Z" },
+    { "id": "sa-amelia-dev-1.6", "persona": "Amelia", "status": "active", "task": "dev-story-1.6", "branch": "story-1.6", "sessionKey": "agent:bmad-bmm-amelia:subagent:3daf071c-072d-4bab-8ef5-14526d90ddf0", "startedAt": "2026-02-13T21:43:00Z" }
+  ]
 }

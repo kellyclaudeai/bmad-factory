@@ -78,7 +78,17 @@
             color: var(--primary-bg);
         }
         
+        button.key-highlight {
+            background: var(--primary-fg);
+            color: var(--primary-bg);
+        }
+        
         button.operation:hover {
+            background: var(--accent-operation);
+            color: var(--primary-bg);
+        }
+        
+        button.operation.key-highlight {
             background: var(--accent-operation);
             color: var(--primary-bg);
         }
@@ -157,6 +167,7 @@
         };
         
         const displayElement = document.querySelector('.display');
+        const keyHighlightTimers = new WeakMap();
         
         function updateDisplay() {
             let displayValue = state.currentValue;
@@ -196,6 +207,17 @@
             state.currentValue = '0';
             state.previousValue = '';
             state.operation = null;
+            state.waitingForOperand = false;
+            updateDisplay();
+        }
+        
+        function backspace() {
+            if (state.currentValue === '0' || state.currentValue.length === 1) {
+                state.currentValue = '0';
+            } else {
+                state.currentValue = state.currentValue.slice(0, -1);
+            }
+            
             state.waitingForOperand = false;
             updateDisplay();
         }
@@ -280,8 +302,57 @@
             }
         });
         
+        function getButtonForKey(key) {
+            if (key >= '0' && key <= '9') {
+                return document.querySelector(`[data-action="digit"][data-value="${key}"]`);
+            }
+            
+            if (key === '+' || key === '-' || key === '*' || key === '/') {
+                return document.querySelector(`[data-action="operation"][data-value="${key}"]`);
+            }
+            
+            if (key === '.' ) {
+                return document.querySelector('[data-action="decimal"]');
+            }
+            
+            if (key === 'Enter' || key === '=') {
+                return document.querySelector('[data-action="calculate"]');
+            }
+            
+            if (key === 'Escape' || key === 'Delete' || key === 'Backspace' || key.toLowerCase() === 'c') {
+                return document.querySelector('[data-action="clear"]');
+            }
+            
+            return null;
+        }
+        
+        function highlightButton(button) {
+            if (!button) return;
+            
+            button.classList.add('key-highlight');
+            
+            const existingTimer = keyHighlightTimers.get(button);
+            if (existingTimer) {
+                clearTimeout(existingTimer);
+            }
+            
+            const timeoutId = setTimeout(() => {
+                button.classList.remove('key-highlight');
+                keyHighlightTimers.delete(button);
+            }, 150);
+            
+            keyHighlightTimers.set(button, timeoutId);
+        }
+        
         // Keyboard support
         document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            
+            const button = getButtonForKey(e.key);
+            if (!button) return;
+            
+            e.preventDefault();
+            
             if (e.key >= '0' && e.key <= '9') {
                 inputDigit(e.key);
             } else if (e.key === '.') {
@@ -289,11 +360,16 @@
             } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') {
                 performOperation(e.key);
             } else if (e.key === 'Enter' || e.key === '=') {
-                e.preventDefault();
                 calculate();
+            } else if (e.key === 'Backspace') {
+                backspace();
             } else if (e.key === 'Escape' || e.key.toLowerCase() === 'c') {
                 clear();
+            } else if (e.key === 'Delete') {
+                clear();
             }
+            
+            highlightButton(button);
         });
         
         // Initialize display
