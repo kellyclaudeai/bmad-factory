@@ -51,10 +51,6 @@
             justify-content: flex-end;
             overflow: hidden;
         }
-
-        .display.error {
-            color: #FF0000;
-        }
         
         .buttons {
             display: grid;
@@ -95,18 +91,6 @@
             outline: 2px solid var(--primary-fg);
             outline-offset: -4px;
         }
-
-        button:disabled {
-            background: #CFCFCF;
-            border-color: #7A7A7A;
-            color: #5A5A5A;
-            cursor: not-allowed;
-        }
-
-        button:disabled:hover {
-            background: #CFCFCF;
-            color: #5A5A5A;
-        }
         
         button.zero {
             grid-column: span 2;
@@ -114,16 +98,6 @@
         
         button.equals {
             grid-row: span 2;
-        }
-
-        button.shake {
-            animation: clear-shake 200ms ease-in-out;
-        }
-
-        @keyframes clear-shake {
-            0% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            100% { transform: translateX(0); }
         }
         
         @media (max-width: 600px) {
@@ -179,72 +153,24 @@
             currentValue: '0',
             previousValue: '',
             operation: null,
-            waitingForOperand: false,
-            isError: false
+            waitingForOperand: false
         };
         
-        const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER;
         const displayElement = document.querySelector('.display');
-        const clearButton = document.querySelector('button[data-action="clear"]');
-        const operationButtons = document.querySelectorAll('button.operation');
-        const decimalButton = document.querySelector('button[data-action="decimal"]');
-
-        function isOverflow(value) {
-            const numericValue = Number(value);
-            return Number.isFinite(numericValue) && Math.abs(numericValue) > MAX_SAFE_INTEGER;
-        }
-
-        function syncButtonState() {
-            operationButtons.forEach((button) => {
-                button.disabled = state.isError;
-            });
-
-            if (decimalButton) {
-                decimalButton.disabled = state.isError;
-            }
-        }
-
-        function setErrorState(message) {
-            state.currentValue = message;
-            state.previousValue = '';
-            state.operation = null;
-            state.waitingForOperand = false;
-            state.isError = true;
-            updateDisplay();
-        }
-
-        function triggerClearShake() {
-            if (!clearButton) return;
-            clearButton.classList.remove('shake');
-            void clearButton.offsetWidth;
-            clearButton.classList.add('shake');
-        }
         
         function updateDisplay() {
             let displayValue = state.currentValue;
             
             // Truncate if too long
-            if (!state.isError && displayValue.length > 12) {
+            if (displayValue.length > 12) {
                 const num = parseFloat(displayValue);
                 displayValue = num.toExponential(5);
             }
             
             displayElement.textContent = displayValue || '0';
-            displayElement.classList.toggle('error', state.isError);
-            syncButtonState();
         }
         
         function inputDigit(digit) {
-            if (state.isError) {
-                state.currentValue = String(digit);
-                state.previousValue = '';
-                state.operation = null;
-                state.waitingForOperand = false;
-                state.isError = false;
-                updateDisplay();
-                return;
-            }
-
             if (state.waitingForOperand) {
                 state.currentValue = String(digit);
                 state.waitingForOperand = false;
@@ -253,25 +179,16 @@
                     ? String(digit) 
                     : state.currentValue + digit;
             }
-
-            if (isOverflow(state.currentValue)) {
-                setErrorState('Overflow');
-                return;
-            }
-
             updateDisplay();
         }
         
         function inputDecimal() {
-            if (state.isError) return;
-
             if (state.waitingForOperand) {
                 state.currentValue = '0.';
                 state.waitingForOperand = false;
             } else if (state.currentValue.indexOf('.') === -1) {
                 state.currentValue += '.';
             }
-
             updateDisplay();
         }
         
@@ -280,25 +197,16 @@
             state.previousValue = '';
             state.operation = null;
             state.waitingForOperand = false;
-            state.isError = false;
             updateDisplay();
         }
         
         function performOperation(nextOperation) {
-            if (state.isError) return;
-
             const inputValue = parseFloat(state.currentValue);
-
-            if (isOverflow(inputValue)) {
-                setErrorState('Overflow');
-                return;
-            }
             
             if (state.previousValue === '') {
                 state.previousValue = state.currentValue;
             } else if (state.operation) {
                 const result = calculate();
-                if (state.isError) return;
                 state.currentValue = String(result);
                 state.previousValue = String(result);
             }
@@ -309,8 +217,6 @@
         }
         
         function calculate() {
-            if (state.isError) return 0;
-
             const prev = parseFloat(state.previousValue);
             const curr = parseFloat(state.currentValue);
             
@@ -325,17 +231,17 @@
                 case '*': result = prev * curr; break;
                 case '/':
                     if (curr === 0) {
-                        setErrorState('Error');
+                        state.currentValue = 'Error';
+                        state.operation = null;
+                        state.previousValue = '';
+                        state.waitingForOperand = false;
+                        updateDisplay();
+                        setTimeout(clear, 1500);
                         return 0;
                     }
                     result = prev / curr;
                     break;
                 default: return curr;
-            }
-
-            if (!Number.isFinite(result) || isOverflow(result)) {
-                setErrorState('Overflow');
-                return 0;
             }
             
             state.currentValue = String(result);
@@ -369,17 +275,10 @@
                     calculate();
                     break;
                 case 'clear':
-                    triggerClearShake();
                     clear();
                     break;
             }
         });
-
-        if (clearButton) {
-            clearButton.addEventListener('animationend', () => {
-                clearButton.classList.remove('shake');
-            });
-        }
         
         // Keyboard support
         document.addEventListener('keydown', (e) => {
