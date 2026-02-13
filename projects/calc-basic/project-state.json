@@ -1,10 +1,10 @@
 {
   "projectId": "calc-basic",
-  "stage": "implementation",
+  "stage": "remediation",
   "startedAt": "2026-02-13T21:03:17Z",
-  "lastHeartbeat": "2026-02-13T21:43:00Z",
-  "completedStories": ["1.1", "1.2", "1.3", "1.4", "1.5"],
-  "pendingStories": ["1.7"],
+  "lastHeartbeat": "2026-02-13T21:53:00Z",
+  "completedStories": ["1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7"],
+  "pendingStories": [],
   "subagents": [
     { "id": "sa-john-prd", "persona": "John", "status": "complete", "task": "create-prd", "startedAt": "2026-02-13T21:03:45Z", "completedAt": "2026-02-13T21:07:00Z" },
     { "id": "sa-sally-ux", "persona": "Sally", "status": "complete", "task": "create-ux-design", "startedAt": "2026-02-13T21:07:00Z", "completedAt": "2026-02-13T21:12:00Z" },
@@ -15,6 +15,9 @@
     { "id": "sa-amelia-dev-1.3", "persona": "Amelia", "status": "complete", "task": "dev-story-1.3", "startedAt": "2026-02-13T21:31:00Z", "completedAt": "2026-02-13T21:35:00Z" },
     { "id": "sa-amelia-dev-1.4", "persona": "Amelia", "status": "complete", "task": "dev-story-1.4", "startedAt": "2026-02-13T21:35:00Z", "completedAt": "2026-02-13T21:38:00Z" },
     { "id": "sa-amelia-dev-1.5", "persona": "Amelia", "status": "complete", "task": "dev-story-1.5", "startedAt": "2026-02-13T21:38:00Z", "completedAt": "2026-02-13T21:43:00Z" },
-    { "id": "sa-amelia-dev-1.6", "persona": "Amelia", "status": "active", "task": "dev-story-1.6", "branch": "story-1.6", "sessionKey": "agent:bmad-bmm-amelia:subagent:3daf071c-072d-4bab-8ef5-14526d90ddf0", "startedAt": "2026-02-13T21:43:00Z" }
+    { "id": "sa-amelia-dev-1.6", "persona": "Amelia", "status": "complete", "task": "dev-story-1.6", "startedAt": "2026-02-13T21:43:00Z", "completedAt": "2026-02-13T21:47:00Z" },
+    { "id": "sa-amelia-dev-1.7", "persona": "Amelia", "status": "complete", "task": "dev-story-1.7", "startedAt": "2026-02-13T21:47:00Z", "completedAt": "2026-02-13T21:50:00Z" },
+    { "id": "sa-murat-tea", "persona": "Murat", "status": "complete", "task": "tea-audit", "verdict": "REMEDIATE", "startedAt": "2026-02-13T21:50:00Z", "completedAt": "2026-02-13T21:53:00Z" },
+    { "id": "sa-amelia-fix-tea", "persona": "Amelia", "status": "active", "task": "tea-remediation", "branch": "story-fix-tea", "sessionKey": "agent:bmad-bmm-amelia:subagent:41cbf95f-51ee-4428-b21d-7867b49c367d", "startedAt": "2026-02-13T21:53:00Z" }
   ]
 }
