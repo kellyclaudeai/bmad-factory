@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>calc-basic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #FFFFFF;
+            --primary-fg: #000000;
+            --display-bg: #000000;
+            --display-fg: #FFFFFF;
+            --accent-operation: #FF0000;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--primary-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .calculator {
+            width: 420px;
+            background: var(--primary-bg);
+            border: 4px solid var(--primary-fg);
+        }
+        
+        .display {
+            width: 100%;
+            height: 120px;
+            background: var(--display-bg);
+            color: var(--display-fg);
+            font-size: 48px;
+            font-weight: 700;
+            padding: 32px;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 5px;
+            padding: 5px;
+            background: var(--primary-fg);
+        }
+        
+        button {
+            background: var(--primary-bg);
+            border: 2px solid var(--primary-fg);
+            color: var(--primary-fg);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 100ms ease-out;
+            min-height: 100px;
+        }
+        
+        button:hover {
+            background: var(--primary-fg);
+            color: var(--primary-bg);
+        }
+        
+        button.operation:hover {
+            background: var(--accent-operation);
+            color: var(--primary-bg);
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        button:focus {
+            outline: 2px solid var(--primary-fg);
+            outline-offset: -4px;
+        }
+        
+        button.zero {
+            grid-column: span 2;
+        }
+        
+        button.equals {
+            grid-row: span 2;
+        }
+        
+        @media (max-width: 600px) {
+            .calculator {
+                width: calc(100vw - 32px);
+                max-width: 420px;
+            }
+            
+            button {
+                min-height: 64px;
+                font-size: 20px;
+            }
+            
+            .display {
+                font-size: 36px;
+                height: 100px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="calculator">
+        <output class="display" aria-live="polite">0</output>
+        <div class="buttons">
+            <button aria-label="Clear" data-action="clear">C</button>
+            <button class="operation" aria-label="Divide" data-action="operation" data-value="/">÷</button>
+            <button class="operation" aria-label="Multiply" data-action="operation" data-value="*">×</button>
+            <button class="operation" aria-label="Subtract" data-action="operation" data-value="-">−</button>
+            
+            <button aria-label="7" data-action="digit" data-value="7">7</button>
+            <button aria-label="8" data-action="digit" data-value="8">8</button>
+            <button aria-label="9" data-action="digit" data-value="9">9</button>
+            <button class="operation" aria-label="Add" data-action="operation" data-value="+">+</button>
+            
+            <button aria-label="4" data-action="digit" data-value="4">4</button>
+            <button aria-label="5" data-action="digit" data-value="5">5</button>
+            <button aria-label="6" data-action="digit" data-value="6">6</button>
+            <button class="equals operation" aria-label="Equals" data-action="calculate">=</button>
+            
+            <button aria-label="1" data-action="digit" data-value="1">1</button>
+            <button aria-label="2" data-action="digit" data-value="2">2</button>
+            <button aria-label="3" data-action="digit" data-value="3">3</button>
+            
+            <button class="zero" aria-label="0" data-action="digit" data-value="0">0</button>
+            <button aria-label="Decimal" data-action="decimal">.</button>
+        </div>
+    </main>
+    
+    <script>
+        // Calculator state
+        const state = {
+            currentValue: '0',
+            previousValue: '',
+            operation: null,
+            waitingForOperand: false
+        };
+        
+        const displayElement = document.querySelector('.display');
+        
+        function updateDisplay() {
+            let displayValue = state.currentValue;
+            
+            // Truncate if too long
+            if (displayValue.length > 12) {
+                const num = parseFloat(displayValue);
+                displayValue = num.toExponential(5);
+            }
+            
+            displayElement.textContent = displayValue || '0';
+        }
+        
+        function inputDigit(digit) {
+            if (state.waitingForOperand) {
+                state.currentValue = String(digit);
+                state.waitingForOperand = false;
+            } else {
+                state.currentValue = state.currentValue === '0' 
+                    ? String(digit) 
+                    : state.currentValue + digit;
+            }
+            updateDisplay();
+        }
+        
+        function inputDecimal() {
+            if (state.waitingForOperand) {
+                state.currentValue = '0.';
+                state.waitingForOperand = false;
+            } else if (state.currentValue.indexOf('.') === -1) {
+                state.currentValue += '.';
+            }
+            updateDisplay();
+        }
+        
+        function clear() {
+            state.currentValue = '0';
+            state.previousValue = '';
+            state.operation = null;
+            state.waitingForOperand = false;
+            updateDisplay();
+        }
+        
+        function performOperation(nextOperation) {
+            const inputValue = parseFloat(state.currentValue);
+            
+            if (state.previousValue === '') {
+                state.previousValue = state.currentValue;
+            } else if (state.operation) {
+                const result = calculate();
+                state.currentValue = String(result);
+                state.previousValue = String(result);
+            }
+            
+            state.waitingForOperand = true;
+            state.operation = nextOperation;
+            updateDisplay();
+        }
+        
+        function calculate() {
+            const prev = parseFloat(state.previousValue);
+            const curr = parseFloat(state.currentValue);
+            
+            if (isNaN(prev) || isNaN(curr)) {
+                return 0;
+            }
+            
+            let result;
+            switch(state.operation) {
+                case '+': result = prev + curr; break;
+                case '-': result = prev - curr; break;
+                case '*': result = prev * curr; break;
+                case '/':
+                    if (curr === 0) {
+                        state.currentValue = 'Error';
+                        state.operation = null;
+                        state.previousValue = '';
+                        state.waitingForOperand = false;
+                        updateDisplay();
+                        setTimeout(clear, 1500);
+                        return 0;
+                    }
+                    result = prev / curr;
+                    break;
+                default: return curr;
+            }
+            
+            state.currentValue = String(result);
+            state.operation = null;
+            state.previousValue = '';
+            state.waitingForOperand = false;
+            updateDisplay();
+            
+            return result;
+        }
+        
+        // Event delegation for button clicks
+        document.querySelector('.buttons').addEventListener('click', (e) => {
+            const button = e.target;
+            if (button.tagName !== 'BUTTON') return;
+            
+            const action = button.dataset.action;
+            const value = button.dataset.value;
+            
+            switch(action) {
+                case 'digit':
+                    inputDigit(value);
+                    break;
+                case 'decimal':
+                    inputDecimal();
+                    break;
+                case 'operation':
+                    performOperation(value);
+                    break;
+                case 'calculate':
+                    calculate();
+                    break;
+                case 'clear':
+                    clear();
+                    break;
+            }
+        });
+        
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') {
+                inputDigit(e.key);
+            } else if (e.key === '.') {
+                inputDecimal();
+            } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') {
+                performOperation(e.key);
+            } else if (e.key === 'Enter' || e.key === '=') {
+                e.preventDefault();
+                calculate();
+            } else if (e.key === 'Escape' || e.key.toLowerCase() === 'c') {
+                clear();
+            }
+        });
+        
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>
