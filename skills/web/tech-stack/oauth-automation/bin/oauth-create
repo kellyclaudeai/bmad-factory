@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# oauth-create - Wrapper for OAuth client automation
+#
+# Usage:
+#   oauth-create <gcp-project-id> <app-name> [redirect-uris...]
+#
+
+set -euo pipefail
+
+SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "❌ Node.js not found. Install it first (e.g. brew install node)." >&2
+  exit 1
+fi
+
+if ! command -v npx >/dev/null 2>&1; then
+  echo "❌ npx not found (npm missing). Install Node.js first." >&2
+  exit 1
+fi
+
+# Ensure Playwright is available locally (prefer repo-local install)
+if [ ! -d "$SKILL_DIR/node_modules" ]; then
+  mkdir -p "$SKILL_DIR"
+  (cd "$SKILL_DIR" && npm init -y >/dev/null 2>&1)
+fi
+
+if [ ! -d "$SKILL_DIR/node_modules/playwright" ]; then
+  echo "📦 Installing Playwright (local to skill)..."
+  (cd "$SKILL_DIR" && npm install playwright >/dev/null)
+  (cd "$SKILL_DIR" && npx playwright install chromium)
+fi
+
+echo "🚀 Starting OAuth client automation..."
+node "$SKILL_DIR/bin/create-oauth-client-automated.js" "$@"
