@@ -4,6 +4,8 @@
 export const UI_PREFS_STORAGE_KEY = "kelly-dashboard:ui-prefs";
 
 export type UiPrefs = {
+  compactMode?: boolean;
+  showDescriptions?: boolean;
   // sectionId -> collapsed?
   collapsedSections?: Record<string, boolean>;
 };
