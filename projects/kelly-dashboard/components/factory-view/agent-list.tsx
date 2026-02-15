@@ -72,7 +72,7 @@ function AgentCard({ session }: { session: Session }) {
           </span>
           <Badge 
             variant={session.status === 'active' ? 'default' : 'outline'}
-            className={session.status === 'active' ? 'bg-terminal-green text-terminal-bg' : ''}
+            className={session.status === 'active' ? 'bg-terminal-green text-terminal-bg animate-pulse-status' : ''}
           >
             {session.status}
           </Badge>

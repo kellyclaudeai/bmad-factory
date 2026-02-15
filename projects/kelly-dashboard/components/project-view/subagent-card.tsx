@@ -66,15 +66,11 @@ export function SubagentCard({
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2 mb-3">
           <h3 className="font-mono text-sm font-semibold text-terminal-text line-clamp-2 flex-1">
-<<<<<<< HEAD
-            {story}
-=======
             {story || 'Unnamed Subagent'}
->>>>>>> barry-8
           </h3>
           <Badge 
             variant="outline"
-            className={`text-xs font-mono shrink-0 ${config.className}`}
+            className={`text-xs font-mono shrink-0 ${config.className} ${normalizedStatus === 'active' ? 'animate-pulse-status' : ''}`}
           >
             {config.label}
           </Badge>

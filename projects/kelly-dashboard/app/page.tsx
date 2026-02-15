@@ -21,7 +21,7 @@ function StatsCardsSkeleton() {
 
 export default function FactoryView() {
   return (
-    <div className="min-h-screen bg-terminal-bg p-8">
+    <div className="min-h-screen bg-terminal-bg p-8 animate-fade-in">
       <header className="mb-8">
         <h1 className="text-4xl font-mono font-bold text-terminal-green mb-2">
           Kelly Software Factory
@@ -33,7 +33,7 @@ export default function FactoryView() {
 
       <main className="space-y-8">
         {/* Stats Cards Section */}
-        <section>
+        <section className="animate-fade-in">
           <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
             <span className="text-terminal-green">▸</span>
             Project Statistics
@@ -44,7 +44,7 @@ export default function FactoryView() {
         </section>
 
         {/* Health Dashboard Section */}
-        <section>
+        <section className="animate-fade-in">
           <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
             <span className="text-terminal-green">▸</span>
             Factory Health
@@ -53,7 +53,7 @@ export default function FactoryView() {
         </section>
 
         {/* Active Agents Section */}
-        <section>
+        <section className="animate-fade-in">
           <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
             <span className="text-terminal-green">▸</span>
             Active Agents
@@ -62,7 +62,7 @@ export default function FactoryView() {
         </section>
 
         {/* Historical Projects Section */}
-        <section>
+        <section className="animate-fade-in">
           <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
             <span className="text-terminal-green">▸</span>
             Historical Projects

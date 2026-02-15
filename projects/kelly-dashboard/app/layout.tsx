@@ -13,8 +13,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kelly Dashboard",
-  description: "Kelly Software Factory Dashboard - Project and agent monitoring",
+  title: "Kelly Software Factory",
+  description: "Real-time monitoring dashboard for Kelly Software Factory - Project and agent tracking",
+  icons: {
+    icon: '/icon.png',
+  },
 };
 
 export default function RootLayout({
