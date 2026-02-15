@@ -27,19 +27,35 @@
       "sessionKey": "agent:bmad-bmm-barry:impl-story-1-kelly-dashboard",
       "persona": "Barry",
       "story": "Story 1: Project Scaffold + shadcn/ui Setup",
-      "status": "active",
+      "status": "complete",
       "phase": "phase-1",
       "startedAt": "2026-02-15T11:26:30.000Z",
-      "branch": "barry-1"
+      "completedAt": "2026-02-15T11:33:00.000Z",
+      "duration": "~20 minutes",
+      "branch": "barry-1",
+      "artifacts": ["Next.js 15 scaffold", "shadcn/ui components", "Tailwind terminal theme", "app/layout.tsx", "app/page.tsx"]
     },
     {
       "sessionKey": "agent:bmad-bmm-barry:impl-story-2-kelly-dashboard",
       "persona": "Barry",
       "story": "Story 2: API Routes",
-      "status": "active",
+      "status": "stalled",
       "phase": "phase-1",
       "startedAt": "2026-02-15T11:26:30.000Z",
-      "branch": "barry-2"
+      "stalledAt": "2026-02-15T17:07:00.000Z",
+      "branch": "barry-2",
+      "note": "Interrupted during gateway restarts. Partial files exist uncommitted."
+    },
+    {
+      "sessionKey": "agent:bmad-bmm-barry:subagent:6599354f-ed6a-4a8e-a08f-dcbc582aba67",
+      "persona": "Barry",
+      "story": "Story 2: API Routes (respawn)",
+      "status": "active",
+      "phase": "phase-1",
+      "startedAt": "2026-02-15T17:07:00.000Z",
+      "branch": "barry-2",
+      "respawnOf": "agent:bmad-bmm-barry:impl-story-2-kelly-dashboard",
+      "retryCount": 1
     }
   ]
 }
