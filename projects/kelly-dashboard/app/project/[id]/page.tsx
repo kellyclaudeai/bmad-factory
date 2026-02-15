@@ -1,5 +1,6 @@
 import { ProjectHeader } from '@/components/project-view/project-header'
 import { ProjectMetrics } from '@/components/project-view/project-metrics'
+import { SubagentGrid } from '@/components/project-view/subagent-grid'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface ProjectDetailProps {
@@ -21,6 +22,7 @@ type ProjectState = {
     startedAt?: string
     completedAt?: string
     sessionKey?: string
+    branch?: string
     tokens?: {
       input?: number
       output?: number
@@ -121,26 +123,7 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
           <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
             Subagents
           </h2>
-          <Card className="bg-terminal-card border-terminal-border">
-            <CardHeader>
-              <CardTitle className="text-terminal-dim">
-                Coming Soon
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-terminal-dim">
-              <p className="mb-4">
-                Subagent grid will display:
-              </p>
-              <ul className="space-y-2 text-sm">
-                <li>• Live subagents (currently active)</li>
-                <li>• Past subagents (completed stories)</li>
-                <li>• Queued subagents (pending work)</li>
-              </ul>
-              <p className="mt-4 text-xs">
-                Story 8 implementation pending
-              </p>
-            </CardContent>
-          </Card>
+          <SubagentGrid subagents={projectState.subagents} />
         </section>
         
         {projectState.phases && (
