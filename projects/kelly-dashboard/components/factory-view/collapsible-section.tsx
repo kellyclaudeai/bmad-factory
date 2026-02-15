@@ -31,12 +31,7 @@ export function CollapsibleSection({
 }: CollapsibleSectionProps) {
   const contentId = `collapsible-section-${id}`;
 
-  const {
-    collapsedSections,
-    setSectionCollapsed,
-    compactMode,
-    showDescriptions,
-  } = useViewPrefs();
+  const { collapsedSections, setSectionCollapsed, showDescriptions } = useViewPrefs();
 
   const collapsed = collapsedSections[id] ?? defaultCollapsed;
 
@@ -53,7 +48,7 @@ export function CollapsibleSection({
         className,
       )}
     >
-      <CardContent className={cn("pt-4", compactMode ? "pb-4" : "pb-6")}>
+      <CardContent className={cn("pt-4 pb-6")}>
         <button
           type="button"
           onClick={toggle}
@@ -68,14 +63,7 @@ export function CollapsibleSection({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h2
-                  className={cn(
-                    "text-terminal-text font-mono font-semibold truncate",
-                    compactMode ? "text-base" : "text-lg",
-                  )}
-                >
-                  {title}
-                </h2>
+                <h2 className={cn("text-terminal-text font-mono font-semibold truncate text-lg")}>{title}</h2>
                 {typeof count !== "undefined" && count !== null && (
                   <Badge
                     variant="outline"
@@ -123,9 +111,7 @@ export function CollapsibleSection({
           )}
         >
           <div className="overflow-hidden">
-            <div className={cn(compactMode ? "pt-3" : "pt-4", collapsed && "pointer-events-none")}>
-              {children}
-            </div>
+            <div className={cn("pt-4", collapsed && "pointer-events-none")}>{children}</div>
           </div>
         </div>
       </CardContent>

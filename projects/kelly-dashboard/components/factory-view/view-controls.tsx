@@ -15,9 +15,7 @@ export function ViewControls({
   className?: string;
 }) {
   const {
-    compactMode,
     showDescriptions,
-    setCompactMode,
     setShowDescriptions,
     collapseAll,
     expandAll,
@@ -34,20 +32,6 @@ export function ViewControls({
     >
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={compactMode}
-              onCheckedChange={(v) => setCompactMode(Boolean(v))}
-              id="compact-mode"
-            />
-            <label
-              htmlFor="compact-mode"
-              className="text-terminal-text font-mono text-xs select-none"
-            >
-              Compact
-            </label>
-          </div>
-
           <div className="flex items-center gap-2">
             <Switch
               checked={showDescriptions}

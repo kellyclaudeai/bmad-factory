@@ -1,17 +1,11 @@
 "use client";
 
 import * as React from "react";
-import {
-  readUiPrefs,
-  writeUiPrefs,
-  type UiPrefs,
-} from "@/lib/ui-prefs";
+import { readUiPrefs, writeUiPrefs, type UiPrefs } from "@/lib/ui-prefs";
 
 export type ViewPrefsContextValue = {
-  compactMode: boolean;
   showDescriptions: boolean;
   collapsedSections: Record<string, boolean>;
-  setCompactMode: (next: boolean) => void;
   setShowDescriptions: (next: boolean) => void;
   setSectionCollapsed: (id: string, collapsed: boolean) => void;
   collapseAll: (sectionIds: string[]) => void;
@@ -22,7 +16,6 @@ const ViewPrefsContext = React.createContext<ViewPrefsContextValue | null>(null)
 
 function prefsToState(prefs: UiPrefs) {
   return {
-    compactMode: prefs.compactMode ?? false,
     showDescriptions: prefs.showDescriptions ?? true,
     collapsedSections: prefs.collapsedSections ?? {},
   };
@@ -33,23 +26,11 @@ export function ViewPrefsProvider({ children }: { children: React.ReactNode }) {
 
   const persist = React.useCallback((next: ReturnType<typeof prefsToState>) => {
     const prefs: UiPrefs = {
-      compactMode: next.compactMode,
       showDescriptions: next.showDescriptions,
       collapsedSections: next.collapsedSections,
     };
     writeUiPrefs(prefs);
   }, []);
-
-  const setCompactMode = React.useCallback(
-    (nextCompact: boolean) => {
-      setState((prev) => {
-        const next = { ...prev, compactMode: nextCompact };
-        persist(next);
-        return next;
-      });
-    },
-    [persist],
-  );
 
   const setShowDescriptions = React.useCallback(
     (nextShow: boolean) => {
@@ -103,10 +84,8 @@ export function ViewPrefsProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value: ViewPrefsContextValue = {
-    compactMode: state.compactMode,
     showDescriptions: state.showDescriptions,
     collapsedSections: state.collapsedSections,
-    setCompactMode,
     setShowDescriptions,
     setSectionCollapsed,
     collapseAll,
