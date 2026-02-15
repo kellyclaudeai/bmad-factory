@@ -1,7 +1,7 @@
 {
   "projectId": "kelly-dashboard",
-  "stage": "implementation",
-  "currentStage": "implementation",
+  "stage": "complete",
+  "currentStage": "complete",
   "currentPhase": "phase-4-polish",
   "createdAt": "2026-02-15T11:24:00.000Z",
   "updatedAt": "2026-02-15T17:33:00.000Z",
@@ -12,7 +12,7 @@
     "phase1": { "name": "Foundation", "stories": [1, 2], "status": "complete" },
     "phase2": { "name": "Factory View", "stories": [3, 4, 5, 6], "status": "complete" },
     "phase3": { "name": "Detail Views", "stories": [7, 8, 9], "status": "complete" },
-    "phase4": { "name": "Polish", "stories": [10, 11, 12], "status": "active" }
+    "phase4": { "name": "Polish", "stories": [10, 11, 12], "status": "complete" }
   },
   "subagents": [
     { "story": "Planning", "status": "complete" },
@@ -30,9 +30,11 @@
     {
       "sessionKey": "agent:bmad-bmm-barry:subagent:e5493fa2-31cf-4705-a20b-4062c7e2799e",
       "story": "Story 12: Testing + Polish",
-      "status": "active",
+      "status": "complete",
       "phase": "phase-4",
       "startedAt": "2026-02-15T17:33:00.000Z",
+      "completedAt": "2026-02-15T17:45:00.000Z",
+      "duration": "12m",
       "branch": "barry-12"
     }
   ]
