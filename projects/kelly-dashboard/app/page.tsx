@@ -1,4 +1,7 @@
 import { StatsCards } from "@/components/factory-view/stats-cards";
+import { HealthDashboard } from "@/components/factory-view/health-dashboard";
+import { AgentList } from "@/components/factory-view/agent-list";
+import { HistoricalProjects } from "@/components/factory-view/historical-projects";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -40,14 +43,31 @@ export default function FactoryView() {
           </Suspense>
         </section>
 
-        {/* Placeholder for future sections */}
-        <section className="border border-terminal-border bg-terminal-card rounded-lg p-8 text-center">
-          <p className="text-terminal-dim font-mono text-sm">
-            Additional dashboard sections coming soon...
-          </p>
-          <p className="text-terminal-dim font-mono text-xs mt-2">
-            Story 3 complete: Factory view stats cards implemented ✓
-          </p>
+        {/* Health Dashboard Section */}
+        <section>
+          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
+            <span className="text-terminal-green">▸</span>
+            Factory Health
+          </h2>
+          <HealthDashboard />
+        </section>
+
+        {/* Active Agents Section */}
+        <section>
+          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
+            <span className="text-terminal-green">▸</span>
+            Active Agents
+          </h2>
+          <AgentList />
+        </section>
+
+        {/* Historical Projects Section */}
+        <section>
+          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
+            <span className="text-terminal-green">▸</span>
+            Historical Projects
+          </h2>
+          <HistoricalProjects />
         </section>
       </main>
     </div>
