@@ -91,7 +91,9 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
       body: JSON.stringify({
         tool: "sessions_list",
         action: "json",
-        args: {},
+        // "Active" should mean sessions that are currently open / recently active.
+        // sessions_list doesn't currently return an explicit open/closed flag, so we use activity recency.
+        args: { activeMinutes: 60, limit: 200, messageLimit: 0 },
       }),
       cache: "no-store",
     });
