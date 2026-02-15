@@ -59,16 +59,23 @@ function humanizeProjectId(projectId: string): string {
 
 function inferProjectOneLiner(projectId: string): string {
   const id = projectId.toLowerCase();
+
+  // Try a few common patterns (good enough for a dashboard scanline).
+  if (id.includes("meeting") && id.includes("time")) return "Schedule + track meeting time";
+  if (id.includes("meeting")) return "Meeting scheduling";
+  if (id.includes("fasting")) return "Fasting timer + streak tracking";
+  if (id.includes("hydration")) return "Hydration tracking";
+  if (id.includes("bug") && id.includes("dictionary")) return "Bug dictionary / lookup";
+  if (id.includes("dictionary")) return "Reference / lookup tool";
+  if (id.includes("dashboard")) return "Factory dashboard / monitoring UI";
   if (id.includes("tracker")) return "A lightweight tracking app";
   if (id.includes("timer")) return "A simple timer utility";
-  if (id.includes("dashboard")) return "Factory dashboard / monitoring UI";
-  if (id.includes("dictionary")) return "A quick reference / lookup tool";
-  if (id.includes("meeting")) return "Meeting scheduling & time management";
-  return "Project in progress";
+
+  return "Project";
 }
 
 function ProjectLeadCard({ session }: { session: Session }) {
-  const projectId = session.projectId || session.label.replace("project:", "");
+  const projectId = session.projectId || "unknown";
   const title = humanizeProjectId(projectId);
   const oneLiner = inferProjectOneLiner(projectId);
   const status = session.status || "active";
