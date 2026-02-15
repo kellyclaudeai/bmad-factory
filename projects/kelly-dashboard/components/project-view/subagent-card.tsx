@@ -35,6 +35,13 @@ export function SubagentCard({
     }
   }
   
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault()
+      handleClick()
+    }
+  }
+  
   const statusConfig = {
     active: {
       label: 'Active',
@@ -57,11 +64,15 @@ export function SubagentCard({
       className={`
         transition-all duration-200
         ${isClickable 
-          ? 'cursor-pointer hover:border-terminal-green hover:shadow-[0_0_10px_rgba(0,255,136,0.1)]' 
+          ? 'cursor-pointer hover:border-terminal-green hover:shadow-[0_0_10px_rgba(0,255,136,0.1)] focus:outline-none focus:ring-2 focus:ring-terminal-green' 
           : 'cursor-default opacity-75'
         }
       `}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={isClickable ? 0 : -1}
+      role={isClickable ? 'button' : undefined}
+      aria-label={isClickable ? `View details for ${story || 'subagent'}, status: ${config.label}` : undefined}
     >
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2 mb-3">

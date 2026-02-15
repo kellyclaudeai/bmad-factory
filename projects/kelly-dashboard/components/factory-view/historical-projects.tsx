@@ -126,7 +126,16 @@ export function HistoricalProjects() {
             <div
               key={project.id}
               onClick={() => handleProjectClick(project.id)}
-              className="flex items-center justify-between p-3 rounded-lg border border-terminal-border hover:border-terminal-green hover:bg-terminal-hover cursor-pointer transition-colors"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleProjectClick(project.id)
+                }
+              }}
+              className="flex items-center justify-between p-3 rounded-lg border border-terminal-border hover:border-terminal-green hover:bg-terminal-hover cursor-pointer transition-colors focus:ring-2 focus:ring-terminal-green focus:outline-none"
+              tabIndex={0}
+              role="button"
+              aria-label={`View ${project.id} project, status: ${project.stage}`}
             >
               <div className="flex items-center gap-4">
                 <span className="font-mono text-terminal-text">{project.id}</span>
@@ -148,6 +157,7 @@ export function HistoricalProjects() {
               size="sm"
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1}
+              aria-label="Go to previous page"
             >
               Previous
             </Button>
@@ -176,6 +186,8 @@ export function HistoricalProjects() {
                         size="sm"
                         onClick={() => goToPage(page)}
                         className={page === currentPage ? 'bg-terminal-green text-terminal-bg' : ''}
+                        aria-label={`Go to page ${page}`}
+                        aria-current={page === currentPage ? 'page' : undefined}
                       >
                         {page}
                       </Button>
@@ -189,6 +201,7 @@ export function HistoricalProjects() {
               size="sm"
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}
+              aria-label="Go to next page"
             >
               Next
             </Button>

@@ -93,7 +93,11 @@ export function SubagentGrid({ subagents }: SubagentGridProps) {
                 transition-colors duration-200
                 hover:${section.titleColor.replace('text-', 'text-')}/80
                 ${section.titleColor}
+                focus:outline-none focus:ring-2 focus:ring-terminal-green rounded px-2 py-1 -mx-2
               `}
+              aria-expanded={isExpanded}
+              aria-controls={`subagent-section-${sectionKey}`}
+              aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${section.title} section`}
             >
               {isExpanded ? (
                 <ChevronDown className="w-5 h-5" />
@@ -108,6 +112,7 @@ export function SubagentGrid({ subagents }: SubagentGridProps) {
             
             {isExpanded && (
               <div
+                id={`subagent-section-${sectionKey}`}
                 className="animate-in slide-in-from-top-2 duration-200"
               >
                 {section.items.length === 0 ? (

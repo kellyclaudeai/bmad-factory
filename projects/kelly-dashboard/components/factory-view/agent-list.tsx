@@ -60,10 +60,21 @@ function AgentCard({ session }: { session: Session }) {
     }
   }
   
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleClick()
+    }
+  }
+  
   return (
     <Card 
-      className="cursor-pointer transition-all hover:border-terminal-green hover:shadow-[0_0_10px_rgba(0,255,136,0.1)]"
+      className="cursor-pointer transition-all hover:border-terminal-green hover:shadow-[0_0_10px_rgba(0,255,136,0.1)] focus-within:ring-2 focus-within:ring-terminal-green focus-within:outline-none"
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-label={`View details for ${session.label} agent`}
     >
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-base">

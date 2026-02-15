@@ -33,7 +33,7 @@ export function ProjectHeader({ projectId, projectName, stage }: ProjectHeaderPr
       <nav className="text-terminal-dim font-mono text-sm mb-4">
         <Link 
           href="/" 
-          className="hover:text-terminal-green transition-colors"
+          className="hover:text-terminal-green transition-colors focus:outline-none focus:ring-2 focus:ring-terminal-green rounded px-1"
         >
           Factory View
         </Link>

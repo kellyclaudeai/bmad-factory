@@ -74,6 +74,8 @@ export function HealthDashboard() {
         <Card
           key={metric.label}
           className="p-4 bg-[#151a1c] border-[#2a2f32] hover:border-[#00ff88] transition-colors"
+          role="status"
+          aria-label={`${metric.label}: ${metric.value}, Status: ${metric.status}`}
         >
           <div className="flex items-center justify-between mb-2">
             <span className="font-mono text-sm text-[#888888]">

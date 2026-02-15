@@ -63,6 +63,8 @@ export async function StatsCards() {
         <Card 
           key={stat.label}
           className="transition-all duration-200 hover:border-terminal-green hover:shadow-[0_0_10px_rgba(0,255,136,0.1)]"
+          role="article"
+          aria-label={`${stat.label} projects: ${stat.count}`}
         >
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-mono font-medium text-terminal-dim">
