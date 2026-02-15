@@ -28,45 +28,48 @@ interface Section {
 
 export function SubagentGrid({ subagents }: SubagentGridProps) {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    live: true,
-    past: false,
-    queued: false,
+    now: true,
+    next: false,
+    history: false,
   })
   
   // Group subagents by status
-  const liveSubagents = subagents.filter(
+  // NOW: Currently active subagents (running right now)
+  const nowSubagents = subagents.filter(
     (s) => s.status === 'active'
   )
   
-  const pastSubagents = subagents.filter(
+  // HISTORY: Completed subagents with duration and status
+  const historySubagents = subagents.filter(
     (s) => s.status === 'complete'
   )
   
-  const queuedSubagents = subagents.filter(
+  // NEXT: Queued/pending stories that haven't started
+  const nextSubagents = subagents.filter(
     (s) => s.status === 'queued' || s.status === 'pending'
   )
   
   const sections: Section[] = [
     {
-      title: 'Live Subagents',
-      items: liveSubagents,
+      title: 'Now: Active Subagents',
+      items: nowSubagents,
       defaultExpanded: true,
       titleColor: 'text-terminal-green',
-      emptyMessage: 'No live subagents',
+      emptyMessage: 'No subagents currently running',
     },
     {
-      title: 'Past Subagents',
-      items: pastSubagents,
-      defaultExpanded: false,
-      titleColor: 'text-terminal-dim',
-      emptyMessage: 'No past subagents',
-    },
-    {
-      title: 'Queued Subagents',
-      items: queuedSubagents,
+      title: 'Next: Queued Stories',
+      items: nextSubagents,
       defaultExpanded: false,
       titleColor: 'text-terminal-amber',
-      emptyMessage: 'No queued subagents',
+      emptyMessage: 'No stories queued',
+    },
+    {
+      title: 'History: Completed Subagents',
+      items: historySubagents,
+      defaultExpanded: false,
+      titleColor: 'text-terminal-dim',
+      emptyMessage: 'No completed subagents',
     },
   ]
   
@@ -80,7 +83,7 @@ export function SubagentGrid({ subagents }: SubagentGridProps) {
   return (
     <div className="space-y-6">
       {sections.map((section, index) => {
-        const sectionKey = ['live', 'past', 'queued'][index]
+        const sectionKey = ['now', 'next', 'history'][index]
         const isExpanded = expandedSections[sectionKey]
         
         return (

@@ -1,6 +1,8 @@
 import { StatsCards } from "@/components/factory-view/stats-cards";
 import { HealthDashboard } from "@/components/factory-view/health-dashboard";
-import { AgentList } from "@/components/factory-view/agent-list";
+import { ActiveProjectLeads } from "@/components/factory-view/active-project-leads";
+import { NowRunning } from "@/components/factory-view/now-running";
+import { NextUp } from "@/components/factory-view/next-up";
 import { HistoricalProjects } from "@/components/factory-view/historical-projects";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +21,18 @@ function StatsCardsSkeleton() {
   );
 }
 
+function NextUpSkeleton() {
+  return (
+    <div className="space-y-3">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="rounded-lg border border-terminal-border bg-terminal-card p-4">
+          <Skeleton className="h-6 w-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function FactoryView() {
   return (
     <div className="min-h-screen bg-terminal-bg p-8 animate-fade-in">
@@ -27,12 +41,41 @@ export default function FactoryView() {
           Kelly Software Factory
         </h1>
         <p className="text-terminal-dim font-mono text-sm">
-          Dashboard v1.0 • Real-time monitoring • Updated every 10s
+          Dashboard v1.1 • Real-time monitoring • Updated every 10s
         </p>
       </header>
 
       <main className="space-y-8">
-        {/* Stats Cards Section */}
+        {/* Active Project Leads Section - FEATURED (NEW) */}
+        <section className="animate-fade-in">
+          <h2 className="text-2xl font-mono font-bold text-terminal-green mb-4 flex items-center gap-2">
+            <span className="text-terminal-green">▸</span>
+            Active Projects
+          </h2>
+          <ActiveProjectLeads />
+        </section>
+
+        {/* Now Running Section - Other agents (NEW) */}
+        <section className="animate-fade-in">
+          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
+            <span className="text-terminal-green">▸</span>
+            Now Running
+          </h2>
+          <NowRunning />
+        </section>
+
+        {/* Next Up Section - Queued projects (NEW) */}
+        <section className="animate-fade-in">
+          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
+            <span className="text-terminal-amber">▸</span>
+            Next Up
+          </h2>
+          <Suspense fallback={<NextUpSkeleton />}>
+            <NextUp />
+          </Suspense>
+        </section>
+
+        {/* Stats Cards Section - Moved down */}
         <section className="animate-fade-in">
           <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
             <span className="text-terminal-green">▸</span>
@@ -43,7 +86,7 @@ export default function FactoryView() {
           </Suspense>
         </section>
 
-        {/* Health Dashboard Section */}
+        {/* Health Dashboard Section - Moved down */}
         <section className="animate-fade-in">
           <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
             <span className="text-terminal-green">▸</span>
@@ -52,16 +95,7 @@ export default function FactoryView() {
           <HealthDashboard />
         </section>
 
-        {/* Active Agents Section */}
-        <section className="animate-fade-in">
-          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
-            <span className="text-terminal-green">▸</span>
-            Active Agents
-          </h2>
-          <AgentList />
-        </section>
-
-        {/* Historical Projects Section */}
+        {/* Historical Projects Section - Unchanged position */}
         <section className="animate-fade-in">
           <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
             <span className="text-terminal-green">▸</span>
