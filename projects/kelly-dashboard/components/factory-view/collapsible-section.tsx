@@ -14,7 +14,6 @@ export type CollapsibleSectionProps = {
   title: string;
   /** Optional count badge (can be dynamic) */
   count?: React.ReactNode;
-  description?: string;
   defaultCollapsed?: boolean;
   children: React.ReactNode;
   className?: string;
@@ -24,15 +23,13 @@ export function CollapsibleSection({
   id,
   title,
   count,
-  description,
   defaultCollapsed = false,
   children,
   className,
 }: CollapsibleSectionProps) {
   const contentId = `collapsible-section-${id}`;
 
-  const { collapsedSections, setSectionCollapsed, showDescriptions } = useViewPrefs();
-
+  const { collapsedSections, setSectionCollapsed } = useViewPrefs();
   const collapsed = collapsedSections[id] ?? defaultCollapsed;
 
   const toggle = React.useCallback(() => {
@@ -48,7 +45,7 @@ export function CollapsibleSection({
         className,
       )}
     >
-      <CardContent className={cn("pt-4 pb-6")}>
+      <CardContent className="pt-4 pb-6">
         <button
           type="button"
           onClick={toggle}
@@ -63,7 +60,9 @@ export function CollapsibleSection({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h2 className={cn("text-terminal-text font-mono font-semibold truncate text-lg")}>{title}</h2>
+                <h2 className="text-terminal-text font-mono font-semibold truncate text-lg">
+                  {title}
+                </h2>
                 {typeof count !== "undefined" && count !== null && (
                   <Badge
                     variant="outline"
@@ -76,11 +75,6 @@ export function CollapsibleSection({
                   </Badge>
                 )}
               </div>
-              {showDescriptions && description && (
-                <p className="mt-1 text-terminal-dim font-mono text-xs leading-relaxed">
-                  {description}
-                </p>
-              )}
             </div>
 
             <span

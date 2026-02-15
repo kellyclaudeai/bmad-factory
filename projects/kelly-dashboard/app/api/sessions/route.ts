@@ -21,6 +21,7 @@ type GatewaySession = {
   key?: string; // gateway uses `key`
   sessionKey?: string; // some legacy shapes
   label?: string;
+  displayName?: string;
   status?: string;
   updatedAt?: number | string;
   lastActivity?: string;
@@ -124,7 +125,7 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
         const sessionKey = session.key || session.sessionKey || session.sessionId;
         const agentType = extractAgentType(sessionKey);
         const projectId = extractProjectId(sessionKey, session.label);
-        const label = session.label || extractLabel(sessionKey);
+        const label = session.label || session.displayName || extractLabel(sessionKey);
 
         return {
           sessionKey,

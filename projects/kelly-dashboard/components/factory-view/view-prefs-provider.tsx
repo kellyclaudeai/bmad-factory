@@ -4,9 +4,7 @@ import * as React from "react";
 import { readUiPrefs, writeUiPrefs, type UiPrefs } from "@/lib/ui-prefs";
 
 export type ViewPrefsContextValue = {
-  showDescriptions: boolean;
   collapsedSections: Record<string, boolean>;
-  setShowDescriptions: (next: boolean) => void;
   setSectionCollapsed: (id: string, collapsed: boolean) => void;
   collapseAll: (sectionIds: string[]) => void;
   expandAll: (sectionIds: string[]) => void;
@@ -16,7 +14,6 @@ const ViewPrefsContext = React.createContext<ViewPrefsContextValue | null>(null)
 
 function prefsToState(prefs: UiPrefs) {
   return {
-    showDescriptions: prefs.showDescriptions ?? true,
     collapsedSections: prefs.collapsedSections ?? {},
   };
 }
@@ -26,22 +23,10 @@ export function ViewPrefsProvider({ children }: { children: React.ReactNode }) {
 
   const persist = React.useCallback((next: ReturnType<typeof prefsToState>) => {
     const prefs: UiPrefs = {
-      showDescriptions: next.showDescriptions,
       collapsedSections: next.collapsedSections,
     };
     writeUiPrefs(prefs);
   }, []);
-
-  const setShowDescriptions = React.useCallback(
-    (nextShow: boolean) => {
-      setState((prev) => {
-        const next = { ...prev, showDescriptions: nextShow };
-        persist(next);
-        return next;
-      });
-    },
-    [persist],
-  );
 
   const setSectionCollapsed = React.useCallback(
     (id: string, collapsed: boolean) => {
@@ -84,9 +69,7 @@ export function ViewPrefsProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value: ViewPrefsContextValue = {
-    showDescriptions: state.showDescriptions,
     collapsedSections: state.collapsedSections,
-    setShowDescriptions,
     setSectionCollapsed,
     collapseAll,
     expandAll,

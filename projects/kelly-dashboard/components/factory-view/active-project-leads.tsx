@@ -50,6 +50,7 @@ function getStatusColor(status: string): string {
 
 function ProjectLeadCard({ session }: { session: Session }) {
   const projectName = session.projectId || session.label.replace("project:", "");
+  const what = session.label?.replace(/^project:/, "");
   const status = session.status || "active";
   const relativeTime = formatRelativeTime(session.lastActivity);
 
@@ -71,10 +72,17 @@ function ProjectLeadCard({ session }: { session: Session }) {
         }}
       >
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-mono text-terminal-green">
-              {projectName}
-            </CardTitle>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <CardTitle className="text-lg font-mono text-terminal-green truncate">
+                {projectName}
+              </CardTitle>
+              {what && (
+                <div className="mt-1 text-xs font-mono text-terminal-dim truncate" title={session.label}>
+                  {what}
+                </div>
+              )}
+            </div>
             <Badge
               variant="outline"
               className={`text-xs font-mono ${getStatusColor(status)}`}
@@ -84,8 +92,12 @@ function ProjectLeadCard({ session }: { session: Session }) {
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
+          <div className="text-xs text-terminal-dim font-mono truncate" title={session.label}>
+            {session.label}
+          </div>
+
           <div className="flex items-center justify-between text-sm">
-            <span className="text-terminal-dim font-mono">Project Lead</span>
+            <span className="text-terminal-dim font-mono">Model</span>
             <span className="text-terminal-text font-mono">{session.model || "unknown"}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
@@ -156,7 +168,7 @@ export function ActiveProjectLeads() {
             ⚠️ Failed to load active projects
           </p>
           <p className="text-terminal-dim font-mono text-xs mt-2">
-            Check that the OpenClaw Gateway is running on port 3000
+            Check that the OpenClaw Gateway is reachable (default port 18789)
           </p>
         </CardContent>
       </Card>

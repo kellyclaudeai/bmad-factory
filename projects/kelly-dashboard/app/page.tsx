@@ -91,7 +91,6 @@ export default async function FactoryView() {
             id="active-projects"
             title="Active Projects"
             count={<ActiveProjectsCount />}
-            description="Project Lead sessions currently running (click to drill into the active project)."
             defaultCollapsed={false}
           >
             <ActiveProjectLeads />
@@ -101,7 +100,6 @@ export default async function FactoryView() {
             id="openclaw-sessions"
             title="OpenClaw Sessions"
             count={<SessionsCount />}
-            description="Recent sessions reported by the OpenClaw Gateway (includes Project Leads + subagents)."
             defaultCollapsed={false}
           >
             <NowRunning />
@@ -111,7 +109,6 @@ export default async function FactoryView() {
             id="queued-projects"
             title="Queued Projects"
             count={queuedCount}
-            description="Projects waiting to start (from factory-state)."
             // Expanded only if queue length > 0.
             defaultCollapsed={queuedCount === 0}
           >
@@ -123,7 +120,6 @@ export default async function FactoryView() {
           <CollapsibleSection
             id="project-statistics"
             title="Project Statistics"
-            description="Aggregate counts and trends across projects."
             defaultCollapsed={true}
           >
             <Suspense fallback={<StatsCardsSkeleton />}>
@@ -134,7 +130,6 @@ export default async function FactoryView() {
           <CollapsibleSection
             id="factory-health"
             title="Factory Health"
-            description="System health, token burn, and operational signals."
             defaultCollapsed={true}
           >
             <HealthDashboard />
@@ -143,7 +138,6 @@ export default async function FactoryView() {
           <CollapsibleSection
             id="completed-shipped"
             title="Completed / Shipped Projects"
-            description="Past projects marked completed or shipped in factory-state."
             defaultCollapsed={true}
           >
             <HistoricalProjects />
