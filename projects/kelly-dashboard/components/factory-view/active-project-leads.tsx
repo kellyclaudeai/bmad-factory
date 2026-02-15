@@ -48,17 +48,37 @@ function getStatusColor(status: string): string {
   }
 }
 
+function humanizeProjectId(projectId: string): string {
+  return projectId
+    .replace(/[_-]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+function inferProjectOneLiner(projectId: string): string {
+  const id = projectId.toLowerCase();
+  if (id.includes("tracker")) return "A lightweight tracking app";
+  if (id.includes("timer")) return "A simple timer utility";
+  if (id.includes("dashboard")) return "Factory dashboard / monitoring UI";
+  if (id.includes("dictionary")) return "A quick reference / lookup tool";
+  if (id.includes("meeting")) return "Meeting scheduling & time management";
+  return "Project in progress";
+}
+
 function ProjectLeadCard({ session }: { session: Session }) {
-  const projectName = session.projectId || session.label.replace("project:", "");
-  const what = session.label?.replace(/^project:/, "");
+  const projectId = session.projectId || session.label.replace("project:", "");
+  const title = humanizeProjectId(projectId);
+  const oneLiner = inferProjectOneLiner(projectId);
   const status = session.status || "active";
   const relativeTime = formatRelativeTime(session.lastActivity);
 
   return (
     <Link
-      href={`/project/${projectName}`}
+      href={`/project/${projectId}`}
       className="block"
-      aria-label={`View details for ${projectName} project`}
+      aria-label={`View details for ${title} project`}
     >
       <Card
         className="cursor-pointer transition-all duration-200 hover:border-terminal-green hover:shadow-[0_0_15px_rgba(0,255,136,0.15)] focus:ring-2 focus:ring-terminal-green"
@@ -67,7 +87,7 @@ function ProjectLeadCard({ session }: { session: Session }) {
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            window.location.href = `/project/${projectName}`;
+            window.location.href = `/project/${projectId}`;
           }
         }}
       >
@@ -75,13 +95,11 @@ function ProjectLeadCard({ session }: { session: Session }) {
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <CardTitle className="text-lg font-mono text-terminal-green truncate">
-                {projectName}
+                {title}
               </CardTitle>
-              {what && (
-                <div className="mt-1 text-xs font-mono text-terminal-dim truncate" title={session.label}>
-                  {what}
-                </div>
-              )}
+              <div className="mt-1 text-xs font-mono text-terminal-dim truncate" title={projectId}>
+                {oneLiner}
+              </div>
             </div>
             <Badge
               variant="outline"
@@ -92,10 +110,6 @@ function ProjectLeadCard({ session }: { session: Session }) {
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          <div className="text-xs text-terminal-dim font-mono truncate" title={session.label}>
-            {session.label}
-          </div>
-
           <div className="flex items-center justify-between text-sm">
             <span className="text-terminal-dim font-mono">Model</span>
             <span className="text-terminal-text font-mono">{session.model || "unknown"}</span>
@@ -176,9 +190,14 @@ export function ActiveProjectLeads() {
   }
 
   // Filter for project-lead sessions
-  const projectLeads = sessions?.filter((s) =>
-    s.agentType === "project-lead" || s.sessionKey.includes("project-lead")
+  const projectLeads = sessions?.filter(
+    (s) => s.projectId && (s.agentType === "project-lead" || s.sessionKey.includes("project-lead")),
   ) || [];
+
+  // Sort by most recent activity
+  projectLeads.sort(
+    (a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime(),
+  );
 
   if (projectLeads.length === 0) {
     return (
