@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getGatewayToken } from "@/lib/gateway-token";
+import { getGatewayPort, getGatewayToken } from "@/lib/gateway-token";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -78,10 +78,18 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
   }
 
   try {
-    const response = await fetch("http://localhost:3000/api/sessions_list", {
+    const port = getGatewayPort();
+    const response = await fetch(`http://127.0.0.1:${port}/tools/invoke`, {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        tool: "sessions_list",
+        action: "json",
+        args: {},
+      }),
       cache: "no-store",
     });
 
@@ -89,7 +97,8 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
       throw new Error(`Gateway API returned ${response.status}`);
     }
 
-    const gatewaySessions = (await response.json()) as GatewaySession[];
+    const payload = (await response.json()) as { ok: boolean; result?: any };
+    const gatewaySessions = (payload?.result || []) as GatewaySession[];
     
     // Transform to frontend format
     const sessions: FrontendSession[] = gatewaySessions

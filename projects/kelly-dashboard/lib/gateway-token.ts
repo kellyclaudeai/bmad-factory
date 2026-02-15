@@ -2,17 +2,41 @@ import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 
+type OpenClawConfig = {
+  gateway?: {
+    auth?: {
+      mode?: string;
+      token?: string;
+      password?: string;
+    };
+    port?: number;
+  };
+};
+
 /**
- * Read the OpenClaw Gateway token from ~/.openclaw/gateway-token.txt
- * @returns The gateway token string, or null if the file doesn't exist
+ * Read the OpenClaw Gateway token.
+ *
+ * Current source of truth is ~/.openclaw/openclaw.json → gateway.auth.token.
  */
 export function getGatewayToken(): string | null {
   try {
-    const tokenPath = path.join(homedir(), ".openclaw", "gateway-token.txt");
-    const token = readFileSync(tokenPath, "utf-8").trim();
-    return token || null;
-  } catch (error) {
-    // File doesn't exist or can't be read
+    const configPath = path.join(homedir(), ".openclaw", "openclaw.json");
+    const raw = readFileSync(configPath, "utf-8");
+    const cfg = JSON.parse(raw) as OpenClawConfig;
+    const token = cfg?.gateway?.auth?.token;
+    return token?.trim() || null;
+  } catch {
     return null;
+  }
+}
+
+export function getGatewayPort(defaultPort = 18789): number {
+  try {
+    const configPath = path.join(homedir(), ".openclaw", "openclaw.json");
+    const raw = readFileSync(configPath, "utf-8");
+    const cfg = JSON.parse(raw) as OpenClawConfig;
+    return cfg?.gateway?.port || defaultPort;
+  } catch {
+    return defaultPort;
   }
 }
