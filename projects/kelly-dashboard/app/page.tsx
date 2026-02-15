@@ -1,90 +1,55 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatsCards } from "@/components/factory-view/stats-cards";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Home() {
+function StatsCardsSkeleton() {
   return (
-    <div className="min-h-screen p-8">
-      <header className="mb-12">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="rounded-lg border border-terminal-border bg-terminal-card p-6">
+          <Skeleton className="h-4 w-20 mb-4" />
+          <Skeleton className="h-9 w-12 mb-2" />
+          <Skeleton className="h-3 w-32" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function FactoryView() {
+  return (
+    <div className="min-h-screen bg-terminal-bg p-8">
+      <header className="mb-8">
         <h1 className="text-4xl font-mono font-bold text-terminal-green mb-2">
-          Kelly Dashboard
+          Kelly Software Factory
         </h1>
-        <p className="text-terminal-dim">
-          Kelly Software Factory - Project and agent monitoring
+        <p className="text-terminal-dim font-mono text-sm">
+          Dashboard v1.0 • Real-time monitoring • Updated every 10s
         </p>
       </header>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Badge variant="default" className="bg-terminal-green text-terminal-bg">
-                ✓ Online
-              </Badge>
-              Next.js 15
-            </CardTitle>
-            <CardDescription>App Router + TypeScript</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-terminal-dim">
-              Server running on port 3000
-            </p>
-          </CardContent>
-        </Card>
+      <main className="space-y-8">
+        {/* Stats Cards Section */}
+        <section>
+          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
+            <span className="text-terminal-green">▸</span>
+            Project Statistics
+          </h2>
+          <Suspense fallback={<StatsCardsSkeleton />}>
+            <StatsCards />
+          </Suspense>
+        </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Badge variant="default" className="bg-terminal-green text-terminal-bg">
-                ✓ Loaded
-              </Badge>
-              Tailwind CSS v4
-            </CardTitle>
-            <CardDescription>Terminal theme configured</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-terminal-dim">
-              Dark mode with matrix-inspired colors
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Badge variant="default" className="bg-terminal-green text-terminal-bg">
-                ✓ Ready
-              </Badge>
-              shadcn/ui
-            </CardTitle>
-            <CardDescription>Components installed</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-terminal-dim">
-              Card, Badge, Button, Table, Skeleton
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="mt-12">
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-mono">Story 1: Project Scaffold ✓</CardTitle>
-            <CardDescription>Implementation complete</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2 text-sm text-terminal-dim">
-              <li>✓ Next.js 15 with App Router</li>
-              <li>✓ TypeScript configured</li>
-              <li>✓ Tailwind CSS v4 installed</li>
-              <li>✓ shadcn/ui initialized</li>
-              <li>✓ Terminal theme applied</li>
-              <li>✓ Geist fonts loaded (Mono + Sans)</li>
-              <li>✓ Dev server running on :3000</li>
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
+        {/* Placeholder for future sections */}
+        <section className="border border-terminal-border bg-terminal-card rounded-lg p-8 text-center">
+          <p className="text-terminal-dim font-mono text-sm">
+            Additional dashboard sections coming soon...
+          </p>
+          <p className="text-terminal-dim font-mono text-xs mt-2">
+            Story 3 complete: Factory view stats cards implemented ✓
+          </p>
+        </section>
+      </main>
     </div>
   );
 }
