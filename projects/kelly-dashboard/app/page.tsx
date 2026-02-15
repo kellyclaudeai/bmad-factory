@@ -4,6 +4,10 @@ import { ActiveProjectLeads } from "@/components/factory-view/active-project-lea
 import { NowRunning } from "@/components/factory-view/now-running";
 import { NextUp } from "@/components/factory-view/next-up";
 import { HistoricalProjects } from "@/components/factory-view/historical-projects";
+import { CollapsibleSection } from "@/components/factory-view/collapsible-section";
+import { ViewControls } from "@/components/factory-view/view-controls";
+import { ViewPrefsProvider } from "@/components/factory-view/view-prefs-provider";
+import { ActiveProjectsCount, SessionsCount } from "@/components/factory-view/section-counts";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -33,77 +37,119 @@ function NextUpSkeleton() {
   );
 }
 
-export default function FactoryView() {
+type FactoryState = {
+  active: string[];
+  queued: string[];
+  completed: string[];
+  shipped: string[];
+};
+
+async function getFactoryState(): Promise<FactoryState> {
+  try {
+    const response = await fetch("http://localhost:3000/api/factory-state", {
+      cache: "no-store",
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch factory state");
+    return await response.json();
+  } catch {
+    return { active: [], queued: [], completed: [], shipped: [] };
+  }
+}
+
+export default async function FactoryView() {
+  const factoryState = await getFactoryState();
+  const queuedCount = factoryState.queued.length;
+
+  const sectionIds = [
+    "active-projects",
+    "openclaw-sessions",
+    "queued-projects",
+    "project-statistics",
+    "factory-health",
+    "completed-shipped",
+  ];
+
   return (
-    <div className="min-h-screen bg-terminal-bg p-8 animate-fade-in">
-      <header className="mb-8">
-        <h1 className="text-4xl font-mono font-bold text-terminal-green mb-2">
-          Kelly Software Factory
-        </h1>
-        <p className="text-terminal-dim font-mono text-sm">
-          Dashboard v1.1 • Real-time monitoring • Updated every 10s
-        </p>
-      </header>
+    <ViewPrefsProvider>
+      <div className="min-h-screen bg-terminal-bg p-8 animate-fade-in">
+        <header className="mb-4">
+          <h1 className="text-4xl font-mono font-bold text-terminal-green mb-2">
+            Kelly Software Factory
+          </h1>
+          <p className="text-terminal-dim font-mono text-sm">
+            Dashboard v1.1 • Real-time monitoring • Updated every 10s
+          </p>
+        </header>
 
-      <main className="space-y-8">
-        {/* Active Project Leads Section - FEATURED (NEW) */}
-        <section className="animate-fade-in">
-          <h2 className="text-2xl font-mono font-bold text-terminal-green mb-4 flex items-center gap-2">
-            <span className="text-terminal-green">▸</span>
-            Active Projects
-          </h2>
-          <ActiveProjectLeads />
-        </section>
+        <div className="sticky top-0 z-20 -mx-8 px-8 py-3 bg-terminal-bg/80 backdrop-blur supports-[backdrop-filter]:bg-terminal-bg/60 border-b border-terminal-border">
+          <ViewControls sectionIds={sectionIds} />
+        </div>
 
-        {/* Now Running Section - Other agents (NEW) */}
-        <section className="animate-fade-in">
-          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
-            <span className="text-terminal-green">▸</span>
-            Now Running
-          </h2>
-          <NowRunning />
-        </section>
+        <main className="mt-6 space-y-6">
+          <CollapsibleSection
+            id="active-projects"
+            title="Active Projects"
+            count={<ActiveProjectsCount />}
+            description="Project Lead sessions currently running (click to drill into the active project)."
+            defaultCollapsed={false}
+          >
+            <ActiveProjectLeads />
+          </CollapsibleSection>
 
-        {/* Next Up Section - Queued projects (NEW) */}
-        <section className="animate-fade-in">
-          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
-            <span className="text-terminal-amber">▸</span>
-            Next Up
-          </h2>
-          <Suspense fallback={<NextUpSkeleton />}>
-            <NextUp />
-          </Suspense>
-        </section>
+          <CollapsibleSection
+            id="openclaw-sessions"
+            title="OpenClaw Sessions"
+            count={<SessionsCount />}
+            description="Recent sessions reported by the OpenClaw Gateway (includes Project Leads + subagents)."
+            defaultCollapsed={false}
+          >
+            <NowRunning />
+          </CollapsibleSection>
 
-        {/* Stats Cards Section - Moved down */}
-        <section className="animate-fade-in">
-          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
-            <span className="text-terminal-green">▸</span>
-            Project Statistics
-          </h2>
-          <Suspense fallback={<StatsCardsSkeleton />}>
-            <StatsCards />
-          </Suspense>
-        </section>
+          <CollapsibleSection
+            id="queued-projects"
+            title="Queued Projects"
+            count={queuedCount}
+            description="Projects waiting to start (from factory-state)."
+            // Expanded only if queue length > 0.
+            defaultCollapsed={queuedCount === 0}
+          >
+            <Suspense fallback={<NextUpSkeleton />}>
+              <NextUp />
+            </Suspense>
+          </CollapsibleSection>
 
-        {/* Health Dashboard Section - Moved down */}
-        <section className="animate-fade-in">
-          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
-            <span className="text-terminal-green">▸</span>
-            Factory Health
-          </h2>
-          <HealthDashboard />
-        </section>
+          <CollapsibleSection
+            id="project-statistics"
+            title="Project Statistics"
+            description="Aggregate counts and trends across projects."
+            defaultCollapsed={true}
+          >
+            <Suspense fallback={<StatsCardsSkeleton />}>
+              <StatsCards />
+            </Suspense>
+          </CollapsibleSection>
 
-        {/* Historical Projects Section - Unchanged position */}
-        <section className="animate-fade-in">
-          <h2 className="text-lg font-mono font-semibold text-terminal-text mb-4 flex items-center gap-2">
-            <span className="text-terminal-green">▸</span>
-            Historical Projects
-          </h2>
-          <HistoricalProjects />
-        </section>
-      </main>
-    </div>
+          <CollapsibleSection
+            id="factory-health"
+            title="Factory Health"
+            description="System health, token burn, and operational signals."
+            defaultCollapsed={true}
+          >
+            <HealthDashboard />
+          </CollapsibleSection>
+
+          <CollapsibleSection
+            id="completed-shipped"
+            title="Completed / Shipped Projects"
+            description="Past projects marked completed or shipped in factory-state."
+            defaultCollapsed={true}
+          >
+            <HistoricalProjects />
+          </CollapsibleSection>
+        </main>
+      </div>
+    </ViewPrefsProvider>
   );
 }
