@@ -18,9 +18,11 @@ type FrontendSession = {
 
 type GatewaySession = {
   sessionId: string;
-  sessionKey?: string;
+  key?: string; // gateway uses `key`
+  sessionKey?: string; // some legacy shapes
   label?: string;
   status?: string;
+  updatedAt?: number | string;
   lastActivity?: string;
   model?: string;
   tokens?: { input: number; output: number };
@@ -99,18 +101,27 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
 
     const payload = (await response.json()) as { ok: boolean; result?: any; error?: any };
     const result = payload?.result;
+
+    // tools/invoke returns { ok: true, result } where result shape can vary.
+    // Common shapes:
+    // - result = { sessions: [...] }
+    // - result = { details: { sessions: [...] } }
+    // - result = [ ...sessions ]
     const rawSessions = Array.isArray(result)
       ? result
-      : Array.isArray(result?.sessions)
-        ? result.sessions
-        : [];
+      : Array.isArray(result?.details?.sessions)
+        ? result.details.sessions
+        : Array.isArray(result?.sessions)
+          ? result.sessions
+          : [];
+
     const gatewaySessions = rawSessions as GatewaySession[];
     
     // Transform to frontend format
     const sessions: FrontendSession[] = gatewaySessions
-      .filter((s) => s.sessionKey) // Only sessions with keys
+      .filter((s) => s.key || s.sessionKey) // Only sessions with keys
       .map((session) => {
-        const sessionKey = session.sessionKey || session.sessionId;
+        const sessionKey = session.key || session.sessionKey || session.sessionId;
         const agentType = extractAgentType(sessionKey);
         const projectId = extractProjectId(sessionKey, session.label);
         const label = session.label || extractLabel(sessionKey);
@@ -121,7 +132,13 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
           agentType,
           projectId,
           status: session.status || "active",
-          lastActivity: session.lastActivity || new Date().toISOString(),
+          lastActivity:
+            session.lastActivity ||
+            (typeof session.updatedAt === "number"
+              ? new Date(session.updatedAt).toISOString()
+              : typeof session.updatedAt === "string"
+                ? session.updatedAt
+                : new Date().toISOString()),
           model: session.model,
           tokens: session.tokens,
           duration: undefined, // Could calculate if we had startedAt
