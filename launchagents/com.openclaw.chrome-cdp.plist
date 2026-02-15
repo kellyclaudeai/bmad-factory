@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.openclaw.chrome-cdp</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/Users/austenallred/clawd/scripts/chrome-cdp.sh</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.openclaw.chrome-cdp.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.openclaw.chrome-cdp.err.log</string>
+
+    <!-- Don’t keep restarting if the user closes Chrome. -->
+    <key>KeepAlive</key>
+    <false/>
+  </dict>
+</plist>
