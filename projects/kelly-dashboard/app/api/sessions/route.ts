@@ -97,8 +97,8 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
       throw new Error(`Gateway API returned ${response.status}`);
     }
 
-    const payload = (await response.json()) as { ok: boolean; result?: any };
-    const gatewaySessions = (payload?.result || []) as GatewaySession[];
+    const payload = (await response.json()) as { ok: boolean; result?: any; error?: any };
+    const gatewaySessions = Array.isArray(payload?.result) ? (payload.result as GatewaySession[]) : [];
     
     // Transform to frontend format
     const sessions: FrontendSession[] = gatewaySessions

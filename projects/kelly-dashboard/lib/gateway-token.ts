@@ -20,7 +20,8 @@ type OpenClawConfig = {
  */
 export function getGatewayToken(): string | null {
   try {
-    const configPath = path.join(homedir(), ".openclaw", "openclaw.json");
+    const home = process.env.HOME || homedir() || "/Users/austenallred";
+    const configPath = path.join(home, ".openclaw", "openclaw.json");
     const raw = readFileSync(configPath, "utf-8");
     const cfg = JSON.parse(raw) as OpenClawConfig;
     const token = cfg?.gateway?.auth?.token;
@@ -32,7 +33,8 @@ export function getGatewayToken(): string | null {
 
 export function getGatewayPort(defaultPort = 18789): number {
   try {
-    const configPath = path.join(homedir(), ".openclaw", "openclaw.json");
+    const home = process.env.HOME || homedir() || "/Users/austenallred";
+    const configPath = path.join(home, ".openclaw", "openclaw.json");
     const raw = readFileSync(configPath, "utf-8");
     const cfg = JSON.parse(raw) as OpenClawConfig;
     return cfg?.gateway?.port || defaultPort;
