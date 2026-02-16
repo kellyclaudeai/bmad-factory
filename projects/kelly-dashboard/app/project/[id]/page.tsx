@@ -68,6 +68,27 @@ function formatProjectName(projectId: string): string {
     .join(' ')
 }
 
+function formatDuration(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds <= 0) return '0s'
+  const s = Math.floor(seconds)
+  if (s < 60) return `${s}s`
+  const m = Math.floor(s / 60)
+  const rem = s % 60
+  if (m < 60) return rem ? `${m}m ${rem}s` : `${m}m`
+  const h = Math.floor(m / 60)
+  const remM = m % 60
+  return remM ? `${h}h ${remM}m` : `${h}h`
+}
+
+function parseDurationToSeconds(duration?: string): number {
+  if (!duration) return 0
+  const minutesMatch = duration.match(/(\d+)m/)
+  const secondsMatch = duration.match(/(\d+)s/)
+  const minutes = minutesMatch ? parseInt(minutesMatch[1], 10) : 0
+  const seconds = secondsMatch ? parseInt(secondsMatch[1], 10) : 0
+  return minutes * 60 + seconds
+}
+
 export default async function ProjectDetail({ params }: ProjectDetailProps) {
   const { id } = await params
 
@@ -89,6 +110,35 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
 
   const stage = projectState?.currentStage || projectState?.stage || (active.length ? 'active' : 'unknown')
 
+  // Runtime: best-effort approximation using oldest known session lastActivity.
+  const runtimeSeconds = relevantSessions.length
+    ? Math.max(
+        0,
+        (Date.now() - Math.min(...relevantSessions.map((s) => new Date(s.lastActivity).getTime()))) / 1000,
+      )
+    : 0
+
+  // ETA: if we have project-state durations + planned stories, estimate remaining using avg completed duration.
+  const completedDurations = (projectState?.subagents || [])
+    .filter((s) => (s.status || '').toLowerCase() === 'complete' || (s.status || '').toLowerCase() === 'completed')
+    .map((s) => parseDurationToSeconds(s.duration))
+    .filter((n) => n > 0)
+
+  const avgSeconds = completedDurations.length
+    ? completedDurations.reduce((a, b) => a + b, 0) / completedDurations.length
+    : 0
+
+  const totalPlannedStories = projectState?.phases
+    ? Object.values(projectState.phases).reduce((sum, p) => sum + (p.stories?.length || 0), 0)
+    : 0
+
+  const completedStories = projectState?.subagents
+    ? projectState.subagents.filter((s) => (s.status || '').toLowerCase() === 'complete' || (s.status || '').toLowerCase() === 'completed').length
+    : 0
+
+  const remainingStories = totalPlannedStories ? Math.max(0, totalPlannedStories - completedStories) : 0
+  const etaSeconds = avgSeconds && remainingStories ? avgSeconds * remainingStories : 0
+
   return (
     <div className="min-h-screen bg-terminal-bg p-8">
       <ProjectHeader 
@@ -104,6 +154,41 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
       )}
       
       <main className="space-y-8">
+        <section>
+          <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
+            Runtime + ETA
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="bg-terminal-card border-terminal-border">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-mono text-terminal-dim">Runtime</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-mono font-bold text-terminal-green">
+                  {formatDuration(runtimeSeconds)}
+                </div>
+                <div className="text-xs font-mono text-terminal-dim mt-1">
+                  (approx • based on oldest recorded activity)
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-terminal-card border-terminal-border">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-mono text-terminal-dim">ETA</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-mono font-bold text-terminal-green">
+                  {etaSeconds ? `~${formatDuration(etaSeconds)}` : '—'}
+                </div>
+                <div className="text-xs font-mono text-terminal-dim mt-1">
+                  {etaSeconds ? `${remainingStories} remaining @ ~${Math.round(avgSeconds)}s/story` : 'Needs project-state durations to estimate'}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
         <section>
           <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
             Active Subagents
