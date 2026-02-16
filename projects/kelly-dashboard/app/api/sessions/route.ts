@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getGatewayPort, getGatewayToken } from "@/lib/gateway-token";
+import { lookupProjectIdBySessionKey } from "@/lib/project-lead-registry";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -135,7 +136,8 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
       .map((session) => {
         const sessionKey = session.key || session.sessionKey || session.sessionId;
         const agentType = extractAgentType(sessionKey);
-        const projectId = extractProjectId(sessionKey, session.label);
+        const projectId =
+          extractProjectId(sessionKey, session.label) || lookupProjectIdBySessionKey(sessionKey);
         const label = session.label || session.displayName || extractLabel(sessionKey);
 
         return {
