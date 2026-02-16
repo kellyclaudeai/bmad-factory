@@ -1,12 +1,12 @@
 # implementation-state.md
 
-Last updated: 2026-02-15 19:47 CST
+Last updated: 2026-02-15 19:53 CST
 
 ## Pipeline (current focus)
 
 | Workstream | Status | Owner | Notes |
 |---|---|---|---|
-| kelly-dashboard QA hotfixes | ✅ IMPLEMENTED | main | Fixed CollapsibleSection header click UX, corrected FACTORY_STATE_PATH default, and surfaced session channel fields (commits: `eb7454a`, `5e34635`, `7016b90`). |
+| kelly-dashboard QA hotfixes | ✅ IMPLEMENTED | main | Fixed CollapsibleSection header click UX, corrected FACTORY_STATE_PATH default, surfaced session channel fields, and expanded CollapsibleSection header click hit-area (commit: `d8ec2af`; earlier: `eb7454a`, `5e34635`, `7016b90`). |
 | meeting-time-tracker architecture | ✅ DECIDED | user | Pivot to Firebase-only and delete Supabase artifacts/docs for meeting-time-tracker-web. |
 | Project Lead session isolation | 🟡 IN DISCUSSION | user/main | Requirement: Project Lead must be a standalone session; user wants ephemeral per-project isolation without creating Matrix rooms. Need design/implementation. |
 
@@ -26,4 +26,5 @@ Last updated: 2026-02-15 19:47 CST
 
 ## Active sub-agents
 
-- Project Lead run was started as a spawned subagent earlier (not desired per new policy); needs rework once session isolation design is decided.
+- None currently.
+- Note: attempted to use Codex/Barry for the “header fully clickable” tweak, but the run hung; killed and applied a minimal Tailwind class patch manually.

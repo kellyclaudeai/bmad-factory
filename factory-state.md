@@ -1,8 +1,13 @@
 # Factory State
 
-**Last Updated:** 2026-02-15 18:05 CST
+**Last Updated:** 2026-02-15 19:53 CST
 
 ## Active Projects
+
+### kelly-dashboard
+- **Status:** UX hotfix applied: CollapsibleSection header hit-area now fully clickable (not just the title text)
+- **Repo path:** `projects/kelly-dashboard`
+- **Deploy note:** If running via launchd/`next start`, restart the service to pick up commit `d8ec2af`.
 
 ### meeting-time-tracker-web
 - **Status:** Supabase standardization complete; awaiting Supabase project provisioning
@@ -35,6 +40,7 @@
 
 ## Recent Completions
 
+- ✅ kelly-dashboard: CollapsibleSection header fully clickable (commit `d8ec2af`)
 - ✅ Supabase-only cleanup + fixes merged for `meeting-time-tracker-web` (commit `1ce0e8d`)
 - ✅ Chrome CDP launcher + LaunchAgent added and fixed to use dedicated user-data-dir (commits `8316ab7`, `183a0b8`)
 
