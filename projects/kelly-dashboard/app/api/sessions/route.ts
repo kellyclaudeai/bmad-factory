@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getGatewayPort, getGatewayToken } from "@/lib/gateway-token";
-import { lookupProjectIdBySessionKey, lookupProjectMetaByProjectId } from "@/lib/project-lead-registry";
+// Registry no longer required: Project Lead sessions use agent:project-lead:<projectId>
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -52,9 +52,18 @@ function extractAgentType(sessionKey: string): string {
 
 function extractProjectId(sessionKey: string, label?: string): string | undefined {
   // Try to extract project ID from session key
-  // IMPORTANT: avoid matching the agent type "project-lead".
-  // e.g., "agent:project-lead:project-meeting-time-tracker" -> "meeting-time-tracker"
-  // e.g., "agent:project-lead:project-calc-basic" -> "calc-basic"
+  // Preferred canonical form:
+  // - "agent:project-lead:<projectId>" -> "<projectId>"
+  const parts = sessionKey.split(":");
+  if (parts.length >= 3 && parts[0] === "agent" && parts[1] === "project-lead") {
+    const candidate = (parts[2] || "").trim();
+    if (candidate && candidate !== "subagent" && candidate !== "main" && candidate !== "global") {
+      return candidate;
+    }
+  }
+
+  // Legacy:
+  // - "agent:project-lead:project-<id>" -> "<id>"
   const plMatch = sessionKey.match(/^agent:project-lead:project-([^:]+)$/);
   if (plMatch?.[1]) return plMatch[1];
 
@@ -73,6 +82,9 @@ function extractProjectId(sessionKey: string, label?: string): string | undefine
   // - pl:calc-basic
   // - project-lead:calc-basic
   if (raw.startsWith("project:")) return raw.slice("project:".length);
+
+  // Common shorthands
+  if (raw.startsWith("pl-mtt")) return "meeting-time-tracker";
 
   const m = raw.match(/^(?:pl|project|project-lead)[-:](.+)$/i);
   if (m?.[1]) return m[1].trim();
@@ -144,9 +156,8 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
       .map((session) => {
         const sessionKey = session.key || session.sessionKey || session.sessionId;
         const agentType = extractAgentType(sessionKey);
-        const projectId =
-          extractProjectId(sessionKey, session.label) || lookupProjectIdBySessionKey(sessionKey);
-        const meta = projectId ? lookupProjectMetaByProjectId(projectId) : undefined;
+        const projectId = extractProjectId(sessionKey, session.label);
+        const meta = undefined;
         const label = session.label || session.displayName || extractLabel(sessionKey);
 
         return {
@@ -154,8 +165,8 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
           label,
           agentType,
           projectId,
-          projectTitle: meta?.title,
-          projectDescription: meta?.description,
+          projectTitle: undefined,
+          projectDescription: undefined,
           status: session.status || "active",
           lastActivity:
             session.lastActivity ||

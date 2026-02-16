@@ -94,30 +94,27 @@ function main() {
     process.exit(2);
   }
 
+  const writeRegistry = !!args['write-registry'];
+
   const home = process.env.HOME || os.homedir();
-  const registryPath = process.env.PROJECT_LEAD_REGISTRY_PATH || path.join(home, '.openclaw', 'workspace-kelly', 'project-lead-registry.json');
+  const registryPath =
+    process.env.PROJECT_LEAD_REGISTRY_PATH ||
+    path.join(home, '.openclaw', 'workspace-kelly', 'project-lead-registry.json');
 
-  const registry = loadJson(registryPath, { version: 1, updatedAt: '', projects: {} });
-  registry.projects = registry.projects || {};
+  const entry = {
+    virtualPeer: allocateVirtualPeer(projectId), // legacy fallback only
+    sessionKey: buildSessionKey(projectId),
+    createdAt: nowIso(),
+    status: 'active',
+  };
 
-  let entry = registry.projects[projectId];
-  if (!entry) {
-    entry = {
-      virtualPeer: allocateVirtualPeer(projectId), // legacy fallback only
-      sessionKey: buildSessionKey(projectId),
-      createdAt: nowIso(),
-      status: 'active',
-    };
-    registry.projects[projectId] = entry;
-  } else {
-    // Ensure fields exist
-    entry.virtualPeer = entry.virtualPeer || allocateVirtualPeer(projectId);
-    entry.sessionKey = entry.sessionKey || buildSessionKey(projectId);
-    entry.status = entry.status || 'active';
+  if (writeRegistry) {
+    const registry = loadJson(registryPath, { version: 1, updatedAt: '', projects: {} });
+    registry.projects = registry.projects || {};
+    registry.projects[projectId] = { ...(registry.projects[projectId] || {}), ...entry };
+    registry.updatedAt = nowIso();
+    saveJson(registryPath, registry);
   }
-
-  registry.updatedAt = nowIso();
-  saveJson(registryPath, registry);
 
   // Optionally update project-state.json
   if (projectDir && !noProjectState) {
@@ -138,7 +135,7 @@ function main() {
 
   console.log('---');
   console.log(`Project: ${projectId}`);
-  console.log(`Registry: ${registryPath}`);
+  if (writeRegistry) console.log(`Registry: ${registryPath}`);
   console.log(`Session key: ${entry.sessionKey}`);
   console.log('---');
   console.log('Create/start Project Lead session (preferred):');

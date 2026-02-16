@@ -11,7 +11,7 @@ Use this when you need a **standalone per-project Project Lead session** (not `s
 
 - Allocates (or reuses) a **project-named session key** for `projectId`:
   - `agent:project-lead:<projectId>`
-- Writes/updates Kelly-owned registry:
+- Optionally writes/updates Kelly-owned registry (only if you pass `--write-registry`):
   - `~/.openclaw/workspace-kelly/project-lead-registry.json`
 - Optionally writes the mapping into the project’s `project-state.json`
 - Prints:
