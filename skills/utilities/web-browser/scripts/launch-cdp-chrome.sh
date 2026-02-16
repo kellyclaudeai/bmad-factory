@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DST="$HOME/.openclaw/chrome-cdp-profile"
-PORT="${CDP_PORT:-9222}"
+DST="${BROWSER_PROFILE:-$HOME/.openclaw/browser/openclaw/user-data}"
+PORT="${CDP_PORT:-18800}"
 
 mkdir -p "$DST"
 

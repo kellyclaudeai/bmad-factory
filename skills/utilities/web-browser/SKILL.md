@@ -34,45 +34,54 @@ Benefits:
 
 ## How It Works (The Magic)
 
-1. **Persistent Chrome Profile:** All your logged-in sessions live in `~/.openclaw/chrome-cdp-profile`
-   - Clone from your main Chrome once → keeps you logged into Firebase, GCP, Vercel, GitHub, etc.
+1. **Persistent Chrome Profile:** All your logged-in sessions live in `~/.openclaw/browser/openclaw/user-data`
+   - **ONE-TIME SETUP:** Clone from your main Chrome once → keeps you logged into Firebase, GCP, Vercel, GitHub, etc.
    - Sessions persist across reboots/automation runs
+   - **After initial setup, just log into sites directly in the automation browser**
 
-2. **CDP Connection:** Chrome runs with `--remote-debugging-port=9222`
+2. **CDP Connection:** Chrome runs with `--remote-debugging-port=18800`
    - Playwright connects directly via Chrome DevTools Protocol
    - Full programmatic control: navigate, click, type, screenshot, wait for elements
 
 3. **Zero Manual Steps:** No browser relay. No "click this button." No QR codes.
    - You tell me what to do → I do it → I report back
 
-## Preconditions
+## Initial Setup (ONE-TIME)
 
-Chrome must be running with CDP enabled:
-- `--remote-debugging-port=9222`
-- `--user-data-dir=~/.openclaw/chrome-cdp-profile`
+**Option A: Clone from your main Chrome profile (if you're already logged into sites)**
 
-**Health check:**
 ```bash
-curl -sSf http://127.0.0.1:9222/json/version
+# Quit Chrome first!
+osascript -e 'tell application "Google Chrome" to quit'
+sleep 2
+
+# Clone profile (one-time)
+SRC="$HOME/Library/Application Support/Google/Chrome"
+DST="$HOME/.openclaw/browser/openclaw/user-data"
+
+# Backup existing if present
+if [ -d "$DST" ]; then
+  mv "$DST" "$DST.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+fi
+
+# Copy profile
+mkdir -p "$DST"
+cp -a "$SRC/Local State" "$DST/"
+cp -a "$SRC/Default" "$DST/"
 ```
 
-If that fails, launch CDP Chrome (see Scripts below).
+**Option B: Start fresh and log in manually**
 
-## Scripts
+Just use the automation browser and log into sites as needed. Sessions will persist in `~/.openclaw/browser/openclaw/user-data`.
 
-### 1) Clone current Chrome profile into the persistent CDP profile (one-time)
+**After initial setup:** The browser tool automatically launches and connects. No more manual steps needed.
 
-Run:
-```bash
-skills/utilities/web-browser/scripts/clone-chrome-profile-to-cdp.sh
-```
+## Health Check
 
-This fully copies `~/Library/Application Support/Google/Chrome` into `~/.openclaw/chrome-cdp-profile` (including cookies/sessions/cache) and launches CDP Chrome.
-
-### 2) Launch CDP Chrome (no cloning)
+The browser tool auto-launches Chrome when needed. To verify it's working:
 
 ```bash
-skills/utilities/web-browser/scripts/launch-cdp-chrome.sh
+curl -sSf http://127.0.0.1:18800/json/version
 ```
 
 ## Operating SOP (mandatory)
@@ -166,3 +175,42 @@ browser({ action: "act", profile: "openclaw", request: { kind: "click", ref: "e1
 - Lightweight content extraction only
 
 **Priority:** For any "do X in the browser" request → **use this skill** (web-browser).
+
+## Troubleshooting
+
+### "Site asking me to log in even though I should be logged in"
+
+**Modern auth (OAuth, SAML) uses encrypted tokens tied to macOS Keychain.** Copying profile files doesn't preserve these sessions.
+
+**Solution:** Log in once directly in the automation browser. Sessions persist after that.
+
+### "Need to re-authenticate after profile was reset"
+
+If the automation profile was deleted/corrupted:
+
+1. Launch automation browser (browser tool will auto-start it)
+2. Navigate to sites and log in manually
+3. Sessions persist in `~/.openclaw/browser/openclaw/user-data`
+
+**No need to clone from main Chrome** - modern auth requires manual login anyway.
+
+### "Want to start fresh with a clean profile"
+
+```bash
+# Backup current profile
+mv ~/.openclaw/browser/openclaw/user-data ~/.openclaw/browser/openclaw/user-data.bak
+
+# Browser tool will create new profile on next use
+# Log into sites as needed
+```
+
+### "Scripts reference wrong path"
+
+If you're using the scripts directly, they now default to:
+- Path: `~/.openclaw/browser/openclaw/user-data`
+- Port: `18800`
+
+Override with environment variables if needed:
+```bash
+BROWSER_PROFILE=/custom/path CDP_PORT=9222 ./scripts/launch-cdp-chrome.sh
+```
