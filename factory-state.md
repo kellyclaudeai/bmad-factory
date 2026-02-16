@@ -1,19 +1,21 @@
 # Factory State
 
-**Last Updated:** 2026-02-15 19:53 CST
+**Last Updated:** 2026-02-15 21:38 CST
 
 ## Active Projects
 
 ### kelly-dashboard
-- **Status:** UX hotfix applied: CollapsibleSection header hit-area now fully clickable (not just the title text)
+- **Status:** Project Details currently depends on on-disk `project-state.json.subagents` to show “active subagents”. Live spawned work may not appear unless state is written/updated.
 - **Repo path:** `projects/kelly-dashboard`
-- **Deploy note:** If running via launchd/`next start`, restart the service to pick up commit `d8ec2af`.
+- **Pending UX/data fix:** Decide whether to (a) write subagent progress into `project-state.json` (correct-by-design) and/or (b) augment Project Details to join live sessions from `/api/sessions`.
 
 ### meeting-time-tracker-web
-- **Status:** Supabase standardization complete; awaiting Supabase project provisioning
+- **Status:** Pivoted to Firebase-only; migration in progress (remove Supabase, wire Firebase Auth + Firestore + calendar sync).
 - **Repo path:** `projects/meeting-time-tracker-web`
-- **Backend:** Supabase (Postgres + Auth)
-- **Blocker:** Supabase env values are placeholders until we provision a real project via CLI.
+- **Backend:** Firebase (Auth + Firestore)
+- **Notes:** Firebase/GCP projectId `meeting-time-tracker-aaf`; redirect `http://localhost:3000/auth/callback`.
+- **Work packets:** Parallel A/B/C/D spawned; A/B/C/D completed and merged to `main`.
+- **Build:** `npm run build` passes on `main`.
 
 ### Browser automation (infrastructure)
 - **Status:** Chrome CDP automation set up
@@ -23,24 +25,21 @@
 ## Pending Actions
 
 ### Operator actions required (one-time)
-1) **Create Supabase Personal Access Token (PAT)**
-   - From: https://supabase.com/dashboard/account/tokens
-   - Then run: `supabase login --no-browser` and paste token once (preferred; avoids pasting secrets into chat)
-
-2) **Sign into the Chrome CDP automation profile once** (optional, only if we need browser automation)
+1) **Sign into Google in the Chrome CDP automation profile once** (optional; only if browser automation is needed)
    - Chrome launched with profile: `~/.openclaw/chrome-cdp-profile`
-   - Sign into Supabase/Google as needed; session will persist in that profile
+   - Sign into Google as needed; session will persist in that profile
 
-### After PAT is available (fully autonomous)
-1) `supabase projects create` (one project per factory project)
-2) `supabase projects api-keys --project-ref ...` to fetch `anon` + `service_role`
-3) Update `projects/meeting-time-tracker-web/.env.local`
-4) `supabase link --project-ref ...` then `supabase db push`
-5) Enable Google provider in Supabase Auth and set redirect URLs
+### Waiting-on
+- Manual QA of Firebase sign-in → session cookie → Settings/Dashboard → calendar sync end-to-end.
+- Decision on kelly-dashboard “show live work” vs “only show project-state.json subagents” (or enforce PL SOP to always update `project-state.json.subagents`).
+
+### Autonomous work in progress
+1) Manual QA + small fixes as needed (auth/session, Firestore persistence, calendar sync).
+2) Optional: improve kelly-dashboard Project Details to join live sessions when `project-state.json` is stale/missing.
 
 ## Recent Completions
 
 - ✅ kelly-dashboard: CollapsibleSection header fully clickable (commit `d8ec2af`)
 - ✅ Supabase-only cleanup + fixes merged for `meeting-time-tracker-web` (commit `1ce0e8d`)
 - ✅ Chrome CDP launcher + LaunchAgent added and fixed to use dedicated user-data-dir (commits `8316ab7`, `183a0b8`)
-
+- ✅ meeting-time-tracker-web: Firebase-only migration packets A/B/C/D completed; merged to `main`; build passes
