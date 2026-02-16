@@ -51,25 +51,20 @@ export function CollapsibleSection({
         // but interactive elements inside the content should not.
         onClick={toggle}
       >
-        <button
-          type="button"
-          onClick={(e) => {
-            // Button is explicitly interactive; avoid also triggering the Card onClick.
-            e.stopPropagation();
-            toggle();
-          }}
+        <div
+          role="button"
+          tabIndex={0}
           aria-expanded={!collapsed}
           aria-controls={contentId}
-          className={cn(
-            // Make the entire header row (including surrounding whitespace) clickable,
-            // not just the title text.
-            "w-full text-left cursor-pointer",
-            // CardContent uses px-6 pt-4, so match/overlap that padding so the whole
-            // visual header area is clickable.
-            "px-6 py-4 -mx-6 -mt-4",
-            "rounded-md focus:outline-none focus:ring-2 focus:ring-terminal-amber/70",
-            "transition-colors duration-200",
-          )}
+          // No special “yellow highlight strip” for the header; the outer card/body
+          // is the click target.
+          className="-mx-6 -mt-4 px-6 py-4"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              toggle();
+            }
+          }}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -107,7 +102,7 @@ export function CollapsibleSection({
               />
             </span>
           </div>
-        </button>
+        </div>
 
         <div
           id={contentId}
