@@ -34,8 +34,11 @@ Operate **autonomously** using the user’s already-authenticated Chrome session
 - Prefer `browser.act` using stable aria refs (click/type/press/select).
 
 4) **Cross-domain navigation**
-- It is OK to navigate across domains in the same attached tab.
-- Use `browser.navigate` (preferred) or `browser.act` → `evaluate` to set `location.href`.
+- It is OK (and **preferred**) to navigate across domains in the **same attached tab**.
+- Relay is attached **per-tab**: if you open a new tab/window, control is lost until the user attaches that new tab.
+- Therefore: **do not `browser.open` a new tab** unless you have to. Instead:
+  - copy the destination URL and use `browser.navigate` (preferred) in the currently attached `targetId`, or
+  - `browser.act` → `evaluate` to set `location.href = "..."`.
 - After every navigation: `browser.snapshot(refs:"aria")` and continue.
 
 ## Popup / new tab handling (minimize re-attaches)
