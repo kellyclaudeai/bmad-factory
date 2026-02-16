@@ -54,6 +54,13 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 
 ## External vs Internal
 
+### QA / Testability SOP (Project Lead)
+When a project is marked **ready for user QA**, Project Lead must ensure the user has a way to test it immediately:
+- **Preferred:** a deployed URL (e.g., Vercel preview/QA or production) shared in the project state / dashboard.
+- **Minimum:** a runnable local dev server with clear instructions (e.g., `npm run dev` + the exact localhost URL).
+
+This is not optional — “ready for QA” implies “testable without extra setup”.
+
 **Safe to do freely:**
 
 - Read files, explore, organize, learn
