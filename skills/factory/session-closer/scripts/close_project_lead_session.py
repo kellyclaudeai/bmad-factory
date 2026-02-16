@@ -40,11 +40,17 @@ def main() -> int:
 
     args = ap.parse_args()
 
-    session_key = f"agent:{AGENT_ID}:project-{args.project_id}"
+    # Support both canonical and legacy session key formats.
+    candidates = [
+        f"agent:{AGENT_ID}:{args.project_id}",
+        f"agent:{AGENT_ID}:project-{args.project_id}",
+    ]
 
     index = load_index()
-    if session_key not in index:
-        print(f"NOT_FOUND {session_key}")
+
+    session_key = next((k for k in candidates if k in index), None)
+    if not session_key:
+        print("NOT_FOUND " + " | ".join(candidates))
         return 0
 
     # Backup index
