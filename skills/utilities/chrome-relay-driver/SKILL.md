@@ -1,6 +1,6 @@
 ---
 name: chrome-relay-driver
-description: Drive the user’s real Chrome via OpenClaw Browser Relay (profile="chrome"). Use when the user says to use the browser/web and wants their logged-in session, cross-domain navigation, and minimal hand-holding. Includes tab selection, cross-domain navigation, popup/new-tab handling, and how to surface only true blockers (no attached tab, MFA/OS prompts).
+description: DEPRECATED. Only use when the user explicitly requests Chrome Relay / Browser Relay / extension attach-tab workflow. Prefer the web-browser skill (Playwright CDP persistent profile) for normal “use the browser” tasks.
 ---
 
 # Chrome Relay Driver (Logged-in Chrome)
