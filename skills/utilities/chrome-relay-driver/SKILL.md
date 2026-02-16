@@ -7,7 +7,9 @@ description: Drive the user’s real Chrome via OpenClaw Browser Relay (profile=
 
 Use the `functions.browser` tool with `profile="chrome"`.
 
-Also supported (fallback): if Chrome Relay isn’t attached/available, drive a persistent Playwright CDP Chrome instance on `http://127.0.0.1:9222` (launched via `scripts/chrome-cdp.sh`, profile at `~/.openclaw/chrome-cdp-profile`). Use this only when Relay can’t be used.
+NOTE: Default browser automation should now use the **web-browser** skill (Playwright over CDP). Use Chrome Relay only when explicitly requested, or when CDP is unavailable.
+
+Fallback: if Chrome Relay isn’t attached/available, drive a persistent Playwright CDP Chrome instance on `http://127.0.0.1:9222` (profile at `~/.openclaw/chrome-cdp-profile`).
 
 ## Goal
 
