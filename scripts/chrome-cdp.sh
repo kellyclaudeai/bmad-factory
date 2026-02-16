@@ -12,11 +12,17 @@ if pgrep -x "Google Chrome" >/dev/null 2>&1; then
   exit 2
 fi
 
+# Chrome no longer allows remote debugging on the *default* profile.
+# Use a dedicated, persistent automation profile.
+PROFILE_DIR="${CHROME_CDP_PROFILE_DIR:-$HOME/.openclaw/chrome-cdp-profile}"
+mkdir -p "$PROFILE_DIR"
+
 # Start Chrome with CDP enabled.
 open -na "Google Chrome" --args \
   --remote-debugging-port="$PORT" \
   --remote-allow-origins="http://localhost:$PORT" \
+  --user-data-dir="$PROFILE_DIR" \
   --no-first-run \
   --no-default-browser-check
 
-echo "Started Chrome with CDP on localhost:$PORT"
+echo "Started Chrome with CDP on localhost:$PORT (profile: $PROFILE_DIR)"
