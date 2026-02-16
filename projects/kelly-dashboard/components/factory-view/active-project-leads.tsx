@@ -11,6 +11,8 @@ type Session = {
   label: string;
   agentType: string;
   projectId?: string;
+  projectTitle?: string;
+  projectDescription?: string;
   status: string;
   lastActivity: string;
   model?: string;
@@ -79,8 +81,8 @@ function inferProjectOneLiner(projectId: string): string {
 
 function ProjectLeadCard({ session }: { session: Session }) {
   const projectId = session.projectId || "unknown";
-  const title = humanizeProjectId(projectId);
-  const oneLiner = inferProjectOneLiner(projectId);
+  const title = session.projectTitle || humanizeProjectId(projectId);
+  const oneLiner = session.projectDescription || inferProjectOneLiner(projectId);
   const status = session.status || "active";
   const relativeTime = formatRelativeTime(session.lastActivity);
 

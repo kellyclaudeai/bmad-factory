@@ -8,8 +8,14 @@ export type ProjectLeadRegistry = {
   projects: Record<
     string,
     {
+      // Stable identifiers
       virtualPeer: string;
       sessionKey: string;
+
+      // Optional display metadata (preferred by dashboard)
+      title?: string;
+      description?: string;
+
       createdAt?: string;
       status?: "active" | "closed";
     }
@@ -45,4 +51,26 @@ export function lookupProjectIdBySessionKey(sessionKey: string): string | undefi
   }
 
   return undefined;
+}
+
+export function lookupProjectMetaByProjectId(
+  projectId: string,
+): { title?: string; description?: string } | undefined {
+  const reg = readProjectLeadRegistry();
+  const entry = reg?.projects?.[projectId];
+  if (!entry) return undefined;
+  return { title: entry.title, description: entry.description };
+}
+
+export function lookupProjectMetaBySessionKey(
+  sessionKey: string,
+): { projectId?: string; title?: string; description?: string } {
+  const reg = readProjectLeadRegistry();
+  if (!reg?.projects) return {};
+
+  const projectId = lookupProjectIdBySessionKey(sessionKey);
+  if (!projectId) return {};
+
+  const meta = lookupProjectMetaByProjectId(projectId);
+  return { projectId, ...meta };
 }

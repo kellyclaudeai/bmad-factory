@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getGatewayPort, getGatewayToken } from "@/lib/gateway-token";
-import { lookupProjectIdBySessionKey } from "@/lib/project-lead-registry";
+import { lookupProjectIdBySessionKey, lookupProjectMetaByProjectId } from "@/lib/project-lead-registry";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,6 +10,8 @@ type FrontendSession = {
   label: string;
   agentType: string;
   projectId?: string;
+  projectTitle?: string;
+  projectDescription?: string;
   status: string;
   lastActivity: string;
   model?: string;
@@ -138,6 +140,7 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
         const agentType = extractAgentType(sessionKey);
         const projectId =
           extractProjectId(sessionKey, session.label) || lookupProjectIdBySessionKey(sessionKey);
+        const meta = projectId ? lookupProjectMetaByProjectId(projectId) : undefined;
         const label = session.label || session.displayName || extractLabel(sessionKey);
 
         return {
@@ -145,6 +148,8 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
           label,
           agentType,
           projectId,
+          projectTitle: meta?.title,
+          projectDescription: meta?.description,
           status: session.status || "active",
           lastActivity:
             session.lastActivity ||
