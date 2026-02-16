@@ -4,53 +4,163 @@
   "currentStage": "user-qa",
   "currentPhase": "complete",
   "createdAt": "2026-02-15T11:24:00.000Z",
-  "updatedAt": "2026-02-16T21:12:00.000Z",
+  "updatedAt": "2026-02-16T01:53:00Z",
   "fastTrack": true,
   "barryPlanComplete": true,
   "implementationStartedAt": "2026-02-15T11:26:30.000Z",
+  "implementationCompletedAt": "2026-02-15T20:12:00.000Z",
   "phases": {
-    "phase1": { "name": "Foundation", "stories": [1, 2], "status": "complete" },
-    "phase2": { "name": "Factory View", "stories": [3, 4, 5, 6], "status": "complete" },
-    "phase3": { "name": "Detail Views", "stories": [7, 8, 9], "status": "complete" },
-    "phase4": { "name": "Polish", "stories": [10, 11, 12], "status": "complete" },
-    "phase5": { "name": "Active Project Leads", "stories": [13], "status": "complete" },
-    "phase6": { "name": "Session Detail Enhancements", "stories": [14], "status": "complete" },
-    "phase7": { "name": "Session Detail Bugfixes", "stories": ["14.1", "14.2", "14.3"], "status": "complete" }
+    "phase1": {
+      "name": "Foundation",
+      "stories": [
+        1,
+        2
+      ],
+      "status": "complete"
+    },
+    "phase2": {
+      "name": "Factory View",
+      "stories": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "complete"
+    },
+    "phase3": {
+      "name": "Detail Views",
+      "stories": [
+        7,
+        8,
+        9
+      ],
+      "status": "complete"
+    },
+    "phase4": {
+      "name": "Polish",
+      "stories": [
+        10,
+        11,
+        12
+      ],
+      "status": "complete"
+    },
+    "phase5": {
+      "name": "Active Project Leads",
+      "stories": [
+        13
+      ],
+      "status": "complete"
+    }
   },
   "subagents": [
-    { "story": "Planning", "status": "complete" },
-    { "story": "Stories 1-12", "status": "complete" },
-    { "story": "Story 13: Active Project Leads", "status": "complete", "duration": "5m46s" },
-    { "story": "Story 14: Session Detail Enhancements", "status": "complete", "duration": "2m9s" },
-    { "story": "Story 14.1: Fix story titles and transcript paths", "status": "complete", "duration": "1m18s" },
-    { "story": "Story 14.2: Fix transcript handling for subagent sessions", "status": "complete", "duration": "4m10s" },
     {
-      "sessionKey": "agent:bmad-bmm-barry:subagent:1bac1901-eb8c-4a0a-929b-d524803886ab",
-      "story": "Story 14.3: Make Project Lead session card clickable",
-      "status": "complete",
-      "phase": "phase-7",
-      "startedAt": "2026-02-16T21:08:00.000Z",
-      "completedAt": "2026-02-16T21:12:00.000Z",
-      "duration": "3m21s",
-      "branch": "barry-fix-project-lead-link",
-      "persona": "Barry",
-      "role": "Developer"
+      "story": "Planning",
+      "status": "complete"
     },
     {
-      "sessionKey": "agent:main:main",
-      "story": "Story 14.4: Fix project detail sections and transcript display",
+      "story": "Story 1: Scaffold",
+      "status": "complete"
+    },
+    {
+      "story": "Story 2: API Routes",
+      "status": "complete"
+    },
+    {
+      "story": "Story 3: Stats Cards",
       "status": "complete",
-      "phase": "phase-7",
-      "startedAt": "2026-02-16T21:26:00.000Z",
-      "completedAt": "2026-02-16T21:28:00.000Z",
-      "duration": "2m",
-      "persona": "Kelly",
-      "role": "Router"
+      "duration": "8m14s"
+    },
+    {
+      "story": "Story 4: Active Agents List",
+      "status": "complete",
+      "duration": "7m25s"
+    },
+    {
+      "story": "Story 5: Health Dashboard",
+      "status": "complete",
+      "duration": "6m34s"
+    },
+    {
+      "story": "Story 6: Historical Projects",
+      "status": "complete",
+      "duration": "3m28s"
+    },
+    {
+      "story": "Story 7: Project Detail Header + Metrics",
+      "status": "complete",
+      "duration": "2m34s"
+    },
+    {
+      "story": "Story 8: Subagent Grid",
+      "status": "complete",
+      "duration": "5m31s"
+    },
+    {
+      "story": "Story 9: Subagent Detail View",
+      "status": "complete",
+      "duration": "3m15s"
+    },
+    {
+      "story": "Story 10: Terminal Aesthetic Refinement",
+      "status": "complete",
+      "duration": "6m33s"
+    },
+    {
+      "story": "Story 11: Auto-Refresh + Footer",
+      "status": "complete",
+      "duration": "2m23s"
+    },
+    {
+      "story": "Story 12: Testing + Polish",
+      "status": "complete",
+      "duration": "5m41s"
+    },
+    {
+      "story": "Story 13: Active Project Leads + Real Sessions",
+      "status": "complete",
+      "duration": "5m46s",
+      "branch": "barry-13",
+      "completedAt": "2026-02-15T20:12:00.000Z"
+    },
+    {
+      "story": "Ops Hotfix: Restore dashboard availability (webpack dev + await headers())",
+      "status": "complete",
+      "completedAt": "2026-02-15T21:12:31Z"
+    },
+    {
+      "story": "Ops: Host dashboard (launchd + next start production)",
+      "status": "complete",
+      "completedAt": "2026-02-15T21:41:07Z"
+    },
+    {
+      "story": "Story 1.1: QA hotfixes (legacy subagents, labels, include project-lead sessions)",
+      "status": "complete",
+      "completedAt": "2026-02-15T21:40:38Z"
+    },
+    {
+      "story": "Story 1.2: Collapsible sections + view controls (declutter)",
+      "status": "complete",
+      "completedAt": "2026-02-15T23:26:39Z"
+    },
+    {
+      "story": "Ops: Remove Compact toggle from View Controls",
+      "status": "complete",
+      "completedAt": "2026-02-15T23:26:39Z"
+    },
+    {
+      "story": "UX hotfix: make entire CollapsibleSection header clickable (not just text)",
+      "status": "complete",
+      "completedAt": "2026-02-16T01:53:00Z",
+      "branch": "main",
+      "commit": "d8ec2af"
     }
   ],
   "pipelineResult": {
-    "totalStories": 18,
-    "completedStories": 18,
-    "failedStories": 0
+    "totalStories": 13,
+    "completedStories": 13,
+    "failedStories": 0,
+    "totalSubagents": 20
   }
 }

@@ -7,9 +7,6 @@ import { SubagentCard } from './subagent-card'
 interface Subagent {
   sessionKey?: string
   story?: string
-  persona?: string
-  role?: string
-  task?: string
   status: string
   startedAt?: string
   completedAt?: string
@@ -32,8 +29,8 @@ interface Section {
 export function SubagentGrid({ subagents }: SubagentGridProps) {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     now: true,
-    next: true,
-    history: true,
+    next: false,
+    history: false,
   })
   
   // Group subagents by status
@@ -132,9 +129,6 @@ export function SubagentGrid({ subagents }: SubagentGridProps) {
                         key={subagent.sessionKey || `${sectionKey}-${idx}`}
                         sessionKey={subagent.sessionKey}
                         story={subagent.story}
-                        persona={subagent.persona}
-                        role={subagent.role}
-                        task={subagent.task}
                         status={subagent.status as 'active' | 'complete' | 'queued' | 'pending'}
                         startedAt={subagent.startedAt}
                         completedAt={subagent.completedAt}
