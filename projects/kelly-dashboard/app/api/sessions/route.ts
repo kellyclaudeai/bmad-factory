@@ -52,25 +52,25 @@ function extractAgentType(sessionKey: string): string {
 
 function extractProjectId(sessionKey: string, label?: string): string | undefined {
   // Try to extract project ID from session key
-  // Preferred canonical form:
-  // - "agent:project-lead:<projectId>" -> "<projectId>"
   const parts = sessionKey.split(":");
+
+  // Preferred canonical form:
+  // - "agent:project-lead:project-<id>" -> "<id>"
+  // (avoid matching the agent type "project-lead")
   if (parts.length >= 3 && parts[0] === "agent" && parts[1] === "project-lead") {
     const candidate = (parts[2] || "").trim();
-    if (candidate && candidate !== "subagent" && candidate !== "main" && candidate !== "global") {
-      return candidate;
+    if (!candidate || candidate === "subagent" || candidate === "main" || candidate === "global") {
+      return undefined;
     }
+    if (candidate.startsWith("project-")) return candidate.slice("project-".length);
+    return candidate;
   }
 
-  // Legacy:
-  // - "agent:project-lead:project-<id>" -> "<id>"
-  const plMatch = sessionKey.match(/^agent:project-lead:project-([^:]+)$/);
-  if (plMatch?.[1]) return plMatch[1];
-
-  // Fallback for other agent session key conventions.
+  // Fallback for other agent session key conventions (non project-lead sessions).
+  // NOTE: do not use this on project-lead sessions or it will match ":project-lead".
   if (sessionKey.includes(":project-")) {
     const match = sessionKey.match(/:project-([^:]+)/);
-    if (match?.[1]) return match[1];
+    if (match?.[1] && match[1] !== "lead") return match[1];
   }
 
   const raw = (label || "").trim();
