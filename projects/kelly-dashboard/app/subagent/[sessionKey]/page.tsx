@@ -34,12 +34,14 @@ async function getSubagentData(sessionKey: string): Promise<SubagentData | null>
   
   try {
     // First, try to extract project ID from session key
-    // Session keys look like: agent:project-lead:project-{projectId}
-    // or agent:bmad-bmm-barry:subagent:{uuid}
+    // Session keys look like:
+    // - agent:project-lead:<projectId>
+    // - agent:project-lead:project-<projectId> (legacy)
+    // - agent:bmad-bmm-barry:subagent:<uuid>
     let projectId: string | undefined
-    
-    // Check if it's a project lead session
-    const projectLeadMatch = sessionKey.match(/agent:project-lead:project-(.+)/)
+
+    // Check if it's a project lead session (canonical + legacy)
+    const projectLeadMatch = sessionKey.match(/agent:project-lead:(?:project-)?(.+)/)
     if (projectLeadMatch) {
       projectId = projectLeadMatch[1]
     } else {
@@ -148,10 +150,10 @@ export default async function SubagentDetail({ params }: SubagentDetailProps) {
               Factory View
             </Link>
             <span className="mx-2">/</span>
-            <span className="text-terminal-green">Subagent Detail</span>
+            <span className="text-terminal-green">Session Detail</span>
           </nav>
           <h1 className="text-2xl font-mono font-bold text-terminal-green mb-2">
-            Subagent Not Found
+            Session Not Found
           </h1>
         </header>
         <main>
@@ -189,13 +191,18 @@ export default async function SubagentDetail({ params }: SubagentDetailProps) {
             </>
           )}
           <span className="mx-2">/</span>
-          <span className="text-terminal-green">Subagent</span>
+          <span className="text-terminal-green">Session</span>
         </nav>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-mono font-bold text-terminal-green mb-2">
-              {subagentData.story || 'Subagent Session'}
+              {subagentData.story || (decodedKey.includes(':subagent:') ? 'Subagent Session' : 'Session')}
             </h1>
+            <div className="text-xs font-mono text-terminal-dim break-all">
+              {decodedKey.includes(':subagent:') ? 'Type: SUBAGENT' : decodedKey.includes('agent:project-lead:') ? 'Type: PROJECT LEAD (FULL SESSION)' : 'Type: SESSION'}
+              <span className="text-terminal-dim"> • </span>
+              <span className="text-terminal-text">{decodedKey}</span>
+            </div>
             {subagentData.branch && (
               <div className="text-sm text-terminal-dim font-mono">
                 Branch: <span className="text-terminal-text">{subagentData.branch}</span>

@@ -52,9 +52,41 @@ function groupSessions(sessions: Session[]): GroupedSessions {
   return groups
 }
 
+function getSessionShortName(sessionKey: string): string {
+  const parts = sessionKey.split(':')
+  const subagentIdx = parts.indexOf('subagent')
+  if (subagentIdx >= 0) {
+    const id = parts[subagentIdx + 1]
+    return id ? `subagent:${id.slice(0, 8)}` : 'subagent'
+  }
+  return parts[2] || sessionKey
+}
+
+function getPlatformLabel(session: Session): string {
+  const dn = (session.displayName || '').trim()
+  if (dn && (dn === 'openclaw-tui' || dn === 'heartbeat')) return dn
+
+  const ch = (session.lastChannel || session.channel || '').trim()
+  if (ch) return ch
+
+  if (dn) return dn
+
+  return 'unknown'
+}
+
+function getSessionTypeLabel(sessionKey: string, agentType: string): string {
+  if (agentType === 'project-lead' || sessionKey.includes('project-lead')) return 'Project Lead'
+  if (sessionKey.includes(':subagent:') || sessionKey.includes(':subagent')) return 'Subagent'
+  return 'Session'
+}
+
 function AgentCard({ session }: { session: Session }) {
   const router = useRouter()
-  
+
+  const sessionName = getSessionShortName(session.sessionKey)
+  const platform = getPlatformLabel(session)
+  const typeLabel = getSessionTypeLabel(session.sessionKey, session.agentType)
+
   const handleClick = () => {
     if (session.projectId) {
       router.push(`/project/${session.projectId}`)
@@ -62,29 +94,36 @@ function AgentCard({ session }: { session: Session }) {
       router.push(`/subagent/${encodeURIComponent(session.sessionKey)}`)
     }
   }
-  
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       handleClick()
     }
   }
-  
+
   return (
-    <Card 
+    <Card
       className="cursor-pointer transition-all hover:border-terminal-green hover:shadow-[0_0_10px_rgba(0,255,136,0.1)] focus-within:ring-2 focus-within:ring-terminal-green focus-within:outline-none"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"
-      aria-label={`View details for ${session.label} agent`}
+      aria-label={`View details for ${sessionName}`}
     >
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-base">
-          <span className="font-mono text-terminal-green">
-            {session.label}
-          </span>
-          <Badge 
+          <div className="min-w-0">
+            <div className="font-mono text-terminal-green truncate">
+              {sessionName}
+              <span className="text-terminal-dim"> • </span>
+              <span className="text-terminal-text">{typeLabel}</span>
+            </div>
+            <div className="text-xs font-mono text-terminal-dim truncate">
+              Platform: <span className="text-terminal-text">{platform}</span>
+            </div>
+          </div>
+          <Badge
             variant={session.status === 'active' ? 'default' : 'outline'}
             className={session.status === 'active' ? 'bg-terminal-green text-terminal-bg animate-pulse-status' : ''}
           >
@@ -97,12 +136,10 @@ function AgentCard({ session }: { session: Session }) {
           <span>Agent:</span>
           <span className="font-mono">{session.agentType}</span>
         </div>
-        {(session.lastChannel || session.channel) && (
-          <div className="flex justify-between text-terminal-dim">
-            <span>Channel:</span>
-            <span className="font-mono">{session.lastChannel || session.channel}</span>
-          </div>
-        )}
+        <div className="flex justify-between text-terminal-dim">
+          <span>Task:</span>
+          <span className="font-mono truncate max-w-[14rem]" title={session.label}>{session.label}</span>
+        </div>
         {session.projectId && (
           <div className="flex justify-between text-terminal-dim">
             <span>Project:</span>
