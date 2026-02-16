@@ -98,7 +98,15 @@ process action:kill sessionId:XXX
 
 ## Codex CLI
 
-**Model:** `gpt-5.2-codex` is the default (set in ~/.codex/config.toml)
+**Models:**
+- **gpt-5.3-codex** - Default for thorough work (set in ~/.codex/config.toml)
+- **gpt-5.3-spark** (codex-spark) - Barry fast track mode (faster, less thorough)
+- **gpt-5.3** - General use
+
+**Model strategy:**
+- **Normal mode:** Use default (gpt-5.3-codex) for quality
+- **Barry fast track:** Use spark (`codex --model gpt-5.3-spark`) for speed
+- Model can be overridden per-command: `codex --model gpt-5.3-spark exec "..."`
 
 ### Flags
 
@@ -157,12 +165,16 @@ gh pr comment <PR#> --body "<review content>"
 
 ## Claude Code
 
+**Model:** Sonnet 4.5 (uses Anthropic Account, not API key)
+
 ```bash
 # With PTY for proper terminal output
 bash pty:true workdir:~/project command:"claude 'Your task'"
 
 # Background
 bash pty:true workdir:~/project background:true command:"claude 'Your task'"
+
+# Note: Claude Code uses your Anthropic account authentication, not API keys
 ```
 
 ---
