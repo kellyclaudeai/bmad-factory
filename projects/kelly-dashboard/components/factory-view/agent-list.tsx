@@ -136,10 +136,14 @@ function AgentCard({ session }: { session: Session }) {
           <span>Agent:</span>
           <span className="font-mono">{session.agentType}</span>
         </div>
-        <div className="flex justify-between text-terminal-dim">
-          <span>Task:</span>
-          <span className="font-mono truncate max-w-[14rem]" title={session.label}>{session.label}</span>
-        </div>
+        {session.label && !/^[a-z]+:g-agent-/.test(session.label) && (
+          <div className="flex justify-between text-terminal-dim">
+            <span>Task:</span>
+            <span className="font-mono truncate max-w-[14rem]" title={session.label}>
+              {session.label}
+            </span>
+          </div>
+        )}
         {session.projectId && (
           <div className="flex justify-between text-terminal-dim">
             <span>Project:</span>
