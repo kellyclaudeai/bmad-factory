@@ -14,6 +14,9 @@ type FrontendSession = {
   model?: string;
   tokens?: { input: number; output: number };
   duration?: number;
+  channel?: string;
+  lastChannel?: string;
+  displayName?: string;
 };
 
 type GatewaySession = {
@@ -151,6 +154,9 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
           model: session.model,
           tokens: session.tokens,
           duration: undefined, // Could calculate if we had startedAt
+          channel: (session as any).channel,
+          lastChannel: (session as any).lastChannel,
+          displayName: session.displayName,
         };
       });
 

@@ -7,8 +7,9 @@ export const dynamic = "force-dynamic";
 
 const FACTORY_STATE_PATH =
   process.env.FACTORY_STATE_PATH ||
-  // repo layout: clawd/projects/kelly-dashboard/app/api/... → factory-state lives at clawd/projects/factory-state.md
-  path.resolve(process.cwd(), "..", "factory-state.md");
+  // Default for this repo: /Users/austenallred/clawd/factory-state.md
+  "/Users/austenallred/clawd/factory-state.md";
+
 
 type FactoryStateResponse = {
   active: string[];

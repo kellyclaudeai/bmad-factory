@@ -16,6 +16,9 @@ type Session = {
   model?: string;
   tokens?: { input: number; output: number };
   duration?: number;
+  channel?: string;
+  lastChannel?: string;
+  displayName?: string;
 };
 
 function formatRelativeTime(isoTimestamp: string): string {
@@ -130,6 +133,14 @@ function ProjectLeadCard({ session }: { session: Session }) {
               {relativeTime}
             </span>
           </div>
+          {(session.channel || session.lastChannel) && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-terminal-dim font-mono">Channel</span>
+              <span className="text-terminal-text font-mono">
+                {session.lastChannel || session.channel}
+              </span>
+            </div>
+          )}
           {session.tokens && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-terminal-dim font-mono">Tokens</span>

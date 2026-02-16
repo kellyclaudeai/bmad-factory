@@ -79,10 +79,8 @@ export function CollapsibleSection({
 
             <span
               className={cn(
-                "mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-md",
-                "border border-terminal-dim/30 bg-terminal-dim/5",
-                "transition-all duration-200 cursor-pointer",
-                !collapsed && "border-terminal-amber/40 bg-terminal-amber/10",
+                "mt-0.5 inline-flex items-center justify-center",
+                "transition-all duration-200",
               )}
               aria-hidden="true"
             >

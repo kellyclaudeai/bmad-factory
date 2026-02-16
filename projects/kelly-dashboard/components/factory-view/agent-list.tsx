@@ -17,6 +17,9 @@ interface Session {
   model: string
   tokens?: { input: number; output: number }
   duration?: number
+  channel?: string
+  lastChannel?: string
+  displayName?: string
 }
 
 interface GroupedSessions {
@@ -94,6 +97,12 @@ function AgentCard({ session }: { session: Session }) {
           <span>Agent:</span>
           <span className="font-mono">{session.agentType}</span>
         </div>
+        {(session.lastChannel || session.channel) && (
+          <div className="flex justify-between text-terminal-dim">
+            <span>Channel:</span>
+            <span className="font-mono">{session.lastChannel || session.channel}</span>
+          </div>
+        )}
         {session.projectId && (
           <div className="flex justify-between text-terminal-dim">
             <span>Project:</span>
