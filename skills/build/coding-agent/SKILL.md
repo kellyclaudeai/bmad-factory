@@ -7,9 +7,9 @@ metadata:
   }
 ---
 
-# Coding Agent (bash-first)
+# Coding Agent Harness
 
-Use **bash** (with optional background mode) for all coding agent work. Simple and effective.
+**For BMAD agents (Amelia, Barry, Murat):** This skill provides the coding CLI harness. Use codex CLI for all code work (implementation, review, testing).
 
 ## ⚠️ PTY Mode Required!
 
@@ -17,15 +17,21 @@ Coding agents (Codex, Claude Code, Pi) are **interactive terminal applications**
 
 **Always use `pty:true`** when running coding agents:
 
-```bash
-# ✅ Correct - with PTY
-bash pty:true command:"codex exec 'Your prompt'"
+```typescript
+// ✅ Correct - with PTY using exec tool
+exec({
+  pty: true,
+  workdir: "/path/to/project",
+  command: "codex exec --full-auto 'Your task description'"
+})
 
-# ❌ Wrong - no PTY, agent may break
-bash command:"codex exec 'Your prompt'"
+// ❌ Wrong - no PTY, agent may break
+exec({
+  command: "codex exec 'Your task'"
+})
 ```
 
-### Bash Tool Parameters
+### Exec Tool Parameters
 
 | Parameter    | Type    | Description                                                                 |
 | ------------ | ------- | --------------------------------------------------------------------------- |
@@ -55,12 +61,20 @@ bash command:"codex exec 'Your prompt'"
 
 For quick prompts/chats, create a temp git repo and run:
 
-```bash
-# Quick chat (Codex needs a git repo!)
-SCRATCH=$(mktemp -d) && cd $SCRATCH && git init && codex exec "Your prompt here"
+```typescript
+// Quick chat (Codex needs a git repo!)
+exec({
+  pty: true,
+  workdir: "/tmp/scratch-" + Date.now(),
+  command: "git init && codex exec 'Your prompt here'"
+})
 
-# Or in a real project - with PTY!
-bash pty:true workdir:~/Projects/myproject command:"codex exec 'Add error handling to the API calls'"
+// Or in a real project - with PTY!
+exec({
+  pty: true,
+  workdir: "~/Projects/myproject",
+  command: "codex exec --full-auto 'Add error handling to the API calls'"
+})
 ```
 
 **Why git init?** Codex refuses to run outside a trusted git directory. Creating a temp repo solves this for scratch work.
@@ -71,25 +85,30 @@ bash pty:true workdir:~/Projects/myproject command:"codex exec 'Add error handli
 
 For longer tasks, use background mode with PTY:
 
-```bash
-# Start agent in target directory (with PTY!)
-bash pty:true workdir:~/project background:true command:"codex exec --full-auto 'Build a snake game'"
-# Returns sessionId for tracking
+```typescript
+// Start agent in target directory (with PTY!)
+exec({
+  pty: true,
+  workdir: "~/project",
+  background: true,
+  command: "codex exec --full-auto 'Build a snake game'"
+})
+// Returns sessionId for tracking
 
-# Monitor progress
-process action:log sessionId:XXX
+// Monitor progress
+process({ action: "log", sessionId: "XXX" })
 
-# Check if done
-process action:poll sessionId:XXX
+// Check if done
+process({ action: "poll", sessionId: "XXX" })
 
-# Send input (if agent asks a question)
-process action:write sessionId:XXX data:"y"
+// Send input (if agent asks a question)
+process({ action: "write", sessionId: "XXX", data: "y" })
 
-# Submit with Enter (like typing "yes" and pressing Enter)
-process action:submit sessionId:XXX data:"yes"
+// Submit with Enter (like typing "yes" and pressing Enter)
+process({ action: "submit", sessionId: "XXX", data: "yes" })
 
-# Kill if needed
-process action:kill sessionId:XXX
+// Kill if needed
+process({ action: "kill", sessionId: "XXX" })
 ```
 
 **Why workdir matters:** Agent wakes up in a focused directory, doesn't wander off reading unrelated files (like your soul.md 😅).
@@ -118,13 +137,125 @@ process action:kill sessionId:XXX
 
 ### Building/Creating
 
-```bash
-# Quick one-shot (auto-approves) - remember PTY!
-bash pty:true workdir:~/project command:"codex exec --full-auto 'Build a dark mode toggle'"
+```typescript
+// Quick one-shot (auto-approves) - remember PTY!
+exec({
+  pty: true,
+  workdir: "~/project",
+  command: "codex exec --full-auto 'Build a dark mode toggle'"
+})
 
-# Background for longer work
-bash pty:true workdir:~/project background:true command:"codex --yolo 'Refactor the auth module'"
+// Background for longer work
+exec({
+  pty: true,
+  workdir: "~/project",
+  background: true,
+  command: "codex --yolo 'Refactor the auth module'"
+})
 ```
+
+---
+
+## BMAD Integration (Amelia, Barry, Murat)
+
+### Amelia (Developer) - Story Implementation
+
+**Model strategy:**
+- Wrapper: `claude-sonnet-4-5` (orchestration, file updates)
+- CLI: `gpt-5.3-codex` (default) (multi-file implementation)
+
+**BMAD workflows:**
+- `dev-story` - Story implementation
+- `code-review` - Code review
+- `correct-course` - Remediation (failed review or failed TEA)
+
+**CLI invocation pattern:**
+
+```typescript
+// BUILD (dev-story)
+exec({
+  pty: true,
+  workdir: "{projectRoot}",
+  command: "codex exec --full-auto 'Implement Story {storyId}: {storyTitle} following architecture.md and story acceptance criteria'"
+})
+
+// REVIEW (code-review)
+exec({
+  pty: true,
+  workdir: "{projectRoot}",
+  command: "codex exec 'Review implementation of Story {storyId} against acceptance criteria in story file. Check: code quality, test coverage, architecture compliance, security.'"
+})
+
+// REMEDIATION (correct-course)
+exec({
+  pty: true,
+  workdir: "{projectRoot}",
+  command: "codex --yolo 'Fix issues from code review: {specific-issues-from-review}'"
+})
+```
+
+**Key principle:** Let codex handle multi-file refactoring, imports, dependencies. Don't write code directly unless CLI fails.
+
+---
+
+### Barry (Fast Track) - Rapid Implementation
+
+**Model strategy:**
+- Wrapper: `claude-sonnet-4-5` (orchestration)
+- CLI: `gpt-5.3-spark` (speed over thoroughness)
+
+**BMAD workflows:**
+- Quick Flow Solo Dev (combined spec + implementation)
+
+**CLI invocation pattern:**
+
+```typescript
+// Fast track mode - use Spark for speed
+exec({
+  pty: true,
+  workdir: "{projectRoot}",
+  background: true,
+  command: "codex --model gpt-5.3-spark --yolo 'Implement {feature-description} based on intake requirements. Create all necessary files, tests, and documentation.'"
+})
+```
+
+**Key difference:** Barry uses `--model gpt-5.3-spark` for faster execution, trades some thoroughness for velocity.
+
+---
+
+### Murat (TEA Auditor) - Test Generation & QA
+
+**Model strategy:**
+- Wrapper: `claude-sonnet-4-5` (orchestration)
+- CLI: `gpt-5.3-codex` (edge case thinking, multi-file tests)
+
+**BMAD workflows:**
+- `test-design` - Test planning
+- `automate` - Test code generation (fixtures, factories, suites)
+- `test-review` - Test quality review
+
+**CLI invocation pattern:**
+
+```typescript
+// TEST GENERATION (automate workflow)
+exec({
+  pty: true,
+  workdir: "{projectRoot}",
+  background: true,
+  command: "codex exec --full-auto 'Generate comprehensive test suite for {component}. Include: unit tests, integration tests, edge cases, error scenarios. Create fixtures and test helpers as needed.'"
+})
+
+// TEST REVIEW
+exec({
+  pty: true,
+  workdir: "{projectRoot}",
+  command: "codex exec 'Review existing tests for {component}. Check: coverage completeness, edge case handling, test quality, fixture patterns.'"
+})
+```
+
+**Key principle:** Use Codex 5.3 (NOT Spark) for testing — edge case thinking is critical, architectural awareness matters for proper mocking/DI patterns.
+
+---
 
 ### Reviewing PRs
 

@@ -200,10 +200,50 @@ export function NowRunning() {
     );
   }
 
+  // Group sessions by agent display name (so main sessions cluster together, etc.)
+  const grouped = (runningAgents || []).reduce<Record<string, Session[]>>((acc, s) => {
+    const name = getAgentDisplayName(s.agentType);
+    (acc[name] ||= []).push(s);
+    return acc;
+  }, {});
+
+  const groupNames = Object.keys(grouped).sort((a, b) => {
+    // Prefer a stable priority ordering for common agents.
+    const priority: Record<string, number> = { main: 0, "kelly-improver": 1 };
+    const pa = priority[a] ?? 50;
+    const pb = priority[b] ?? 50;
+    if (pa !== pb) return pa - pb;
+    return a.localeCompare(b);
+  });
+
+  for (const name of groupNames) {
+    grouped[name].sort((a, b) => {
+      // Stable within-group ordering: most recent first, then session key
+      const tA = new Date(a.lastActivity).getTime();
+      const tB = new Date(b.lastActivity).getTime();
+      if (tA !== tB) return tB - tA;
+      return a.sessionKey.localeCompare(b.sessionKey);
+    });
+  }
+
   return (
-    <div className="grid items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      {runningAgents.map((session) => (
-        <AgentCard key={session.sessionKey} session={session} />
+    <div className="space-y-6">
+      {groupNames.map((name) => (
+        <section key={name} className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-terminal-dim font-mono text-sm">
+              {name}
+              <span className="text-terminal-dim"> </span>
+              <span className="text-terminal-dim/70">({grouped[name].length})</span>
+            </h3>
+          </div>
+
+          <div className="grid items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {grouped[name].map((session) => (
+              <AgentCard key={session.sessionKey} session={session} />
+            ))}
+          </div>
+        </section>
       ))}
     </div>
   );

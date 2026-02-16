@@ -91,12 +91,10 @@ function calculateCost(tokens: number): string {
 function calculateProgress(
   subagents: SubagentData[],
   phases?: Record<string, { stories: number[] }>
-): string {
+): string | null {
   if (!phases) {
-    // Fallback: count complete vs total subagents
-    const complete = subagents.filter(s => s.status === 'complete').length
-    const total = subagents.length
-    return `${complete}/${total}`
+    // No phases means planning hasn't completed - no stories exist yet
+    return null
   }
   
   // Count stories: extract story numbers from subagent.story
@@ -134,9 +132,10 @@ export function ProjectMetrics({ subagents, phases }: ProjectMetricsProps) {
   const activeTime = calculateActiveTime(subagents)
   
   const hasActiveSubagents = subagents.some(s => s.status === 'active')
+  const hasStoryProgress = progress !== null
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className={`grid grid-cols-1 md:grid-cols-2 ${hasStoryProgress ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4`}>
       <Card className="bg-terminal-card border-terminal-border hover:border-terminal-green transition-colors">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-mono text-terminal-dim">
@@ -187,21 +186,23 @@ export function ProjectMetrics({ subagents, phases }: ProjectMetricsProps) {
         </CardContent>
       </Card>
       
-      <Card className="bg-terminal-card border-terminal-border hover:border-terminal-green transition-colors">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-mono text-terminal-dim">
-            Story Progress
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-mono font-bold text-terminal-green">
-            {progress}
-          </div>
-          <div className="text-xs font-mono text-terminal-dim mt-1">
-            stories complete
-          </div>
-        </CardContent>
-      </Card>
+      {hasStoryProgress && (
+        <Card className="bg-terminal-card border-terminal-border hover:border-terminal-green transition-colors">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-mono text-terminal-dim">
+              Story Progress
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-mono font-bold text-terminal-green">
+              {progress}
+            </div>
+            <div className="text-xs font-mono text-terminal-dim mt-1">
+              stories complete
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
