@@ -5,33 +5,14 @@ This directory contains skills specific to our factory/BMAD workflow. These are 
 ## Structure
 
 - **build/** - Build, development, and quality assurance skills
-  - coding-agent - Run Codex CLI, Claude Code, OpenCode, or Pi Coding Agent
-  - security-audit - Security review and vulnerability assessment
-  
 - **factory/** - Factory pipeline management skills
-  - memory-system-v2 - Fast semantic memory with JSON indexing
-  - project-lead-instantiator - Create/reuse project-specific Project Lead sessions
-  - session-closer - Close/archive completed project sessions
-  
+- **kelly-router/** - Kelly Router specific skills
 - **plan/** - Planning and requirements skills
-  - (future: requirements gathering, project scoping, etc.)
-  
 - **test/** - Testing and QA skills
-  - tea-smoke-test-web.sh - Web app smoke tests
-  - tea-smoke-test-ios.sh - iOS app smoke tests
-  
 - **utilities/** - General-purpose utility skills
-  - github - GitHub CLI integration (issues, PRs, CI)
-  - gog - Google Workspace (Gmail, Calendar, Drive, Contacts, Sheets, Docs)
-  - skill-creator - Create and package new skills
-  - things-mac - Things 3 task management (macOS)
-  - tmux - Remote control tmux sessions for interactive CLIs
-  - web-browser - Playwright CDP browser automation (zero clicks)
-  - web-search - SearXNG local search
-  
 - **web/** - Web development tech stack
-  - tech-stack/firebase-cli - Firebase + GCP backend provisioning
-  - tech-stack/oauth-automation - OAuth client setup automation
+
+See individual subdirectories for specific skills. OpenClaw auto-discovers skills and injects them into the system prompt.
 
 ## Adding Skills
 
