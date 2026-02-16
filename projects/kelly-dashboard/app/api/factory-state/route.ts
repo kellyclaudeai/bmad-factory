@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "node:fs";
+import path from "node:path";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const FACTORY_STATE_PATH = "/Users/austenallred/clawd/projects/factory-state.md";
+const FACTORY_STATE_PATH =
+  process.env.FACTORY_STATE_PATH ||
+  // repo layout: clawd/projects/kelly-dashboard/app/api/... → factory-state lives at clawd/projects/factory-state.md
+  path.resolve(process.cwd(), "..", "factory-state.md");
 
 type FactoryStateResponse = {
   active: string[];

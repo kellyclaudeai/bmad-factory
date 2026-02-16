@@ -52,7 +52,7 @@ export function CollapsibleSection({
           aria-expanded={!collapsed}
           aria-controls={contentId}
           className={cn(
-            "w-full text-left",
+            "w-full text-left cursor-pointer",
             "rounded-md focus:outline-none focus:ring-2 focus:ring-terminal-amber/70",
             "transition-colors duration-200",
           )}
@@ -81,7 +81,7 @@ export function CollapsibleSection({
               className={cn(
                 "mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-md",
                 "border border-terminal-dim/30 bg-terminal-dim/5",
-                "transition-all duration-200",
+                "transition-all duration-200 cursor-pointer",
                 !collapsed && "border-terminal-amber/40 bg-terminal-amber/10",
               )}
               aria-hidden="true"

@@ -49,16 +49,22 @@ function extractProjectId(sessionKey: string, label?: string): string | undefine
   // e.g., "agent:project-lead:project-calc-basic" -> "calc-basic"
   if (sessionKey.includes(":project-")) {
     const match = sessionKey.match(/:project-([^:]+)/);
-    if (match) {
-      return match[1];
-    }
+    if (match) return match[1];
   }
-  
-  // Try label if available
-  if (label && label.startsWith("project:")) {
-    return label.replace("project:", "");
-  }
-  
+
+  const raw = (label || "").trim();
+  if (!raw) return undefined;
+
+  // Accept common label conventions we use for ephemeral project-lead runs
+  // - project:calc-basic
+  // - pl-calc-basic
+  // - pl:calc-basic
+  // - project-lead:calc-basic
+  if (raw.startsWith("project:")) return raw.slice("project:".length);
+
+  const m = raw.match(/^(?:pl|project|project-lead)[-:](.+)$/i);
+  if (m?.[1]) return m[1].trim();
+
   return undefined;
 }
 
