@@ -1,0 +1,35 @@
+#!/bin/bash
+# Web Search via SearXNG Docker Container
+# Usage: search "query" [count]
+
+QUERY="$1"
+COUNT="${2:-10}"
+
+if [ -z "$QUERY" ]; then
+  echo "Usage: search <query> [count]" >&2
+  exit 1
+fi
+
+# URL encode the query (basic)
+ENCODED_QUERY=$(echo "$QUERY" | sed 's/ /%20/g; s/!/%21/g; s/"/%22/g; s/#/%23/g; s/\$/%24/g; s/%/%25/g; s/&/%26/g; s/(/%28/g; s/)/%29/g; s/\*/%2A/g; s/+/%2B/g; s/,/%2C/g; s/\//%2F/g; s/:/%3A/g; s/;/%3B/g; s/=/%3D/g; s/?/%3F/g; s/@/%40/g; s/\[/%5B/g; s/\]/%5D/g')
+
+SEARXNG_URL="http://localhost:8888/search?q=${ENCODED_QUERY}&format=json&engines=google,bing,duckduckgo"
+
+# Check if SearXNG is running
+if ! curl -sSf http://localhost:8888 > /dev/null 2>&1; then
+  echo "Error: SearXNG container not responding on localhost:8888" >&2
+  echo "Make sure the Docker container is running:" >&2
+  echo "  docker ps | grep searxng" >&2
+  exit 1
+fi
+
+# Fetch results
+curl -sSf "$SEARXNG_URL" | jq -r --arg COUNT "$COUNT" '
+  .results[:($COUNT | tonumber)] |
+  .[] |
+  "\(.score // 0 | tostring | .[0:4] | tonumber // 0) \(.title)\n   \(.url)\n   \(.content | gsub("\\n"; " ") | .[0:200])\n"
+' 2>/dev/null || {
+  echo "Error: Failed to parse results" >&2
+  curl -sSf "$SEARXNG_URL" 2>/dev/null || echo "Failed to fetch from SearXNG" >&2
+  exit 1
+}

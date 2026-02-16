@@ -13,7 +13,7 @@ description: Automate Firebase + Google Cloud backend provisioning via CLI (crea
 ## Core idea
 
 - **Project creation and Firebase enablement are fully automatable via CLI.**
-- **Google OAuth client creation (generic OAuth clients) is not** (Google has no public API). If you need a custom OAuth client with redirect URIs, use browser automation (Chrome Relay / CDP) as the fallback.
+- **Google OAuth client creation (generic OAuth clients) is not** (Google has no public API). If you need a custom OAuth client with redirect URIs, use the **web-browser skill** (zero-click Playwright CDP automation).
 
 ## Provision a new Firebase backend (CLI-first)
 
@@ -84,7 +84,7 @@ firebase init firestore --project "$PROJECT_ID"
 
 Some auth provider toggles still lean on console/UI. For **Google provider (Sign-in with Google)** in Firebase Auth, the provider is usually available without creating a separate OAuth client, but consent screen / branding may still require UI.
 
-**If CLI cannot set it**: use browser automation (see below).
+**If CLI cannot set it**: use the **web-browser skill** (see below).
 
 ### 7) Hosting (optional)
 
@@ -93,17 +93,19 @@ firebase init hosting --project "$PROJECT_ID"
 firebase deploy --only hosting --project "$PROJECT_ID"
 ```
 
-## Unavoidable UI steps (use browser automation)
+## Unavoidable UI steps (use web-browser skill)
 
 ### Google OAuth client creation
 
 Google does not provide a public API for creating **generic** OAuth clients with redirect URIs.
 
 If the app needs a dedicated OAuth client per project:
-- Use Chrome Relay driver (preferred when you want to reuse your existing Chrome session)
-- Or use Playwright CDP automation profile (when Relay isn’t available)
+- **Use the web-browser skill** (Playwright CDP with persistent Chrome profile)
+- Zero clicks required — fully automated via CDP
+- Navigate to https://console.cloud.google.com/apis/credentials
+- Click through the OAuth client creation flow programmatically
 
-**Policy:** keep everything in one attached tab; if a popup/new tab appears, navigate the current tab to the popup URL when possible.
+**Policy:** keep everything in one tab; navigate in place rather than opening new tabs when possible.
 
 ## Factory conventions
 
