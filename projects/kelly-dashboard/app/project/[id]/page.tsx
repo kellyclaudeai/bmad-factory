@@ -40,6 +40,9 @@ type Session = {
   projectDescription?: string
   status: string
   lastActivity: string
+  model?: string
+  channel?: string
+  lastChannel?: string
 }
 
 async function getProjectState(projectId: string): Promise<ProjectState | null> {
@@ -87,6 +90,36 @@ function parseDurationToSeconds(duration?: string): number {
   const minutes = minutesMatch ? parseInt(minutesMatch[1], 10) : 0
   const seconds = secondsMatch ? parseInt(secondsMatch[1], 10) : 0
   return minutes * 60 + seconds
+}
+
+function inferPersona(session: Session): string {
+  const key = session.sessionKey || ''
+  const label = (session.label || '').toLowerCase()
+
+  // BMAD-ish heuristics
+  if (label.includes('sally')) return 'Sally (UX)'
+  if (label.includes('winston')) return 'Winston (Architecture)'
+  if (label.includes('mary')) return 'Mary (Product)'
+  if (label.includes('john')) return 'John (PM)'
+  if (label.includes('bob')) return 'Bob (Stories)'
+  if (label.includes('quinn')) return 'Quinn (QA)'
+  if (label.includes('amelia')) return 'Amelia (Dev)'
+
+  if (key.includes('project-lead')) return 'Project Lead'
+
+  const t = session.agentType || 'agent'
+  return t
+    .replace(/[_-]+/g, ' ')
+    .split(/\s+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+}
+
+function formatRelativeTime(iso: string): string {
+  const then = new Date(iso).getTime()
+  if (!Number.isFinite(then)) return 'unknown'
+  const diffSeconds = Math.max(0, Math.floor((Date.now() - then) / 1000))
+  return formatDuration(diffSeconds)
 }
 
 export default async function ProjectDetail({ params }: ProjectDetailProps) {
@@ -203,9 +236,25 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
             <Card className="bg-terminal-card border-terminal-border">
               <CardContent className="pt-6 space-y-2">
                 {active.map((s) => (
-                  <div key={s.sessionKey} className="flex items-center justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="text-terminal-text font-mono truncate">{s.label}</div>
+                  <div key={s.sessionKey} className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 space-y-1">
+                      <div className="text-terminal-text font-mono truncate">
+                        {inferPersona(s)}
+                        <span className="text-terminal-dim"> • </span>
+                        <span className="text-terminal-text">{s.agentType}</span>
+                      </div>
+                      <div className="text-terminal-dim font-mono text-xs truncate">
+                        Task: {s.label}
+                      </div>
+                      <div className="text-terminal-dim font-mono text-xs truncate">
+                        Running: {formatRelativeTime(s.lastActivity)} (since last activity)
+                        {s.model ? ` • Model: ${s.model}` : ''}
+                      </div>
+                      {(s.lastChannel || s.channel) && (
+                        <div className="text-terminal-dim font-mono text-xs truncate">
+                          Channel: {s.lastChannel || s.channel}
+                        </div>
+                      )}
                       <div className="text-terminal-dim font-mono text-xs truncate">{s.sessionKey}</div>
                     </div>
                     <div className="text-terminal-green font-mono text-xs">ACTIVE</div>
