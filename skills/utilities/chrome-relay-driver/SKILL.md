@@ -7,6 +7,8 @@ description: Drive the user’s real Chrome via OpenClaw Browser Relay (profile=
 
 Use the `functions.browser` tool with `profile="chrome"`.
 
+Also supported (fallback): if Chrome Relay isn’t attached/available, drive a persistent Playwright CDP Chrome instance on `http://127.0.0.1:9222` (launched via `scripts/chrome-cdp.sh`, profile at `~/.openclaw/chrome-cdp-profile`). Use this only when Relay can’t be used.
+
 ## Goal
 
 Operate **autonomously** using the user’s already-authenticated Chrome session. Only interrupt the user when blocked by:
@@ -36,13 +38,18 @@ Operate **autonomously** using the user’s already-authenticated Chrome session
 - Use `browser.navigate` (preferred) or `browser.act` → `evaluate` to set `location.href`.
 - After every navigation: `browser.snapshot(refs:"aria")` and continue.
 
-## Popup / new tab handling
+## Popup / new tab handling (minimize re-attaches)
 
-After any action likely to spawn a popup (e.g., “Sign in with Google”):
-- Call `browser.tabs` again.
-- If a **new tab** appears (especially auth domains) and actions stop affecting the expected UI:
-  - Instruct the user to attach the new tab (Relay icon) if needed.
-  - Then `browser.focus` to that new `targetId` and continue.
+Default policy: **keep everything in the same attached tab**.
+
+After any action likely to spawn a popup/new tab (e.g., “Sign in with Google”):
+1) First try to avoid the popup:
+   - Prefer clicking elements that navigate in-place.
+   - If a link would open a new tab, extract its URL and navigate the *current* tab via `browser.navigate` or `browser.act` → `evaluate` (`location.href = ...`).
+2) If a popup/new tab still appears:
+   - Call `browser.tabs`.
+   - If the new tab is **not attached**, instruct the user to attach it.
+   - If the new tab **is attached**, `browser.focus` it and continue.
 
 ## Authentication / MFA handling
 
@@ -68,5 +75,6 @@ If you land on a sign-in/MFA screen:
 
 ## User instructions (only when needed)
 
-- “Please attach the tab: click the OpenClaw Browser Relay icon in Chrome on the tab you want me to control (badge ON).”
-- “A new login popup/tab opened. Please attach that tab as well, then tell me ‘attached’.”
+- “Please attach a driver tab: click the OpenClaw Browser Relay icon in Chrome on the tab you want me to control (badge ON).”
+- “A login popup/new tab opened and isn’t attached. Please attach that tab as well, then tell me ‘attached’.”
+- “If you prefer zero attaches: use the CDP automation Chrome (profile `~/.openclaw/chrome-cdp-profile`), sign in once, then tell me ‘CDP ready’.”
