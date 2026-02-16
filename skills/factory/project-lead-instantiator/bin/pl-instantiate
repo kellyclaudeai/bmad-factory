@@ -3,7 +3,7 @@
 /**
  * Project Lead Instantiator
  *
- * Creates/reuses a virtual-peer session mapping for a given project id,
+ * Creates/reuses a project-named standalone session mapping for a given project id,
  * updates Kelly registry, optionally updates project-state.json,
  * and prints the openclaw commands to start/check-in.
  */
@@ -61,16 +61,26 @@ function stableHashToDigits(str) {
   return String(h % 10_000_000).padStart(7, '0');
 }
 
-function allocateVirtualPeer(projectId) {
-  // Reserve +1999 000 + 7 digits
-  return `+1999000${stableHashToDigits(projectId)}`;
+function toProjectSlug(projectId) {
+  // Make sure it's a safe session segment.
+  // Keep it deterministic and readable.
+  return String(projectId)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
-function buildSessionKey(virtualPeer) {
-  // This matches the commonly-derived format used by openclaw agent --to.
-  // If your installation derives a different channel token, the dashboard can still
-  // map by virtualPeer substring; and you can copy sessionKey from sessions_list.
-  return `agent:project-lead:whatsapp:direct:${virtualPeer}`;
+function buildSessionKey(projectId) {
+  const slug = toProjectSlug(projectId);
+  if (!slug) throw new Error('Invalid project id/slug');
+  return `agent:project-lead:${slug}`;
+}
+
+function allocateVirtualPeer(projectId) {
+  // Legacy fallback only (if you ever need it)
+  return `+1999000${stableHashToDigits(projectId)}`;
 }
 
 function main() {
@@ -92,10 +102,9 @@ function main() {
 
   let entry = registry.projects[projectId];
   if (!entry) {
-    const virtualPeer = allocateVirtualPeer(projectId);
     entry = {
-      virtualPeer,
-      sessionKey: buildSessionKey(virtualPeer),
+      virtualPeer: allocateVirtualPeer(projectId), // legacy fallback only
+      sessionKey: buildSessionKey(projectId),
       createdAt: nowIso(),
       status: 'active',
     };
@@ -103,7 +112,7 @@ function main() {
   } else {
     // Ensure fields exist
     entry.virtualPeer = entry.virtualPeer || allocateVirtualPeer(projectId);
-    entry.sessionKey = entry.sessionKey || buildSessionKey(entry.virtualPeer);
+    entry.sessionKey = entry.sessionKey || buildSessionKey(projectId);
     entry.status = entry.status || 'active';
   }
 
@@ -130,16 +139,20 @@ function main() {
   console.log('---');
   console.log(`Project: ${projectId}`);
   console.log(`Registry: ${registryPath}`);
-  console.log(`Virtual peer: ${entry.virtualPeer}`);
-  console.log(`Session key (expected): ${entry.sessionKey}`);
+  console.log(`Session key: ${entry.sessionKey}`);
   console.log('---');
-  console.log('Start / ping Project Lead:');
-  console.log(`openclaw agent --agent project-lead --to ${entry.virtualPeer} --message ${JSON.stringify(kickoff)}`);
+  console.log('Create/start Project Lead session (preferred):');
+  console.log(
+    `openclaw tui --session ${JSON.stringify(entry.sessionKey)} --message ${JSON.stringify(kickoff)}`,
+  );
   console.log('---');
   console.log('Check in via TUI:');
   console.log(`openclaw tui --session ${JSON.stringify(entry.sessionKey)}`);
   console.log('---');
-  console.log('Note: if the derived sessionKey differs in your install, copy the real sessionKey from sessions_list/kelly-dashboard UI; mapping still works via virtualPeer.');
+  console.log('Legacy fallback (virtual peer) if needed:');
+  console.log(
+    `openclaw agent --agent project-lead --to ${entry.virtualPeer} --message ${JSON.stringify(kickoff)}`,
+  );
 }
 
 main();
