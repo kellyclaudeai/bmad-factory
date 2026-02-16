@@ -55,8 +55,10 @@ async function readTranscriptPreview(sessionKey: string): Promise<TranscriptPrev
   const isSubagentSession = sessionKey.includes('subagent:')
   
   // Parse sessionKey to extract agent type and sessionId
-  // Format: agent:{agent-type}:subagent:{sessionId}
-  // Example: agent:bmad-bmm-amelia:subagent:abc123
+  // Formats:
+  // - agent:{agent-type}:subagent:{sessionId} (e.g., agent:bmad-bmm-amelia:subagent:abc123)
+  // - agent:{agent-type}:{session-name} (e.g., agent:project-lead:project-kelly-dashboard)
+  // - agent:{agent-type}:{qualifier} (e.g., agent:main:main)
   let transcriptPath: string
   let transcriptPathDisplay: string
   let sessionsDir: string
@@ -64,6 +66,7 @@ async function readTranscriptPreview(sessionKey: string): Promise<TranscriptPrev
   
   const subagentMatch = sessionKey.match(/^agent:([^:]+):subagent:(.+)$/)
   if (subagentMatch) {
+    // Subagent session: agent:{agent-type}:subagent:{sessionId}
     const agentType = subagentMatch[1]
     const sessionId = subagentMatch[2]
     sessionsDir = path.join(homeDir, '.openclaw', 'agents', agentType, 'sessions')
@@ -71,11 +74,48 @@ async function readTranscriptPreview(sessionKey: string): Promise<TranscriptPrev
     transcriptPath = path.join(sessionsDir, `${sessionId}.jsonl`)
     archiveSessionId = sessionId
   } else {
-    // Fallback for other session key formats
-    sessionsDir = path.join(homeDir, '.openclaw', 'sessions', sessionKey)
-    transcriptPathDisplay = `~/.openclaw/sessions/${sessionKey}/transcript.jsonl`
-    transcriptPath = path.join(sessionsDir, 'transcript.jsonl')
-    archiveSessionId = sessionKey
+    // Regular agent session: agent:{agent-type}:{qualifier}
+    // These sessions use UUID-based transcript files, but sessionKey doesn't contain the UUID
+    // We need to query the sessions index to find the right transcript
+    const agentMatch = sessionKey.match(/^agent:([^:]+):.+$/)
+    if (agentMatch) {
+      const agentType = agentMatch[1]
+      sessionsDir = path.join(homeDir, '.openclaw', 'agents', agentType, 'sessions')
+      
+      // Try to find the session in sessions.json
+      try {
+        const sessionsIndexPath = path.join(sessionsDir, 'sessions.json')
+        const sessionsIndexContent = await fs.readFile(sessionsIndexPath, 'utf-8')
+        const sessionsIndex = JSON.parse(sessionsIndexContent) as Array<{key?: string; sessionId: string; transcriptPath?: string}>
+        const session = sessionsIndex.find(s => s.key === sessionKey)
+        
+        if (session && session.transcriptPath) {
+          // Found the session with transcript path
+          transcriptPath = path.join(sessionsDir, session.transcriptPath)
+          transcriptPathDisplay = `~/.openclaw/agents/${agentType}/sessions/${session.transcriptPath}`
+          archiveSessionId = session.sessionId
+        } else {
+          // Couldn't find session in index, return error
+          return {
+            lines: [],
+            error: 'Session not found in sessions index',
+            path: `~/.openclaw/agents/${agentType}/sessions/sessions.json`,
+          }
+        }
+      } catch (error) {
+        return {
+          lines: [],
+          error: `Failed to read sessions index: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          path: `~/.openclaw/agents/${agentType}/sessions/sessions.json`,
+        }
+      }
+    } else {
+      // Fallback for unknown session key format
+      sessionsDir = path.join(homeDir, '.openclaw', 'sessions', sessionKey)
+      transcriptPathDisplay = `~/.openclaw/sessions/${sessionKey}/transcript.jsonl`
+      transcriptPath = path.join(sessionsDir, 'transcript.jsonl')
+      archiveSessionId = sessionKey
+    }
   }
 
   try {

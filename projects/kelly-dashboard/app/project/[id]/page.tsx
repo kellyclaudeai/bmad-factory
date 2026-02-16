@@ -1,7 +1,4 @@
-'use client'
-
-import * as React from 'react'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { ProjectHeader } from '@/components/project-view/project-header'
 import { ProjectMetrics } from '@/components/project-view/project-metrics'
 import { SubagentGrid } from '@/components/project-view/subagent-grid'
@@ -21,9 +18,6 @@ type ProjectState = {
   phases?: Record<string, { name: string; stories: number[]; status: string }>
   subagents: Array<{
     story?: string
-    persona?: string
-    role?: string
-    task?: string
     status: string
     duration?: string
     startedAt?: string
@@ -98,6 +92,29 @@ function parseDurationToSeconds(duration?: string): number {
   return minutes * 60 + seconds
 }
 
+function inferPersona(session: Session): string {
+  const key = session.sessionKey || ''
+  const label = (session.label || '').toLowerCase()
+
+  // BMAD-ish heuristics
+  if (label.includes('sally')) return 'Sally (UX)'
+  if (label.includes('winston')) return 'Winston (Architecture)'
+  if (label.includes('mary')) return 'Mary (Product)'
+  if (label.includes('john')) return 'John (PM)'
+  if (label.includes('bob')) return 'Bob (Stories)'
+  if (label.includes('quinn')) return 'Quinn (QA)'
+  if (label.includes('amelia')) return 'Amelia (Dev)'
+
+  if (key.includes('project-lead')) return 'Project Lead'
+
+  const t = session.agentType || 'agent'
+  return t
+    .replace(/[_-]+/g, ' ')
+    .split(/\s+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+}
+
 function formatRelativeTime(iso: string): string {
   const then = new Date(iso).getTime()
   if (!Number.isFinite(then)) return 'unknown'
@@ -105,36 +122,16 @@ function formatRelativeTime(iso: string): string {
   return formatDuration(diffSeconds)
 }
 
-export default function ProjectDetail({ params }: ProjectDetailProps) {
-  const router = useRouter()
-  const [id, setId] = React.useState<string>('')
-  const [projectState, setProjectState] = React.useState<ProjectState | null>(null)
-  const [sessions, setSessions] = React.useState<Session[]>([])
-  const [loading, setLoading] = React.useState(true)
+export default async function ProjectDetail({ params }: ProjectDetailProps) {
+  const { id } = await params
 
-  React.useEffect(() => {
-    params.then(p => setId(p.id))
-  }, [params])
-
-  React.useEffect(() => {
-    if (!id) return
-    
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    Promise.all([
-      getProjectState(id),
-      fetch(`${baseUrl}/api/sessions`, { cache: 'no-store' })
-        .then((r) => (r.ok ? r.json() as Promise<Session[]> : [] as Session[]))
-        .catch(() => [] as Session[]),
-    ]).then(([state, sess]) => {
-      setProjectState(state)
-      setSessions(sess)
-      setLoading(false)
-    })
-  }, [id])
-
-  if (loading || !id) {
-    return <div className="min-h-screen bg-terminal-bg p-8">Loading...</div>
-  }
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const [projectState, sessions] = await Promise.all([
+    getProjectState(id),
+    fetch(`${baseUrl}/api/sessions`, { cache: 'no-store' })
+      .then((r) => (r.ok ? (r.json() as Promise<Session[]>) : ([] as Session[])))
+      .catch(() => [] as Session[]),
+  ])
 
   const projectName = formatProjectName(id)
 
@@ -234,44 +231,37 @@ export default function ProjectDetail({ params }: ProjectDetailProps) {
           ) : (
             <div className="space-y-2">
               {projectLeadSessions.map((s) => (
-                <Card
+                <Link 
                   key={s.sessionKey}
-                  className="bg-terminal-card border-terminal-border cursor-pointer transition-all duration-200 hover:border-terminal-green hover:shadow-[0_0_10px_rgba(0,255,136,0.1)]"
-                  onClick={() => router.push(`/session/${encodeURIComponent(s.sessionKey)}`)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      router.push(`/session/${encodeURIComponent(s.sessionKey)}`)
-                    }
-                  }}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`View Project Lead session details, status: ${(s.status || 'active').toUpperCase()}`}
+                  href={`/session/${encodeURIComponent(s.sessionKey)}`}
+                  className="block"
                 >
-                  <CardContent className="pt-6 pb-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0 space-y-1">
-                        <div className="text-terminal-text font-mono truncate">
-                          Project Lead
-                          <span className="text-terminal-dim"> • </span>
-                          <span className="text-terminal-text">FULL SESSION</span>
-                        </div>
-                        <div className="text-terminal-dim font-mono text-xs truncate">Task: {s.label}</div>
-                        <div className="text-terminal-dim font-mono text-xs truncate">
-                          Running: {formatRelativeTime(s.lastActivity)} (since last activity)
-                          {s.model ? ` • Model: ${s.model}` : ''}
-                        </div>
-                        {(s.lastChannel || s.channel) && (
-                          <div className="text-terminal-dim font-mono text-xs truncate">
-                            Channel: {s.lastChannel || s.channel}
+                  <Card className="bg-terminal-card border-terminal-border transition-all duration-200 hover:border-terminal-green hover:shadow-[0_0_10px_rgba(0,255,136,0.1)]">
+                    <CardContent className="pt-6 pb-6">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0 space-y-1">
+                          <div className="text-terminal-text font-mono truncate">
+                            Project Lead
+                            <span className="text-terminal-dim"> • </span>
+                            <span className="text-terminal-text">FULL SESSION</span>
                           </div>
-                        )}
-                        <div className="text-terminal-dim font-mono text-xs truncate">{s.sessionKey}</div>
+                          <div className="text-terminal-dim font-mono text-xs truncate">Task: {s.label}</div>
+                          <div className="text-terminal-dim font-mono text-xs truncate">
+                            Running: {formatRelativeTime(s.lastActivity)} (since last activity)
+                            {s.model ? ` • Model: ${s.model}` : ''}
+                          </div>
+                          {(s.lastChannel || s.channel) && (
+                            <div className="text-terminal-dim font-mono text-xs truncate">
+                              Channel: {s.lastChannel || s.channel}
+                            </div>
+                          )}
+                          <div className="text-terminal-dim font-mono text-xs truncate">{s.sessionKey}</div>
+                        </div>
+                        <div className="text-terminal-green font-mono text-xs">{(s.status || 'active').toUpperCase()}</div>
                       </div>
-                      <div className="text-terminal-green font-mono text-xs">{(s.status || 'active').toUpperCase()}</div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           )}
@@ -288,7 +278,7 @@ export default function ProjectDetail({ params }: ProjectDetailProps) {
 
             <section>
               <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
-                Subagents
+                Subagents (from project-state.json)
               </h2>
               <SubagentGrid subagents={projectState.subagents} />
             </section>
