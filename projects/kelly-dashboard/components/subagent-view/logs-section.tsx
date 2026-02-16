@@ -13,8 +13,24 @@ async function readTranscriptPreview(sessionKey: string): Promise<{
   path: string
 }> {
   const homeDir = os.homedir()
-  const transcriptPathDisplay = `~/.openclaw/sessions/${sessionKey}/transcript.jsonl`
-  const transcriptPath = path.join(homeDir, '.openclaw', 'sessions', sessionKey, 'transcript.jsonl')
+  
+  // Parse sessionKey to extract agent type and sessionId
+  // Format: agent:{agent-type}:subagent:{sessionId}
+  // Example: agent:bmad-bmm-amelia:subagent:abc123
+  let transcriptPath: string
+  let transcriptPathDisplay: string
+  
+  const subagentMatch = sessionKey.match(/^agent:([^:]+):subagent:(.+)$/)
+  if (subagentMatch) {
+    const agentType = subagentMatch[1]
+    const sessionId = subagentMatch[2]
+    transcriptPathDisplay = `~/.openclaw/agents/${agentType}/sessions/${sessionId}.jsonl`
+    transcriptPath = path.join(homeDir, '.openclaw', 'agents', agentType, 'sessions', `${sessionId}.jsonl`)
+  } else {
+    // Fallback for other session key formats
+    transcriptPathDisplay = `~/.openclaw/sessions/${sessionKey}/transcript.jsonl`
+    transcriptPath = path.join(homeDir, '.openclaw', 'sessions', sessionKey, 'transcript.jsonl')
+  }
 
   try {
     // Read the entire file

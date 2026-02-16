@@ -13,6 +13,8 @@ interface SessionDetailProps {
 interface SessionData {
   sessionKey: string
   story?: string
+  storyId?: string
+  storyTitle?: string
   status: "active" | "completed" | "failed" | "idle" | "waiting" | "pending"
   phase?: string
   startedAt?: string
@@ -77,6 +79,8 @@ async function getSessionData(sessionKey: string): Promise<SessionData | null> {
             return {
               sessionKey,
               story: subagent.story,
+              storyId: subagent.storyId,
+              storyTitle: subagent.storyTitle,
               status: subagent.status || "pending",
               phase: subagent.phase,
               startedAt: subagent.startedAt,
@@ -174,7 +178,9 @@ export default async function SessionDetail({ params }: SessionDetailProps) {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-mono font-bold text-terminal-green mb-2">
-              {sessionData.story || (type === "subagent" ? "Subagent Session" : type === "project-lead" ? "Project Lead" : "Session")}
+              {sessionData.storyId && sessionData.storyTitle
+                ? `Story ${sessionData.storyId}: ${sessionData.storyTitle}`
+                : sessionData.story || (type === "subagent" ? "Subagent Session" : type === "project-lead" ? "Project Lead" : "Session")}
             </h1>
             <div className="text-xs font-mono text-terminal-dim break-all">
               Type: {typeLabel}
