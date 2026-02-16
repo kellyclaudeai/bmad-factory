@@ -3,14 +3,13 @@
 /**
  * Project Lead Instantiator
  *
- * Creates/reuses a project-named standalone session mapping for a given project id,
- * updates Kelly registry, optionally updates project-state.json,
+ * Creates/reuses a project-named standalone session key for a given project id,
+ * optionally updates project-state.json,
  * and prints the openclaw commands to start/check-in.
  */
 
 const fs = require('node:fs');
 const path = require('node:path');
-const os = require('node:os');
 
 function parseArgs(argv) {
   const args = {};
@@ -50,16 +49,7 @@ function saveJson(p, obj) {
   fs.writeFileSync(p, JSON.stringify(obj, null, 2) + '\n', 'utf8');
 }
 
-function stableHashToDigits(str) {
-  // Simple stable hash -> 7 digits (not cryptographic; just deterministic)
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  h = Math.abs(h >>> 0);
-  return String(h % 10_000_000).padStart(7, '0');
-}
+// Deterministic per-project session keys.
 
 function toProjectSlug(projectId) {
   // Make sure it's a safe session segment.
@@ -78,10 +68,7 @@ function buildSessionKey(projectId) {
   return `agent:project-lead:${slug}`;
 }
 
-function allocateVirtualPeer(projectId) {
-  // Legacy fallback only (if you ever need it)
-  return `+1999000${stableHashToDigits(projectId)}`;
-}
+// Virtual-peer fallback intentionally removed.
 
 function main() {
   const args = parseArgs(process.argv);
@@ -94,27 +81,11 @@ function main() {
     process.exit(2);
   }
 
-  const writeRegistry = !!args['write-registry'];
-
-  const home = process.env.HOME || os.homedir();
-  const registryPath =
-    process.env.PROJECT_LEAD_REGISTRY_PATH ||
-    path.join(home, '.openclaw', 'workspace-kelly', 'project-lead-registry.json');
-
   const entry = {
-    virtualPeer: allocateVirtualPeer(projectId), // legacy fallback only
     sessionKey: buildSessionKey(projectId),
     createdAt: nowIso(),
     status: 'active',
   };
-
-  if (writeRegistry) {
-    const registry = loadJson(registryPath, { version: 1, updatedAt: '', projects: {} });
-    registry.projects = registry.projects || {};
-    registry.projects[projectId] = { ...(registry.projects[projectId] || {}), ...entry };
-    registry.updatedAt = nowIso();
-    saveJson(registryPath, registry);
-  }
 
   // Optionally update project-state.json
   if (projectDir && !noProjectState) {
@@ -122,7 +93,7 @@ function main() {
     const ps = loadJson(psPath, null);
     if (ps && typeof ps === 'object') {
       ps.projectLead = ps.projectLead || {};
-      ps.projectLead.virtualPeer = entry.virtualPeer;
+      // Session key is canonical; no virtualPeer.
       ps.projectLead.sessionKey = entry.sessionKey;
       ps.projectLead.updatedAt = nowIso();
       saveJson(psPath, ps);
@@ -135,7 +106,6 @@ function main() {
 
   console.log('---');
   console.log(`Project: ${projectId}`);
-  if (writeRegistry) console.log(`Registry: ${registryPath}`);
   console.log(`Session key: ${entry.sessionKey}`);
   console.log('---');
   console.log('Create/start Project Lead session (preferred):');
@@ -146,10 +116,6 @@ function main() {
   console.log('Check in via TUI:');
   console.log(`openclaw tui --session ${JSON.stringify(entry.sessionKey)}`);
   console.log('---');
-  console.log('Legacy fallback (virtual peer) if needed:');
-  console.log(
-    `openclaw agent --agent project-lead --to ${entry.virtualPeer} --message ${JSON.stringify(kickoff)}`,
-  );
 }
 
 main();

@@ -2,7 +2,6 @@ import { ProjectHeader } from '@/components/project-view/project-header'
 import { ProjectMetrics } from '@/components/project-view/project-metrics'
 import { SubagentGrid } from '@/components/project-view/subagent-grid'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { lookupProjectMetaByProjectId } from '@/lib/project-lead-registry'
 
 interface ProjectDetailProps {
   params: Promise<{ id: string }>
@@ -133,8 +132,7 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
       .catch(() => [] as Session[]),
   ])
 
-  const meta = lookupProjectMetaByProjectId(id)
-  const projectName = meta?.title || formatProjectName(id)
+  const projectName = formatProjectName(id)
 
   const relevantSessions = sessions.filter((s) => s.projectId === id)
   const active = relevantSessions.filter((s) => (s.status || '').toLowerCase() === 'active')
@@ -180,12 +178,8 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
         stage={stage}
       />
 
-      {meta?.description && (
-        <p className="-mt-6 mb-8 text-terminal-dim font-mono text-sm max-w-3xl">
-          {meta.description}
-        </p>
-      )}
-      
+      {/* no registry-backed project description */}
+
       <main className="space-y-8">
         <section>
           <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
