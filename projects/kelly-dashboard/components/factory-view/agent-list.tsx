@@ -91,7 +91,7 @@ function AgentCard({ session }: { session: Session }) {
     if (session.projectId) {
       router.push(`/project/${session.projectId}`)
     } else {
-      router.push(`/subagent/${encodeURIComponent(session.sessionKey)}`)
+      router.push(`/session/${encodeURIComponent(session.sessionKey)}`)
     }
   }
 

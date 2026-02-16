@@ -85,7 +85,7 @@ function AgentCard({ session }: { session: Session }) {
   const relativeTime = formatRelativeTime(session.lastActivity);
   const destination = session.projectId
     ? `/project/${session.projectId}`
-    : `/subagent/${encodeURIComponent(session.sessionKey)}`;
+    : `/session/${encodeURIComponent(session.sessionKey)}`;
 
   return (
     <Link

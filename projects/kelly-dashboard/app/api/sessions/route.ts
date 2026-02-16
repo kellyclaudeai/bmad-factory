@@ -160,6 +160,20 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
         const meta = undefined;
         const label = session.label || session.displayName || extractLabel(sessionKey);
 
+        const rawChannel = (session as any).channel as string | undefined;
+        const rawLastChannel = (session as any).lastChannel as string | undefined;
+
+        // Normalize a few channel/displayName quirks so the UI reflects how you actually use it.
+        // - The local UI is "openclaw-tui" but many sessions show up as channel=webchat.
+        // - Some legacy sessions have displayName like "whatsapp:g-agent-main-main" even though they were effectively used via the local UI.
+        const normalizedLastChannel = rawLastChannel === "webchat" ? "openclaw-tui" : rawLastChannel;
+        const normalizedChannel = rawChannel === "webchat" ? "openclaw-tui" : rawChannel;
+
+        const normalizedDisplayName =
+          sessionKey === "agent:main:main" || sessionKey === "agent:kelly-improver:main"
+            ? "openclaw-tui"
+            : session.displayName;
+
         return {
           sessionKey,
           label,
@@ -178,9 +192,9 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
           model: session.model,
           tokens: session.tokens,
           duration: undefined, // Could calculate if we had startedAt
-          channel: (session as any).channel,
-          lastChannel: (session as any).lastChannel,
-          displayName: session.displayName,
+          channel: normalizedChannel,
+          lastChannel: normalizedLastChannel,
+          displayName: normalizedDisplayName,
         };
       });
 
