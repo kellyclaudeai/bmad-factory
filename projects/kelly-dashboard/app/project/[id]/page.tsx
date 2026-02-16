@@ -135,11 +135,21 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
   const projectName = formatProjectName(id)
 
   const relevantSessions = sessions.filter((s) => s.projectId === id)
-  const active = relevantSessions.filter((s) => (s.status || '').toLowerCase() === 'active')
-  const queued = relevantSessions.filter((s) => ['idle', 'waiting', 'queued'].includes((s.status || '').toLowerCase()))
-  const completed = relevantSessions.filter((s) => ['complete', 'completed', 'closed'].includes((s.status || '').toLowerCase()))
 
-  const stage = projectState?.currentStage || projectState?.stage || (active.length ? 'active' : 'unknown')
+  const projectLeadSessions = relevantSessions.filter((s) => s.agentType === 'project-lead')
+  const subagentSessions = relevantSessions.filter((s) => s.sessionKey.includes(':subagent:'))
+  const otherAgentSessions = relevantSessions.filter(
+    (s) => s.agentType !== 'project-lead' && !s.sessionKey.includes(':subagent:'),
+  )
+
+  const activeSubagents = subagentSessions.filter((s) => (s.status || '').toLowerCase() === 'active')
+  const queuedSubagents = subagentSessions.filter((s) => ['idle', 'waiting', 'queued'].includes((s.status || '').toLowerCase()))
+  const completedSubagents = subagentSessions.filter((s) => ['complete', 'completed', 'closed'].includes((s.status || '').toLowerCase()))
+
+  const stage =
+    projectState?.currentStage ||
+    projectState?.stage ||
+    (projectLeadSessions.some((s) => (s.status || '').toLowerCase() === 'active') ? 'active' : 'unknown')
 
   // Runtime: best-effort approximation using oldest known session lastActivity.
   const runtimeSeconds = relevantSessions.length
@@ -218,9 +228,50 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
 
         <section>
           <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
+            Project Lead Session
+          </h2>
+          {projectLeadSessions.length === 0 ? (
+            <Card className="bg-terminal-card border-terminal-border">
+              <CardContent className="pt-6 text-terminal-dim font-mono text-sm">
+                No Project Lead session found for this project.
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-terminal-card border-terminal-border">
+              <CardContent className="pt-6 space-y-2">
+                {projectLeadSessions.map((s) => (
+                  <div key={s.sessionKey} className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 space-y-1">
+                      <div className="text-terminal-text font-mono truncate">
+                        Project Lead
+                        <span className="text-terminal-dim"> • </span>
+                        <span className="text-terminal-text">FULL SESSION</span>
+                      </div>
+                      <div className="text-terminal-dim font-mono text-xs truncate">Task: {s.label}</div>
+                      <div className="text-terminal-dim font-mono text-xs truncate">
+                        Running: {formatRelativeTime(s.lastActivity)} (since last activity)
+                        {s.model ? ` • Model: ${s.model}` : ''}
+                      </div>
+                      {(s.lastChannel || s.channel) && (
+                        <div className="text-terminal-dim font-mono text-xs truncate">
+                          Channel: {s.lastChannel || s.channel}
+                        </div>
+                      )}
+                      <div className="text-terminal-dim font-mono text-xs truncate">{s.sessionKey}</div>
+                    </div>
+                    <div className="text-terminal-green font-mono text-xs">{(s.status || 'active').toUpperCase()}</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+        </section>
+
+        <section>
+          <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
             Active Subagents
           </h2>
-          {active.length === 0 ? (
+          {activeSubagents.length === 0 ? (
             <Card className="bg-terminal-card border-terminal-border">
               <CardContent className="pt-6 text-terminal-dim font-mono text-sm">
                 No active subagents for this project.
@@ -229,17 +280,15 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
           ) : (
             <Card className="bg-terminal-card border-terminal-border">
               <CardContent className="pt-6 space-y-2">
-                {active.map((s) => (
+                {activeSubagents.map((s) => (
                   <div key={s.sessionKey} className="flex items-start justify-between gap-4">
                     <div className="min-w-0 space-y-1">
                       <div className="text-terminal-text font-mono truncate">
                         {inferPersona(s)}
                         <span className="text-terminal-dim"> • </span>
-                        <span className="text-terminal-text">{s.agentType}</span>
+                        <span className="text-terminal-text">SUBAGENT</span>
                       </div>
-                      <div className="text-terminal-dim font-mono text-xs truncate">
-                        Task: {s.label}
-                      </div>
+                      <div className="text-terminal-dim font-mono text-xs truncate">Task: {s.label}</div>
                       <div className="text-terminal-dim font-mono text-xs truncate">
                         Running: {formatRelativeTime(s.lastActivity)} (since last activity)
                         {s.model ? ` • Model: ${s.model}` : ''}
@@ -263,7 +312,7 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
           <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
             Next / Queued Subagents
           </h2>
-          {queued.length === 0 ? (
+          {queuedSubagents.length === 0 ? (
             <Card className="bg-terminal-card border-terminal-border">
               <CardContent className="pt-6 text-terminal-dim font-mono text-sm">
                 No queued subagents for this project.
@@ -272,7 +321,7 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
           ) : (
             <Card className="bg-terminal-card border-terminal-border">
               <CardContent className="pt-6 space-y-2">
-                {queued.map((s) => (
+                {queuedSubagents.map((s) => (
                   <div key={s.sessionKey} className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <div className="text-terminal-text font-mono truncate">{s.label}</div>
@@ -290,7 +339,7 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
           <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
             Completed Steps / Subagents
           </h2>
-          {completed.length === 0 ? (
+          {completedSubagents.length === 0 ? (
             <Card className="bg-terminal-card border-terminal-border">
               <CardContent className="pt-6 text-terminal-dim font-mono text-sm">
                 No completed subagents recorded for this project.
@@ -299,7 +348,7 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
           ) : (
             <Card className="bg-terminal-card border-terminal-border">
               <CardContent className="pt-6 space-y-2">
-                {completed.map((s) => (
+                {completedSubagents.map((s) => (
                   <div key={s.sessionKey} className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <div className="text-terminal-text font-mono truncate">{s.label}</div>
