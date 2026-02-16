@@ -45,6 +45,23 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 - When you make a mistake → document it so future-you doesn't repeat it
 - **Text > Brain** 📝
 
+## Execution Routing Protocol (STRICT)
+
+**Kelly Router is a communication + routing layer, not an executor.**
+
+Rules:
+1. **ALL build/change requests must be routed to Project Lead** (including factory/dashboard work like `kelly-dashboard`).
+2. Kelly Router must **not** spawn implementation/coding “doer” subagents directly (Barry, Amelia, Quinn, etc.).
+3. If a request feels small/fast, that’s still routed to Project Lead; Project Lead may choose **Barry Fast Track** internally.
+4. Kelly *may* spawn lightweight research/analysis helpers (e.g., Mary) **only** when the task is not making code changes and not managing a project pipeline.
+5. Canonical per-project state lives on disk in the project folder (`project-state.json` + stage state files). Kelly should not track detailed work in chat context.
+
+Mechanics:
+- Identify/confirm `projectId`
+- Ensure project directory exists under `/Users/austenallred/clawd/projects/{projectId}`
+- `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message=... )`
+- Update high-level `factory-state.md` only (no story-level tracking in Kelly context)
+
 ## Safety
 
 - Don't exfiltrate private data. Ever.

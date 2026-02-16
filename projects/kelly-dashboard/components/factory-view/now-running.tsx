@@ -90,11 +90,11 @@ function AgentCard({ session }: { session: Session }) {
   return (
     <Link
       href={destination}
-      className="block"
+      className="block h-full"
       aria-label={`View details for ${agentName} agent`}
     >
       <Card
-        className="cursor-pointer transition-all duration-200 hover:border-terminal-green hover:shadow-[0_0_10px_rgba(0,255,136,0.1)] focus:ring-2 focus:ring-terminal-green"
+        className="h-[176px] w-full cursor-pointer transition-all duration-200 hover:border-terminal-green hover:shadow-[0_0_10px_rgba(0,255,136,0.1)] focus:ring-2 focus:ring-terminal-green"
         tabIndex={0}
         role="button"
         onKeyDown={(e) => {
@@ -104,9 +104,9 @@ function AgentCard({ session }: { session: Session }) {
           }
         }}
       >
-        <CardContent className="pt-4 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-terminal-text font-mono font-semibold">
+        <CardContent className="pt-5 h-full flex flex-col justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="min-w-0 flex-1 text-terminal-text font-mono font-semibold truncate whitespace-nowrap">
               {agentName}
             </span>
             <Badge
@@ -117,7 +117,7 @@ function AgentCard({ session }: { session: Session }) {
             </Badge>
           </div>
           <div className="text-sm text-terminal-dim font-mono truncate">
-            {session.label}
+            {session.label || "\u00A0"}
           </div>
           <div className="text-xs text-terminal-dim font-mono truncate">
             Session: <span className="text-terminal-text">{sessionName}</span>
@@ -141,11 +141,11 @@ function AgentCard({ session }: { session: Session }) {
 
 function LoadingSkeleton() {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {[...Array(4)].map((_, i) => (
-        <Card key={i} className="animate-pulse">
-          <CardContent className="pt-4 space-y-2">
-            <div className="flex items-center justify-between">
+        <Card key={i} className="h-[176px] w-full animate-pulse">
+          <CardContent className="pt-5 h-full flex flex-col justify-between gap-3">
+            <div className="flex items-center justify-between gap-3">
               <Skeleton className="h-5 w-20" />
               <Skeleton className="h-4 w-16" />
             </div>
@@ -201,7 +201,7 @@ export function NowRunning() {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {runningAgents.map((session) => (
         <AgentCard key={session.sessionKey} session={session} />
       ))}
