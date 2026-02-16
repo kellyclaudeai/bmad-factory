@@ -5,7 +5,23 @@ description: Close/remove stale OpenClaw sessions (especially Project Lead proje
 
 # session-closer
 
-Use this when a project is **Shipped/Done** (or you explicitly want to close a Project Lead session) so it disappears from `sessions_list` and the factory dashboard.
+**Generic session cleanup** - closes any OpenClaw session (Project Lead, isolated agents, etc.) by removing from session index and archiving transcripts.
+
+## When to Use
+
+- **Shipped projects:** Close Project Lead session when project is complete
+- **Stale sessions:** Remove abandoned or completed sessions
+- **Dashboard cleanup:** Make sessions disappear from `sessions_list`
+
+## Relation to project-closer
+
+**session-closer** handles session cleanup only (generic, any session type).
+
+**project-closer** handles full project termination (calls session-closer + deletes project directory + updates factory state).
+
+Use:
+- **session-closer** when you ONLY want to close a session (keep project files)
+- **project-closer** when you want COMPLETE project cleanup (session + directory + state)
 
 ## What it changes
 Project Lead sessions are stored under:

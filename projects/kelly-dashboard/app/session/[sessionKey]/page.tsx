@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { SessionMetadata } from "@/components/subagent-view/session-metadata"
 import { ArtifactsList } from "@/components/subagent-view/artifacts-list"
+import { LogsSection } from "@/components/subagent-view/logs-section"
 import Link from "next/link"
 import { promises as fs } from "node:fs"
 import path from "node:path"
@@ -12,6 +13,8 @@ interface SessionDetailProps {
 interface SessionData {
   sessionKey: string
   story?: string
+  storyId?: string
+  storyTitle?: string
   status: "active" | "completed" | "failed" | "idle" | "waiting" | "pending"
   phase?: string
   startedAt?: string
@@ -26,6 +29,8 @@ interface SessionData {
   branch?: string
   artifacts?: string[]
   projectId?: string
+  persona?: string
+  role?: string
 }
 
 function getSessionType(decodedKey: string): "subagent" | "project-lead" | "session" {
@@ -74,6 +79,8 @@ async function getSessionData(sessionKey: string): Promise<SessionData | null> {
             return {
               sessionKey,
               story: subagent.story,
+              storyId: subagent.storyId,
+              storyTitle: subagent.storyTitle,
               status: subagent.status || "pending",
               phase: subagent.phase,
               startedAt: subagent.startedAt,
@@ -85,6 +92,8 @@ async function getSessionData(sessionKey: string): Promise<SessionData | null> {
               branch: subagent.branch,
               artifacts: subagent.artifacts,
               projectId,
+              persona: subagent.persona,
+              role: subagent.role,
             }
           }
         }
@@ -140,6 +149,10 @@ export default async function SessionDetail({ params }: SessionDetailProps) {
     )
   }
 
+  const personaDisplay = sessionData.persona?.trim() || (type === "subagent" ? "Subagent" : "Unknown")
+  const roleDisplay = sessionData.role?.trim() || "Unknown"
+  const showPersonaRole = type === "subagent" || Boolean(sessionData.persona) || Boolean(sessionData.role)
+
   return (
     <div className="min-h-screen bg-terminal-bg p-8">
       <header className="mb-8">
@@ -165,13 +178,22 @@ export default async function SessionDetail({ params }: SessionDetailProps) {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-mono font-bold text-terminal-green mb-2">
-              {sessionData.story || (type === "subagent" ? "Subagent Session" : type === "project-lead" ? "Project Lead" : "Session")}
+              {sessionData.storyId && sessionData.storyTitle
+                ? `Story ${sessionData.storyId}: ${sessionData.storyTitle}`
+                : sessionData.story || (type === "subagent" ? "Subagent Session" : type === "project-lead" ? "Project Lead" : "Session")}
             </h1>
             <div className="text-xs font-mono text-terminal-dim break-all">
               Type: {typeLabel}
               <span className="text-terminal-dim"> • </span>
               <span className="text-terminal-text">{decodedKey}</span>
             </div>
+            {showPersonaRole && (
+              <div className="text-sm font-mono mt-1">
+                <span className="text-terminal-green">{personaDisplay}</span>
+                <span className="text-terminal-dim"> • </span>
+                <span className="text-terminal-text">{roleDisplay}</span>
+              </div>
+            )}
             {sessionData.branch && (
               <div className="text-sm text-terminal-dim font-mono">
                 Branch: <span className="text-terminal-text">{sessionData.branch}</span>
@@ -194,6 +216,8 @@ export default async function SessionDetail({ params }: SessionDetailProps) {
         />
 
         <ArtifactsList artifacts={sessionData.artifacts} projectId={sessionData.projectId} />
+
+        <LogsSection sessionKey={decodedKey} />
 
         {sessionData.phase && (
           <Card>

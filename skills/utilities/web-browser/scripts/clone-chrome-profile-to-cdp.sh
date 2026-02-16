@@ -2,8 +2,8 @@
 set -euo pipefail
 
 SRC="$HOME/Library/Application Support/Google/Chrome"
-DST="$HOME/.openclaw/chrome-cdp-profile"
-PORT="${CDP_PORT:-9222}"
+DST="${BROWSER_PROFILE:-$HOME/.openclaw/browser/openclaw/user-data}"
+PORT="${CDP_PORT:-18800}"
 
 # Quit Chrome to avoid profile corruption.
 osascript -e 'tell application "Google Chrome" to quit' >/dev/null 2>&1 || true
