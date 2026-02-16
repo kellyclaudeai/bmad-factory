@@ -52,7 +52,10 @@ export function CollapsibleSection({
           aria-expanded={!collapsed}
           aria-controls={contentId}
           className={cn(
+            // Make the entire header row (including surrounding whitespace) clickable,
+            // not just the title text.
             "w-full text-left cursor-pointer",
+            "px-2 py-2 -mx-2 -mt-2",
             "rounded-md focus:outline-none focus:ring-2 focus:ring-terminal-amber/70",
             "transition-colors duration-200",
           )}
