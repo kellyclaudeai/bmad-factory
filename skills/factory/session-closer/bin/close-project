@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROJECT_ID="${1:-}"
+if [[ -z "$PROJECT_ID" ]]; then
+  echo "Usage: close-project <projectId>" >&2
+  exit 2
+fi
+
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+python3 "$BASE_DIR/scripts/close_project_lead_session.py" --project-id "$PROJECT_ID"
