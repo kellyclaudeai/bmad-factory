@@ -86,10 +86,8 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
           <CardContent className="text-terminal-dim">
             <p>Could not load project state for: <span className="font-mono text-terminal-red">{id}</span></p>
             <p className="mt-2 text-sm">
-              Make sure the project exists at: 
-              <code className="block mt-1 p-2 bg-terminal-bg rounded font-mono text-xs">
-                /Users/austenallred/clawd/projects/{id}/project-state.json
-              </code>
+              This project doesn’t have an on-disk <code className="font-mono">project-state.json</code> yet.
+              If it’s a Project Lead–managed project, ensure it’s registered in the Kelly registry.
             </p>
           </CardContent>
         </Card>

@@ -52,10 +52,16 @@ function extractAgentType(sessionKey: string): string {
 
 function extractProjectId(sessionKey: string, label?: string): string | undefined {
   // Try to extract project ID from session key
+  // IMPORTANT: avoid matching the agent type "project-lead".
+  // e.g., "agent:project-lead:project-meeting-time-tracker" -> "meeting-time-tracker"
   // e.g., "agent:project-lead:project-calc-basic" -> "calc-basic"
+  const plMatch = sessionKey.match(/^agent:project-lead:project-([^:]+)$/);
+  if (plMatch?.[1]) return plMatch[1];
+
+  // Fallback for other agent session key conventions.
   if (sessionKey.includes(":project-")) {
     const match = sessionKey.match(/:project-([^:]+)/);
-    if (match) return match[1];
+    if (match?.[1]) return match[1];
   }
 
   const raw = (label || "").trim();
