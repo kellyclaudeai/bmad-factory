@@ -169,10 +169,16 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
         const normalizedLastChannel = rawLastChannel === "webchat" ? "openclaw-tui" : rawLastChannel;
         const normalizedChannel = rawChannel === "webchat" ? "openclaw-tui" : rawChannel;
 
-        const normalizedDisplayName =
-          sessionKey === "agent:main:main" || sessionKey === "agent:kelly-improver:main"
-            ? "openclaw-tui"
-            : session.displayName;
+        const forceTuiPlatform =
+          sessionKey === "agent:main:main" || sessionKey === "agent:kelly-improver:main";
+
+        const normalizedDisplayName = forceTuiPlatform ? "openclaw-tui" : session.displayName;
+
+        const finalLastChannel = forceTuiPlatform
+          ? "openclaw-tui"
+          : normalizedLastChannel;
+
+        const finalChannel = forceTuiPlatform ? "openclaw-tui" : normalizedChannel;
 
         return {
           sessionKey,
@@ -192,8 +198,8 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
           model: session.model,
           tokens: session.tokens,
           duration: undefined, // Could calculate if we had startedAt
-          channel: normalizedChannel,
-          lastChannel: normalizedLastChannel,
+          channel: finalChannel,
+          lastChannel: finalLastChannel,
           displayName: normalizedDisplayName,
         };
       });
