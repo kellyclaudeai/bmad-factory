@@ -16,6 +16,9 @@ type Session = {
   model?: string;
   tokens?: { input: number; output: number };
   duration?: number;
+  channel?: string;
+  lastChannel?: string;
+  displayName?: string;
 };
 
 function formatRelativeTime(isoTimestamp: string): string {
@@ -50,8 +53,35 @@ function getAgentDisplayName(agentType: string): string {
   return agentType;
 }
 
+function getSessionShortName(sessionKey: string): string {
+  const parts = sessionKey.split(":");
+  const subagentIdx = parts.indexOf("subagent");
+  if (subagentIdx >= 0) {
+    const id = parts[subagentIdx + 1];
+    return id ? `subagent:${id.slice(0, 8)}` : "subagent";
+  }
+  return parts[2] || sessionKey;
+}
+
+function getPlatformLabel(session: Session): string {
+  // Prefer a human-friendly displayName when it looks like a local UI label.
+  const dn = (session.displayName || "").trim();
+  if (dn && (dn === "openclaw-tui" || dn === "heartbeat")) return dn;
+
+  // Otherwise fall back to where the last interaction came from.
+  const ch = (session.lastChannel || session.channel || "").trim();
+  if (ch) return ch;
+
+  // As a last resort, show the raw displayName.
+  if (dn) return dn;
+
+  return "unknown";
+}
+
 function AgentCard({ session }: { session: Session }) {
   const agentName = getAgentDisplayName(session.agentType);
+  const sessionName = getSessionShortName(session.sessionKey);
+  const platform = getPlatformLabel(session);
   const relativeTime = formatRelativeTime(session.lastActivity);
   const destination = session.projectId
     ? `/project/${session.projectId}`
@@ -88,6 +118,11 @@ function AgentCard({ session }: { session: Session }) {
           </div>
           <div className="text-sm text-terminal-dim font-mono truncate">
             {session.label}
+          </div>
+          <div className="text-xs text-terminal-dim font-mono truncate">
+            Session: <span className="text-terminal-text">{sessionName}</span>
+            <span className="text-terminal-dim"> • </span>
+            Platform: <span className="text-terminal-text">{platform}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-terminal-dim font-mono">Updated</span>

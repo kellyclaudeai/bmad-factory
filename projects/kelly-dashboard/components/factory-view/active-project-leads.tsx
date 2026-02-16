@@ -79,12 +79,36 @@ function inferProjectOneLiner(projectId: string): string {
   return "Project";
 }
 
+function getSessionShortName(sessionKey: string): string {
+  const parts = sessionKey.split(":");
+  const subagentIdx = parts.indexOf("subagent");
+  if (subagentIdx >= 0) {
+    const id = parts[subagentIdx + 1];
+    return id ? `subagent:${id.slice(0, 8)}` : "subagent";
+  }
+  return parts[2] || sessionKey;
+}
+
+function getPlatformLabel(session: Session): string {
+  const dn = (session.displayName || "").trim();
+  if (dn && (dn === "openclaw-tui" || dn === "heartbeat")) return dn;
+
+  const ch = (session.lastChannel || session.channel || "").trim();
+  if (ch) return ch;
+
+  if (dn) return dn;
+
+  return "unknown";
+}
+
 function ProjectLeadCard({ session }: { session: Session }) {
   const projectId = session.projectId || "unknown";
   const title = session.projectTitle || humanizeProjectId(projectId);
   const oneLiner = session.projectDescription || inferProjectOneLiner(projectId);
   const status = session.status || "active";
   const relativeTime = formatRelativeTime(session.lastActivity);
+  const sessionName = getSessionShortName(session.sessionKey);
+  const platform = getPlatformLabel(session);
 
   return (
     <Link
@@ -135,14 +159,14 @@ function ProjectLeadCard({ session }: { session: Session }) {
               {relativeTime}
             </span>
           </div>
-          {(session.channel || session.lastChannel) && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-terminal-dim font-mono">Channel</span>
-              <span className="text-terminal-text font-mono">
-                {session.lastChannel || session.channel}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-terminal-dim font-mono">Session</span>
+            <span className="text-terminal-text font-mono">{sessionName}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-terminal-dim font-mono">Platform</span>
+            <span className="text-terminal-text font-mono">{platform}</span>
+          </div>
           {session.tokens && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-terminal-dim font-mono">Tokens</span>
