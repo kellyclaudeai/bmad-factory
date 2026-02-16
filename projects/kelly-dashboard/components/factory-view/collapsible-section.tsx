@@ -55,7 +55,9 @@ export function CollapsibleSection({
             // Make the entire header row (including surrounding whitespace) clickable,
             // not just the title text.
             "w-full text-left cursor-pointer",
-            "px-2 py-2 -mx-2 -mt-2",
+            // CardContent uses px-6 pt-4, so match/overlap that padding so the whole
+            // visual header area is clickable.
+            "px-6 py-4 -mx-6 -mt-4",
             "rounded-md focus:outline-none focus:ring-2 focus:ring-terminal-amber/70",
             "transition-colors duration-200",
           )}
