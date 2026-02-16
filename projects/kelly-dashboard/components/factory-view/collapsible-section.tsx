@@ -45,10 +45,18 @@ export function CollapsibleSection({
         className,
       )}
     >
-      <CardContent className="pt-4 pb-6">
+      <CardContent
+        className="pt-4 pb-6"
+        // Make the whole card body clickable, but prevent clicks inside the expanded
+        // content area from toggling.
+        onClick={toggle}
+      >
         <button
           type="button"
-          onClick={toggle}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggle();
+          }}
           aria-expanded={!collapsed}
           aria-controls={contentId}
           className={cn(
@@ -108,7 +116,12 @@ export function CollapsibleSection({
           )}
         >
           <div className="overflow-hidden">
-            <div className={cn("pt-4", collapsed && "pointer-events-none")}>{children}</div>
+            <div
+              className={cn("pt-4", collapsed && "pointer-events-none")}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {children}
+            </div>
           </div>
         </div>
       </CardContent>
