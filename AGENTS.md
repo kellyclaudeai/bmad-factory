@@ -125,16 +125,6 @@ Skills provide your tools. When you need one, check its `SKILL.md`. Keep local n
 - **Discord links:** Wrap multiple links in `<>` to suppress embeds: `<https://example.com>`
 - **WhatsApp:** No headers — use **bold** or CAPS for emphasis
 
-## Barry Fast Mode (parallel execution)
-
-When a project is thrashing or needs multiple independent workstreams, use **Barry Fast Mode**:
-
-- Spawn **1 planner sub-agent** to write the plan and split work into independent streams.
-- Spawn **2–4 executor sub-agents** in parallel (one workstream each).
-- Do a final **integration + verification** pass.
-
-Reference: `docs/BARRY_FAST_MODE.md`
-
 ## 💓 Heartbeats - Be Proactive!
 
 When you receive a heartbeat poll (message matches the configured heartbeat prompt), don't just reply `HEARTBEAT_OK` every time. Use heartbeats productively!
