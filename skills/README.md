@@ -4,7 +4,8 @@ This directory contains skills specific to our factory/BMAD workflow. These are 
 
 ## Structure
 
-- **build/** - Build, test, and quality assurance skills
+- **build/** - Build, development, and quality assurance skills
+  - coding-agent - Run Codex CLI, Claude Code, OpenCode, or Pi Coding Agent
   - security-audit - Security review and vulnerability assessment
   
 - **factory/** - Factory pipeline management skills
@@ -12,11 +13,12 @@ This directory contains skills specific to our factory/BMAD workflow. These are 
   - project-lead-instantiator - Create/reuse project-specific Project Lead sessions
   - session-closer - Close/archive completed project sessions
   
-- **implementation/** - Code generation and development skills
-  - coding-agent - Run Codex CLI, Claude Code, OpenCode, or Pi Coding Agent
-  
 - **plan/** - Planning and requirements skills
   - (future: requirements gathering, project scoping, etc.)
+  
+- **test/** - Testing and QA skills
+  - tea-smoke-test-web.sh - Web app smoke tests
+  - tea-smoke-test-ios.sh - iOS app smoke tests
   
 - **utilities/** - General-purpose utility skills
   - github - GitHub CLI integration (issues, PRs, CI)
