@@ -36,24 +36,34 @@ export function CollapsibleSection({
     setSectionCollapsed(id, !collapsed);
   }, [collapsed, id, setSectionCollapsed]);
 
+  const onCardClick = React.useCallback(
+    (e: React.MouseEvent) => {
+      // If the click originated from an interactive element inside the card,
+      // don’t toggle the section.
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("a,button,input,textarea,select,label,[role='button']")) return;
+      toggle();
+    },
+    [toggle],
+  );
+
   return (
     <Card
+      onClick={onCardClick}
       className={cn(
         "border-terminal-dim/30 bg-terminal-card",
         "transition-colors duration-200",
+        // Make it clear the card is clickable.
+        "cursor-pointer",
         collapsed ? "hover:border-terminal-dim/40" : "hover:border-terminal-amber/40",
         className,
       )}
     >
-      <CardContent
-        className="pt-4 pb-6"
-        // Make the whole card body clickable, but prevent clicks inside the expanded
-        // content area from toggling.
-        onClick={toggle}
-      >
+      <CardContent className="pt-4 pb-6">
         <button
           type="button"
           onClick={(e) => {
+            // Button is explicitly interactive; avoid also triggering the Card onClick.
             e.stopPropagation();
             toggle();
           }}
@@ -116,12 +126,7 @@ export function CollapsibleSection({
           )}
         >
           <div className="overflow-hidden">
-            <div
-              className={cn("pt-4", collapsed && "pointer-events-none")}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {children}
-            </div>
+            <div className={cn("pt-4", collapsed && "pointer-events-none")}>{children}</div>
           </div>
         </div>
       </CardContent>
