@@ -1,0 +1,145 @@
+#!/usr/bin/env node
+
+/**
+ * Project Lead Instantiator
+ *
+ * Creates/reuses a virtual-peer session mapping for a given project id,
+ * updates Kelly registry, optionally updates project-state.json,
+ * and prints the openclaw commands to start/check-in.
+ */
+
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+
+function parseArgs(argv) {
+  const args = {};
+  for (let i = 2; i < argv.length; i++) {
+    const a = argv[i];
+    if (!a.startsWith('--')) continue;
+    const key = a.slice(2);
+    const next = argv[i + 1];
+    if (next && !next.startsWith('--')) {
+      args[key] = next;
+      i++;
+    } else {
+      args[key] = true;
+    }
+  }
+  return args;
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function ensureDir(p) {
+  fs.mkdirSync(p, { recursive: true });
+}
+
+function loadJson(p, fallback) {
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf8'));
+  } catch {
+    return fallback;
+  }
+}
+
+function saveJson(p, obj) {
+  ensureDir(path.dirname(p));
+  fs.writeFileSync(p, JSON.stringify(obj, null, 2) + '\n', 'utf8');
+}
+
+function stableHashToDigits(str) {
+  // Simple stable hash -> 7 digits (not cryptographic; just deterministic)
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  h = Math.abs(h >>> 0);
+  return String(h % 10_000_000).padStart(7, '0');
+}
+
+function allocateVirtualPeer(projectId) {
+  // Reserve +1999 000 + 7 digits
+  return `+1999000${stableHashToDigits(projectId)}`;
+}
+
+function buildSessionKey(virtualPeer) {
+  // This matches the commonly-derived format used by openclaw agent --to.
+  // If your installation derives a different channel token, the dashboard can still
+  // map by virtualPeer substring; and you can copy sessionKey from sessions_list.
+  return `agent:project-lead:whatsapp:direct:${virtualPeer}`;
+}
+
+function main() {
+  const args = parseArgs(process.argv);
+  const projectId = args['project-id'] || args.projectId;
+  const projectDir = args['project-dir'] || args.projectDir;
+  const noProjectState = !!args['no-project-state'];
+
+  if (!projectId) {
+    console.error('Missing --project-id');
+    process.exit(2);
+  }
+
+  const home = process.env.HOME || os.homedir();
+  const registryPath = process.env.PROJECT_LEAD_REGISTRY_PATH || path.join(home, '.openclaw', 'workspace-kelly', 'project-lead-registry.json');
+
+  const registry = loadJson(registryPath, { version: 1, updatedAt: '', projects: {} });
+  registry.projects = registry.projects || {};
+
+  let entry = registry.projects[projectId];
+  if (!entry) {
+    const virtualPeer = allocateVirtualPeer(projectId);
+    entry = {
+      virtualPeer,
+      sessionKey: buildSessionKey(virtualPeer),
+      createdAt: nowIso(),
+      status: 'active',
+    };
+    registry.projects[projectId] = entry;
+  } else {
+    // Ensure fields exist
+    entry.virtualPeer = entry.virtualPeer || allocateVirtualPeer(projectId);
+    entry.sessionKey = entry.sessionKey || buildSessionKey(entry.virtualPeer);
+    entry.status = entry.status || 'active';
+  }
+
+  registry.updatedAt = nowIso();
+  saveJson(registryPath, registry);
+
+  // Optionally update project-state.json
+  if (projectDir && !noProjectState) {
+    const psPath = path.join(projectDir, 'project-state.json');
+    const ps = loadJson(psPath, null);
+    if (ps && typeof ps === 'object') {
+      ps.projectLead = ps.projectLead || {};
+      ps.projectLead.virtualPeer = entry.virtualPeer;
+      ps.projectLead.sessionKey = entry.sessionKey;
+      ps.projectLead.updatedAt = nowIso();
+      saveJson(psPath, ps);
+    }
+  }
+
+  const kickoff = projectDir
+    ? `Start project ${projectId}. Work only in ${projectDir}. Use Barry Fast Mode when needed.`
+    : `Start project ${projectId}. Use Barry Fast Mode when needed.`;
+
+  console.log('---');
+  console.log(`Project: ${projectId}`);
+  console.log(`Registry: ${registryPath}`);
+  console.log(`Virtual peer: ${entry.virtualPeer}`);
+  console.log(`Session key (expected): ${entry.sessionKey}`);
+  console.log('---');
+  console.log('Start / ping Project Lead:');
+  console.log(`openclaw agent --agent project-lead --to ${entry.virtualPeer} --message ${JSON.stringify(kickoff)}`);
+  console.log('---');
+  console.log('Check in via TUI:');
+  console.log(`openclaw tui --session ${JSON.stringify(entry.sessionKey)}`);
+  console.log('---');
+  console.log('Note: if the derived sessionKey differs in your install, copy the real sessionKey from sessions_list/kelly-dashboard UI; mapping still works via virtualPeer.');
+}
+
+main();
