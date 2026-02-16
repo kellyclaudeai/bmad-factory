@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 import { ProjectHeader } from '@/components/project-view/project-header'
 import { ProjectMetrics } from '@/components/project-view/project-metrics'
 import { SubagentGrid } from '@/components/project-view/subagent-grid'
@@ -45,20 +47,15 @@ type Session = {
   lastChannel?: string
 }
 
+const PROJECTS_ROOT = '/Users/austenallred/clawd/projects'
+
 async function getProjectState(projectId: string): Promise<ProjectState | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const response = await fetch(`${baseUrl}/api/project-state?id=${projectId}`, {
-      cache: 'no-store', // Always fetch fresh data
-    })
-    
-    if (!response.ok) {
-      return null
-    }
-    
-    return await response.json()
+    const projectStatePath = path.join(PROJECTS_ROOT, projectId, 'project-state.json')
+    const contents = await fs.readFile(projectStatePath, 'utf8')
+    return JSON.parse(contents)
   } catch (error) {
-    console.error('Failed to fetch project state:', error)
+    console.error('Failed to read project state:', error)
     return null
   }
 }
