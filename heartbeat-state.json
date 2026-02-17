@@ -1,0 +1,17 @@
+{
+  "lastProjectCheck": 1771364298,
+  "surfacedQA": [
+    "calculator-app",
+    "kelly-dashboard",
+    "daily-todo-tracker"
+  ],
+  "projectChecks": {
+    "fleai-market-v4": {
+      "lastCheck": 1771364298,
+      "lastPing": 1771364298,
+      "status": "ok",
+      "stage": "implementation",
+      "note": "38/68 (56%). Story 4.8 on 3rd attempt - escalation if v3 fails."
+    }
+  }
+}
