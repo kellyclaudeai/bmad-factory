@@ -2,22 +2,35 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
+import { FormattedMessage, type Message } from './formatted-message'
 
 interface LogsSectionProps {
   sessionKey: string
 }
 
 interface TranscriptPreviewResult {
-  lines: string[]
+  messages: Message[]
   error?: string
   path: string
   missingSubagentTranscript?: boolean
 }
 
-async function readTranscriptLines(transcriptPath: string): Promise<string[]> {
+async function readTranscriptMessages(transcriptPath: string, limit: number = 50): Promise<Message[]> {
   const content = await fs.readFile(transcriptPath, 'utf-8')
   const allLines = content.split('\n').filter(line => line.trim())
-  return allLines.slice(-10)
+  const recentLines = allLines.slice(-limit)
+  
+  const messages: Message[] = []
+  for (const line of recentLines) {
+    try {
+      const parsed = JSON.parse(line)
+      messages.push(parsed as Message)
+    } catch {
+      // Skip invalid JSON lines
+    }
+  }
+  
+  return messages
 }
 
 function toDisplayPath(filePath: string, homeDir: string): string {
@@ -50,6 +63,19 @@ async function findArchivedTranscriptPath(sessionsDir: string, sessionId: string
   }
 }
 
+async function fetchSessionId(sessionKey: string): Promise<string | null> {
+  try {
+    const response = await fetch(`http://localhost:3000/api/sessions/${encodeURIComponent(sessionKey)}`, {
+      cache: 'no-store',
+    })
+    if (!response.ok) return null
+    const data = await response.json()
+    return data.sessionId || null
+  } catch {
+    return null
+  }
+}
+
 async function readTranscriptPreview(sessionKey: string): Promise<TranscriptPreviewResult> {
   const homeDir = os.homedir()
   const isSubagentSession = sessionKey.includes('subagent:')
@@ -70,6 +96,28 @@ async function readTranscriptPreview(sessionKey: string): Promise<TranscriptPrev
     transcriptPathDisplay = `~/.openclaw/agents/${agentType}/sessions/${sessionId}.jsonl`
     transcriptPath = path.join(sessionsDir, `${sessionId}.jsonl`)
     archiveSessionId = sessionId
+  } else if (sessionKey.startsWith('agent:')) {
+    // Handle other agent sessions (like project-lead)
+    // Format: agent:{agent-type}:{project-id}
+    // Example: agent:project-lead:project-kelly-dashboard
+    const parts = sessionKey.split(':')
+    const agentType = parts[1] // e.g., "project-lead"
+    
+    // Fetch sessionId from the gateway via API
+    const sessionId = await fetchSessionId(sessionKey)
+    
+    if (sessionId) {
+      sessionsDir = path.join(homeDir, '.openclaw', 'agents', agentType, 'sessions')
+      transcriptPathDisplay = `~/.openclaw/agents/${agentType}/sessions/${sessionId}.jsonl`
+      transcriptPath = path.join(sessionsDir, `${sessionId}.jsonl`)
+      archiveSessionId = sessionId
+    } else {
+      // Fallback if we can't fetch sessionId
+      sessionsDir = path.join(homeDir, '.openclaw', 'sessions', sessionKey)
+      transcriptPathDisplay = `~/.openclaw/sessions/${sessionKey}/transcript.jsonl`
+      transcriptPath = path.join(sessionsDir, 'transcript.jsonl')
+      archiveSessionId = sessionKey
+    }
   } else {
     // Fallback for other session key formats
     sessionsDir = path.join(homeDir, '.openclaw', 'sessions', sessionKey)
@@ -79,10 +127,10 @@ async function readTranscriptPreview(sessionKey: string): Promise<TranscriptPrev
   }
 
   try {
-    const lastLines = await readTranscriptLines(transcriptPath)
+    const messages = await readTranscriptMessages(transcriptPath)
 
     return {
-      lines: lastLines,
+      messages,
       path: transcriptPathDisplay,
     }
   } catch (error) {
@@ -94,9 +142,9 @@ async function readTranscriptPreview(sessionKey: string): Promise<TranscriptPrev
       const archivedTranscriptPath = await findArchivedTranscriptPath(sessionsDir, archiveSessionId)
       if (archivedTranscriptPath) {
         try {
-          const archivedLines = await readTranscriptLines(archivedTranscriptPath)
+          const archivedMessages = await readTranscriptMessages(archivedTranscriptPath)
           return {
-            lines: archivedLines,
+            messages: archivedMessages,
             path: toDisplayPath(archivedTranscriptPath, homeDir),
           }
         } catch {
@@ -106,26 +154,26 @@ async function readTranscriptPreview(sessionKey: string): Promise<TranscriptPrev
 
       if (isSubagentSession) {
         return {
-          lines: [],
+          messages: [],
           missingSubagentTranscript: true,
           path: transcriptPathDisplay,
         }
       }
 
       return {
-        lines: [],
+        messages: [],
         error: 'Transcript file not found',
         path: transcriptPathDisplay,
       }
     } else if (errorCode === 'EACCES') {
       return {
-        lines: [],
+        messages: [],
         error: 'Permission denied reading transcript',
         path: transcriptPathDisplay,
       }
     } else {
       return {
-        lines: [],
+        messages: [],
         error: `Error reading transcript: ${errorMessage}`,
         path: transcriptPathDisplay,
       }
@@ -135,7 +183,7 @@ async function readTranscriptPreview(sessionKey: string): Promise<TranscriptPrev
 
 export async function LogsSection({ sessionKey }: LogsSectionProps) {
   const {
-    lines,
+    messages,
     error,
     path: transcriptPath,
     missingSubagentTranscript,
@@ -158,8 +206,8 @@ export async function LogsSection({ sessionKey }: LogsSectionProps) {
         {/* Preview or Error */}
         <div>
           <div className="text-xs font-mono text-terminal-dim mb-1 flex items-center justify-between">
-            <span>Preview (last 10 lines)</span>
-            {!error && !missingSubagentTranscript && lines.length > 0 && (
+            <span>Preview (last 50 messages)</span>
+            {!error && !missingSubagentTranscript && messages.length > 0 && (
               <span className="text-terminal-dim text-xs">
                 💡 Full transcript available at path above
               </span>
@@ -181,38 +229,21 @@ export async function LogsSection({ sessionKey }: LogsSectionProps) {
                 <li>Or check project artifacts/commits for work output</li>
               </ul>
             </div>
-          ) : lines.length === 0 ? (
+          ) : messages.length === 0 ? (
             <div className="text-sm font-mono text-terminal-dim bg-terminal-card p-4 rounded border border-terminal-border">
               No transcript entries found (session may not have started yet)
             </div>
           ) : (
-            <div className="text-xs font-mono text-terminal-text bg-black p-4 rounded border border-terminal-border overflow-x-auto">
-              <pre className="whitespace-pre-wrap break-words">
-                {lines.map((line, idx) => {
-                  try {
-                    // Try to parse and pretty-print JSON
-                    const parsed = JSON.parse(line)
-                    return (
-                      <div key={idx} className="mb-2 last:mb-0">
-                        <span className="text-terminal-green">{JSON.stringify(parsed, null, 2)}</span>
-                      </div>
-                    )
-                  } catch {
-                    // If not valid JSON, display as-is
-                    return (
-                      <div key={idx} className="mb-2 last:mb-0 text-terminal-text">
-                        {line}
-                      </div>
-                    )
-                  }
-                })}
-              </pre>
+            <div className="max-h-[600px] overflow-y-auto bg-black p-4 rounded border border-terminal-border">
+              {messages.map((message, idx) => (
+                <FormattedMessage key={idx} message={message} />
+              ))}
             </div>
           )}
         </div>
 
         {/* Hint */}
-        {!error && !missingSubagentTranscript && lines.length > 0 && (
+        {!error && !missingSubagentTranscript && messages.length > 0 && (
           <div className="text-xs font-mono text-terminal-dim pt-2 border-t border-terminal-border">
             💡 Tip: Use <code className="bg-terminal-card px-1 py-0.5 rounded">tail -f {transcriptPath}</code> to follow logs in real-time
           </div>
