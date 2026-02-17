@@ -89,10 +89,14 @@ Mechanics:
 sessions_spawn({ agentId: "project-lead", task: "..." })
 ```
 
-**❌ WRONG — `--session-id` routes to existing `:main` session, doesn't create new session:**
+**⚠️ LIMITED — `openclaw agent` creates orchestrator session BUT always routes to `:main`:**
 ```bash
 openclaw agent --agent project-lead --session-id project-foo --message "..."
 ```
+- ✅ Creates a full orchestrator session (not a subagent) — can spawn sub-agents
+- ❌ `--session-id` controls the internal UUID, NOT the session key suffix
+- Session key always becomes `agent:<agentId>:main` regardless of `--session-id` value
+- Fine for one-off sessions (e.g., Research Lead). **Not suitable for per-project PL sessions.**
 
 **✅ CORRECT — `openclaw gateway call agent` with explicit `sessionKey`:**
 ```bash
@@ -143,14 +147,18 @@ Kelly creates orchestrator sessions. Orchestrators spawn sub-agents. Kelly does 
 
 **When operator says:** "Generate a product idea" or "Create 5 product ideas"
 
-**Single idea:**
+**Single idea (either method works):**
 ```bash
+# Simple — routes to agent:research-lead:main (fine for single session)
+openclaw agent --agent research-lead --message "Begin autonomous product idea generation. Follow your complete workflow."
+
+# Explicit key — use when you need multiple parallel RL sessions
 openclaw gateway call agent \
-  --params '{"message":"Begin autonomous product idea generation. Follow your complete workflow (discovery → registry → ideation → selection → deep-dive → package).","sessionKey":"agent:research-lead:1","idempotencyKey":"'$(uuidgen)'"}' \
+  --params '{"message":"Begin autonomous product idea generation. Follow your complete workflow.","sessionKey":"agent:research-lead:1","idempotencyKey":"'$(uuidgen)'"}' \
   --expect-final --timeout 3600000
 ```
 
-**Batch (5 parallel Research Lead sessions):**
+**Batch (5 parallel Research Lead sessions — requires gateway call for distinct keys):**
 ```bash
 for i in {1..5}; do
   openclaw gateway call agent \
