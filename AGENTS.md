@@ -84,47 +84,48 @@ Mechanics:
 
 **CRITICAL:** Project Lead and Research Lead are NOT sub-agents. They are full orchestrator sessions that spawn their own sub-agents.
 
-**❌ WRONG (spawns PL as a sub-agent - can't spawn sub-agents):**
+**❌ WRONG — spawns as sub-agent (can't spawn its own sub-agents):**
 ```javascript
 sessions_spawn({ agentId: "project-lead", task: "..." })
 ```
 
-**✅ CORRECT (creates new PL orchestrator session):**
+**❌ WRONG — `--session-id` routes to existing `:main` session, doesn't create new session:**
 ```bash
-openclaw agent --agent project-lead --session-id project-{projectId} --message "Start new project..."
+openclaw agent --agent project-lead --session-id project-foo --message "..."
+```
+
+**✅ CORRECT — `openclaw gateway call agent` with explicit `sessionKey`:**
+```bash
+openclaw gateway call agent \
+  --params '{"message":"...","sessionKey":"agent:project-lead:project-{projectId}","idempotencyKey":"'$(uuidgen)'"}' \
+  --expect-final --timeout 120000
 ```
 
 **How it works:**
-1. `--agent project-lead` → Routes to the project-lead agent
-2. `--session-id project-{projectId}` → Creates new isolated session with this ID
-3. Session key becomes: `agent:project-lead:project-{projectId}`
-4. That session can now spawn John, Sally, Winston, etc. as sub-agents
+1. `sessionKey` sets the FULL session key directly (e.g., `agent:project-lead:project-fleai-market-v5`)
+2. Gateway creates a new session with that key if it doesn't exist
+3. The session uses project-lead's workspace, model, and subagent permissions
+4. That session can spawn John, Sally, Winston, etc. as sub-agents
+5. `idempotencyKey` is required (use `uuidgen` to generate one)
+6. `--expect-final` waits for the agent to finish its turn
 
 **Project Lead Example:**
 ```bash
-openclaw agent \
-  --agent project-lead \
-  --session-id project-fleai-market-v5 \
-  --message "Start new project: fleai-market-v5
-
-**Mode:** Normal Greenfield
-**Project Directory:** /Users/austenallred/clawd/projects/active/fleai-market-v5/
-**Intake:** intake.md
-
-Follow your complete workflow from docs/project-lead-flow.md."
+openclaw gateway call agent \
+  --params '{"message":"Start new project: fleai-market-v5\n\n**Mode:** Normal Greenfield\n**Project Directory:** /Users/austenallred/clawd/projects/active/fleai-market-v5/\n**Intake:** intake.md\n\nFollow docs/project-lead-flow.md.","sessionKey":"agent:project-lead:project-fleai-market-v5","idempotencyKey":"'$(uuidgen)'"}' \
+  --expect-final --timeout 120000
 ```
 
 **Research Lead Example:**
 ```bash
-openclaw agent \
-  --agent research-lead \
-  --session-id 1 \
-  --message "Begin autonomous product idea generation. Follow your complete workflow (discovery → registry → ideation → selection → deep-dive → package)."
+openclaw gateway call agent \
+  --params '{"message":"Begin autonomous product idea generation. Follow your complete workflow.","sessionKey":"agent:research-lead:1","idempotencyKey":"'$(uuidgen)'"}' \
+  --expect-final --timeout 120000
 ```
 
 **After creating session:**
-- Session runs in background
-- Monitor via `openclaw sessions --active`
+- Session runs in background (use `--expect-final` or run with `&`)
+- Monitor via `openclaw sessions --active 60`
 - Check progress via state files (project-state.json, stage state files)
 - Send follow-up messages via `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message="...")`
 
@@ -144,19 +145,17 @@ Kelly creates orchestrator sessions. Orchestrators spawn sub-agents. Kelly does 
 
 **Single idea:**
 ```bash
-openclaw agent \
-  --agent research-lead \
-  --session-id 1 \
-  --message "Begin autonomous product idea generation. Follow your complete workflow (discovery → registry → ideation → selection → deep-dive → package)."
+openclaw gateway call agent \
+  --params '{"message":"Begin autonomous product idea generation. Follow your complete workflow (discovery → registry → ideation → selection → deep-dive → package).","sessionKey":"agent:research-lead:1","idempotencyKey":"'$(uuidgen)'"}' \
+  --expect-final --timeout 3600000
 ```
 
 **Batch (5 parallel Research Lead sessions):**
 ```bash
 for i in {1..5}; do
-  openclaw agent \
-    --agent research-lead \
-    --session-id $i \
-    --message "Begin autonomous product idea generation. Follow your complete workflow (discovery → registry → ideation → selection → deep-dive → package)." &
+  openclaw gateway call agent \
+    --params "{\"message\":\"Begin autonomous product idea generation. Follow your complete workflow.\",\"sessionKey\":\"agent:research-lead:$i\",\"idempotencyKey\":\"$(uuidgen)\"}" \
+    --expect-final --timeout 3600000 &
 done
 wait
 ```
