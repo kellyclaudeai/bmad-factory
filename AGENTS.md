@@ -62,9 +62,11 @@ Mechanics:
 - `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message=... )`
 - Update high-level `factory-state.md` only (no story-level tracking in Kelly context)
 
-## Orchestrator Sub-Agents
+## Orchestrator Sessions
 
-**Project Lead** and **Research Lead** are autonomous orchestrator sub-agents that spawn their own sub-agents. Kelly spawns them, then monitors via state files.
+**Project Lead** and **Research Lead** are **orchestrator sessions** - full agent sessions that spawn their own sub-agents. Kelly creates these sessions, then monitors via state files.
+
+**Key constraint:** Sub-agents cannot spawn sub-agents. Therefore, PL and RL must be orchestrator sessions (not sub-agents) to do their job.
 
 ### Session Naming Conventions
 
@@ -78,15 +80,15 @@ Mechanics:
 - Examples: `agent:research-lead:1`, `agent:research-lead:20260217-1617`
 - Use sequential numbers for batch generation, or timestamp for single runs
 
-### Sub-Agent Hierarchy
+### Session Hierarchy
 
 ```
-Kelly (main)
-├─> Project Lead (orchestrator sub-agent) ──> Barry, Amelia, Bob, John, Sally, Winston, Murat, Quinn
-└─> Research Lead (orchestrator sub-agent) ──> Mary, Carson, Victor, Maya, Quinn
+Kelly (main session)
+├─> Project Lead (orchestrator session) ──> Barry, Amelia, Bob, John, Sally, Winston, Murat, Quinn (sub-agents)
+└─> Research Lead (orchestrator session) ──> Mary, Carson, Victor, Maya, Quinn (sub-agents)
 ```
 
-Kelly spawns orchestrator sub-agents. Orchestrators spawn their own sub-agents. Kelly does NOT spawn implementation/CIS sub-agents directly.
+Kelly creates orchestrator sessions. Orchestrators spawn sub-agents. Kelly does NOT spawn implementation/CIS sub-agents directly.
 
 ### Research Lead Workflow
 
