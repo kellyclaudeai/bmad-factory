@@ -533,88 +533,49 @@ When spawning Barry for **post-launch bug fixes, enhancements, or modifications*
 
 This protocol defines the Story-99.x artifact naming convention and structure.
 
-### Spawn Patterns
+### Spawn Pattern (Unified)
 
-**Two modes depending on complexity:**
-
-#### Simple Mode (Single Story - Barry Implements)
-
-For small, self-contained fixes:
+**One flow - Barry decides how many stories to create:**
 
 ```typescript
+// Step 1: Barry creates story breakdown (1 or many stories)
 sessions_spawn({
   agentId: "bmad-bmm-barry",
-  task: `Fix {specific-issue} for {projectName}.
+  task: `Plan and break down brownfield work for {request-description} in {projectName}.
 
-Brownfield Protocol (Simple):
+Brownfield Protocol:
 - Read /Users/austenallred/clawd/skills/factory/barry-brownfield-protocol.md
-- Determine next Story-99.x number
-- Create Story-99.{N}.md in _bmad-output/implementation-artifacts/stories/
-- Implement the fix using codex CLI
-- Commit with message "Story 99.{N}: {description}"
-
-Context:
-{Brief description of the bug/issue}
-
-Inputs:
-- Read existing codebase in {projectRoot}
-- Read _bmad-output/planning-artifacts/architecture.md (if exists)
-
-Output:
-- Story-99.{N}.md with standard BMAD story format
-- Implementation complete
-- Tests passing
-
-Requirements:
-- Single story file, single implementation
-- Use codex CLI for implementation
-- No confirmations needed
-- Deliver complete fix autonomously`,
-  label: `barry-99.{N}-{projectId}`
-})
-```
-
-#### Complex Mode (Multiple Stories - Barry Plans, Others Implement)
-
-For multi-file enhancements, feature additions, or refactoring:
-
-```typescript
-// Step 1: Barry creates story breakdown
-sessions_spawn({
-  agentId: "bmad-bmm-barry",
-  task: `Plan brownfield work for {feature-request} in {projectName}.
-
-Brownfield Protocol (Complex):
-- Read /Users/austenallred/clawd/skills/factory/barry-brownfield-protocol.md
-- Analyze request and break into implementable chunks
+- Analyze request: How many stories does this need for efficient parallelization?
 - Determine next available Story-99.x numbers
-- Create MULTIPLE Story-99.x files DIRECTLY in _bmad-output/implementation-artifacts/stories/
-- Add dependsOn arrays for ordering
+- Create Story-99.x files DIRECTLY in _bmad-output/implementation-artifacts/stories/
+  - Could be 1 story (simple fix)
+  - Could be 5 stories (complex feature)
+  - Your judgment on optimal breakdown
+- Add dependsOn arrays if stories have ordering requirements
 - Report back: list of created stories
 
 Context:
-{Detailed description of the enhancement/feature}
+{Detailed description of the request}
 
 Inputs:
 - Read existing codebase in {projectRoot}
 - Read _bmad-output/planning-artifacts/architecture.md (if exists)
 
 Output:
-- Multiple Story-99.{N}.md files (one per chunk)
-- Each story has: Goal, Acceptance Criteria, Files Affected, dependsOn
-- NO intermediate plan document - create story files directly
+- One or more Story-99.{N}.md files
+- Each story has: Goal, Acceptance Criteria, Files Affected, dependsOn (if needed)
+- Standard BMAD story format
 
 Requirements:
-- Break into parallel-friendly chunks
-- Clear dependencies (backend before UI, etc.)
-- Standard BMAD story format for each file
+- Break into parallel-friendly chunks where beneficial
+- Single story if parallelization doesn't help
 - No confirmations needed
 - Report completion with story list`,
   label: `barry-plan-99.x-{projectId}`
 })
 
 // Step 2: Project Lead spawns implementers (after Barry completes)
-// Read Story-99.x files, spawn Amelia/Barry for each runnable story
+// Read Story-99.x files, spawn Amelia/Barry for each story
 // (Same pattern as greenfield Stage 3 implementation)
 ```
 

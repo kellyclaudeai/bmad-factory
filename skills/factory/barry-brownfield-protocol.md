@@ -79,52 +79,41 @@ ls -1 {projectRoot}/_bmad-output/implementation-artifacts/stories/Story-99.*.md 
 
 Then increment to get the next number (e.g., if Story-99.5.md exists, create Story-99.6.md).
 
-## Two Modes: Simple vs Complex
+## Unified Brownfield Flow
 
-### Simple Mode (Single Story)
-For **small, self-contained fixes** (bug fixes, minor tweaks):
+**One flow, Barry decides the breakdown:**
 
-1. Barry spawned as implementer
-2. Creates ONE Story-99.{N}.md
-3. Implements it himself
-4. Reports completion
-
-**Example:** "Fix broken timestamp display" → Story-99.5.md → Barry implements
-
-### Complex Mode (Multiple Stories)
-For **multi-file enhancements, feature additions, or refactoring**:
-
-1. **Barry spawned as planner** (like John's role in greenfield)
-2. Analyzes request mentally
-3. **Creates MULTIPLE Story-99.x files directly:**
-   - Story-99.5.md (backend changes)
-   - Story-99.6.md (UI updates) 
-   - Story-99.7.md (tests)
-4. Adds `dependsOn` arrays (just like Bob does for greenfield)
-5. Reports back to Project Lead: "Created 3 brownfield stories (99.5-99.7)"
-6. **Project Lead orchestrates:**
+1. **Barry spawned** for brownfield request
+2. **Barry analyzes:** How many stories does this need? (could be 1, could be 5)
+3. **Barry creates Story-99.x files directly:**
+   - 1 story if it's a simple fix
+   - Multiple stories if it needs parallelization
+   - Each file includes `dependsOn` arrays if needed
+4. **Barry reports to Project Lead:** "Created stories 99.5-99.7"
+5. **Project Lead orchestrates:**
    - Reads Story-99.x files
-   - Spawns Amelia/Barry executors for each runnable story
-   - Tracks completion in project-state.json
+   - Spawns Amelia/Barry executors for each story
    - Parallel execution based on dependencies
 
-**Example:** "Add persona badges + enhanced timestamps + logs preview" → Story-99.5.md, 99.6.md, 99.7.md → 3 parallel Amelia subagents
+**Examples:**
+- "Fix timestamp bug" → Barry creates Story-99.5.md (1 story)
+- "Add persona badges + timestamps + logs" → Barry creates Story-99.5.md, 99.6.md, 99.7.md (3 stories)
 
-**No intermediate plan document needed** - Barry creates the individual story files directly.
+**Barry's judgment:** He creates as many stories as needed to get it done efficiently. Project Lead always spawns implementers for whatever Barry creates.
 
 ## Barry's Responsibilities
 
-**Planning mode (complex requests):**
+**When spawned for brownfield work (planning):**
 1. **Check sequence:** Determine next available Story-99.x numbers
-2. **Analyze request:** Break into logical, implementable chunks (mentally)
-3. **Create story files directly:** Write multiple Story-99.{N}.md files with:
+2. **Analyze request:** How many stories does this need for efficient parallelization?
+3. **Create story files directly:** Write Story-99.{N}.md files (1 or many) with:
    - Standard BMAD story format
    - Clear acceptance criteria
-   - `dependsOn` arrays (for ordering)
-   - No intermediate plan document needed
+   - Files affected
+   - `dependsOn` arrays if stories have ordering requirements
 4. **Report to Project Lead:** List created stories for orchestration
 
-**Implementation mode (simple requests OR assigned story from complex request):**
+**When spawned as implementer (for a specific Story-99.x):**
 1. **Read story file:** Story-99.{N}.md
 2. **Implement:** Execute the work using codex CLI
 3. **Update story:** Mark acceptance criteria as complete
