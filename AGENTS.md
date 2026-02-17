@@ -99,6 +99,7 @@ openclaw agent --agent project-lead --session-id project-foo --message "..."
 - Fine for one-off sessions (e.g., Research Lead). **Not suitable for per-project PL sessions.**
 
 **✅ CORRECT — `openclaw gateway call agent` with explicit `sessionKey`:**
+Use this for BOTH Project Lead AND Research Lead — any orchestrator that needs distinct per-task sessions.
 ```bash
 openclaw gateway call agent \
   --params '{"message":"...","sessionKey":"agent:project-lead:project-{projectId}","idempotencyKey":"'$(uuidgen)'"}' \
@@ -147,18 +148,14 @@ Kelly creates orchestrator sessions. Orchestrators spawn sub-agents. Kelly does 
 
 **When operator says:** "Generate a product idea" or "Create 5 product ideas"
 
-**Single idea (either method works):**
+**Single idea:**
 ```bash
-# Simple — routes to agent:research-lead:main (fine for single session)
-openclaw agent --agent research-lead --message "Begin autonomous product idea generation. Follow your complete workflow."
-
-# Explicit key — use when you need multiple parallel RL sessions
 openclaw gateway call agent \
   --params '{"message":"Begin autonomous product idea generation. Follow your complete workflow.","sessionKey":"agent:research-lead:1","idempotencyKey":"'$(uuidgen)'"}' \
   --expect-final --timeout 3600000
 ```
 
-**Batch (5 parallel Research Lead sessions — requires gateway call for distinct keys):**
+**Batch (5 parallel Research Lead sessions):**
 ```bash
 for i in {1..5}; do
   openclaw gateway call agent \
