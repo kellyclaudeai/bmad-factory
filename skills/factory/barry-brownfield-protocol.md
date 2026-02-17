@@ -79,15 +79,53 @@ ls -1 {projectRoot}/_bmad-output/implementation-artifacts/stories/Story-99.*.md 
 
 Then increment to get the next number (e.g., if Story-99.5.md exists, create Story-99.6.md).
 
+## Two Modes: Simple vs Complex
+
+### Simple Mode (Single Story)
+For **small, self-contained fixes** (bug fixes, minor tweaks):
+
+1. Barry spawned as implementer
+2. Creates ONE Story-99.{N}.md
+3. Implements it himself
+4. Reports completion
+
+**Example:** "Fix broken timestamp display" → Story-99.5.md → Barry implements
+
+### Complex Mode (Multiple Stories)
+For **multi-file enhancements, feature additions, or refactoring**:
+
+1. **Barry spawned as planner** (like John's role in greenfield)
+2. Analyzes request, creates `barry-brownfield-plan.md` (optional analysis doc)
+3. **Creates MULTIPLE Story-99.x files:**
+   - Story-99.5.md (backend changes)
+   - Story-99.6.md (UI updates) 
+   - Story-99.7.md (tests)
+4. Adds `dependsOn` arrays (just like Bob does for greenfield)
+5. Reports back to Project Lead: "Created 3 brownfield stories (99.5-99.7)"
+6. **Project Lead orchestrates:**
+   - Reads Story-99.x files
+   - Spawns Amelia/Barry executors for each runnable story
+   - Tracks completion in project-state.json
+   - Parallel execution based on dependencies
+
+**Example:** "Add persona badges + enhanced timestamps + logs preview" → Story-99.5.md, 99.6.md, 99.7.md → 3 parallel Amelia subagents
+
 ## Barry's Responsibilities
 
-When spawned for brownfield work:
+**Planning mode (complex requests):**
+1. **Check sequence:** Determine next available Story-99.x numbers
+2. **Analyze request:** Break into logical, implementable chunks
+3. **Create story files:** Write multiple Story-99.{N}.md files with:
+   - Standard BMAD story format
+   - Clear acceptance criteria
+   - `dependsOn` arrays (for ordering)
+4. **Report to Project Lead:** List created stories for orchestration
 
-1. **Check sequence:** Determine next Story-99.x number
-2. **Create story file:** Write Story-99.{N}.md with proper structure
-3. **Implement:** Execute the work described in the story
-4. **Update story:** Mark acceptance criteria as complete
-5. **Commit:** Include story number in commit messages (e.g., "Story 99.3: Fix session detail timestamps")
+**Implementation mode (simple requests OR assigned story from complex request):**
+1. **Read story file:** Story-99.{N}.md
+2. **Implement:** Execute the work using codex CLI
+3. **Update story:** Mark acceptance criteria as complete
+4. **Commit:** Include story number in commit messages (e.g., "Story 99.3: Fix session detail timestamps")
 
 ## Integration with Project State
 

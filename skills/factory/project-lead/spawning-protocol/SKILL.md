@@ -533,40 +533,89 @@ When spawning Barry for **post-launch bug fixes, enhancements, or modifications*
 
 This protocol defines the Story-99.x artifact naming convention and structure.
 
-### Spawn Pattern
+### Spawn Patterns
+
+**Two modes depending on complexity:**
+
+#### Simple Mode (Single Story - Barry Implements)
+
+For small, self-contained fixes:
 
 ```typescript
 sessions_spawn({
   agentId: "bmad-bmm-barry",
-  task: `Fix/enhance {feature-name} for {projectName}.
+  task: `Fix {specific-issue} for {projectName}.
 
-Brownfield Protocol:
+Brownfield Protocol (Simple):
 - Read /Users/austenallred/clawd/skills/factory/barry-brownfield-protocol.md
-- Follow Story-99.x naming convention
-- Determine next story number by checking existing Story-99.*.md files
+- Determine next Story-99.x number
 - Create Story-99.{N}.md in _bmad-output/implementation-artifacts/stories/
+- Implement the fix using codex CLI
+- Commit with message "Story 99.{N}: {description}"
 
 Context:
-{Brief description of the issue/enhancement}
+{Brief description of the bug/issue}
 
 Inputs:
 - Read existing codebase in {projectRoot}
 - Read _bmad-output/planning-artifacts/architecture.md (if exists)
 
 Output:
-- Write Story-99.{N}.md following BMAD story format
-- Implement the changes using codex CLI
-- Commit with message "Story 99.{N}: {description}"
+- Story-99.{N}.md with standard BMAD story format
+- Implementation complete
+- Tests passing
 
 Requirements:
-- Use Story-99.x format (NOT barry-*.md ad-hoc files)
-- Increment story number based on existing files
-- Follow standard BMAD story structure
+- Single story file, single implementation
 - Use codex CLI for implementation
 - No confirmations needed
-- Deliver complete fix/enhancement autonomously`,
+- Deliver complete fix autonomously`,
   label: `barry-99.{N}-{projectId}`
 })
+```
+
+#### Complex Mode (Multiple Stories - Barry Plans, Others Implement)
+
+For multi-file enhancements, feature additions, or refactoring:
+
+```typescript
+// Step 1: Barry creates breakdown
+sessions_spawn({
+  agentId: "bmad-bmm-barry",
+  task: `Plan brownfield work for {feature-request} in {projectName}.
+
+Brownfield Protocol (Complex):
+- Read /Users/austenallred/clawd/skills/factory/barry-brownfield-protocol.md
+- Analyze request and break into implementable chunks
+- Determine next available Story-99.x numbers
+- Create MULTIPLE Story-99.x files in _bmad-output/implementation-artifacts/stories/
+- Add dependsOn arrays for ordering
+- Report back: list of created stories
+
+Context:
+{Detailed description of the enhancement/feature}
+
+Inputs:
+- Read existing codebase in {projectRoot}
+- Read _bmad-output/planning-artifacts/architecture.md (if exists)
+
+Output:
+- Multiple Story-99.{N}.md files (one per chunk)
+- Each story has: Goal, Acceptance Criteria, Files Affected, dependsOn
+- Optional: barry-brownfield-plan.md (analysis doc)
+
+Requirements:
+- Break into parallel-friendly chunks
+- Clear dependencies (backend before UI, etc.)
+- Standard BMAD story format for each file
+- No confirmations needed
+- Report completion with story list`,
+  label: `barry-plan-99.x-{projectId}`
+})
+
+// Step 2: Project Lead spawns implementers (after Barry completes)
+// Read Story-99.x files, spawn Amelia/Barry for each runnable story
+// (Same pattern as greenfield Stage 3 implementation)
 ```
 
 ### Key Differences from Greenfield
