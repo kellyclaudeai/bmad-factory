@@ -62,59 +62,42 @@ Mechanics:
 - `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message=... )`
 - Update high-level `factory-state.md` only (no story-level tracking in Kelly context)
 
-## Peer Orchestrators vs Sub-Agents
+## Orchestrator Sub-Agents
 
-**Critical distinction:** Understand the difference between creating sessions and spawning sub-agents.
+**Project Lead** and **Research Lead** are autonomous orchestrator sub-agents that spawn their own sub-agents. Kelly spawns them, then monitors via state files.
 
-### Peer Orchestrator Sessions (Create, Don't Spawn)
+### Session Naming Conventions
 
-**Project Lead** and **Research Lead** are **peer orchestrators** — they run independently, manage their own workflows, and spawn their own sub-agents. You don't "spawn" them; you **create a session** of them.
+**Project Lead sessions:**
+- Format: `agent:project-lead:project-{projectId}`
+- Example: `agent:project-lead:project-calculator-app`
+- The project name makes it easy to identify which project a PL session is managing
 
-**When operator requests product idea generation:**
-- ✅ **Correct:** Create a Research Lead session using `sessions_spawn(agentId: "research-lead", ...)`
-- ❌ **Wrong mindset:** "Spawning Research Lead as a helper"
-- 🎯 **Right mindset:** "Creating an isolated session of the research-lead agent to run autonomously"
+**Research Lead sessions:**
+- Format: `agent:research-lead:{number}` or `agent:research-lead:{timestamp}`
+- Examples: `agent:research-lead:1`, `agent:research-lead:20260217-1617`
+- Use sequential numbers for batch generation, or timestamp for single runs
 
-**When operator requests project implementation:**
-- ✅ **Correct:** Send message to Project Lead session via `sessions_send(sessionKey="agent:project-lead:project-{projectId}", ...)`
-- 🎯 **Project Lead creates its own session** when needed (via project-lead-instantiator skill or direct routing)
+### Sub-Agent Hierarchy
 
-**Key characteristics of peer orchestrators:**
-- Run in **isolated sessions** with their own context
-- Have their own **workspace** and **AGENTS.md** defining workflow
-- **Spawn their own sub-agents** (e.g., Project Lead spawns Barry, Amelia, Bob, etc.)
-- Operate **autonomously** after initial request
-- Kelly monitors via **state files** (`factory-state.md`, `project-state.json`, etc.)
-
-### Sub-Agents (Spawn Within Orchestrator Sessions)
-
-**Sub-agents** like Barry, Amelia, Bob, Mary, Carson, Victor, Maya, Quinn are **helpers** spawned by orchestrators.
-
-- Project Lead spawns: Barry, Amelia, Bob, John, Sally, Winston, Murat, Quinn
-- Research Lead spawns: Mary, Carson, Victor, Maya, Quinn
-- Kelly does NOT spawn these directly (violates Rule 2 above)
-
-**Session hierarchy:**
 ```
-Kelly (main) ──> Project Lead (peer session) ──> Barry/Amelia/etc. (sub-agents)
-             └─> Research Lead (peer session) ──> Mary/Carson/etc. (sub-agents)
+Kelly (main)
+├─> Project Lead (orchestrator sub-agent) ──> Barry, Amelia, Bob, John, Sally, Winston, Murat, Quinn
+└─> Research Lead (orchestrator sub-agent) ──> Mary, Carson, Victor, Maya, Quinn
 ```
 
-### Research Lead Session Creation
+Kelly spawns orchestrator sub-agents. Orchestrators spawn their own sub-agents. Kelly does NOT spawn implementation/CIS sub-agents directly.
+
+### Research Lead Workflow
 
 **When operator says:** "Generate a product idea" or "Create 5 product ideas"
-
-**What Kelly does:**
-1. Creates Research Lead session(s) using `sessions_spawn(agentId: "research-lead", ...)`
-2. Monitors for completion announcement (~40-50 min)
-3. Announces result when Research Lead completes
 
 **Single idea:**
 ```typescript
 sessions_spawn({
   agentId: "research-lead",
   task: "Begin autonomous product idea generation. Follow your complete workflow (discovery → registry → ideation → selection → deep-dive → package).",
-  label: `research-${timestamp}`,
+  label: "1", // or timestamp like "20260217-1617"
   cleanup: "keep",
   runTimeoutSeconds: 3600
 })
@@ -127,7 +110,7 @@ for (let i = 1; i <= 5; i++) {
   sessions_spawn({
     agentId: "research-lead",
     task: "Begin autonomous product idea generation...",
-    label: `research-batch-${i}`,
+    label: `${i}`,
     cleanup: "keep",
     runTimeoutSeconds: 3600
   })
@@ -136,12 +119,12 @@ for (let i = 1; i <= 5; i++) {
 
 **Expected output:**
 - Research Lead creates `projects-queue/<name>-<timestamp>/intake.md`
-- Kelly announces when ready
+- Kelly announces when ready (~40-50 min)
 - Operator decides: implement via Project Lead, or skip
 
-### Monitoring Orchestrator Sessions
+### Monitoring Orchestrator Sub-Agents
 
-Kelly's role after creating orchestrator sessions:
+Kelly's role after spawning orchestrator sub-agents:
 1. **Track in factory-state.md** (session key, status, timestamp)
 2. **Monitor state files** (heartbeat checks for QA surfacing, stall detection)
 3. **Announce completion** when orchestrator finishes
