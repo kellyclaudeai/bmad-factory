@@ -95,8 +95,8 @@ For **small, self-contained fixes** (bug fixes, minor tweaks):
 For **multi-file enhancements, feature additions, or refactoring**:
 
 1. **Barry spawned as planner** (like John's role in greenfield)
-2. Analyzes request, creates `barry-brownfield-plan.md` (optional analysis doc)
-3. **Creates MULTIPLE Story-99.x files:**
+2. Analyzes request mentally
+3. **Creates MULTIPLE Story-99.x files directly:**
    - Story-99.5.md (backend changes)
    - Story-99.6.md (UI updates) 
    - Story-99.7.md (tests)
@@ -110,15 +110,18 @@ For **multi-file enhancements, feature additions, or refactoring**:
 
 **Example:** "Add persona badges + enhanced timestamps + logs preview" → Story-99.5.md, 99.6.md, 99.7.md → 3 parallel Amelia subagents
 
+**No intermediate plan document needed** - Barry creates the individual story files directly.
+
 ## Barry's Responsibilities
 
 **Planning mode (complex requests):**
 1. **Check sequence:** Determine next available Story-99.x numbers
-2. **Analyze request:** Break into logical, implementable chunks
-3. **Create story files:** Write multiple Story-99.{N}.md files with:
+2. **Analyze request:** Break into logical, implementable chunks (mentally)
+3. **Create story files directly:** Write multiple Story-99.{N}.md files with:
    - Standard BMAD story format
    - Clear acceptance criteria
    - `dependsOn` arrays (for ordering)
+   - No intermediate plan document needed
 4. **Report to Project Lead:** List created stories for orchestration
 
 **Implementation mode (simple requests OR assigned story from complex request):**

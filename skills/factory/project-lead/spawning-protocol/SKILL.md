@@ -579,7 +579,7 @@ Requirements:
 For multi-file enhancements, feature additions, or refactoring:
 
 ```typescript
-// Step 1: Barry creates breakdown
+// Step 1: Barry creates story breakdown
 sessions_spawn({
   agentId: "bmad-bmm-barry",
   task: `Plan brownfield work for {feature-request} in {projectName}.
@@ -588,7 +588,7 @@ Brownfield Protocol (Complex):
 - Read /Users/austenallred/clawd/skills/factory/barry-brownfield-protocol.md
 - Analyze request and break into implementable chunks
 - Determine next available Story-99.x numbers
-- Create MULTIPLE Story-99.x files in _bmad-output/implementation-artifacts/stories/
+- Create MULTIPLE Story-99.x files DIRECTLY in _bmad-output/implementation-artifacts/stories/
 - Add dependsOn arrays for ordering
 - Report back: list of created stories
 
@@ -602,7 +602,7 @@ Inputs:
 Output:
 - Multiple Story-99.{N}.md files (one per chunk)
 - Each story has: Goal, Acceptance Criteria, Files Affected, dependsOn
-- Optional: barry-brownfield-plan.md (analysis doc)
+- NO intermediate plan document - create story files directly
 
 Requirements:
 - Break into parallel-friendly chunks
