@@ -8,6 +8,7 @@ import { Timestamp } from '@/components/shared/timestamp'
 interface SubagentCardProps {
   sessionKey?: string
   story?: string
+  storyTitle?: string
   persona?: string
   role?: string
   task?: string
@@ -21,6 +22,7 @@ interface SubagentCardProps {
 export function SubagentCard({
   sessionKey,
   story,
+  storyTitle,
   persona,
   role,
   task,
@@ -35,11 +37,6 @@ export function SubagentCard({
   const normalizedStatus = status === 'pending' ? 'queued' : status
   const isClickable = !!sessionKey
   
-  // Build display name: prefer persona + role, fallback to story
-  const displayName = persona && role 
-    ? `${persona} (${role})` 
-    : story || 'Unnamed Subagent'
-  
   // Format task for display (e.g., "create-prd" → "Create PRD")
   const formatTask = (t?: string) => {
     if (!t) return null
@@ -48,6 +45,13 @@ export function SubagentCard({
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
   }
+  
+  // Build display name: prioritize storyTitle/story, then formatted task, finally persona+role
+  const displayName = 
+    storyTitle ||
+    story ||
+    formatTask(task) ||
+    (persona && role ? `${persona} (${role})` : 'Unnamed Subagent')
   
   const taskDisplay = formatTask(task)
   

@@ -17,9 +17,17 @@ type ProjectState = {
   currentPhase?: string
   createdAt?: string
   updatedAt?: string
+  startedAt?: string
+  completedAt?: string
+  implementationCompletedAt?: string
   phases?: Record<string, { name: string; stories: number[]; status: string }>
   subagents: Array<{
+    id?: string
     story?: string
+    persona?: string
+    role?: string
+    task?: string
+    source?: string
     status: string
     duration?: string
     startedAt?: string
@@ -140,13 +148,24 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
     projectState?.stage ||
     (projectLeadSessions.some((s) => (s.status || '').toLowerCase() === 'active') ? 'active' : 'unknown')
 
-  // Runtime: best-effort approximation using oldest known session lastActivity.
-  const runtimeSeconds = relevantSessions.length
+  // Runtime: Calculate from project start time (startedAt or createdAt) to now (or completedAt if done)
+  const projectStartTime = projectState?.startedAt || projectState?.createdAt
+  const projectEndTime = projectState?.completedAt || projectState?.implementationCompletedAt
+  
+  const runtimeSeconds = projectStartTime
     ? Math.max(
         0,
-        (Date.now() - Math.min(...relevantSessions.map((s) => new Date(s.lastActivity).getTime()))) / 1000,
+        ((projectEndTime ? new Date(projectEndTime).getTime() : Date.now()) - new Date(projectStartTime).getTime()) / 1000,
       )
     : 0
+  
+  const startTimeDisplay = projectStartTime 
+    ? new Date(projectStartTime).toLocaleString('en-US', { 
+        dateStyle: 'medium', 
+        timeStyle: 'short', 
+        timeZone: 'America/Chicago' 
+      }) + ' CST'
+    : null
 
   // ETA: if we have project-state durations + planned stories, estimate remaining using avg completed duration.
   const completedDurations = (projectState?.subagents || [])
@@ -184,17 +203,35 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
           <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
             Runtime + ETA
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {startTimeDisplay && (
+              <Card className="bg-terminal-card border-terminal-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-mono text-terminal-dim">Start Time</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg font-mono font-bold text-terminal-green">
+                    {startTimeDisplay}
+                  </div>
+                  <div className="text-xs font-mono text-terminal-dim mt-1">
+                    {projectState?.startedAt ? 'Implementation started' : 'Project created'}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
             <Card className="bg-terminal-card border-terminal-border">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-mono text-terminal-dim">Runtime</CardTitle>
+                <CardTitle className="text-sm font-mono text-terminal-dim">
+                  {projectEndTime ? 'Total Duration' : 'Runtime'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-mono font-bold text-terminal-green">
                   {formatDuration(runtimeSeconds)}
                 </div>
                 <div className="text-xs font-mono text-terminal-dim mt-1">
-                  (approx • based on oldest recorded activity)
+                  {projectEndTime ? 'Project completed' : 'Elapsed time from start'}
                 </div>
               </CardContent>
             </Card>
@@ -205,10 +242,14 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-mono font-bold text-terminal-green">
-                  {etaSeconds ? `~${formatDuration(etaSeconds)}` : '—'}
+                  {projectEndTime ? '✓ Complete' : etaSeconds ? `~${formatDuration(etaSeconds)}` : 'N/A'}
                 </div>
                 <div className="text-xs font-mono text-terminal-dim mt-1">
-                  {etaSeconds ? `${remainingStories} remaining @ ~${Math.round(avgSeconds)}s/story` : 'Needs project-state durations to estimate'}
+                  {projectEndTime 
+                    ? 'Implementation finished' 
+                    : etaSeconds 
+                      ? `${remainingStories} remaining @ ~${Math.round(avgSeconds)}s/story` 
+                      : 'Insufficient data for estimate'}
                 </div>
               </CardContent>
             </Card>
