@@ -229,6 +229,21 @@ export function FormattedMessage({ message }: FormattedMessageProps) {
     )
   }
   
-  // Fallback for messages without recognizable content
-  return null
+  // Fallback: show raw JSON for unrecognized messages (never return null)
+  console.warn('FormattedMessage: Unrecognized message format, showing raw JSON', message)
+  return (
+    <div className="mb-3 last:mb-0">
+      <div className="flex items-start gap-2">
+        <span className="text-base">⚠️</span>
+        <div className="flex-1 min-w-0">
+          <div className="text-xs font-mono text-terminal-dim mb-1">
+            Raw Message (unrecognized format)
+          </div>
+          <pre className="text-xs font-mono text-terminal-dim whitespace-pre-wrap break-words p-2 bg-terminal-card rounded border border-terminal-border">
+            {JSON.stringify(message, null, 2)}
+          </pre>
+        </div>
+      </div>
+    </div>
+  )
 }

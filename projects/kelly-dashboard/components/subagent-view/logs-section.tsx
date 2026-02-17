@@ -24,9 +24,18 @@ async function readTranscriptMessages(transcriptPath: string, limit: number = 50
   for (const line of recentLines) {
     try {
       const parsed = JSON.parse(line)
-      messages.push(parsed as Message)
-    } catch {
+      
+      // OpenClaw transcript format: {type: "message", message: {role, content, ...}}
+      if (parsed.type === 'message' && parsed.message) {
+        messages.push(parsed.message as Message)
+      }
+      // Fallback: if line already has role field (legacy format)
+      else if (parsed.role) {
+        messages.push(parsed as Message)
+      }
+    } catch (error) {
       // Skip invalid JSON lines
+      console.error('Failed to parse transcript line:', error)
     }
   }
   
@@ -189,6 +198,11 @@ export async function LogsSection({ sessionKey }: LogsSectionProps) {
     missingSubagentTranscript,
   } = await readTranscriptPreview(sessionKey)
 
+  // Debug logging (server-side, visible in Next.js logs)
+  console.log(`[LogsSection] SessionKey: ${sessionKey}`)
+  console.log(`[LogsSection] Messages count: ${messages.length}`)
+  console.log(`[LogsSection] Error: ${error || 'none'}`)
+
   return (
     <Card>
       <CardHeader>
@@ -234,9 +248,17 @@ export async function LogsSection({ sessionKey }: LogsSectionProps) {
               No transcript entries found (session may not have started yet)
             </div>
           ) : (
-            <div className="max-h-[600px] overflow-y-auto bg-black p-4 rounded border border-terminal-border">
+            <div className="max-h-[600px] overflow-y-auto bg-black p-4 rounded border border-terminal-border space-y-2">
               {messages.map((message, idx) => (
-                <FormattedMessage key={idx} message={message} />
+                <div key={idx}>
+                  <FormattedMessage message={message} />
+                  {/* Fallback: show raw JSON if FormattedMessage returns nothing */}
+                  <noscript>
+                    <pre className="text-xs font-mono text-terminal-dim whitespace-pre-wrap break-words p-2 bg-terminal-card rounded">
+                      {JSON.stringify(message, null, 2)}
+                    </pre>
+                  </noscript>
+                </div>
               ))}
             </div>
           )}
