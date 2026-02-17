@@ -104,12 +104,15 @@ fi
        - Amelia (Story implementation): 3-12 minutes
        - Barry (Story implementation): 1-5 minutes
        - Murat (TEA audit): 5-15 minutes
-     - If runtime > 2x expected AND no artifact exists:
-       - Verify session still exists via `sessions_list`
-       - If session dead/missing → restart with same task, document in memory
-       - If session alive but stuck → send status ping, wait 2 min, then restart
-     - If runtime > 3x expected after restart:
+     - **If runtime > 1.5x expected (45-60 min for stories):**
+       - Check if process still alive via `ps -p <pid>`
+       - If dead but work exists → verify + commit, notify Kelly of recovery
+       - If dead with no work → restart, notify Kelly of restart
+       - If alive but stuck → send status ping, wait 2 min, then restart
+     - **If runtime > 2x expected after restart:**
        - Escalate to Kelly with blocker format
+     - **Always notify Kelly when recovering stuck/dead sessions:**
+       - Format: "🔧 Auto-recovery: Story X.Y - process died, work verified, committed"
 
 4. **Check for completion gaps:**
    - Subagent marked "complete" but no artifact file?
