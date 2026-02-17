@@ -523,6 +523,45 @@ if [[ "$result" == *"ENOENT"* ]] || [[ "$result" == *"error"* ]]; then
 fi
 ```
 
+### Updating project-state.json (CRITICAL)
+
+**ALWAYS use `jq` to update JSON files. NEVER use the `edit` tool for JSON - it fails on whitespace mismatches.**
+
+**Common patterns:**
+
+```bash
+# Load paths from project context
+projectState=$(jq -r '.projectState' memory/project-context.json)
+
+# Mark subagent as complete
+exec({
+  command: `cd $(dirname ${projectState}) && jq '.subagents[-1].status = "complete" | .subagents[-1].completedAt = "$(date -Iseconds)" | .subagents[-1].duration = "5m30s"' project-state.json > project-state.json.tmp && mv project-state.json.tmp project-state.json`
+})
+
+# Add new subagent to tracking array
+exec({
+  command: `cd $(dirname ${projectState}) && jq '.subagents += [{"persona": "Winston", "task": "create-architecture", "sessionKey": "agent:bmad-bmm-winston:subagent:abc123", "startedAt": "$(date -Iseconds)", "status": "active"}]' project-state.json > project-state.json.tmp && mv project-state.json.tmp project-state.json`
+})
+
+# Update project stage
+exec({
+  command: `cd $(dirname ${projectState}) && jq '.stage = "implementation" | .lastHeartbeat = "$(date -Iseconds)"' project-state.json > project-state.json.tmp && mv project-state.json.tmp project-state.json`
+})
+
+# Update nested fields
+exec({
+  command: `cd $(dirname ${projectState}) && jq '.implementationArtifacts.completedStories += ["1.1", "1.2"]' project-state.json > project-state.json.tmp && mv project-state.json.tmp project-state.json`
+})
+```
+
+**Update project-state.json:**
+- ✅ After every subagent spawn (add to subagents array)
+- ✅ After every subagent completion (mark status = "complete", add completedAt + duration)
+- ✅ After every phase transition (update stage field)
+- ✅ During heartbeat (update lastHeartbeat timestamp)
+
+**Dashboard depends on accurate project-state.json** - if subagents show "active" when they're done, the dashboard will look broken.
+
 ---
 
 ## Anti-Patterns
@@ -585,9 +624,9 @@ No confirmations needed — run autonomously.`,
 })
 ```
 
-**After each spawn:** Track in project-state.json subagents array.
+**After each spawn:** Immediately add to project-state.json subagents array using `jq` (see State Management section).
 
-**After completion:** Update status, scan output directories for artifacts.
+**After completion:** Immediately update status to "complete" using `jq`, add completedAt + duration, then scan output directories for artifacts.
 
 ---
 
