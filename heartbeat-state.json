@@ -1,17 +1,24 @@
 {
-  "lastProjectCheck": 1771364298,
+  "lastProjectCheck": 1771368720,
   "surfacedQA": [
     "calculator-app",
     "kelly-dashboard",
     "daily-todo-tracker"
   ],
   "projectChecks": {
-    "fleai-market-v4": {
-      "lastCheck": 1771364298,
-      "lastPing": 1771364298,
+    "fleai-market-v5": {
+      "lastCheck": 1771368720,
       "status": "ok",
-      "stage": "implementation",
-      "note": "38/68 (56%). Story 4.8 on 3rd attempt - escalation if v3 fails."
+      "stage": "planning",
+      "note": "Phase 1 BMAD: John PRD (attempt 3), Sally UX complete, Winston architecture active"
     }
+  },
+  "directoryReorg": "2026-02-17 ~16:22 CST - projects reorganized into active/archived/shipped/ideas",
+  "researchLead": {
+    "session": "agent:research-lead:main",
+    "status": "running",
+    "startedAt": "2026-02-17T22:41:00Z",
+    "contextUsed": "125k/200k",
+    "note": "Full orchestrator session (not subagent). Created via openclaw agent --agent research-lead."
   }
 }
