@@ -126,41 +126,26 @@ function isToolSuccess(message: Message): boolean {
 }
 
 export function FormattedMessage({ message }: FormattedMessageProps) {
-  const [thinkingExpanded, setThinkingExpanded] = useState(false)
-  
   const roleEmoji = getRoleEmoji(message.role)
   const textContent = extractTextContent(message.content)
   
   // Handle thinking blocks
   if (message.thinking) {
-    const lines = message.thinking.split('\n')
-    const preview = lines[0] || 'Thinking...'
-    
     return (
       <div className="mb-3 last:mb-0">
-        <div 
-          className="flex items-start gap-2 cursor-pointer hover:bg-terminal-card p-2 rounded transition-colors"
-          onClick={() => setThinkingExpanded(!thinkingExpanded)}
-        >
+        <div className="flex items-start gap-2">
           <span className="text-base">💭</span>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-mono text-terminal-dim">
-              Thinking {thinkingExpanded ? '(click to collapse)' : '(click to expand)'}
+            <div className="text-sm font-mono text-terminal-dim mb-1">
+              Thinking
             </div>
-            {!thinkingExpanded && (
-              <div className="text-xs font-mono text-terminal-text mt-1 truncate">
-                {preview}
-              </div>
-            )}
+            <div className="p-3 bg-terminal-card rounded border border-terminal-border">
+              <pre className="text-xs font-mono text-terminal-text whitespace-pre-wrap break-words">
+                {message.thinking}
+              </pre>
+            </div>
           </div>
         </div>
-        {thinkingExpanded && (
-          <div className="mt-2 ml-6 p-3 bg-terminal-card rounded border border-terminal-border">
-            <pre className="text-xs font-mono text-terminal-text whitespace-pre-wrap break-words">
-              {message.thinking}
-            </pre>
-          </div>
-        )}
       </div>
     )
   }
