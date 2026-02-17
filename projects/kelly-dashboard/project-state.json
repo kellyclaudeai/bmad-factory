@@ -4,7 +4,7 @@
   "currentStage": "user-qa",
   "currentPhase": "complete",
   "createdAt": "2026-02-15T11:24:00.000Z",
-  "updatedAt": "2026-02-16T23:33:00.000Z",
+  "updatedAt": "2026-02-17T16:46:00.000Z",
   "fastTrack": true,
   "barryPlanComplete": true,
   "implementationStartedAt": "2026-02-15T11:26:30.000Z",
@@ -38,6 +38,16 @@
     "phase6": {
       "name": "Session Detail Enhancements & Bugfixes",
       "stories": [14, "14.1", "14.2", "14.3", "14.4", "14.5"],
+      "status": "complete"
+    },
+    "phase7": {
+      "name": "Post-QA Bugfixes",
+      "stories": ["15.1", "15.2", "15.3", "transcript-fix"],
+      "status": "complete"
+    },
+    "phase8": {
+      "name": "UX Enhancements",
+      "stories": ["15.4", "15.4.1"],
       "status": "complete"
     }
   },
@@ -198,12 +208,44 @@
       "branch": "barry-fix-ssr-project-state",
       "persona": "Barry",
       "role": "Developer"
+    },
+    {
+      "story": "Manual Fix: Session transcript display for Project Lead sessions",
+      "status": "complete",
+      "completedAt": "2026-02-17T16:15:00.000Z",
+      "duration": "manual",
+      "branch": "main",
+      "persona": "Kelly",
+      "role": "Debugger",
+      "description": "Fixed path construction from session key to sessionId for Project Lead transcript display"
+    },
+    {
+      "sessionKey": "agent:bmad-bmm-barry:subagent:20b36df0-fe06-4f1a-a266-a4b71f76e87f",
+      "story": "Story 15.4: Apply Cassio-style formatting to session logs",
+      "status": "complete",
+      "startedAt": "2026-02-17T16:31:00.000Z",
+      "completedAt": "2026-02-17T16:34:00.000Z",
+      "duration": "2m47s",
+      "branch": "barry-cassio-style-logs",
+      "persona": "Barry",
+      "role": "Developer"
+    },
+    {
+      "sessionKey": "agent:bmad-bmm-barry:subagent:fc7ac5f2-f4bd-4bb3-99a4-8f2dd2492c74",
+      "story": "Story 15.4.1: Fix thinking blocks display (always visible)",
+      "status": "complete",
+      "startedAt": "2026-02-17T16:43:00.000Z",
+      "completedAt": "2026-02-17T16:46:00.000Z",
+      "duration": "1m13s",
+      "branch": "barry-cassio-style-logs",
+      "persona": "Barry",
+      "role": "Developer"
     }
   ],
   "pipelineResult": {
-    "totalStories": 19,
-    "completedStories": 19,
+    "totalStories": 22,
+    "completedStories": 22,
     "failedStories": 0,
-    "totalSubagents": 26
+    "totalSubagents": 29
   }
 }
