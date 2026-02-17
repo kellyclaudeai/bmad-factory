@@ -80,6 +80,54 @@ Mechanics:
 - Examples: `agent:research-lead:1`, `agent:research-lead:20260217-1617`
 - Use sequential numbers for batch generation, or timestamp for single runs
 
+### Creating New Orchestrator Sessions
+
+**CRITICAL:** Project Lead and Research Lead are NOT sub-agents. They are full orchestrator sessions that spawn their own sub-agents.
+
+**❌ WRONG (spawns PL as a sub-agent - can't spawn sub-agents):**
+```javascript
+sessions_spawn({ agentId: "project-lead", task: "..." })
+```
+
+**✅ CORRECT (creates new PL orchestrator session):**
+```bash
+openclaw agent --agent project-lead --session-id project-{projectId} --message "Start new project..."
+```
+
+**How it works:**
+1. `--agent project-lead` → Routes to the project-lead agent
+2. `--session-id project-{projectId}` → Creates new isolated session with this ID
+3. Session key becomes: `agent:project-lead:project-{projectId}`
+4. That session can now spawn John, Sally, Winston, etc. as sub-agents
+
+**Project Lead Example:**
+```bash
+openclaw agent \
+  --agent project-lead \
+  --session-id project-fleai-market-v5 \
+  --message "Start new project: fleai-market-v5
+
+**Mode:** Normal Greenfield
+**Project Directory:** /Users/austenallred/clawd/projects/active/fleai-market-v5/
+**Intake:** intake.md
+
+Follow your complete workflow from docs/project-lead-flow.md."
+```
+
+**Research Lead Example:**
+```bash
+openclaw agent \
+  --agent research-lead \
+  --session-id 1 \
+  --message "Begin autonomous product idea generation. Follow your complete workflow (discovery → registry → ideation → selection → deep-dive → package)."
+```
+
+**After creating session:**
+- Session runs in background
+- Monitor via `openclaw sessions --active`
+- Check progress via state files (project-state.json, stage state files)
+- Send follow-up messages via `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message="...")`
+
 ### Session Hierarchy
 
 ```
@@ -95,33 +143,27 @@ Kelly creates orchestrator sessions. Orchestrators spawn sub-agents. Kelly does 
 **When operator says:** "Generate a product idea" or "Create 5 product ideas"
 
 **Single idea:**
-```typescript
-sessions_spawn({
-  agentId: "research-lead",
-  task: "Begin autonomous product idea generation. Follow your complete workflow (discovery → registry → ideation → selection → deep-dive → package).",
-  label: "1", // or timestamp like "20260217-1617"
-  cleanup: "keep",
-  runTimeoutSeconds: 3600
-})
+```bash
+openclaw agent \
+  --agent research-lead \
+  --session-id 1 \
+  --message "Begin autonomous product idea generation. Follow your complete workflow (discovery → registry → ideation → selection → deep-dive → package)."
 ```
 
-**Batch (parallel sessions):**
-```typescript
-// Create 5 independent Research Lead sessions
-for (let i = 1; i <= 5; i++) {
-  sessions_spawn({
-    agentId: "research-lead",
-    task: "Begin autonomous product idea generation...",
-    label: `${i}`,
-    cleanup: "keep",
-    runTimeoutSeconds: 3600
-  })
-}
+**Batch (5 parallel Research Lead sessions):**
+```bash
+for i in {1..5}; do
+  openclaw agent \
+    --agent research-lead \
+    --session-id $i \
+    --message "Begin autonomous product idea generation. Follow your complete workflow (discovery → registry → ideation → selection → deep-dive → package)." &
+done
+wait
 ```
 
 **Expected output:**
-- Research Lead creates `projects-queue/<name>-<timestamp>/intake.md`
-- Kelly announces when ready (~40-50 min)
+- Each Research Lead creates `projects-queue/<name>-<timestamp>/intake.md`
+- Kelly announces when ready (~40-50 min per session)
 - Operator decides: implement via Project Lead, or skip
 
 ### Monitoring Orchestrator Sub-Agents
