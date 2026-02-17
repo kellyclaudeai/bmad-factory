@@ -4,6 +4,7 @@ import path from 'node:path'
 import { ProjectHeader } from '@/components/project-view/project-header'
 import { ProjectMetrics } from '@/components/project-view/project-metrics'
 import { SubagentGrid } from '@/components/project-view/subagent-grid'
+import { QueuedStories } from '@/components/project-view/queued-stories'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface ProjectDetailProps {
@@ -21,9 +22,24 @@ type ProjectState = {
   completedAt?: string
   implementationCompletedAt?: string
   phases?: Record<string, { name: string; stories: number[]; status: string }>
+  planningArtifacts?: {
+    intake?: string
+    prd?: string
+    uxDesign?: string
+    architecture?: string
+    epics?: string
+    storiesJson?: string
+  }
+  implementationArtifacts?: {
+    storiesStatus?: string | null
+    completedStories?: string[]
+    blockedStories?: string[]
+    failedAttempts?: any[]
+  }
   subagents: Array<{
     id?: string
     story?: string
+    storyId?: string
     persona?: string
     role?: string
     task?: string
@@ -64,6 +80,38 @@ async function getProjectState(projectId: string): Promise<ProjectState | null> 
     return JSON.parse(contents)
   } catch (error) {
     console.error('Failed to read project state:', error)
+    return null
+  }
+}
+
+async function getStoriesData(projectId: string, storiesPath?: string): Promise<any> {
+  try {
+    // Try the path from planningArtifacts first
+    if (storiesPath) {
+      const fullPath = path.join(PROJECTS_ROOT, projectId, storiesPath)
+      try {
+        const contents = await fs.readFile(fullPath, 'utf8')
+        return JSON.parse(contents)
+      } catch {
+        // Fall through to try other locations
+      }
+    }
+
+    // Try _bmad-output/implementation-artifacts/stories-parallelization.json
+    const bmadPath = path.join(PROJECTS_ROOT, projectId, '_bmad-output/implementation-artifacts/stories-parallelization.json')
+    try {
+      const contents = await fs.readFile(bmadPath, 'utf8')
+      return JSON.parse(contents)
+    } catch {
+      // Fall through to try root
+    }
+
+    // Try root stories-parallelization.json
+    const rootPath = path.join(PROJECTS_ROOT, projectId, 'stories-parallelization.json')
+    const contents = await fs.readFile(rootPath, 'utf8')
+    return JSON.parse(contents)
+  } catch (error) {
+    console.error('Failed to read stories data:', error)
     return null
   }
 }
@@ -137,6 +185,18 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
       .then((r) => (r.ok ? (r.json() as Promise<Session[]>) : ([] as Session[])))
       .catch(() => [] as Session[]),
   ])
+
+  // Fetch stories data for queued stories section
+  const storiesData = projectState?.planningArtifacts?.storiesJson
+    ? await getStoriesData(id, projectState.planningArtifacts.storiesJson)
+    : await getStoriesData(id)
+
+  // Extract completed and active story IDs
+  const completedStoryIds = projectState?.implementationArtifacts?.completedStories || []
+  const activeStoryIds = (projectState?.subagents || [])
+    .filter((s) => s.status?.toLowerCase() === 'active')
+    .map((s) => s.storyId)
+    .filter(Boolean) as string[]
 
   const projectName = formatProjectName(id)
 
@@ -319,6 +379,17 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
                 Subagents (from project-state.json)
               </h2>
               <SubagentGrid subagents={projectState.subagents} />
+            </section>
+
+            <section>
+              <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
+                Next: Queued Stories
+              </h2>
+              <QueuedStories 
+                stories={storiesData?.stories || {}}
+                completedStoryIds={completedStoryIds}
+                activeStoryIds={activeStoryIds}
+              />
             </section>
           </>
         )}
