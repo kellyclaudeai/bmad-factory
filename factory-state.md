@@ -76,24 +76,40 @@
 
 ## Critical Issues
 
-### 🚨 Project Lead Session Death Investigation (11:09 CST)
+### ✅ Project Lead Session Death - FIXED (11:09-12:03 CST)
 - **Problem:** Project Lead sessions completing stories but NOT notifying Kelly
 - **Root Cause:** Path confusion - PL looking for project-state.json in WRONG directory
-  - Looking at: `/workspaces/project-lead/project-state.json` ❌
-  - Should be: `/projects/{projectId}/project-state.json` ✅
+  - Was looking at: `/workspaces/project-lead/project-state.json` ❌
+  - Now looks at: `/projects/{projectId}/project-state.json` ✅
 - **Impact:** 
   - kelly-dashboard Story 15.4.2 completed but not surfaced
   - fleai-market-v4 Wave 5 complete but PL session dead (30s timeout)
   - User QA blocked - completions happening but unreported
 - **Affects:** ALL projects using Project Lead orchestration
-- **Investigation:** Full report at `/Users/austenallred/clawd/project-lead-session-death-investigation.md`
-- **Status:** 🔴 **CRITICAL** - Awaiting operator decision on fix priority
+- **Investigation:** Full report at `project-lead-session-death-investigation.md`
+- **Implementation:** Full details at `PROJECT-LEAD-PATH-FIX-IMPLEMENTATION.md`
+- **Status:** ✅ **IMPLEMENTED** - Awaiting restart of existing Project Lead sessions
 
-### Recommended Fixes (Priority Order)
-1. **URGENT:** Add explicit projectId context to Project Lead sessions
-2. **URGENT:** Fix path construction in Project Lead file operations
-3. **HIGH:** Add completion polling loop (detect new subagent completions)
-4. **HIGH:** Improve error recovery (file-not-found shouldn't kill session)
+### Fixes Implemented (12:03 CST)
+1. ✅ **Fix #1:** Add explicit projectId context to Project Lead sessions
+   - Extract from session key: `agent:project-lead:{projectId}`
+   - Store in `memory/project-context.json` with all paths
+2. ✅ **Fix #2:** Fix path construction in Project Lead file operations
+   - All paths now use `${projectDir}` from context
+   - Documented WRONG vs CORRECT patterns
+3. ✅ **Fix #3:** Add completion polling loop (detect new subagent completions)
+   - Heartbeat checks every 60s for new entries in project-state.json
+   - Notifies Kelly immediately: `✅ {projectId}: Story X complete`
+4. ✅ **Fix #4:** Improve error recovery (file-not-found shouldn't kill session)
+   - Error recovery wrapper for all file operations
+   - Log errors, notify Kelly, but continue operating
+
+### Next Steps
+- Restart existing Project Lead sessions to apply fixes:
+  - `agent:project-lead:kelly-dashboard` (currently unresponsive)
+  - `agent:project-lead:fleai-market-v4` (currently timing out)
+- Monitor for completion notifications
+- Verify no more "file not found" errors
 
 ## Pending Actions
 
