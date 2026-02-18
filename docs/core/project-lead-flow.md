@@ -32,26 +32,33 @@ Project Lead owns a single project from intake to ship. One PL session per proje
 
 All sequential — each step waits for the previous to complete.
 
+**CRITICAL: All BMAD spawns MUST include YOLO MODE directive.** Without it, workflows halt at confirmation prompts and subagents time out waiting for input that never comes.
+
 ```
 1. John: create-prd
    → Input: intake.md
    → Output: _bmad-output/planning-artifacts/prd.md
+   → Task MUST include: "YOLO MODE — skip all confirmations, run fully autonomously."
 
 2. Sally: create-ux-design
    → Input: prd.md
    → Output: _bmad-output/planning-artifacts/ux-design.md
+   → Task MUST include: "YOLO MODE — skip all confirmations, run fully autonomously."
 
 3. Winston: create-architecture
    → Input: prd.md, ux-design.md
    → Output: _bmad-output/planning-artifacts/architecture.md
+   → Task MUST include: "YOLO MODE — skip all confirmations, run fully autonomously."
 
 4. John: create-epics-and-stories (SEPARATE from create-prd)
    → Input: prd.md, architecture.md, ux-design.md
    → Output: _bmad-output/planning-artifacts/epics.md
+   → Task MUST include: "YOLO MODE — skip all confirmations, run fully autonomously."
 
 5. John: check-implementation-readiness (GATE CHECK)
    → Input: prd.md, epics.md, architecture.md
    → Output: PASS / CONCERNS / FAIL / NEEDS WORK / NOT READY (all treated as PASS or NOT PASS)
+   → Task MUST include: "YOLO MODE — skip all confirmations, run fully autonomously."
    
    **GATE LOGIC (STRICT):**
    
