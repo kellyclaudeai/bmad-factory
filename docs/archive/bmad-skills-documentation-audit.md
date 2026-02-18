@@ -1,7 +1,14 @@
 # BMAD Skills Documentation Audit
 
 **Date:** 2026-02-16  
-**Status:** ✅ Complete
+**Status:** ✅ Complete  
+**⚠️ SUPERSEDED:** 2026-02-18 - Skills refactored into agent-specific structure (see `/Users/austenallred/clawd/memory/skill-refactor-2026-02-18.md`)
+
+This document describes the original `coding-agent` and `testing-agent` skills which have been split into:
+- `build/coding-cli/` - Shared 4-tier fallback wrapper
+- `build/amelia-coding/` - Amelia's dev-story + code-review workflows
+- `build/barry-coding/` - Barry's quick-dev workflow
+- `test/murat-testing/` - Murat's 8 TEA workflows
 
 ---
 

@@ -135,7 +135,8 @@ Story COMPLETE when status = "done"
 ```
 
 **Subagent death handling:**
-- If a Codex/Amelia session dies, PL detects (no completion announcement) and respawns
+- If an Amelia session dies, PL detects (no completion announcement) and respawns
+- Coding CLI fallback (Codex → Claude Code) happens transparently within Amelia's execution
 - Track failed attempts in project-state.json with failure reason
 - Increment version suffix on retry (e.g., `story-2.4-v1`, `story-2.4-v2`)
 
