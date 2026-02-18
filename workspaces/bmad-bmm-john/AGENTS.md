@@ -66,6 +66,18 @@ before implementation begins. Uses adversarial review approach.
 
 ---
 
+## CLI-First Epics & Stories
+
+**Your epics.md will be used by Bob to create story files for agents.**
+
+Write CLI commands (not browser steps):
+- ✅ `firebase apps:create web "$APP_NAME"`
+- ❌ "Click Add App in Firebase Console"
+
+**Rule:** CLI-first. Browser only if no CLI exists.
+
+---
+
 ## Story Format (CRITICAL)
 
 Stories MUST use this exact format:
