@@ -8,6 +8,18 @@
 
 ## 2026-02-18
 
+### 12:30 CST | Consolidated Remediation via correct-course
+**What:** ALL bug reports, user feedback, and complex new features now route through John's correct-course workflow for unified Sprint Change Management.  
+**Why:** Single remediation path with John as decision-maker. John categorizes scope (Minor/Moderate/Major) and recommends approach. Eliminates ad-hoc fix story creation - everything goes through formal change analysis.  
+**Scope classifications:**
+- **MINOR:** Simple code bugs → Bob creates fix stories → Amelia implements (dependency-driven)
+- **MODERATE:** Backlog reorganization → John updates epics → Bob updates sprint plan → implement
+- **MAJOR:** Fundamental replanning → Winston/Sally/John redesign artifacts → Bob updates stories → implement
+**Triggers:** Phase 3 Quality Gate bugs (Murat reports), Phase 4 User QA feedback, Brownfield complex new features  
+**Files:** docs/core/project-lead-flow.md, all BMAD agent AGENTS.md files (outside repo)  
+**Impact:** Project Lead waits for BOTH Murat reports → spawns John correct-course → implements based on scope classification → re-runs Quality Gate if needed. User QA feedback uses same path.  
+**Status:** ✅ Complete
+
 ### 12:15 CST | Phase 3 Quality Gate Redesign (Corrected)
 **What:** Replaced sequential TEA workflows with parallel Quality Gate: Build+Tests → (E2E + NFR parallel) → Bob creates fix stories → Dependency-driven fix implementation  
 **Why:** Original TEA (56+ min, 4 sequential workflows) was overkill for B2C MVPs. Focused on functional bug catching, security/performance assessment, removed compliance paperwork (traceability matrices). Fix stories use same dependency-driven spawning as Phase 2.  
