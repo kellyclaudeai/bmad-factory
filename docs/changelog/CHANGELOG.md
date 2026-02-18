@@ -21,6 +21,12 @@
 - `workspace-bmad-bmm-amelia/AGENTS.md` — YOLO Mode section added
 - `workspace-bmad-bmm-barry/AGENTS.md` — YOLO Mode section added
 - `workspace-bmad-tea-murat/AGENTS.md` — YOLO Mode section added
+- `workspace-bmad-cis-carson/AGENTS.md` — YOLO Mode section added
+- `workspace-bmad-cis-maya/AGENTS.md` — YOLO Mode section added
+- `workspace-bmad-cis-quinn/AGENTS.md` — YOLO Mode section added
+- `workspace-bmad-cis-victor/AGENTS.md` — YOLO Mode section added
+- `workspace-bmad-bmm-mary/AGENTS.md` — YOLO Mode section added
+- `workspace-research-lead/AGENTS.md` — All 5 spawn examples now include YOLO directive
 
 ### 14:11 CST | CRITICAL: Model Standardization + Fallback Reorder
 **What:** Emergency fix - standardized ALL agents to Sonnet 4.5, reversed coding CLI fallback to Claude Code BEFORE Codex.  
