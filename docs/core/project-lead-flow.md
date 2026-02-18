@@ -144,6 +144,12 @@ Story COMPLETE when status = "done"
 
 **Goal:** Catch functional bugs, security issues, and performance problems before user QA.
 
+**Two classification dimensions:**
+- **SEVERITY** (Murat decides): How bad is it? BLOCKER / HIGH / MEDIUM / LOW
+- **SCOPE** (John decides via correct-course): How much work to fix? MINOR / MODERATE / MAJOR
+
+A HIGH severity bug can be MINOR scope (simple code fix). A MEDIUM severity issue can be MAJOR scope (requires architectural redesign).
+
 #### Step 1: Build & Test Verification (Sequential)
 
 ```
