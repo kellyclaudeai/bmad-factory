@@ -43,28 +43,46 @@ All sequential — each step waits for the previous to complete.
 
 5. John: check-implementation-readiness (GATE CHECK)
    → Input: prd.md, epics.md, architecture.md
-   → Output: PASS / CONCERNS / FAIL
+   → Output: PASS / CONCERNS / FAIL / NEEDS WORK / NOT READY (all treated as PASS or NOT PASS)
    
-   **PASS:** Proceed to Bob (step 6)
+   **GATE LOGIC (STRICT):**
    
-   **CONCERNS:** Proceed to Bob, but note concerns in project-state.json
-   - 12-15 minor concerns are acceptable (proceed with mitigation during implementation)
-   - Implementation continues with known risks
-   - Concerns logged for reference during dev/review
+   **PASS / READY** → Proceed to Bob (step 6)
    
-   **FAIL:** Critical issues requiring remediation BEFORE implementation
-   - Loop back to fix issues (see Remediation Loop below)
-   - Do NOT proceed to Bob until PASS or CONCERNS
+   **NOT PASS** (CONCERNS / FAIL / NEEDS WORK / NOT READY) → Remediation Loop
+   - Do NOT proceed to Bob until gate check returns PASS
+   - ANY documented concerns require fixes before implementation
+   - Prevents shipping with known issues or technical debt
    
-   **Remediation Loop (for FAIL):**
-   1. Identify which persona(s) need to fix issues:
-      - PRD issues → John (edit-prd)
-      - UX issues → Sally (edit-ux-design)
-      - Architecture issues → Winston (edit-architecture)
-      - Epic/story issues → John (edit epics)
-   2. Spawn appropriate persona(s) with specific fix instructions
-   3. Re-run John: check-implementation-readiness
-   4. Repeat until PASS or CONCERNS
+   **Remediation Loop (for NOT PASS):**
+   
+   1. **Project Lead reads gate check report** (`implementation-readiness-check.md`)
+      - Identify all documented issues (IMMEDIATE, HIGH PRIORITY, MEDIUM PRIORITY)
+      - Categorize by artifact: PRD, UX, Architecture, Epics
+   
+   2. **Route to appropriate persona(s) for fixes:**
+      - **PRD gaps/issues** → John (edit-prd)
+        - Missing requirements, unclear scope, stakeholder decisions needed
+      - **UX issues** → Sally (edit-ux-design)
+        - Missing screens, incomplete user flows, accessibility gaps
+      - **Architecture gaps** → Winston (edit-architecture)
+        - Technical feasibility concerns, missing ADRs, infrastructure gaps
+      - **Epic/story issues** → John (edit epics.md directly OR create new stories via Bob)
+        - Missing epics, incomplete stories, missing acceptance criteria
+        - Option A: John edits epics.md to add missing content
+        - Option B: Bob creates new story files for missing functionality (if epics complete but stories missing)
+   
+   3. **Spawn persona(s) with specific fix instructions from report:**
+      - Pass exact issues from gate check report to spawned agent
+      - Example: "Fix IMMEDIATE concerns #1-5 from implementation-readiness-check.md"
+   
+   4. **Re-run John: check-implementation-readiness**
+      - After fixes applied, spawn John again with same workflow
+      - John validates fixes and produces updated report
+   
+   5. **Repeat until PASS**
+      - Maximum 3 remediation cycles (escalate to operator if stuck)
+      - Track remediation attempts in project-state.json
 
 6. Bob: sprint-planning
    → Input: epics.md
@@ -170,8 +188,9 @@ SCENARIO B: User Rejects → Back to Phase 2
    → Continue numbering: Epic N+1, N+2...
 
 5. John: check-implementation-readiness (for NEW features)
-   → Same PASS/CONCERNS/FAIL logic as Greenfield (see above)
-   → Remediation loop targets only NEW artifacts if FAIL
+   → Same PASS/NOT PASS logic as Greenfield (see above)
+   → Remediation loop targets only NEW artifacts (edit new epics, not existing ones)
+   → Repeat until PASS
 
 6-7. Bob: Update sprint-planning + dependency-graph.json (add new stories)
 
