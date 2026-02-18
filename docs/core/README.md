@@ -1,20 +1,35 @@
 # Core Workflows
 
-**These are the source of truth documents for Kelly's orchestrator agents.**
+**Source of truth documentation for OpenClaw factory orchestrators and coordinators.**
 
-## Files
+---
 
-### project-lead-flow.md
-**Purpose:** Complete Project Lead orchestration workflow  
-**Covers:** 4 modes (Normal/Fast, Greenfield/Brownfield) × 4 phases (Plan, Implement, Test, User QA)  
-**Used by:** Project Lead AGENTS.md derives from this  
-**When to read:** When changing project pipeline, adding/removing phases, modifying BMAD integration
+## Orchestrator Workflows
 
-### research-lead-flow.md
-**Purpose:** Complete Research Lead orchestration workflow  
-**Covers:** 5-phase autonomous product idea generation (pain point discovery → idea generation → competitive analysis → product brief → registry)  
-**Used by:** Research Lead AGENTS.md derives from this  
-**When to read:** When changing research pipeline, adding/removing CIS agents, modifying idea generation logic
+### Project Pipeline
+**[project-lead-flow.md](project-lead-flow.md)** — Complete project lifecycle  
+- 4 modes: Normal Greenfield, Fast Track, Resume, Brownfield
+- 4 phases: Planning, Implementation, Testing, User QA
+- Sub-agents: John, Sally, Winston, Bob, Amelia, Barry, Murat
+
+### Product Discovery
+**[research-lead-flow.md](research-lead-flow.md)** — Autonomous product idea generation  
+- 5 phases: Discovery, Ideas, Analysis, Brief, Handoff
+- Sub-agents: Mary, Carson, Victor, Maya, Quinn
+
+### Factory Coordination
+**[kelly-router-flow.md](kelly-router-flow.md)** — Communication and routing layer  
+- Request routing (PL, RL, direct work)
+- Factory monitoring (heartbeats, QA surfacing, stall detection)
+- Session management (orchestrator creation, state tracking)
+- Documentation maintenance (changelog logging)
+
+### Self-Improvement
+**[kelly-improver-flow.md](kelly-improver-flow.md)** — Architecture and workflow improvements  
+- Architecture improvements (session recovery, fallback systems)
+- Workflow optimization (routing, orchestration, monitoring)
+- Documentation maintenance (core docs, changelog, skills)
+- Skill development (creation, updates, refactoring)
 
 ---
 
@@ -28,7 +43,7 @@ These docs are **source of truth**, not loaded into agent context by default. Th
 **When these change:**
 1. Update the core doc (here)
 2. Update corresponding workspace AGENTS.md file
-3. Log change in `/docs/CHANGELOG.md`
+3. Log change in `docs/changelog/CHANGELOG.md`
 4. Test with affected agent
 
 **Do not:**

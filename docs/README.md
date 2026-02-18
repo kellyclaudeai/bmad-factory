@@ -13,7 +13,9 @@
 ├── core/                     # Core orchestrator workflows (source of truth)
 │   ├── README.md
 │   ├── project-lead-flow.md  # Project Lead: 4 modes × 4 phases
-│   └── research-lead-flow.md # Research Lead: 5-phase idea generation
+│   ├── research-lead-flow.md # Research Lead: 5-phase idea generation
+│   ├── kelly-router-flow.md  # Kelly Router: communication & monitoring
+│   └── kelly-improver-flow.md # Kelly-Improver: self-improvement
 │
 ├── changelog/                # Kelly improvement history
 │   ├── CHANGELOG.md          # Timeline of changes (what/why/when)
@@ -27,10 +29,26 @@
 
 ---
 
+## Quick Links
+
+### Orchestrator Workflows
+- [Project Lead Flow](core/project-lead-flow.md) — Complete project lifecycle (planning → implementation → testing → QA → shipped)
+- [Research Lead Flow](core/research-lead-flow.md) — Autonomous product idea generation workflow
+
+### Factory Coordination
+- [Kelly Router Flow](core/kelly-router-flow.md) — Communication, routing, and monitoring
+- [Kelly-Improver Flow](core/kelly-improver-flow.md) — Architecture and workflow improvements
+
+### Reference
+- [Factory Overview](factory-overview.md) — Agent roster, responsibilities, and orchestration patterns
+- [Changelog](changelog/CHANGELOG.md) — Timeline of Kelly improvements and factory changes
+
+---
+
 ## What Goes Where
 
 ### /core/
-**Core orchestrator workflows** - source of truth for Project Lead and Research Lead behavior.
+**Core orchestrator workflows** - source of truth for Project Lead, Research Lead, Kelly Router, and Kelly-Improver.
 
 **Characteristics:**
 - Comprehensive (all modes, all phases, all edge cases)
@@ -41,6 +59,8 @@
 **Files:**
 - `project-lead-flow.md` - Project pipeline (Plan → Implement → Test → User QA)
 - `research-lead-flow.md` - Idea generation pipeline (Discovery → Ideas → Analysis → Brief)
+- `kelly-router-flow.md` - Routing and monitoring (request routing, heartbeats, QA surfacing)
+- `kelly-improver-flow.md` - Self-improvement (architecture, workflows, documentation, skills)
 
 ### /archive/
 **Deprecated or superseded documentation.**
@@ -118,5 +138,5 @@
 ## Questions?
 
 - "Where does X workflow live?" → Check /core/README.md
-- "What changed recently?" → Check CHANGELOG.md
+- "What changed recently?" → Check changelog/CHANGELOG.md
 - "Why was Y deprecated?" → Check /archive/ deprecation notices
