@@ -8,6 +8,12 @@
 
 ## 2026-02-18
 
+### 13:37 CST | Agent Config Audit — Registry + Doc Path Alignment
+**What:** Audited all 15 agent AGENTS.md files against core docs. Updated Research Lead (major: registry rewrite), Project Lead (medium: doc paths + registry update steps), Kelly-Improver (minor: added registry doc reference).  
+**Why:** Core docs changed (project-registry.json replaces research-registry.json + projects-queue, doc paths moved to docs/core/). Agent configs must match.  
+**Result:** 12/15 agents already aligned. 3 updated. All agents now consistent with core docs.  
+**Status:** ✅ Complete
+
 ### 13:15 CST | Project Registry Lifecycle Architecture
 **What:** Created unified project-registry.json at /projects/ root to track all project state (discovery → in-progress → shipped → followup). Replaces projects-queue folder structure.  
 **Why:** Factory needs single source of truth for project lifecycle. Folder-based queue was messy; JSON registry enables atomic updates, query by state, version tracking, and futures management.  
