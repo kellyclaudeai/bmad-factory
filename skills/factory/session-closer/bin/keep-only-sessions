@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ $# -eq 0 ]; then
+  echo "Usage: keep-only-sessions <projectId1> [<projectId2> ...]" >&2
+  echo "" >&2
+  echo "Removes ALL project-lead sessions EXCEPT the ones specified." >&2
+  echo "Always keeps: agent:project-lead:main (system session)" >&2
+  echo "" >&2
+  echo "Examples:" >&2
+  echo "  keep-only-sessions kelly-dashboard" >&2
+  echo "  keep-only-sessions kelly-dashboard meeting-tracker" >&2
+  exit 2
+fi
+
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SESS_DIR="$HOME/.openclaw/agents/project-lead/sessions"
+INDEX_PATH="$SESS_DIR/sessions.json"
+
+if [ ! -f "$INDEX_PATH" ]; then
+  echo "ERROR: sessions.json not found at $INDEX_PATH" >&2
+  exit 1
+fi
+
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+BACKUP_PATH="$SESS_DIR/sessions.json.bak-keep-only-$TIMESTAMP"
+
+# Backup
+cp "$INDEX_PATH" "$BACKUP_PATH"
+echo "✅ Backed up sessions.json to $BACKUP_PATH"
+
+# Build list of keys to KEEP
+KEYS_TO_KEEP=()
+KEYS_TO_KEEP+=("agent:project-lead:main") # Always keep main
+
+for PROJECT_ID in "$@"; do
+  CANONICAL="agent:project-lead:$PROJECT_ID"
+  LEGACY="agent:project-lead:project-$PROJECT_ID"
+  
+  # Add whichever format exists
+  CURRENT_JSON=$(cat "$INDEX_PATH")
+  if echo "$CURRENT_JSON" | jq -e ".[\"$CANONICAL\"]" > /dev/null 2>&1; then
+    KEYS_TO_KEEP+=("$CANONICAL")
+    echo "  - Keeping: $CANONICAL"
+  elif echo "$CURRENT_JSON" | jq -e ".[\"$LEGACY\"]" > /dev/null 2>&1; then
+    KEYS_TO_KEEP+=("$LEGACY")
+    echo "  - Keeping: $LEGACY"
+  else
+    echo "  ⚠️  Not found: $PROJECT_ID (will keep if it exists, but it doesn't)"
+  fi
+done
+
+echo ""
+echo "Building new sessions.json with only kept sessions..."
+
+# Load current index
+CURRENT_JSON=$(cat "$INDEX_PATH")
+
+# Get all current keys
+ALL_KEYS=$(echo "$CURRENT_JSON" | jq -r 'keys[]')
+
+# Build new JSON with only kept keys
+NEW_JSON="{}"
+REMOVED_COUNT=0
+
+while IFS= read -r KEY; do
+  # Check if this key should be kept
+  SHOULD_KEEP=false
+  for KEEP_KEY in "${KEYS_TO_KEEP[@]}"; do
+    if [ "$KEY" = "$KEEP_KEY" ]; then
+      SHOULD_KEEP=true
+      break
+    fi
+  done
+  
+  if [ "$SHOULD_KEEP" = true ]; then
+    # Keep this session
+    SESSION_DATA=$(echo "$CURRENT_JSON" | jq ".[\"$KEY\"]")
+    NEW_JSON=$(echo "$NEW_JSON" | jq --arg key "$KEY" --argjson data "$SESSION_DATA" '. + {($key): $data}')
+  else
+    # Remove this session - archive transcript
+    SESSION_ID=$(echo "$CURRENT_JSON" | jq -r ".[\"$KEY\"].sessionId // empty")
+    
+    if [ -n "$SESSION_ID" ] && [ -f "$SESS_DIR/${SESSION_ID}.jsonl" ]; then
+      TRANSCRIPT_ARCHIVE="$SESS_DIR/${SESSION_ID}.jsonl.deleted.$TIMESTAMP"
+      mv "$SESS_DIR/${SESSION_ID}.jsonl" "$TRANSCRIPT_ARCHIVE"
+      echo "  ✅ Removed: $KEY (transcript archived)"
+    else
+      echo "  ✅ Removed: $KEY (no transcript)"
+    fi
+    
+    ((REMOVED_COUNT++)) || true
+  fi
+done <<< "$ALL_KEYS"
+
+# Write new index
+echo "$NEW_JSON" | jq '.' > "$INDEX_PATH"
+
+echo ""
+echo "✅ Removed $REMOVED_COUNT session(s)"
+echo "✅ Updated sessions.json"
+
+# Restart gateway once
+echo ""
+echo "Restarting gateway..."
+openclaw gateway restart > /dev/null 2>&1 &
+
+echo "✅ Done! Gateway restarting in background."
+echo ""
+echo "Remaining sessions:"
+jq 'keys' "$INDEX_PATH"
