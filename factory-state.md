@@ -1,6 +1,6 @@
 # Factory State
 
-**Last Updated:** 2026-02-18 10:42 CST (pre-compaction state flush)
+**Last Updated:** 2026-02-18 12:47 CST (fresh slate - all projects archived)
 
 ## Project Organization
 
@@ -16,129 +16,59 @@
 
 ## Active Projects
 
-### fleai-market-v5 (TEA Testing Active)
-- **Status:** 🟡 **TESTING** — 48/48 stories complete (100%), Murat TEA audit in progress
-- **Session:** `agent:project-lead:project-fleai-market-v5` (created via `gateway call agent`)
-- **Repo path:** `projects/active/fleai-market-v5`
-- **Description:** Multi-chain crypto marketplace (Solana + Ethereum). AI agents as sellers and buyers. Crossmint integration.
-- **Tech Stack:** Next.js + TypeScript + Tailwind + Prisma + Supabase + Crossmint + Stripe + Printful + Vercel
-- **Mode:** Normal Greenfield (full BMAD planning → dependency-driven implementation)
-- **Fresh Restart:** 2026-02-17 17:31 CST (cleaned all BMAD state, kept intake.md only)
-- **Phase 1 Planning:** ✅ COMPLETE (all 8 steps done, 52 min total)
-- **Phase 2 Implementation:** ✅ COMPLETE (48/48 stories)
-  - **Complete:** 48 stories implemented and committed
-  - **Story 3.6 retry history:**
-    - First attempt: Failed 01:10 CST (OpenAI billing)
-    - Retry #1: Session faint-crustacean died 09:46 CST (signal 9)
-    - Retry #2: Succeeded 10:36 CST with new 4-tier fallback wrapper (10m duration)
-  - **Deferred:** Story 4.8 (Email Notifications) actually completed on retry
-- **Phase 3 Testing:** 🟡 ACTIVE — Murat spawned 10:36 CST (session 369b796f, automate → test-review → trace → nfr-assess)
-- **Artifacts:** Full planning docs + 48 stories + dependency-graph.json
-- **Last Status Check:** 10:42 CST — Murat TEA audit running (~6 min elapsed), ETA 20-30 min total
+**Fresh slate.** All projects archived on 2026-02-18 12:47 CST.
 
-### daily-todo-tracker (Ready for User QA)
-- **Status:** 🧪 **READY FOR QA**
-- **QA URL:** http://localhost:3011
-- **Session:** agent:project-lead:project-daily-todo-tracker
-- **Repo path:** `projects/active/daily-todo-tracker`
-- **Progress:** ✅ All 7 stories complete (1.1-1.7)
+### Recently Archived (moved to projects/archived/)
 
-### calculator-app (Ready for User QA)
-- **Status:** 🧪 **READY FOR QA**
-- **QA URL:** http://localhost:3000
-- **Session:** agent:project-lead:calculator-app
-- **Repo path:** `projects/active/calculator-app`
-- **Progress:** ✅ All 6 stories complete
+1. **fleai-market-v5** (48/48 stories complete, TEA passed)
+2. **calculator-app** (6/6 stories complete, Barry Fast Mode)
+3. **daily-todo-tracker** (7/7 stories complete, Barry Fast Mode)
+4. **kelly-dashboard** (20/21 stories complete)
+5. **takeouttrap** (28/37 stories, mid-remediation - archived incomplete)
 
-### kelly-dashboard (Ready for User QA)
-- **Status:** 🧪 **READY FOR QA**
-- **QA URL:** http://localhost:3000 (kelly-dashboard)
-- **Session:** agent:project-lead:kelly-dashboard
-- **Repo path:** `projects/active/kelly-dashboard`
-- **Progress:** 20/21 stories complete
-
-### takeouttrap (Code Review Found 10 Blockers)
-- **Status:** 🔴 **BLOCKED** — 28/37 stories implemented, 10 stories blocked by code review issues, 9 unstarted
-- **Session:** `agent:project-lead:project-takeouttrap` (created via `gateway call agent`)
-- **Repo path:** `projects/active/takeouttrap`
-- **Description:** Browser extension to intervene at DoorDash/Uber Eats checkout with healthier/cheaper alternatives (meal kits, local pickup, home cooking)
-- **Tech Stack:** Chrome Extension + React + TypeScript + Tailwind + OpenAI API + Firebase
-- **Mode:** Normal Greenfield (full BMAD planning → dependency-driven implementation)
-- **Started:** 2026-02-17 19:33 CST
-- **Phase 1 Planning:** ✅ COMPLETE (8/8 steps done, finished 20:38 CST)
-  - ✅ John (PRD) — 10m (69KB)
-  - ✅ Sally (UX retry) — 9m35s (first attempt failed: workflow exploration only, fixed by BMAD path correction)
-  - ✅ Winston (Architecture retry) — 7m54s (first attempt stuck 5h+)
-  - ✅ John (Epics) — 8m36s
-  - ✅ John (Gate Check) — 3m37s (result: CONCERNS - 12 documented, proceeded per old rules, would require remediation under new strict gate)
-  - ✅ Bob (Sprint Planning) — 56s
-  - ✅ Bob (Dependency Graph) — 1m35s
-  - ✅ Bob (Create Stories) — 10m creating 37 story files (26 initially, 11 added via self-heal at 04:02 CST)
-- **Phase 2 Implementation:** 🔴 BLOCKED (28 implemented, 10 blocked, 9 unstarted)
-  - **Complete & Passing Code Review (12):** 1.8, 3.2, 1.5, 1.4, 1.2, 1.9, 1.7, 1.11, 1.6, 2.1, 3.1, 3.3
-  - **Blocked by Code Review (10):** 1.1 (129 ESLint), 1.3 (Sentry setup), 1.10 (test code in prod), 2.2 (AC violations), 2.3 (cook time AC), 2.4 (duplicate recipes), 2.5 (Redis bug), 2.6 (multi-story commit), 2.7 (3 blockers), 2.8 (4 critical), 2.10 (3 deployment blockers)
-  - **Unstarted (9):** 2.9, 3.4-3.7, 4.1-4.8
-  - **Implementation started:** 04:14 CST
-  - **Codex rate limit hits:** Stories 2.8 & 3.2 at 05:02-05:03 CST
-  - **4-tier fallback validated:** Both retries succeeded with Claude Code (10:26-10:34 CST)
-  - **Code review results (10:34-11:03 CST):** 12 PASSED, 10 BLOCKED (critical issues require rework)
-- **Blockers require:** Fix critical issues (ESLint, test code, AC violations, Redis bugs) before resuming implementation
-- **ETA unknown:** Waiting on blocker remediation plan from Project Lead
+Ready for new projects.
 
 ## Research Lead
 
-### Workflow Improvement (IN PROGRESS - 2026-02-18 11:02 CST)
-- **Status:** 🟡 **PLANNING** — Design phase for Research Lead workflow improvements
+### Workflow v2.0 Update (COMPLETE - 2026-02-18 12:10 CST)
+- **Status:** ✅ **DOCUMENTED** — Workflow design complete, ready for agent config implementation
 - **Problem identified:** Batch runs 1+2 produced low diversity output
   - Too many subscription-cancellation ideas (6+ similar concepts)
   - Formulaic compound-word naming (MeetCost, EventSquad, TakeoutTrap pattern)
-  - Mary's "random vertical" approach creates artificial constraints, not real stochasticity
-- **Root causes:**
-  1. **Phase 1 randomness is superficial** - "Pick a random vertical" doesn't vary search approach
-  2. **Search strategy too mechanical** - Following checklist instead of genuine discovery
-  3. **Naming is formulaic** - Always generates compound words
-  4. **No real stochastic variation** - Every session follows same pattern with different inputs
-- **Proposed fixes:**
-  1. **Rewrite Phase 1 (Pain Point Discovery):** 8 stochastic search strategies (Sentiment Mining, Workflow Analysis, Money Signals, Time Signals, Failure Mining, Workaround Archaeology, Emerging Context, Anti-pattern Discovery) - Mary picks 2-3 randomly per session
-  2. **Add naming diversity (Phase 6):** 9 naming styles to rotate (Compound Words, Single Evocative, Playful, Descriptive Phrases, Made-up Words, Domain-style, Metaphorical, Action-oriented, Outcome-focused)
-  3. **Remove "random vertical" language:** Stochastic element is search STRATEGY, not arbitrary vertical selection
-- **Implementation plan:**
-  1. Update `/Users/austenallred/clawd/docs/core/research-lead-flow.md` (Phase 1 + Phase 6)
-  2. Update Mary's AGENTS.md with new search strategy instructions
-  3. Update Research Lead's AGENTS.md with naming diversity
-  4. Test with 3-5 parallel runs to validate diversity improvement
-- **Files to change:**
-  - `docs/core/research-lead-flow.md` (source of truth)
-  - `~/.openclaw/workspace-mary/AGENTS.md` (Phase 1 execution)
-  - `~/.openclaw/workspace-research-lead/AGENTS.md` (Phase 6 naming)
-- **Next action:** Awaiting operator confirmation to proceed with edits
+  - Mary's "random vertical" approach created artificial constraints, not real stochasticity
+  - Keyword-based deduplication missed "same pain, different name" duplicates
+- **Solutions implemented in v2.0 workflow:**
+  1. ✅ **Config-driven research:** Platform, business model, stack constraints guide ALL phases
+  2. ✅ **Mary Phase 1 redesign:** Broad market scanning (Google Trends, App Store, PH, VC news) → narrow pain discovery (Reddit, HN, reviews) → score for BOTH pain AND market size
+  3. ✅ **LLM-based pain point deduplication:** CHECK 1 uses reasoning to catch "same pain, different wording" (not keyword matching)
+  4. ✅ **Mary generates initial name:** Analytical/descriptive name for registry tracking (Phase 2)
+  5. ✅ **Carson generates final names:** Creative brand names with varied styles (Phase 6) - NOT all compound words
+  6. ✅ **Market size validation:** Built into scoring (competitors, revenue, search volume, willingness to pay)
+  7. ✅ **Platform-aware feasibility:** Mary knows if we're building web app vs mobile app, scores accordingly
+- **Key architectural changes:**
+  - Research Lead receives config on spawn, propagates to ALL sub-agents (Mary, CIS)
+  - Registry now stores `painPoint` field for LLM deduplication
+  - 3 dedup checkpoints: CHECK 1 (LLM pain point), CHECK 2 (keyword solution), CHECK 3 (final safety)
+  - Carson added to Phase 6 for creative naming (9 naming styles to rotate)
+- **Files updated:**
+  - ✅ `docs/core/research-lead-flow.md` (v2.0 - complete rewrite, 12:10 CST)
+- **Files pending:**
+  - ⏳ `~/.openclaw/workspace-mary/AGENTS.md` (new discovery protocol)
+  - ⏳ `~/.openclaw/workspace-research-lead/AGENTS.md` (config propagation, LLM dedup, Carson naming)
+  - ⏳ `~/.openclaw/workspace-carson/AGENTS.md` (naming task addition)
+  - ⏳ `~/.openclaw/workspace-victor/AGENTS.md` (config awareness)
+  - ⏳ `~/.openclaw/workspace-maya/AGENTS.md` (config awareness)
+  - ⏳ `~/.openclaw/workspace-quinn/AGENTS.md` (config awareness)
+  - ⏳ Kelly AGENTS.md (spawn protocol with config passing)
+- **Next action:** Implement agent config changes, then test with 3-5 parallel runs to validate diversity
 
-### Batch Run #1 - 20 Parallel Sessions (COMPLETE)
-- **Status:** ✅ **COMPLETE** — 10 project directories created from 20 sessions (50% success rate)
-- **Sessions:** `agent:research-lead:3` through `agent:research-lead:22`
-- **Launch time:** 2026-02-17 19:31 CST
-- **Completed:** ~20:10-20:20 CST (40-50 min per session)
-- **Constraints:** B2C businessModel, web-app platform, avoid B2B/enterprise/agency-tools
-- **Registry coordination:** Prevents duplicate pain point research across parallel sessions
-- **Output location:** `projects-queue/<name>-<timestamp>/intake.md`
-- **Results:**
-  - ✅ 10 project directories created: benchmarkiq, cancelchampion, cancelpilot, clearrate, done-ish, intentstack, mealmemory, now-or-never, patternwitness, redux, valuestream
-  - ❌ 10 sessions failed (likely Brave API rate limits - batch started before web-search skill fix)
-
-### Batch Run #2 - 10 Parallel Sessions (COMPLETE)
-- **Status:** ✅ **COMPLETE** — 7 project directories created from 10 sessions (70% success rate)
-- **Sessions:** `agent:research-lead:23` through `agent:research-lead:32`
-- **Launch time:** 2026-02-17 20:48 CST
-- **Completed:** ~21:00-21:46 CST (40-60 min per session)
-- **Constraints:** B2C businessModel, web-app platform, avoid B2B/enterprise/agency-tools
-- **Tooling:** web-search skill (SearXNG local Docker) - should avoid Brave API rate limit issues
-- **Results:**
-  - ✅ 7 project directories created: eventsquad, clearcut, spend-peace, weddingcopilot, trustcircle, maintenancestreak, fairshare-family
-  - ❌ 3 sessions failed (improved from 50% to 70% success rate with SearXNG)
-
-### Previous Runs (COMPLETE)
-1. **ClientSignal** (session #1) — B2B customer intelligence platform (deferred, not B2C focus)
-2. **TakeoutTrap** (session #2) — B2C browser extension for DoorDash takeout intervention (27 min runtime)
+### Clean Slate (2026-02-18 12:58 CST)
+- **Status:** 🔄 **RESET** — All previous sessions closed, projects-queue cleared, research-registry cleared
+- **Actions taken:**
+  - Deleted all 20 product briefs from projects-queue/
+  - Cleared Research Lead sessions.json (sessions 2-5, test session)
+  - Reset research-registry.json
+- **Next:** Ready for fresh batch with v2.0 workflow (updated flows in docs/core/research-lead-flow.md)
 
 ## Active Sessions (as of 09:20 CST)
 
@@ -153,22 +83,24 @@
 ## Pending Actions
 
 ### In Progress
-- **fleai-market-v5 TEA testing:** Active (Murat session 369b796f, started 10:36 CST, ~6 min elapsed, ETA 20-30 min)
-- **takeouttrap:** Blocked — 10 stories failed code review, need remediation plan
+- **takeouttrap remediation:** 3 fix sessions active (stories 1.10, 2.8, 2.6 started 11:05 CST, 61 min elapsed as of 12:06 CST), 7 stories still awaiting fixes
 
 ### Recently Completed
+- ✅ **fleai-market-v5 TEA testing recovery:** Kelly safety net caught 71-min stall (11:47 CST), fresh Murat spawn succeeded (11:49-12:00 CST, 10 min), moved to User QA (12:01 CST)
 - ✅ **Skill refactor:** Agent-specific skills with 4-tier fallback (09:30-10:10 CST, commits `f1cf231`, `7f88db9`, `dda1c8f`)
 - ✅ **Story 3.6 retry #2:** Succeeded with 4-tier fallback (10:26-10:36 CST, 10m duration)
 - ✅ **TakeoutTrap retries:** Stories 2.8 & 3.2 both succeeded with Claude Code fallback (10:26-10:34 CST)
 - ✅ **Documentation restructuring:** Created docs/core/, merged userqa-workflow.md into project-lead-flow.md Phase 4, created CHANGELOG.md
+- ✅ **Kelly workflow documentation:** Created kelly-router-flow.md and kelly-improver-flow.md (11KB each, in docs/core/)
 
 ### Waiting-on-Operator
-- **QA review:** calculator-app, kelly-dashboard, daily-todo-tracker awaiting operator testing
-- **Research briefs review:** 20 product briefs available in projects-queue/ (17 from batches 1+2, 3 pre-batch)
-  - Batch 1: 10 complete (50% success, Brave API rate limits)
-  - Batch 2: 7 complete (70% success, SearXNG improved reliability)
-- **fleai-market-v5 User QA:** Available after TEA testing completes (ETA ~10:50-11:00 CST)
-- **takeouttrap:** Remediation plan needed — 10 stories blocked by code review (critical issues require fixes before resuming)
+- **QA review:** calculator-app, kelly-dashboard, daily-todo-tracker, fleai-market-v5 awaiting operator testing
+  - fleai-market-v5: http://localhost:3000 (PID 83461, dev server running since 12:00 CST)
+  - Focus: Multi-chain checkout, Story 3.6 (AP2 launch blocker), Printful fulfillment, agent payouts
+- **Research briefs:** Queue cleared (12:58 CST) - ready for fresh batch with v2.0 workflow
+- **takeouttrap:** Remediation in progress (3 stories being fixed, 7 still awaiting remediation after first batch completes)
+- **Kelly workflow README updates:** kelly-router-flow.md and kelly-improver-flow.md created, need to update docs/core/README.md and docs/README.md with links
+- **Research Lead workflow improvements:** Design proposal ready (8 stochastic search strategies + 9 naming styles), awaiting operator confirmation to proceed
 
 ## Known Issues
 
