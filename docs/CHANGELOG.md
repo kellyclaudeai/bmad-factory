@@ -28,6 +28,12 @@
 
 ## 2026-02-17
 
+### 17:27 CST | Gateway Session Recovery (PROPOSED)
+**What:** Proposal for automatic retry with backoff for transient tool call failures during gateway restarts  
+**Why:** Sessions wedge when tool calls fail mid-execution (e.g., fleai-market-v5 PL wedge for 12+ min). Requires manual intervention.  
+**Status:** 🔴 Not implemented (high priority)  
+**Details:** [gateway-session-recovery-proposal.md](changelog/gateway-session-recovery-proposal.md)
+
 ### 20:41 CST | Gate Check Strict Mode
 **What:** Enforced strict gate check - only PASS proceeds to implementation, CONCERNS/FAIL require remediation loop  
 **Why:** Prevent shipping with known issues. Gate check exists to catch problems early, not rubber-stamp.
@@ -75,6 +81,21 @@
 ### 16:30 CST | Project Structure - 4 Folders
 **What:** Reorganized projects into: ideas/, active/, shipped/, archived/  
 **Why:** Clear lifecycle stages. Makes it obvious where projects are in the pipeline.
+
+---
+
+---
+
+## Changelog Structure
+
+**CHANGELOG.md** — Lightweight timeline with brief what/why entries  
+**changelog/** — Detailed proposals, architectural decisions, and deep-dive docs referenced by main log
+
+### Status Indicators
+- ✅ Implemented and validated
+- 🟡 Partially implemented / in progress
+- 🔴 Proposed / not yet implemented
+- ❌ Rejected / deprecated
 
 ---
 
