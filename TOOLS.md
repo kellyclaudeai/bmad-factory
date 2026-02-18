@@ -52,6 +52,34 @@ read /Users/austenallred/clawd/skills/web-browser/SKILL.md
 
 ---
 
+## 🔥 Firebase/Backend Setup
+
+**For Firebase projects, use firebase-cli skill:**
+
+Skill location: `/Users/austenallred/clawd/skills/firebase-cli/`
+
+**When to use:**
+- ✅ Creating new Firebase projects
+- ✅ Setting up Authentication, Firestore, Hosting
+- ✅ Enabling Google Cloud APIs programmatically
+- ✅ Deploying Firebase Functions, Hosting sites
+- ✅ Fetching Firebase SDK config (firebaseConfig.json)
+
+**Key features:**
+- **CLI-first:** Automate Firebase + GCP project creation
+- **Complete backend provisioning:** Auth, Firestore, Hosting, Functions via CLI
+- **SDK config generation:** Get firebaseConfig automatically
+
+**Usage pattern:**
+```bash
+# Read skill for Firebase CLI commands + automation patterns
+read /Users/austenallred/clawd/skills/firebase-cli/SKILL.md
+```
+
+**For web projects:** Firebase is the default backend (Auth + Firestore + Hosting).
+
+---
+
 ## What Goes Here
 
 Things like:
