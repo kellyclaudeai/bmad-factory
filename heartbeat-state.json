@@ -1,5 +1,5 @@
 {
-  "lastProjectCheck": 1771368720,
+  "lastProjectCheck": 1739895600,
   "surfacedQA": [
     "calculator-app",
     "kelly-dashboard",
@@ -7,18 +7,45 @@
   ],
   "projectChecks": {
     "fleai-market-v5": {
-      "lastCheck": 1771368720,
-      "status": "ok",
-      "stage": "planning",
-      "note": "Phase 1 BMAD: John PRD (attempt 3), Sally UX complete, Winston architecture active"
+      "lastCheck": 1739895600,
+      "status": "active",
+      "stage": "implementation",
+      "note": "Story 3.6 retry active with Claude Code (session faint-crustacean, started 09:16 CST), 47/48 stories complete (97.9%), TEA testing queued after completion"
+    },
+    "takeouttrap": {
+      "lastCheck": 1739895600,
+      "status": "blocked",
+      "stage": "implementation",
+      "note": "26/37 stories complete (70%), 2 blocked by Codex rate limit (resets 14:19 CST), 9 remaining unstarted, will auto-resume with Claude Code fallback"
     }
   },
-  "directoryReorg": "2026-02-17 ~16:22 CST - projects reorganized into active/archived/shipped/ideas",
-  "researchLead": {
-    "session": "agent:research-lead:main",
-    "status": "running",
-    "startedAt": "2026-02-17T22:41:00Z",
-    "contextUsed": "125k/200k",
-    "note": "Full orchestrator session (not subagent). Created via openclaw agent --agent research-lead."
+  "researchQueue": {
+    "count": 20,
+    "lastChecked": 1739895600,
+    "batch1": {
+      "sessions": 20,
+      "complete": 10,
+      "successRate": "50%",
+      "note": "Brave API rate limits"
+    },
+    "batch2": {
+      "sessions": 10,
+      "complete": 7,
+      "successRate": "70%",
+      "note": "SearXNG improved reliability"
+    }
+  },
+  "openaiIssue": {
+    "detectedAt": "2026-02-18T09:09:00-06:00",
+    "status": "active",
+    "error": "billing - API key out of credits",
+    "impact": "All Codex CLI calls blocked",
+    "workaround": "Claude Code fallback active"
+  },
+  "autoFallbackArchitecture": {
+    "decidedAt": "2026-02-18T09:20:00-06:00",
+    "location": "coding-agent skill (not Amelia AGENTS.md)",
+    "reasoning": "DRY principle, single source of truth, all agents inherit (Amelia, Barry, Murat)",
+    "status": "design complete, implementation pending Story 3.6 validation"
   }
 }
