@@ -41,7 +41,7 @@ discovery → in-progress → shipped → followup → shipped
 
 ```json
 {
-  "version": "1.0",
+  "version": "1.1",
   "projects": [
     {
       "id": "fleai-market-v5",
@@ -49,6 +49,7 @@ discovery → in-progress → shipped → followup → shipped
       "state": "shipped",
       "paused": false,
       "pausedReason": null,
+      "researchDir": null,
       
       "timeline": {
         "discoveredAt": "2026-02-17T18:02:00Z",
@@ -69,7 +70,7 @@ discovery → in-progress → shipped → followup → shipped
       },
       
       "implementation": {
-        "projectDir": "/Users/austenallred/clawd/projects/fleai-market-v5",
+        "projectDir": "fleai-market-v5",
         "deployedUrl": "https://fleai-market-v5.vercel.app",
         "qaUrl": "https://fleai-market-v5-preview.vercel.app",
         "repo": "https://github.com/user/fleai-market-v5"
@@ -83,6 +84,7 @@ discovery → in-progress → shipped → followup → shipped
       "state": "in-progress",
       "paused": false,
       "pausedReason": null,
+      "researchDir": null,
       
       "timeline": {
         "discoveredAt": "2026-02-17T18:30:00Z",
@@ -102,7 +104,7 @@ discovery → in-progress → shipped → followup → shipped
       },
       
       "implementation": {
-        "projectDir": "/Users/austenallred/clawd/projects/takeouttrap",
+        "projectDir": "takeouttrap",
         "qaUrl": null,
         "deployedUrl": null,
         "repo": null
@@ -116,6 +118,7 @@ discovery → in-progress → shipped → followup → shipped
       "state": "discovery",
       "paused": false,
       "pausedReason": null,
+      "researchDir": "ideas/benchmarkiq-2026-02-17-1802",
       
       "timeline": {
         "discoveredAt": "2026-02-17T18:02:00Z",
@@ -148,6 +151,7 @@ discovery → in-progress → shipped → followup → shipped
 - **state** - Current lifecycle state (discovery|in-progress|shipped|followup|paused)
 - **paused** - Boolean flag (paused state OR any state with pause)
 - **pausedReason** - Why paused (optional, for operator context)
+- **researchDir** - Path to Research Lead output directory, relative to `projects/` (e.g., `ideas/my-project-2026-02-18-1656`). Set by Research Lead in Phase 6. Null for legacy projects without research artifacts.
 
 ### timeline
 - **discoveredAt** - When Research Lead generated the idea (ISO 8601)
@@ -164,7 +168,7 @@ Research Lead's product brief (immutable after creation):
 
 ### implementation
 Project Lead's workspace and deployment info:
-- **projectDir** - Absolute path to project workspace (null if discovery)
+- **projectDir** - Path to project workspace, relative to `projects/` (e.g., `prepwise`). Null if still in discovery. Set by Project Lead when starting implementation.
 - **qaUrl** - Preview deployment for user QA (null until Phase 3)
 - **deployedUrl** - Production deployment URL (null until shipped)
 - **repo** - Git repository URL (optional)
@@ -185,9 +189,17 @@ Array of post-ship work items:
 ### Research Lead
 **Creates discovery entries:**
 1. Generate product idea via autonomous research workflow
-2. Write full intake data to registry
-3. Set state: `"discovery"`
-4. Notify Kelly that new idea is ready
+2. Create research artifacts directory at `projects/ideas/<project-id>/`
+3. Write `intake.md` + supporting research docs to that directory
+4. Write summary intake data to registry with `researchDir` pointing to idea directory
+5. Set state: `"discovery"`
+6. Notify Kelly that new idea is ready
+
+**Research artifacts location:** `projects/ideas/<project-id>/`
+- `intake.md` - Comprehensive research document
+- `solution-scoring.md` - Full scoring matrix for all CIS solutions
+- `competitive-deepdive.md` - Detailed competitive analysis
+- `creative-naming.md` - Naming options and rationale
 
 **Example registry write (discovery):**
 ```json
@@ -197,6 +209,7 @@ Array of post-ship work items:
   "state": "discovery",
   "paused": false,
   "pausedReason": null,
+  "researchDir": "ideas/new-project-2026-02-18-1400",
   "timeline": {
     "discoveredAt": "2026-02-18T14:00:00Z",
     "lastUpdated": "2026-02-18T14:00:00Z"
@@ -212,14 +225,15 @@ Array of post-ship work items:
 
 #### 1. discovery → in-progress (project start)
 - Operator selects idea, routes to PL
-- PL creates project directory structure
+- PL reads Research Lead's intake from `projects/{researchDir}/intake.md`
+- PL creates project directory at `projects/<project-name>/`
 - Update registry:
 ```json
 {
   "state": "in-progress",
   "timeline.startedAt": "2026-02-18T09:00:00Z",
   "timeline.lastUpdated": "2026-02-18T09:00:00Z",
-  "implementation.projectDir": "/Users/austenallred/clawd/projects/project-name"
+  "implementation.projectDir": "prepwise"
 }
 ```
 
@@ -358,12 +372,39 @@ Array of post-ship work items:
    - Project Lead AGENTS.md: read/update registry at state transitions
    - Kelly AGENTS.md: monitor registry (not projects-queue)
 
+## Directory Structure
+
+All paths relative to `/Users/austenallred/clawd/projects/`.
+
+```
+projects/
+├── project-registry.json              # Single source of truth for all project lifecycle state
+├── ideas/                             # Research Lead outputs (idea stage)
+│   ├── <project-id>/                  # One directory per researched idea
+│   │   ├── intake.md                  # Comprehensive research document
+│   │   ├── solution-scoring.md        # CIS solution scoring
+│   │   ├── competitive-deepdive.md    # Competitive analysis
+│   │   └── creative-naming.md         # Naming options
+│   └── archived/                      # Failed/duplicate research (NO-GO, dedup aborts)
+├── <project-name>/                    # Project Lead implementation (created when PL starts)
+│   ├── _bmad-output/                  # Planning + implementation artifacts
+│   ├── src/
+│   └── ...
+└── ...
+```
+
+**Key separation:**
+- `ideas/<project-id>/` — Research Lead creates during discovery (never modified by PL)
+- `<project-name>/` — Project Lead creates when starting implementation
+- Registry `researchDir` links to ideas directory; `implementation.projectDir` links to project directory
+
 ## File Locations
 
 | File | Purpose |
 |------|---------|
-| `/Users/austenallred/clawd/projects/project-registry.json` | Single source of truth for all project lifecycle state |
-| `/Users/austenallred/clawd/projects/{id}/` | Project workspace (code, BMAD artifacts) |
+| `projects/project-registry.json` | Single source of truth for all project lifecycle state |
+| `projects/ideas/<project-id>/` | Research Lead artifacts (intake, scoring, competitive analysis) |
+| `projects/<project-name>/` | Project workspace (code, BMAD artifacts) — created by PL |
 | `/Users/austenallred/clawd/state/kelly.json` | Kelly's operational state (heartbeat, surfacing, pending actions) |
 
 ---

@@ -10,7 +10,7 @@
 
 Project Lead owns a single project from intake to ship. One PL session per project. PL spawns BMAD agents as subagents and tracks their progress.
 
-**Intake Source:** Research Lead creates comprehensive intake document at `projects/<project-id>/intake.md`. Project Lead reads this file (along with supporting research documents) when starting a new project. The `project-registry.json` entry contains the `project-id` to locate these files.
+**Intake Source:** Research Lead creates comprehensive intake document at `projects/ideas/<project-id>/intake.md`. When starting a new project, Project Lead reads the registry entry's `researchDir` field to locate the intake file and supporting research documents (solution scoring, competitive analysis, naming options).
 
 **State tracking:** PL updates `projects/project-registry.json` at key lifecycle transitions. See `docs/core/project-registry-workflow.md` for full spec.
 
@@ -532,10 +532,11 @@ Update your project entry at key lifecycle transitions:
 
 ```bash
 # Example: Mark project as in-progress
+# Note: projectDir is relative to /Users/austenallred/clawd/projects/
 jq '.projects |= map(
   if .id == "your-project-id" then
     .state = "in-progress" |
-    .implementation.projectDir = "/Users/austenallred/clawd/projects/your-project-id" |
+    .implementation.projectDir = "your-project-name" |
     .timeline.startedAt = (now|todate) |
     .timeline.lastUpdated = (now|todate)
   else . end

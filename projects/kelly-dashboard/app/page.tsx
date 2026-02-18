@@ -11,6 +11,7 @@ import { ViewPrefsProvider } from "@/components/factory-view/view-prefs-provider
 import { ActiveProjectsCount, SessionsCount, ResearchCount } from "@/components/factory-view/section-counts";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { headers } from "next/headers";
 
 function StatsCardsSkeleton() {
   return (
@@ -47,13 +48,19 @@ type FactoryState = {
 
 async function getFactoryState(): Promise<FactoryState> {
   try {
-    const response = await fetch("http://localhost:3000/api/factory-state", {
+    const headersList = await headers();
+    const host = headersList.get("host") || "localhost:3000";
+    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+    const baseUrl = `${protocol}://${host}`;
+    
+    const response = await fetch(`${baseUrl}/api/factory-state`, {
       cache: "no-store",
     });
 
     if (!response.ok) throw new Error("Failed to fetch factory state");
     return await response.json();
-  } catch {
+  } catch (error) {
+    console.error("Error fetching factory state:", error);
     return { active: [], queued: [], completed: [], shipped: [] };
   }
 }

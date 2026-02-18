@@ -127,10 +127,11 @@ sessions_spawn({ agentId: "project-lead", task: "..." })
 5. Canonical project lifecycle lives in `projects/project-registry.json`. BMAD artifacts track stories.
 
 ### Mechanics
-1. Identify/confirm `projectId`
-2. Ensure project directory exists under `/Users/austenallred/clawd/projects/{projectId}`
-3. `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message=...)`
-4. Kelly tracks operational state in `state/kelly.json` (no project lifecycle duplication)
+1. Identify/confirm `projectId` from registry
+2. For new projects: PL reads intake from `projects/{researchDir}/intake.md` (registry has `researchDir` field)
+3. PL creates project directory at `projects/<project-name>/` when starting implementation
+4. `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message=...)`
+5. Kelly tracks operational state in `state/kelly.json` (no project lifecycle duplication)
 
 ---
 

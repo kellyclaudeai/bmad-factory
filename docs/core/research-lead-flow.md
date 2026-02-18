@@ -24,14 +24,14 @@
 **Model:** Sonnet 4.5 for all agents (balanced, cheap)  
 **Output:** 
 - Summary entry in `projects/project-registry.json` (state: `discovery`)
-- Full research artifacts in `projects/<project-id>/` directory
+- Full research artifacts in `projects/ideas/<project-id>/` directory
 
 **Architecture:**
 - 1 Research Lead = 1 idea (parallelize for batches)
 - Agent configs in `~/.openclaw/agents/{agentId}/config.json`
 - Agent workspaces in `~/.openclaw/workspace-{agentId}/` (AGENTS.md, SOUL.md, TOOLS.md, memory/)
 - Project Registry (`/Users/austenallred/clawd/projects/project-registry.json`) — summary registry for all projects
-- Project Artifacts (`/Users/austenallred/clawd/projects/<project-id>/`) — full research documents per project
+- Research Artifacts (`/Users/austenallred/clawd/projects/ideas/<project-id>/`) — full research documents per idea
 
 ---
 
@@ -507,6 +507,7 @@ If YES_DUPLICATE, specify which existing entry matches and explain why.
   "state": "discovery",
   "paused": false,
   "pausedReason": null,
+  "researchDir": null,
   "researchSession": "agent:research-lead:20260218-1200",
   "researchPhase": "ideation",
   "discoveryStrategy": "workaround-archaeology",
@@ -529,6 +530,7 @@ If YES_DUPLICATE, specify which existing entry matches and explain why.
 - `id`: Kebab-case slug + timestamp (unique identifier)
 - `name`: Mary's initial analytical name (temporary, updated in Phase 6 with Carson's creative name)
 - `state`: `"discovery"` (lifecycle state — see `docs/core/project-registry-workflow.md`)
+- `researchDir`: null initially; set to `"ideas/<project-id>"` in Phase 6 when idea directory created
 - `researchSession`: This Research Lead session identifier
 - `researchPhase`: `"ideation"` (tracks research progress within discovery state)
 - `discoveryStrategy`: Which strategy was used (for diversity tracking)
@@ -877,46 +879,25 @@ Output format:
 
 ---
 
-**2. Update Registry Entry (30 sec)**
+**2. Create Idea Directory (10 sec)**
 
-Update existing project-registry.json entry with final name and full intake data:
-
-```json
-{
-  "id": "<slug>-YYYY-MM-DD-HHMM",
-  "name": "[PRIMARY NAME from Carson]",
-  "researchPhase": "complete",
-  "timeline.lastUpdated": "[current timestamp]",
-  "intake": {
-    "problem": "[Full problem description from Phase 1]",
-    "solution": "[Solution description from Phase 4]",
-    "targetAudience": "[From Phase 1 + 5]",
-    "keyFeatures": ["feature1", "feature2", "..."]
-  }
-}
-```
-
----
-
-**3. Create Project Directory (10 sec)**
-
-Research Lead creates project directory:
+Research Lead creates idea directory under `projects/ideas/`:
 
 ```bash
 PROJECT_ID="<slug>-YYYY-MM-DD-HHMM"
-mkdir -p "/Users/austenallred/clawd/projects/${PROJECT_ID}"
+mkdir -p "/Users/austenallred/clawd/projects/ideas/${PROJECT_ID}"
 ```
 
 Copy working files from Research Lead workspace:
-- `solution-scoring.md` → `projects/${PROJECT_ID}/solution-scoring.md`
-- `competitive-deepdive.md` → `projects/${PROJECT_ID}/competitive-deepdive.md`
-- `creative-naming.md` → `projects/${PROJECT_ID}/creative-naming.md`
+- `solution-scoring.md` → `projects/ideas/${PROJECT_ID}/solution-scoring.md`
+- `competitive-deepdive.md` → `projects/ideas/${PROJECT_ID}/competitive-deepdive.md`
+- `creative-naming.md` → `projects/ideas/${PROJECT_ID}/creative-naming.md`
 
 ---
 
-**4. Compile intake.md (2-3 min)**
+**3. Compile intake.md (2-3 min)**
 
-Research Lead compiles all outputs into final brief at `projects/${PROJECT_ID}/intake.md` following the intake template:
+Research Lead compiles all outputs into final brief at `projects/ideas/${PROJECT_ID}/intake.md` following the intake template:
 
 ```markdown
 # [PRIMARY NAME from Carson]
@@ -1061,19 +1042,29 @@ Research Lead compiles all outputs into final brief at `projects/${PROJECT_ID}/i
 
 ---
 
-**5. Registry Finalization (30 sec)**
+**4. Update Registry Entry (30 sec)**
 
-Confirm registry entry is complete:
+Update existing project-registry.json entry with final name, research directory, and full intake data:
+
 ```json
 {
+  "id": "<slug>-YYYY-MM-DD-HHMM",
+  "name": "[PRIMARY NAME from Carson]",
   "researchPhase": "complete",
-  "timeline.lastUpdated": "[current timestamp]"
+  "researchDir": "ideas/<slug>-YYYY-MM-DD-HHMM",
+  "timeline.lastUpdated": "[current timestamp]",
+  "intake": {
+    "problem": "[Full problem description from Phase 1]",
+    "solution": "[Solution description from Phase 4]",
+    "targetAudience": "[From Phase 1 + 5]",
+    "keyFeatures": ["feature1", "feature2", "..."]
+  }
 }
 ```
 
 ---
 
-**6. Announce to Kelly (30 sec)**
+**5. Announce to Kelly (30 sec)**
 
 ```
 ✅ Research Complete: [Name]
@@ -1099,20 +1090,31 @@ Confirm registry entry is complete:
 
 ## Output Structure
 
-### Project Directory Layout
+### Directory Layout
 
 **Root:** `/Users/austenallred/clawd/projects/`
 
 ```
 projects/
 ├── project-registry.json                          # Summary registry (all projects)
-├── <project-id>/                                   # One directory per project
-│   ├── intake.md                                  # Comprehensive research document
-│   ├── solution-scoring.md                        # Detailed scoring for all 15 solutions
-│   ├── competitive-deepdive.md                    # Full competitive analysis
-│   └── creative-naming.md                         # Naming options and rationale
-└── archived/                                       # Failed/abandoned research (duplicates, NO-GO)
+├── ideas/                                          # Research Lead outputs (idea stage)
+│   ├── <project-id>/                               # One directory per researched idea
+│   │   ├── intake.md                              # Comprehensive research document
+│   │   ├── solution-scoring.md                    # Detailed scoring for all 15 solutions
+│   │   ├── competitive-deepdive.md                # Full competitive analysis
+│   │   └── creative-naming.md                     # Naming options and rationale
+│   └── archived/                                   # Failed/duplicate research (NO-GO, dedup aborts)
+├── <project-name>/                                 # Project Lead implementation (created by PL)
+│   ├── _bmad-output/
+│   ├── src/
+│   └── ...
+└── ...
 ```
+
+**Key separation:**
+- `ideas/<project-id>/` — Research Lead creates during discovery. Never modified by Project Lead.
+- `<project-name>/` — Project Lead creates when starting implementation.
+- Registry `researchDir` links to ideas directory; `implementation.projectDir` links to project directory.
 
 ### Project ID Format
 
@@ -1133,7 +1135,7 @@ projects/
 | **competitive-deepdive.md** | Detailed competitive analysis, novelty assessment, feasibility | Research Lead or Mary | Phase 5 |
 | **creative-naming.md** | Primary name + alternatives with rationale | Carson | Phase 6 |
 
-**Note:** These are working files. Research Lead creates them during the workflow and references them in `intake.md`. The registry entry (`project-registry.json`) contains only summary data for fast lookups and deduplication.
+**Note:** These are working files in `ideas/<project-id>/`. The registry entry (`project-registry.json`) contains only summary data for fast lookups and deduplication. The `researchDir` field in the registry points to the idea directory (relative to `projects/`).
 
 ---
 
@@ -1147,7 +1149,7 @@ projects/
 ### Structure (Research Lead relevant fields)
 ```json
 {
-  "version": "1.0",
+  "version": "1.1",
   "projects": [
     {
       "id": "home-upkeep-2026-02-18-1200",
@@ -1155,6 +1157,7 @@ projects/
       "state": "discovery",
       "paused": false,
       "pausedReason": null,
+      "researchDir": "ideas/home-upkeep-2026-02-18-1200",
       "researchSession": "agent:research-lead:20260218-1200",
       "researchPhase": "complete",
       "discoveryStrategy": "workaround-archaeology",
@@ -1180,6 +1183,7 @@ projects/
 **Phase 2 (Registration):**
 - Create new entry with state `"discovery"`, researchPhase `"ideation"`
 - Populate `intake.problem` and `discoveryStrategy`
+- `researchDir` is null at this stage (set in Phase 6)
 
 **Phase 4 (Solution selected):**
 - Update researchPhase to `"validation"`
@@ -1189,10 +1193,12 @@ projects/
 - Update researchPhase to `"complete"`
 - Populate remaining intake fields
 - Update `name` with Carson's creative name
+- Set `researchDir` to `"ideas/<project-id>"`
 
 **After Research Lead exits:**
 - Entry stays with state `"discovery"`, researchPhase `"complete"`
-- Project Lead picks it up and transitions to `"in-progress"`
+- Full research artifacts at `projects/ideas/<project-id>/`
+- Project Lead reads from `researchDir` when picking up the project
 
 ### Deduplication Strategy
 

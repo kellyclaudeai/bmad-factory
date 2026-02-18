@@ -27,9 +27,11 @@ type Session = {
 
 export const revalidate = 10 // Cache for 10 seconds
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    // Use the request's origin to construct the base URL (handles any port)
+    const url = new URL(request.url)
+    const baseUrl = `${url.protocol}//${url.host}`
     
     // Fetch data from existing APIs
     const [factoryRes, sessionsRes] = await Promise.all([
@@ -143,9 +145,7 @@ export async function GET() {
     return NextResponse.json(metrics)
   } catch (error) {
     console.error('Health metrics error:', error)
-    return NextResponse.json(
-      { error: 'Failed to calculate health metrics' },
-      { status: 500 }
-    )
+    // Return empty array on error so metrics.map doesn't fail
+    return NextResponse.json([])
   }
 }
