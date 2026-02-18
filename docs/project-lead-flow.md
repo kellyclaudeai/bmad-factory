@@ -43,8 +43,28 @@ All sequential — each step waits for the previous to complete.
 
 5. John: check-implementation-readiness (GATE CHECK)
    → Input: prd.md, epics.md, architecture.md
-   → Output: PASS/CONCERNS/FAIL
-   → If FAIL: Loop back to fix issues
+   → Output: PASS / CONCERNS / FAIL
+   
+   **PASS:** Proceed to Bob (step 6)
+   
+   **CONCERNS:** Proceed to Bob, but note concerns in project-state.json
+   - 12-15 minor concerns are acceptable (proceed with mitigation during implementation)
+   - Implementation continues with known risks
+   - Concerns logged for reference during dev/review
+   
+   **FAIL:** Critical issues requiring remediation BEFORE implementation
+   - Loop back to fix issues (see Remediation Loop below)
+   - Do NOT proceed to Bob until PASS or CONCERNS
+   
+   **Remediation Loop (for FAIL):**
+   1. Identify which persona(s) need to fix issues:
+      - PRD issues → John (edit-prd)
+      - UX issues → Sally (edit-ux-design)
+      - Architecture issues → Winston (edit-architecture)
+      - Epic/story issues → John (edit epics)
+   2. Spawn appropriate persona(s) with specific fix instructions
+   3. Re-run John: check-implementation-readiness
+   4. Repeat until PASS or CONCERNS
 
 6. Bob: sprint-planning
    → Input: epics.md
@@ -150,6 +170,8 @@ SCENARIO B: User Rejects → Back to Phase 2
    → Continue numbering: Epic N+1, N+2...
 
 5. John: check-implementation-readiness (for NEW features)
+   → Same PASS/CONCERNS/FAIL logic as Greenfield (see above)
+   → Remediation loop targets only NEW artifacts if FAIL
 
 6-7. Bob: Update sprint-planning + dependency-graph.json (add new stories)
 
