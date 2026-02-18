@@ -177,72 +177,82 @@ Parallel spawn:
 Both complete independently (~15-20 min each)
 ```
 
-#### Step 3: Remediation (Dependency-Driven)
+#### Step 3: Remediation (via correct-course)
 
-**If Quality Gate finds bugs:**
+**Consolidated remediation path: ALL bugs route through John's correct-course workflow.**
 
 ```
-1. Murat reports bugs with severity categorization:
-   BLOCKER:
+1. Wait for BOTH Murat reports to complete:
+   - E2E Functional Report: test-artifacts/e2e-functional-report.md
+   - NFR Assessment Report: test-artifacts/nfr-assessment-report.md
+
+2. Spawn John: correct-course workflow
+   → Input: Both Murat bug reports
+   → Task: "Analyze Quality Gate failures. Read test-artifacts/e2e-functional-report.md 
+           and test-artifacts/nfr-assessment-report.md. Create Sprint Change Proposal 
+           with recommended approach for each issue."
+   
+   John categorizes issues:
+   
+   SIMPLE CODE BUGS → Recommendation: "Add fix stories" (Minor scope)
    - Story 2.3: Auth validation allows empty passwords
-     Location: src/auth/validate.ts:42
-     Impact: Critical security vulnerability
+   - Story 4.1: Checkout crash on empty cart
    
-   HIGH:
-   - Story 1.5: Bundle size 2.1MB (target <500KB)
-     Location: webpack config + unused dependencies
+   ARCHITECTURAL ISSUES → Recommendation: "Redesign + PRD update" (Major scope)
+   - Performance: Requires caching layer (Redis integration)
+   - Security: Session management insecure (JWT redesign needed)
    
-   MEDIUM/LOW:
-   - Story 2.8: Missing ARIA labels on form inputs
-   (Document but defer to User QA feedback)
+   SCOPE ISSUES → Recommendation: "Descope feature or extend timeline" (Major scope)
+   - Feature X too complex for current sprint
 
-2. Spawn Bob: create-fix-stories
-   → Input: Murat's bug report (BLOCKER + HIGH issues only)
-   → Output: Fix story files in stories/ directory
-   → Format: {original-story-id}-fix-{n}.md
-   → Example: stories/2.3-fix-1.md, stories/1.5-fix-1.md
+3. John outputs: Sprint Change Proposal document
+   → Sections:
+     - Issue Summary (what's broken)
+     - Impact Analysis (what needs to change: stories, PRD, architecture)
+     - Recommended Approach (Minor/Moderate/Major)
+     - Detailed Change Proposals (story edits, PRD edits, arch changes)
+     - Implementation Handoff (who does what)
+
+4. Project Lead implements based on scope classification:
+
+   MINOR (simple fix stories):
+   a. Bob creates fix story files from Sprint Change Proposal
+      → Stories like: 2.3-fix-1.md, 4.1-fix-1.md
+   b. Bob creates fix-dependency-graph.json
+      → Analyzes dependencies between fix stories
+   c. Dependency-driven fix implementation:
+      → Same spawning logic as Phase 2
+      → Each fix spawns when its dependsOn array satisfied
+      → Unlimited parallelism (independent fixes run simultaneously)
+      → Per-fix: Amelia dev-story → Amelia code-review → done
    
-   Fix story content (Bob writes this):
-   - Parent story reference (e.g., "Parent Story: 2.3 - User Authentication")
-   - Bug description from Murat's report
-   - Severity + source (E2E Functional or NFR Assessment)
-   - Acceptance criteria:
-     * Bug fixed (specific test case)
-     * Original story ACs still pass
-     * No regressions introduced
-
-3. Spawn Bob: create-fix-dependency-graph
-   → Input: List of fix story IDs created in step 2
-   → Output: fix-dependency-graph.json
-   → Analysis: Most fixes independent (security bugs don't affect each other)
-   → Exception: Performance fixes may depend on functionality being stable first
-   → Example output:
-     {
-       "2.3-fix-1": { dependsOn: [] },
-       "1.5-fix-1": { dependsOn: ["2.3-fix-1"] }  // bundle opt needs auth stable
-     }
-
-4. Dependency-driven fix implementation (Project Lead orchestrates):
-   → Same spawning logic as Phase 2
-   → Each fix story spawns immediately when its dependsOn array is satisfied
-   → Unlimited parallelism (spawn all independent fixes simultaneously)
-   → Per-fix flow: Amelia dev-story → Amelia code-review → done
-   → Track in implementation-state.md
+   MODERATE (backlog reorganization):
+   a. John updates epics.md with new stories or scope changes
+   b. Bob updates sprint-planning and dependency-graph
+   c. Dependency-driven implementation
+   
+   MAJOR (fundamental replanning):
+   a. Winston redesigns architecture (if arch issue)
+   b. John updates PRD (if scope issue)
+   c. Sally updates UX (if design issue)
+   d. Bob updates epics + stories
+   e. Dependency-driven implementation
 
 5. Re-run Quality Gate (Steps 1-2):
-   → If new bugs found: Spawn Bob to create more fix stories, repeat Step 2-4
+   → If new bugs found: Spawn John correct-course again, repeat Step 2-4
    → If clean: Proceed to Phase 4
 ```
-
-**Remediation uses identical dependency-driven spawning as Phase 2 implementation.** No artificial batching. Each fix story spawns as soon as its specific dependencies complete.
 
 **Timeline estimate:**
 - Build + Tests: 5-7 min
 - E2E + NFR (parallel): 15-20 min
-- Fix creation + Bob dependency analysis: 2-3 min
-- Fix implementation (parallel): 10-30 min depending on bug count
+- John correct-course: 10-15 min (analysis + Sprint Change Proposal)
+- Minor fixes: 10-30 min (dependency-driven)
+- Major replanning: 30-60 min (depends on scope)
 - Quality Gate re-run: 20-27 min
-- **Total first pass: 20-27 min | With remediation: 57-87 min**
+- **Total first pass: 30-42 min | With Minor fixes: 75-109 min | With Major replanning: 105-159 min**
+
+**Remediation uses identical dependency-driven spawning as Phase 2 implementation.** No artificial batching. Each fix story spawns as soon as its specific dependencies complete.
 
 ### Phase 4: User QA
 
@@ -323,13 +333,35 @@ Kelly updates factory-state.md → status="paused"
 # Kelly stops surfacing in heartbeats until resumed
 ```
 
-**SCENARIO C: User Rejects → FIX**
+**SCENARIO C: User Rejects → FIX (via correct-course)**
 ```
-Back to Phase 2 (Implementation):
-  Option A: correct-course workflow (analyzes feedback, proposes changes)
-  Option B: Simple story creation (minor fixes)
-  → Implement fixes → Phase 3 (TEA) → Phase 4 (User QA retry)
+1. Project Lead receives operator feedback
+   → Example: "Checkout flow confusing, auth doesn't work on mobile"
+
+2. Spawn John: correct-course workflow
+   → Input: Operator feedback
+   → Task: "Analyze User QA feedback. Create Sprint Change Proposal with 
+           recommended approach for each issue."
+   
+   John categorizes:
+   - Simple bugs → "Add fix stories" (Minor)
+   - UX issues → "Update UX design, modify stories" (Moderate)
+   - Feature requests → "Add to backlog" or "Descope" (Major)
+
+3. John outputs: Sprint Change Proposal
+   → Recommendations: Minor/Moderate/Major scope classification
+   → Detailed change proposals: Story edits, PRD updates, etc.
+
+4. Project Lead implements based on scope (same as Phase 3 remediation):
+   - MINOR: Bob creates fix stories → dependency-driven Amelia implementation
+   - MODERATE: John updates epics → Bob updates sprint plan → implement
+   - MAJOR: Winston/Sally/John replanning → Bob updates → implement
+
+5. After fixes complete:
+   → Phase 3 (Quality Gate) → Phase 4 (User QA retry)
 ```
+
+**User QA uses the same correct-course remediation path as Quality Gate bugs.** Consolidated feedback handling.
 
 #### State Files
 
@@ -350,6 +382,13 @@ Back to Phase 2 (Implementation):
 ## Normal Mode Brownfield (BMAD Project)
 
 **When:** Adding features to existing BMAD project (has `_bmad-output/` directory)
+
+**NEW FEATURE ROUTING:**
+- **Simple features** (well-defined, small scope) → Direct to Phase 1 planning
+- **Complex features** (architectural impact, scope uncertainty) → **correct-course first**
+  - Spawn John: correct-course to analyze impact, recommend approach
+  - Sprint Change Proposal identifies needed changes (PRD, architecture, epics)
+  - Then proceed to Phase 1 with clear plan
 
 ### Phase 1: Plan
 
