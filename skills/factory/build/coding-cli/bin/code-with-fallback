@@ -1,15 +1,13 @@
 #!/bin/bash
 # 4-tier coding CLI fallback wrapper
 # Usage: code-with-fallback [codex-args] "prompt"
-# Tries: Codex (GPT plan) → Codex (API key) → Claude Code (Anthropic plan) → Claude Code (API key)
+# NEW ORDER: Claude Code → Codex (Claude Code is cheaper + more reliable for factory work)
+# Tries: Claude Code (Anthropic plan) → Claude Code (API key) → Codex (GPT plan) → Codex (API key)
 
 set -e
 
-# Detect which tier to start from (can skip to tier 3/4 if FORCE_CLAUDE=1)
+# Detect which tier to start from
 TIER=${TIER:-1}
-if [[ -n "$FORCE_CLAUDE" ]]; then
-    TIER=3
-fi
 
 # Extract prompt (last argument)
 PROMPT="${@: -1}"
@@ -25,10 +23,12 @@ detect_error() {
     return 1  # No error
 }
 
-# Tier 1: Codex with GPT plan (OpenAI subscription)
+# Tier 1: Claude Code with Anthropic plan (PRIMARY)
 if [[ $TIER -eq 1 ]]; then
-    echo "🔵 Tier 1: Trying Codex with GPT plan..." >&2
-    OUTPUT=$(codex $CODEX_ARGS exec "$PROMPT" 2>&1) || true
+    echo "🟣 Tier 1: Trying Claude Code with Anthropic plan..." >&2
+    # Convert @bmad-xxx to /bmad-xxx for Claude Code syntax
+    CLAUDE_PROMPT=$(echo "$PROMPT" | sed 's/@/\//g')
+    OUTPUT=$(claude "$CLAUDE_PROMPT" --dangerously-skip-permissions 2>&1) || true
     EXIT_CODE=$?
     
     if [[ $EXIT_CODE -eq 0 ]] && ! detect_error "$OUTPUT"; then
@@ -40,11 +40,12 @@ if [[ $TIER -eq 1 ]]; then
     TIER=2
 fi
 
-# Tier 2: Codex with API key (OpenAI API credits)
+# Tier 2: Claude Code with API key
 if [[ $TIER -eq 2 ]]; then
-    echo "🔵 Tier 2: Trying Codex with API key..." >&2
-    # Codex uses OPENAI_API_KEY env var by default
-    OUTPUT=$(codex $CODEX_ARGS exec "$PROMPT" 2>&1) || true
+    echo "🟣 Tier 2: Trying Claude Code with API key..." >&2
+    # Claude uses ANTHROPIC_API_KEY env var by default
+    CLAUDE_PROMPT=$(echo "$PROMPT" | sed 's/@/\//g')
+    OUTPUT=$(claude "$CLAUDE_PROMPT" --dangerously-skip-permissions 2>&1) || true
     EXIT_CODE=$?
     
     if [[ $EXIT_CODE -eq 0 ]] && ! detect_error "$OUTPUT"; then
@@ -56,12 +57,10 @@ if [[ $TIER -eq 2 ]]; then
     TIER=3
 fi
 
-# Tier 3: Claude Code with Anthropic max plan
+# Tier 3: Codex with GPT plan (OpenAI subscription)
 if [[ $TIER -eq 3 ]]; then
-    echo "🟣 Tier 3: Trying Claude Code with Anthropic plan (continuing from Codex's work)..." >&2
-    # Convert @bmad-xxx to /bmad-xxx for Claude Code syntax
-    CLAUDE_PROMPT=$(echo "$PROMPT" | sed 's/@/\//g')
-    OUTPUT=$(claude "$CLAUDE_PROMPT" --dangerously-skip-permissions 2>&1) || true
+    echo "🔵 Tier 3: Trying Codex with GPT plan (continuing from Claude's work)..." >&2
+    OUTPUT=$(codex $CODEX_ARGS exec "$PROMPT" 2>&1) || true
     EXIT_CODE=$?
     
     if [[ $EXIT_CODE -eq 0 ]] && ! detect_error "$OUTPUT"; then
@@ -73,12 +72,11 @@ if [[ $TIER -eq 3 ]]; then
     TIER=4
 fi
 
-# Tier 4: Claude Code with API key (last resort)
+# Tier 4: Codex with API key (last resort)
 if [[ $TIER -eq 4 ]]; then
-    echo "🟣 Tier 4: Trying Claude Code with API key (continuing from previous work)..." >&2
-    # Claude uses ANTHROPIC_API_KEY env var by default
-    CLAUDE_PROMPT=$(echo "$PROMPT" | sed 's/@/\//g')
-    OUTPUT=$(claude "$CLAUDE_PROMPT" --dangerously-skip-permissions 2>&1) || true
+    echo "🔵 Tier 4: Trying Codex with API key (continuing from previous work)..." >&2
+    # Codex uses OPENAI_API_KEY env var by default
+    OUTPUT=$(codex $CODEX_ARGS exec "$PROMPT" 2>&1) || true
     EXIT_CODE=$?
     
     if [[ $EXIT_CODE -eq 0 ]] && ! detect_error "$OUTPUT"; then

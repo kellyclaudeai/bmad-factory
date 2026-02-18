@@ -8,6 +8,26 @@
 
 ## 2026-02-18
 
+### 14:11 CST | CRITICAL: Model Standardization + Fallback Reorder
+**What:** Emergency fix - standardized ALL agents to Sonnet 4.5, reversed coding CLI fallback to Claude Code BEFORE Codex.  
+**Why:** Mary hit billing errors using Opus 4.6 ($15/1M input vs $3/1M for Sonnet). Multiple agents misconfigured with Opus. Operator mandate: "change every single agent config to be sonnet 4.5" + "coding CLI stuff to Claude Code before Codex."  
+**Agent configs updated:**
+- Bob: opus-4-6 → sonnet-4-5
+- John: opus-4-6 → sonnet-4-5
+- Mary: opus-4-6 → sonnet-4-5 ← THIS WAS THE BLOCKER
+- Winston: opus-4-6 → sonnet-4-5
+- Kelly-Improver: gpt-5.3 → sonnet-4-5
+- ✅ Sally, Research Lead already sonnet-4-5
+- ⚠️ Amelia, Barry, Murat stay on GPT models (Codex/Spark for coding/testing)
+**Coding CLI fallback NEW ORDER:**
+1. Claude Code Anthropic plan (PRIMARY)
+2. Claude Code API key
+3. Codex GPT plan
+4. Codex API key
+**Rationale:** Claude Code cheaper + more reliable for factory work. Sonnet 4.5 across all planning/analysis agents = 5x cost savings vs Opus.  
+**Impact:** Research Lead test can now proceed without billing errors. All future factory work uses cheaper, reliable models.  
+**Status:** ✅ Complete — ready to retry Research Lead test
+
 ### 13:59 CST | Research Lead v2.0 Test Prep — Configs Verified
 **What:** Confirmed Research Lead + Mary AGENTS.md files fully updated with v2.0 workflow (from 13:37 CST audit). Ready to test first complete v2.0 run.  
 **Status:** Research Lead AGENTS.md (438 lines) - all 6 phases, config propagation, LLM dedup, registry atomic ops, Carson naming. Mary AGENTS.md (489 lines) - Phase 1/4/5 with config-aware scoring, web-search skill integration.  
