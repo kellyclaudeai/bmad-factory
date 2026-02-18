@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResearchHeader } from "@/components/research-view/research-header";
 import { LogsSection } from "@/components/subagent-view/logs-section";
+import { ResearchSubagentGrid } from "@/components/research-view/research-subagent-grid";
 import type { ResearchSession } from "@/app/api/research-sessions/route";
 
 interface ResearchDetailProps {
@@ -17,6 +18,20 @@ type ResearchState = {
   findings?: string[];
   outputPath?: string;
   lastHeartbeat?: string;
+  subagents?: Array<{
+    persona?: string;
+    role?: string;
+    task?: string;
+    status: string;
+    startedAt?: string;
+    completedAt?: string;
+    duration?: string;
+    sessionKey?: string;
+    tokens?: {
+      input?: number;
+      output?: number;
+    };
+  }>;
 };
 
 async function getResearchSession(sessionKey: string): Promise<ResearchSession | null> {
@@ -191,6 +206,16 @@ export default async function ResearchDetail({ params }: ResearchDetailProps) {
               </ul>
             </CardContent>
           </Card>
+        )}
+
+        {/* Subagents Section */}
+        {researchState?.subagents && researchState.subagents.length > 0 && (
+          <section>
+            <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
+              Research Subagents
+            </h2>
+            <ResearchSubagentGrid subagents={researchState.subagents} />
+          </section>
         )}
 
         {/* Session Logs */}
