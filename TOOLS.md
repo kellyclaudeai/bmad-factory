@@ -22,6 +22,36 @@ Skills define _how_ tools work. This file is for _your_ specifics — the stuff 
 
 ---
 
+## 🌐 Web Browser Automation
+
+**For logged-in browser work, use web-browser skill:**
+
+Skill location: `/Users/austenallred/clawd/skills/web-browser/`
+
+**When to use:**
+- ✅ Firebase/GCP/Vercel/GitHub dashboards (logged-in)
+- ✅ Web app testing (QA flows, form submissions)
+- ✅ SaaS admin panels requiring authentication
+- ✅ Any task requiring "do X in the browser"
+
+**Key features:**
+- **ZERO clicks required** — fully automated via Playwright CDP
+- **Persistent Chrome profile** at `~/.openclaw/browser/openclaw/user-data`
+  - All cookies/sessions preserved across runs
+  - Stay logged in to Firebase, GCP, Vercel, etc.
+- **Full automation:** Navigate, click, fill forms, screenshot, PDF
+
+**Usage pattern:**
+```bash
+# Browser auto-launches when needed
+# Read skill for browser tool API + examples
+read /Users/austenallred/clawd/skills/web-browser/SKILL.md
+```
+
+**Assumption for factory projects:** All projects are web apps unless specified otherwise → web-browser skill available for QA/testing.
+
+---
+
 ## What Goes Here
 
 Things like:
