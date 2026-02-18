@@ -8,6 +8,11 @@
 
 ## 2026-02-18
 
+### 11:22 CST | Kelly-Improver AGENTS.md Updated
+**What:** Updated Kelly-Improver's AGENTS.md to reference kelly-improver-flow.md and mandate changelog logging  
+**Why:** Was using old "proposal-only" model. Now references comprehensive workflow doc and includes changelog as CRITICAL responsibility.  
+**Status:** ✅ Complete
+
 ### 11:15 CST | Kelly Workflow Documentation
 **What:** Created kelly-router-flow.md and kelly-improver-flow.md as comprehensive workflow references  
 **Why:** Separate source-of-truth docs from runtime AGENTS.md. Clear responsibilities, decision frameworks, and quality standards for Kelly and Kelly-Improver.  
