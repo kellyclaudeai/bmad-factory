@@ -123,10 +123,12 @@
 ## Pending Actions
 
 ### In Progress
-- **fleai-market-v5 Story 3.6:** Claude Code retry active (started 09:16 CST, session faint-crustacean, ETA 09:45-10:00)
+- **fleai-market-v5 Story 3.6:** Retry needed (session faint-crustacean died 09:46 CST), will retry with new amelia-coding skill
 - **fleai-market-v5 TEA testing:** Queued after Story 3.6 completes (Murat, ~20-30 min)
 - **takeouttrap:** Implementation — 26/37 stories complete (70%), 2 blocked by Codex rate limit (resets 14:19 CST)
-- **Auto-fallback wrapper:** Design decided (coding-agent skill), implementation pending Story 3.6 completion validation
+
+### Recently Completed
+- ✅ **Skill refactor:** Agent-specific skills with 4-tier fallback (09:30-10:10 CST, commits `f1cf231`, `7f88db9`, `dda1c8f`)
 
 ### Waiting-on-Operator
 - **QA review:** calculator-app, kelly-dashboard, daily-todo-tracker awaiting operator testing
@@ -138,17 +140,17 @@
 
 ## Known Issues
 
-### OpenAI API Billing Error (ACTIVE 09:09 CST)
+### OpenAI API Billing Error (MITIGATED 10:10 CST)
 - **Issue:** OpenAI API out of credits (billing error returned at 09:09 CST)
 - **Impact:** All Codex CLI calls blocked (gpt-5.3-codex, gpt-5.3-spark)
 - **Affected projects:** fleai-market-v5 Story 3.6 (failed 01:10 CST), TakeoutTrap stories 2.8 & 3.2 when rate limit clears
-- **Workaround:** Claude Code fallback (Story 3.6 retry active with Claude Code as of 09:16 CST)
-- **Architecture decision:** Auto-fallback belongs in coding-agent skill (not Amelia AGENTS.md)
-  - Reasoning: DRY principle, single source of truth, all coding agents inherit (Amelia, Barry, Murat)
-  - Implementation: Wrapper script `/Users/austenallred/clawd/skills/factory/build/coding-agent/bin/code-with-fallback`
-  - Detection: Check for "usage limit reached" or "billing" error in Codex output, auto-retry with Claude Code
-  - Benefits: Amelia, Barry, Murat all inherit fallback automatically
-- **Operator action needed:** Top up OpenAI credits OR rely on Claude Code fallback long-term
+- **Mitigation:** 4-tier automatic fallback implemented (10:10 CST, commit `f1cf231`)
+  - **Architecture:** Shared wrapper in `build/coding-cli/bin/code-with-fallback`
+  - **Cascade:** Codex GPT plan → Codex API key → Claude Code Anthropic plan → Claude Code API key
+  - **Detection:** Auto-detects billing/rate/quota errors, retries next tier automatically
+  - **Inheritance:** Amelia, Barry, Murat all use same wrapper (no duplication)
+  - **Status:** Ready for validation with Story 3.6 retry
+- **Operator action:** Optional - Top up OpenAI credits OR rely on Claude Code long-term (both work now)
 
 ### Orchestrator Session Creation (RESOLVED 16:49 CST)
 - `openclaw agent --agent <id> --session-id <id>` → session key always becomes `agent:<id>:main` (--session-id sets UUID, not key suffix)
@@ -238,8 +240,11 @@
 ### Git Commits (Last 2 Days)
 
 **2026-02-18:**
-- (Pending commit) — Factory state flush (fleai-market-v5 Story 3.6 retry, TakeoutTrap 26/37 complete, OpenAI billing error, auto-fallback architecture decision)
-- (Pending commit) — Memory: auto-fallback architecture decision, Murat clarification (single agent not orchestrator)
+- `dda1c8f` — docs: update for skill refactor (remove Codex reference, mark audit as superseded)
+- `7f88db9` — docs: skill refactor complete - agent-specific skills + 4-tier fallback
+- `f1cf231` — refactor: split coding-agent into agent-specific skills with 4-tier fallback
+- `4d93786` — state: update heartbeat state - OpenAI billing error, auto-fallback architecture decision
+- `16dd596` — docs: pre-compaction state flush - Story 3.6 retry, OpenAI billing error, auto-fallback architecture
 
 **2026-02-17:**
 - `cd9b065` — docs: document gate check strict mode decision and implementation
