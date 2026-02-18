@@ -1,6 +1,6 @@
 # Factory State
 
-**Last Updated:** 2026-02-18 13:25 CST
+**Last Updated:** 2026-02-18 13:42 CST (pre-compaction state flush)
 
 ## Project Organization
 
@@ -32,24 +32,31 @@
 
 ## Research Lead
 
-### Workflow v2.0 (DOCUMENTED, PENDING AGENT CONFIG IMPLEMENTATION)
+### Workflow v2.0 Test Run (IN PROGRESS)
+- **Session:** `agent:research-lead:20260218-1340`
+- **Spawned:** 13:40 CST
+- **PID:** 90161
+- **Expected duration:** 38-56 minutes (completion ~14:18-14:36 CST)
+- **Test objective:** Validate v2.0 workflow with new registry writes
+- **Expected output:** First discovery entry in `projects/project-registry.json`
+
+### Workflow v2.0 (AGENT CONFIGS UPDATED)
 - **Doc:** `docs/core/research-lead-flow.md` (v2.0)
-- **Status:** Workflow design complete. Agent configs NOT yet updated.
+- **Status:** Workflow design complete. Agent configs fully updated (13:31-13:37 CST).
 - **Key changes from v1:**
   - Config-driven research (platform, business model, stack)
   - LLM-based pain point dedup (not keyword matching)
   - Broad→narrow market scanning (not random vertical)
   - Carson creative naming in Phase 6 (9 naming styles)
   - Writes to project-registry.json (not projects-queue folders)
-- **Agent configs pending:**
-  - ⏳ Mary AGENTS.md (new discovery protocol)
-  - ⏳ Research Lead AGENTS.md (config propagation, LLM dedup, registry writes)
-  - ⏳ Carson AGENTS.md (naming task)
-  - ⏳ Victor/Maya/Quinn AGENTS.md (config awareness)
-  - ⏳ Kelly AGENTS.md (spawn protocol with config passing)
+- **Agent configs updated:**
+  - ✅ Research Lead AGENTS.md (full rewrite, 13KB — config propagation, LLM dedup, registry writes)
+  - ✅ Project Lead AGENTS.md (registry update jq commands)
+  - ✅ Kelly-Improver AGENTS.md (registry doc reference)
+  - ✅ 12 other BMAD agents verified as aligned with core docs
 - **Config file:** ✅ Created at `~/.openclaw/agents/research-lead/config` (model: sonnet-4-5)
 
-## Active Sessions (as of 13:25 CST)
+## Active Sessions (as of 13:42 CST)
 
 | Session | Status |
 |---------|--------|
@@ -58,15 +65,19 @@
 | agent:project-lead:kelly-dashboard | ✅ Active |
 | agent:project-lead:main | ✅ Heartbeat |
 | agent:main:jason | ✅ Active |
+| agent:research-lead:20260218-1340 | ⏳ Test run in progress (spawned 13:40 CST) |
 
 ## Pending Actions
 
+### In Progress
+- **Research Lead v2.0 test run:** Validating new workflow + registry writes (13:40 CST, expected completion ~14:18-14:36 CST)
+
 ### Waiting-on-Operator
-- **Research Lead v2.0 agent configs:** Design documented, agent AGENTS.md files need implementation
-- **kelly-dashboard QA:** Running on port 3000 (20/21 stories complete)
+- **Normal Mode Greenfield end-to-end test:** Will use Research Lead output as intake for full BMAD pipeline test
 
 ### Recently Completed
-- ✅ **Project Registry Lifecycle Architecture** (13:15-13:25 CST)
+- ✅ **Agent Config Audit** (13:31-13:37 CST) - All 15 agents audited against core docs. Research Lead fully rewritten. Commit: `8e057ca`
+- ✅ **Project Registry Lifecycle Architecture** (13:10-13:25 CST)
   - Created `docs/core/project-registry-workflow.md` (full state machine spec)
   - Created `projects/project-registry.json` (empty, single source of truth)
   - Updated research-lead-flow.md (writes to registry)
