@@ -8,6 +8,20 @@
 
 ## 2026-02-18
 
+### 15:42 CST | BMAD YOLO Mode for All Subagent Spawns
+**What:** Added YOLO MODE directive to all BMAD subagent spawn patterns. Updated 8 AGENTS.md files + core project-lead-flow.md.
+**Why:** BMAD workflows default to interactive mode — halting at every step to ask "Continue?" or "Should I use this file?". When spawned as subagents, there's no human to respond, so they timeout and die. NoteLite test revealed John needed 3 attempts and Sally needed 2 attempts due to this.
+**Files updated:**
+- `docs/core/project-lead-flow.md` — Phase 1 spawn patterns now require YOLO directive
+- `workspace-project-lead/AGENTS.md` — Spawn template includes YOLO, BMAD install PTY note
+- `workspace-bmad-bmm-john/AGENTS.md` — YOLO Mode section added
+- `workspace-bmad-bmm-sally/AGENTS.md` — YOLO Mode section added
+- `workspace-bmad-bmm-winston/AGENTS.md` — YOLO Mode section added
+- `workspace-bmad-bmm-bob/AGENTS.md` — YOLO Mode section added
+- `workspace-bmad-bmm-amelia/AGENTS.md` — YOLO Mode section added
+- `workspace-bmad-bmm-barry/AGENTS.md` — YOLO Mode section added
+- `workspace-bmad-tea-murat/AGENTS.md` — YOLO Mode section added
+
 ### 14:11 CST | CRITICAL: Model Standardization + Fallback Reorder
 **What:** Emergency fix - standardized ALL agents to Sonnet 4.5, reversed coding CLI fallback to Claude Code BEFORE Codex.  
 **Why:** Mary hit billing errors using Opus 4.6 ($15/1M input vs $3/1M for Sonnet). Multiple agents misconfigured with Opus. Operator mandate: "change every single agent config to be sonnet 4.5" + "coding CLI stuff to Claude Code before Codex."  
