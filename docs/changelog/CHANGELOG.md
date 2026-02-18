@@ -8,10 +8,11 @@
 
 ## 2026-02-18
 
-### 12:11 CST | Phase 3 Quality Gate Redesign
-**What:** Replaced sequential TEA workflows with parallel Quality Gate: Build+Tests → (E2E + NFR parallel) → Dependency-driven fix stories  
+### 12:15 CST | Phase 3 Quality Gate Redesign (Corrected)
+**What:** Replaced sequential TEA workflows with parallel Quality Gate: Build+Tests → (E2E + NFR parallel) → Bob creates fix stories → Dependency-driven fix implementation  
 **Why:** Original TEA (56+ min, 4 sequential workflows) was overkill for B2C MVPs. Focused on functional bug catching, security/performance assessment, removed compliance paperwork (traceability matrices). Fix stories use same dependency-driven spawning as Phase 2.  
-**Files:** docs/core/project-lead-flow.md, workspace-project-lead/AGENTS.md  
+**Files:** docs/core/project-lead-flow.md, workspace-project-lead/AGENTS.md, workspace-bmad-tea-murat/AGENTS.md  
+**Key correction:** Bob creates fix story files (not Project Lead directly) - consistent with Bob's role in Phase 1. Murat provides bug reports → Bob converts to fix stories → PL orchestrates dependency-driven fixes.  
 **Impact:** Normal Mode QA: 20-27 min clean pass, 57-87 min with fixes. Barry Fast Mode: Sequential build+test+smoke. All code implementation (normal + fixes) uses dependency-driven spawning (no waves).  
 **Status:** ✅ Complete
 

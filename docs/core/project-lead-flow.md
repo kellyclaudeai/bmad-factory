@@ -182,34 +182,55 @@ Both complete independently (~15-20 min each)
 **If Quality Gate finds bugs:**
 
 ```
-1. Categorize by severity:
-   - BLOCKER + HIGH → Create fix stories (must fix before User QA)
-   - MEDIUM + LOW → Document in QA report, defer to User QA feedback
-
-2. Create fix story files:
-   Format: {original-story-id}-fix-{n}.md
-   Example: stories/2.3-fix-1.md, stories/4.1-fix-2.md
+1. Murat reports bugs with severity categorization:
+   BLOCKER:
+   - Story 2.3: Auth validation allows empty passwords
+     Location: src/auth/validate.ts:42
+     Impact: Critical security vulnerability
    
-   Content:
-   - Parent story reference
-   - Bug description from Quality Gate report
-   - Severity + source (E2E or NFR assessment)
-   - Acceptance criteria (bug fixed + original story ACs still pass)
+   HIGH:
+   - Story 1.5: Bundle size 2.1MB (target <500KB)
+     Location: webpack config + unused dependencies
+   
+   MEDIUM/LOW:
+   - Story 2.8: Missing ARIA labels on form inputs
+   (Document but defer to User QA feedback)
 
-3. Spawn Bob: Analyze fix story dependencies
-   → Input: List of fix story IDs
+2. Spawn Bob: create-fix-stories
+   → Input: Murat's bug report (BLOCKER + HIGH issues only)
+   → Output: Fix story files in stories/ directory
+   → Format: {original-story-id}-fix-{n}.md
+   → Example: stories/2.3-fix-1.md, stories/1.5-fix-1.md
+   
+   Fix story content (Bob writes this):
+   - Parent story reference (e.g., "Parent Story: 2.3 - User Authentication")
+   - Bug description from Murat's report
+   - Severity + source (E2E Functional or NFR Assessment)
+   - Acceptance criteria:
+     * Bug fixed (specific test case)
+     * Original story ACs still pass
+     * No regressions introduced
+
+3. Spawn Bob: create-fix-dependency-graph
+   → Input: List of fix story IDs created in step 2
    → Output: fix-dependency-graph.json
-   → Most fixes independent (security bugs don't affect each other)
-   → Performance fixes may depend on functionality being stable first
+   → Analysis: Most fixes independent (security bugs don't affect each other)
+   → Exception: Performance fixes may depend on functionality being stable first
+   → Example output:
+     {
+       "2.3-fix-1": { dependsOn: [] },
+       "1.5-fix-1": { dependsOn: ["2.3-fix-1"] }  // bundle opt needs auth stable
+     }
 
-4. Dependency-driven fix implementation:
+4. Dependency-driven fix implementation (Project Lead orchestrates):
    → Same spawning logic as Phase 2
    → Each fix story spawns immediately when its dependsOn array is satisfied
    → Unlimited parallelism (spawn all independent fixes simultaneously)
    → Per-fix flow: Amelia dev-story → Amelia code-review → done
+   → Track in implementation-state.md
 
 5. Re-run Quality Gate (Steps 1-2):
-   → If new bugs found: Create more fix stories, repeat Step 3
+   → If new bugs found: Spawn Bob to create more fix stories, repeat Step 2-4
    → If clean: Proceed to Phase 4
 ```
 
