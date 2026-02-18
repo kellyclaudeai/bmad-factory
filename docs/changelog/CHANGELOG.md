@@ -8,6 +8,13 @@
 
 ## 2026-02-18
 
+### 13:59 CST | Research Lead v2.0 Test Prep — Configs Verified
+**What:** Confirmed Research Lead + Mary AGENTS.md files fully updated with v2.0 workflow (from 13:37 CST audit). Ready to test first complete v2.0 run.  
+**Status:** Research Lead AGENTS.md (438 lines) - all 6 phases, config propagation, LLM dedup, registry atomic ops, Carson naming. Mary AGENTS.md (489 lines) - Phase 1/4/5 with config-aware scoring, web-search skill integration.  
+**Previous test:** agent:research-lead:20260218-1340 aborted at 4m33s (OpenAI billing error during Mary Phase 1).  
+**Next:** Close failed session, spawn fresh test with same config (web-app, B2C, Next.js stack).  
+**Expected:** 38-56 min runtime, first discovery entry in project-registry.json.
+
 ### 13:37 CST | Agent Config Audit — Registry + Doc Path Alignment
 **What:** Audited all 15 agent AGENTS.md files against core docs. Updated Research Lead (major: registry rewrite), Project Lead (medium: doc paths + registry update steps), Kelly-Improver (minor: added registry doc reference).  
 **Why:** Core docs changed (project-registry.json replaces research-registry.json + projects-queue, doc paths moved to docs/core/). Agent configs must match.  
