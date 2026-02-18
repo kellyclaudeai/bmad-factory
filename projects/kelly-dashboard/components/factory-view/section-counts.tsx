@@ -6,6 +6,7 @@ import type { ResearchSession } from "@/app/api/research-sessions/route";
 type Session = {
   sessionKey: string;
   agentType: string;
+  projectId?: string;
 };
 
 export function SessionsCount() {
