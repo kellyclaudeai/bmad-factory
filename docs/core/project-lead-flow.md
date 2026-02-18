@@ -12,7 +12,7 @@ Project Lead owns a single project from intake to ship. One PL session per proje
 
 **State files PL must maintain:**
 - `project-state.json` — subagent tracking, completed stories, pipeline status
-- `implementation-state.md` — required during implementation phase (wave/dependency tracking)
+- `implementation-state.md` — required during implementation phase (dependency-driven spawning status)
 
 **Dependency authority:** Bob's `dependency-graph.json` (or `stories-parallelization.json`) in `_bmad-output/implementation-artifacts/`. Each story has individual `dependsOn` arrays.
 
@@ -140,18 +140,88 @@ Story COMPLETE when status = "done"
 - Track failed attempts in project-state.json with failure reason
 - Increment version suffix on retry (e.g., `story-2.4-v1`, `story-2.4-v2`)
 
-### Phase 3: Test (TEA Module)
+### Phase 3: Quality Gate
+
+**Goal:** Catch functional bugs, security issues, and performance problems before user QA.
+
+#### Step 1: Build & Test Verification (Sequential)
 
 ```
-1. Spawn Murat: automate (generate tests)
-2. Spawn Murat: test-review (review quality)
-3. Spawn Murat: trace (requirements traceability)
-4. Spawn Murat: nfr-assess (non-functional requirements)
-5. Run all tests (npm test)
+1. Build check: npm run build
+   → Catches: TypeScript errors, missing deps, compile failures
+   → If FAIL: Create fix story, back to dependency-driven implementation
 
-If tests FAIL → back to Phase 2 (create fix stories, implement, re-test)
-If tests PASS → Phase 4
+2. Run test suite: npm test
+   → Runs: Amelia's unit/integration tests from story implementation
+   → Report: Coverage %, pass/fail counts
+   → If FAIL: Create fix stories for failing tests, back to dependency-driven implementation
 ```
+
+#### Step 2: Quality Assessment (Parallel)
+
+After build + tests pass, spawn both assessments **simultaneously**:
+
+```
+Parallel spawn:
+  A. E2E Functional Smoke Test (Murat subagent)
+     → Start dev server (npm run dev)
+     → Browser automation: Test PRD functional requirements
+     → Screenshot evidence for each tested feature
+     → Report: Which features work, which are broken
+     
+  B. Security & Performance Assessment (Murat subagent, nfr-assess workflow)
+     → Security: Auth vulnerabilities, XSS/CSRF, API exposure, HIPAA/GDPR basics
+     → Performance: Load time, bundle size, database queries
+     → Report: Issues found with severity (BLOCKER/HIGH/MEDIUM/LOW)
+
+Both complete independently (~15-20 min each)
+```
+
+#### Step 3: Remediation (Dependency-Driven)
+
+**If Quality Gate finds bugs:**
+
+```
+1. Categorize by severity:
+   - BLOCKER + HIGH → Create fix stories (must fix before User QA)
+   - MEDIUM + LOW → Document in QA report, defer to User QA feedback
+
+2. Create fix story files:
+   Format: {original-story-id}-fix-{n}.md
+   Example: stories/2.3-fix-1.md, stories/4.1-fix-2.md
+   
+   Content:
+   - Parent story reference
+   - Bug description from Quality Gate report
+   - Severity + source (E2E or NFR assessment)
+   - Acceptance criteria (bug fixed + original story ACs still pass)
+
+3. Spawn Bob: Analyze fix story dependencies
+   → Input: List of fix story IDs
+   → Output: fix-dependency-graph.json
+   → Most fixes independent (security bugs don't affect each other)
+   → Performance fixes may depend on functionality being stable first
+
+4. Dependency-driven fix implementation:
+   → Same spawning logic as Phase 2
+   → Each fix story spawns immediately when its dependsOn array is satisfied
+   → Unlimited parallelism (spawn all independent fixes simultaneously)
+   → Per-fix flow: Amelia dev-story → Amelia code-review → done
+
+5. Re-run Quality Gate (Steps 1-2):
+   → If new bugs found: Create more fix stories, repeat Step 3
+   → If clean: Proceed to Phase 4
+```
+
+**Remediation uses identical dependency-driven spawning as Phase 2 implementation.** No artificial batching. Each fix story spawns as soon as its specific dependencies complete.
+
+**Timeline estimate:**
+- Build + Tests: 5-7 min
+- E2E + NFR (parallel): 15-20 min
+- Fix creation + Bob dependency analysis: 2-3 min
+- Fix implementation (parallel): 10-30 min depending on bug count
+- Quality Gate re-run: 20-27 min
+- **Total first pass: 20-27 min | With remediation: 57-87 min**
 
 ### Phase 4: User QA
 
@@ -331,16 +401,29 @@ FOR EACH story in tech-spec.md:
   2. WAIT for completion before next story
 ```
 
-### Phase 3: Test
+### Phase 3: Fast Quality Gate (Barry Projects)
+
+**Simplified for speed.** No comprehensive E2E or NFR assessment.
 
 ```
-1. npm run build (build check)
-2. npm test (run tests)
-3. Smoke test
+1. Build check: npm run build
+   → If FAIL: Barry fixes inline, re-run
 
-If FAIL → Barry fixes, re-test
+2. Run tests: npm test
+   → If FAIL: Barry fixes inline, re-run
+
+3. Basic smoke test:
+   → Start dev server (npm run dev)
+   → Load homepage, screenshot
+   → Verify app boots without crashes
+
+If any step FAIL after inline fixes → Create fix story, back to dependency-driven implementation
 If PASS → Phase 4
 ```
+
+**No parallel spawning.** Sequential checks optimized for Barry's fast-track workflow.
+
+**No comprehensive bug hunting.** User QA is primary quality gate for Barry projects.
 
 ### Phase 4: User QA
 
