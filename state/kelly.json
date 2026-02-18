@@ -1,58 +1,58 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-18T15:51:00-06:00",
+  "lastUpdated": "2026-02-18T16:30:00-06:00",
   
   "heartbeat": {
-    "lastProjectScan": 1771454460,
+    "lastProjectScan": 1771456440,
     "projectChecks": {},
     "surfacedQA": []
   },
   
-  "pendingActions": [],
+  "pendingActions": [
+    {
+      "what": "Update downstream agent configs for research-lead-flow v3.0 (Mary AGENTS.md, Research Lead AGENTS.md, CIS personas)",
+      "priority": "high",
+      "addedAt": "2026-02-18T16:30:00-06:00"
+    },
+    {
+      "what": "Commit projects/ flattening (files staged, need to also stage deleted old paths)",
+      "priority": "medium",
+      "addedAt": "2026-02-18T16:08:00-06:00"
+    },
+    {
+      "what": "Remove old state files after validation (factory-state.md, heartbeat-state.json, implementation-state.md, per-project project-state.json)",
+      "priority": "medium",
+      "addedAt": "2026-02-18T14:46:00-06:00"
+    },
+    {
+      "what": "Validate dashboard with new API routes in browser (http://localhost:3000)",
+      "priority": "low",
+      "addedAt": "2026-02-18T14:40:00-06:00"
+    }
+  ],
   
   "waitingOn": [
     {
-      "what": "NoteLite project planning + implementation (Normal Greenfield, full BMAD pipeline test)",
+      "what": "NoteLite project — Phase 1 planning complete (PRD+UX+Arch+Epics with 48 stories). Gate check (John) in progress, then Bob creates sprint-planning + story files. Phase 2 implementation next.",
       "who": "agent:project-lead:project-notelite",
       "sessionKey": "agent:project-lead:project-notelite",
       "spawnedAt": "2026-02-18T14:48:00-06:00",
-      "expectedCompletion": "~17:00-17:48 CST (2-3 hours from spawn)",
-      "notes": "Phase 1 planning in progress as of 15:34 (PRD✅ UX✅ Arch✅, epics/stories next). YOLO mode added to all agent configs but this run started before those updates."
-    },
-    {
-      "what": "Research Lead v2.0 test run (autonomous product idea generation)",
-      "who": "agent:research-lead:20260218-1340",
-      "sessionKey": "agent:research-lead:20260218-1340",
-      "spawnedAt": "2026-02-18T13:40:00-06:00",
-      "expectedCompletion": "~14:18-14:36 CST (38-56 min from spawn) — may be overdue",
-      "notes": "Testing v2.0 workflow (broad→narrow, config-driven, LLM dedup, Carson naming). Should write first entry to project-registry.json."
+      "notes": "PL session at 200k tokens, compacted. Gate check step 02/05 PRD analysis running. Path corrected to projects/notelite/ (flat). YOLO in agent configs but this run predates those updates."
     }
   ],
   
   "notes": [
     {
-      "timestamp": "2026-02-18T15:51:00-06:00",
-      "text": "Pre-compaction state flush #4. NoteLite PL session active (planning phase). RL v2.0 test may be overdue — check on next heartbeat. Dashboard log viewing fix deployed (logs-section.tsx + page.tsx). YOLO mode added to all 14 agent configs."
+      "timestamp": "2026-02-18T16:30:00-06:00",
+      "text": "Pre-compaction #7. Research Lead flow v3.0 committed (2c7d94e) — problem-first discovery rewrite. Brainstormed with operator: 4 discovery strategies, inverted scoring (Solution Gap replaces Market Size, penalizes crowdedness). Next: update downstream agent configs (Mary, RL, CIS)."
     },
     {
-      "timestamp": "2026-02-18T15:34:00-06:00",
-      "text": "Fixed dashboard session log viewing: logs-section.tsx now resolves sessionKey→agentType→sessions.json→real sessionId→.jsonl transcript. Also fixed page.tsx to scan projects/active/ and projects/archived/ subdirs."
+      "timestamp": "2026-02-18T16:24:00-06:00",
+      "text": "Pre-compaction #6. Git commit for flat projects/ still pending (staged files ready). NoteLite gate check active. RL v2.0 test overdue — needs status check."
     },
     {
-      "timestamp": "2026-02-18T15:10:00-06:00",
-      "text": "Added YOLO MODE to all 14 BMAD agent AGENTS.md files. BMAD workflows default to interactive mode, halting at every confirmation. Without YOLO, subagents timeout. Two-layer defense: orchestrators include directive + agents have standing YOLO instructions."
-    },
-    {
-      "timestamp": "2026-02-18T14:48:00-06:00",
-      "text": "Spawned Project Lead for NoteLite (block-based Notion clone) — Full BMAD pipeline test"
-    },
-    {
-      "timestamp": "2026-02-18T14:46:00-06:00",
-      "text": "State architecture migration complete: All core docs updated (kelly-router, project-lead, project-registry, kelly-improver)"
-    },
-    {
-      "timestamp": "2026-02-18T14:28:00-06:00",
-      "text": "Migrated to minimal state architecture (4 systems: registry, kelly, BMAD, memory)"
+      "timestamp": "2026-02-18T16:08:00-06:00",
+      "text": "Pre-compaction #5. Flattened projects/ dir (removed active/archived subdirs). Fixed BMAD template paths in 5 agent configs. All core docs + agent configs verified — zero stale path refs remain."
     }
   ]
 }
