@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 import { FormattedMessage, type Message } from './formatted-message'
+import { ScrollToBottom } from './scroll-to-bottom'
 
 interface LogsSectionProps {
   sessionKey: string
@@ -263,7 +264,7 @@ export async function LogsSection({ sessionKey }: LogsSectionProps) {
               No transcript entries found (session may not have started yet)
             </div>
           ) : (
-            <div className="max-h-[600px] overflow-y-auto bg-black p-4 rounded border border-terminal-border space-y-2">
+            <ScrollToBottom className="max-h-[600px] overflow-y-auto bg-black p-4 rounded border border-terminal-border space-y-2">
               {messages.map((message, idx) => (
                 <div key={idx}>
                   <FormattedMessage message={message} />
@@ -275,7 +276,7 @@ export async function LogsSection({ sessionKey }: LogsSectionProps) {
                   </noscript>
                 </div>
               ))}
-            </div>
+            </ScrollToBottom>
           )}
         </div>
 

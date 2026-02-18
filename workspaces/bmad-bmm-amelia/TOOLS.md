@@ -18,41 +18,16 @@ Core OpenClaw tools (`read`, `exec`, `write`, `sessions_send`) always available.
 - Flags: `--full-auto` for builds, `--yolo` for fixes
 - Always `background: true` for long-running work
 
-## CLI-First Policy (CRITICAL)
+## CLI-First Policy
 
-**Default to CLI tools. Use browser automation ONLY as absolute last resort.**
+**Use CLI tools. Browser only if no CLI exists.**
 
-### Always Use CLI When Available
+- Firebase/GCP: `gcloud` and `firebase` CLIs (see firebase-cli skill)
+- Vercel: `vercel` CLI
+- GitHub: `gh` CLI
+- Database migrations: ORM CLIs
 
-- **Firebase/GCP:** Use `firebase` and `gcloud` CLIs (see firebase-cli skill)
-  - ✅ Create projects: `gcloud projects create` + `firebase projects:addfirebase`
-  - ✅ Enable APIs: `gcloud services enable`
-  - ✅ Create web apps: `firebase apps:create web`
-  - ✅ Get SDK config: `firebase apps:sdkconfig web`
-  - ✅ Init Firestore: `firebase init firestore`
-  - ❌ **Only needs browser:** Creating custom OAuth clients with redirect URIs (rare)
-
-- **Vercel:** Use `vercel` CLI for project creation, deployment, env vars
-- **GitHub:** Use `gh` CLI for repos, issues, PRs, actions
-- **AWS:** Use `aws` CLI for S3, Lambda, CloudFormation
-- **Database migrations:** Use ORM CLIs (Prisma, Drizzle, Sequelize)
-- **Package management:** npm/yarn/pnpm CLIs only
-
-### When Browser is Acceptable
-
-- Custom OAuth client creation (no API exists)
-- One-time account setup (if CLI login is blocked)
-- Visual design QA (screenshot/video capture for human review)
-- CAPTCHA/2FA flows (no CLI bypass)
-
-### Why This Matters
-
-- **Speed:** CLI is 5-10x faster than browser automation
-- **Reliability:** No DOM selectors breaking, no timing issues
-- **Debugging:** CLI errors are explicit; browser failures are opaque
-- **Cost:** Browser automation burns more tokens and time
-
-**If a story instructs you to use the console/UI and a CLI exists, OVERRIDE the story and use CLI.** Document the change in your completion notes.
+**If a story says browser but CLI exists:** Override the story and use CLI. Document in completion notes.
 
 ## Git Workflow
 

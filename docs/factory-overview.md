@@ -3,8 +3,6 @@
 **Last Updated:** 2026-02-18  
 **Purpose:** High-level architecture of the software factory. Source of truth for agent hierarchy, modes, and workflow references.
 
-**📋 CORE PRINCIPLES:** See [factory-principles.md](factory-principles.md) for CLI-first policy, git workflow, auto-announce protocol, and other factory-wide standards.
-
 ---
 
 ## Agent Hierarchy

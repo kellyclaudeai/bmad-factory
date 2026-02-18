@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-18T16:30:00-06:00",
+  "lastUpdated": "2026-02-18T16:36:00-06:00",
   
   "heartbeat": {
     "lastProjectScan": 1771456440,
@@ -33,15 +33,19 @@
   
   "waitingOn": [
     {
-      "what": "NoteLite project — Phase 1 planning complete (PRD+UX+Arch+Epics with 48 stories). Gate check (John) in progress, then Bob creates sprint-planning + story files. Phase 2 implementation next.",
+      "what": "NoteLite project — Phase 2 implementation active (stories 1.2, 1.3, 1.4 complete with code review). Parallel story execution ongoing via PL dependency graph.",
       "who": "agent:project-lead:project-notelite",
       "sessionKey": "agent:project-lead:project-notelite",
       "spawnedAt": "2026-02-18T14:48:00-06:00",
-      "notes": "PL session at 200k tokens, compacted. Gate check step 02/05 PRD analysis running. Path corrected to projects/notelite/ (flat). YOLO in agent configs but this run predates those updates."
+      "notes": "Story 1.2 complete (Firebase setup - hybrid CLI/browser). Operator flagged browser overuse, root cause identified: BMAD planning artifacts written for humans not agents. Fixed upstream with workspace wrappers."
     }
   ],
   
   "notes": [
+    {
+      "timestamp": "2026-02-18T16:36:00-06:00",
+      "text": "Pre-compaction #8. CLI-first policy enforcement — operator flagged NoteLite story 1.2 using too much browser automation. Root cause: BMAD workflows designed for human collaboration, but Winston/Bob output is executed by agents. Fixed upstream: created factory-principles.md (CLI-first is principle #1), added Factory Automation Context to Winston/Bob workspace wrappers, updated Amelia TOOLS.md. Did NOT touch BMAD templates — only workspace configs. Commits: eb94fb1 (factory-principles), 2cce900 (Winston/Bob context), 0008d77 (changelog). Story 1.2 accepted as-is (working, 80% CLI)."
+    },
     {
       "timestamp": "2026-02-18T16:30:00-06:00",
       "text": "Pre-compaction #7. Research Lead flow v3.0 committed (2c7d94e) — problem-first discovery rewrite. Brainstormed with operator: 4 discovery strategies, inverted scoring (Solution Gap replaces Market Size, penalizes crowdedness). Next: update downstream agent configs (Mary, RL, CIS)."

@@ -26,6 +26,18 @@ Project Lead owns a single project from intake to ship. One PL session per proje
 
 ---
 
+## CLI-First Policy
+
+**All planning artifacts (architecture, stories) must specify CLI commands, not browser steps.**
+
+- Winston writes: `gcloud projects create "$PROJECT_ID"` (not "Navigate to Firebase Console")
+- Bob writes: `firebase apps:create web` (not "Click Add App button")
+- Amelia/Barry execute: CLI tools first, browser only if no CLI exists
+
+**Lightest rule:** CLI-first. Browser only if no CLI exists.
+
+---
+
 ## Normal Mode Greenfield
 
 ### Phase 1: Plan

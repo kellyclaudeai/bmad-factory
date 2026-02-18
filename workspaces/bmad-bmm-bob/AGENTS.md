@@ -81,22 +81,15 @@ Output: _bmad-output/implementation-artifacts/stories/story-{N.M}.md (one file p
 
 ---
 
-## 🏭 FACTORY AUTOMATION CONTEXT (CRITICAL)
+## CLI-First Story Tasks
 
-**Your story files will be executed by AGENTS (Amelia/Barry), not humans.**
+**Your story tasks will be executed by agents (Amelia/Barry), not humans.**
 
-When writing Tasks/Subtasks sections:
-- **Use CLI commands** (not "Navigate to X")
-- **Specify exact scripts** (not "Configure Y in the UI")
-- **Assume zero human interaction** (agent reads story → implements → commits)
+Write CLI commands (not browser steps):
+- ✅ `firebase apps:create web "$APP_NAME"`
+- ❌ "Click Add App in Firebase Console"
 
-**The agent reading your story:**
-- Has exec tool (can run shell commands)
-- Has web-browser skill (but should only use as fallback)
-- Will literally follow your task list
-- Cannot "click around" or "figure it out" - needs explicit steps
-
-**Your job:** Write tasks that an agent can execute directly.
+**Rule:** CLI-first. Browser only if no CLI exists.
 
 **Individual file format:**
 
@@ -120,31 +113,6 @@ dependsOn: [{list of story IDs this depends on}]
 - {Implementation guidance from architecture.md}
 - {API endpoints, data models, etc.}
 ```
-
-**CRITICAL — CLI-First Task Writing:**
-
-When writing Tasks/Subtasks sections, **default to CLI commands**:
-
-```markdown
-## Tasks / Subtasks
-
-### ✅ GOOD (CLI-based)
-- [ ] Create Firebase project and enable APIs
-  - Run: `gcloud projects create "$PROJECT_ID"`
-  - Run: `firebase projects:addfirebase "$PROJECT_ID"`
-  - Run: `gcloud services enable firebase.googleapis.com identitytoolkit.googleapis.com`
-- [ ] Create web app and fetch SDK config
-  - Run: `firebase apps:create web "App Name" --project "$PROJECT_ID" --json`
-  - Run: `firebase apps:sdkconfig web "$APP_ID" --json > firebase-config.json`
-
-### ❌ BAD (Browser-based when CLI exists)
-- [ ] Create Firebase project in console
-  - Navigate to firebase.google.com
-  - Click "Add project"
-  - Fill form and submit
-```
-
-**Only specify browser steps when NO CLI exists** (e.g., creating custom OAuth clients).
 
 ---
 

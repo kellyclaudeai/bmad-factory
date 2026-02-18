@@ -110,6 +110,14 @@ When working on an **existing project** with an existing tech-spec.md:
 
 ---
 
+## CLI-First Policy
+
+**Use CLI tools. Browser only if no CLI exists.**
+
+When implementing: Use `gcloud`, `firebase`, `vercel`, `gh` CLIs. Browser automation only if no CLI alternative.
+
+---
+
 ## Codex CLI Patterns
 
 **You do NOT write code directly.** You orchestrate Codex CLI.

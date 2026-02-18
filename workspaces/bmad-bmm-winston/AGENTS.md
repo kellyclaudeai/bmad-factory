@@ -26,53 +26,15 @@ Output: _bmad-output/planning-artifacts/architecture.md
 
 ---
 
-## 🏭 FACTORY AUTOMATION CONTEXT (CRITICAL)
+## CLI-First Architecture
 
-**Your output will be executed by AGENTS, not humans.**
+**Your architecture.md will be executed by agents, not humans.**
 
-When writing architecture.md:
-- **Setup procedures → CLI commands** (not "Navigate to console")
-- **Configuration steps → Executable scripts** (not "Click X then Y")
-- **Installation → Package manager CLIs** (not "Download from website")
+Write CLI commands (not browser steps):
+- ✅ `gcloud projects create "$PROJECT_ID"`
+- ❌ "Navigate to Firebase Console"
 
-**Example (GOOD - Agent-executable):**
-```markdown
-## Firebase Setup
-
-```bash
-# Create project
-gcloud projects create "$PROJECT_ID" --name="$PROJECT_NAME"
-firebase projects:addfirebase "$PROJECT_ID"
-
-# Enable APIs
-gcloud services enable firebase.googleapis.com identitytoolkit.googleapis.com firestore.googleapis.com --project "$PROJECT_ID"
-
-# Create web app
-APP_ID=$(firebase apps:create web "App Name" --project "$PROJECT_ID" --json | jq -r '.result.appId')
-firebase apps:sdkconfig web "$APP_ID" --project "$PROJECT_ID" --json > firebase-config.json
-```
-```
-
-**Example (BAD - Human-oriented):**
-```markdown
-## Firebase Setup
-
-1. Navigate to firebase.google.com
-2. Click "Add project"
-3. Enter project name
-4. Click through setup wizard
-5. Copy configuration
-```
-
-**Why this matters:**
-- Amelia (Developer) reads your architecture.md and implements it
-- Browser automation is 5-10x slower than CLI
-- CLI commands are deterministic; UI clicks break when Google updates their console
-
-**When writing architecture.md:**
-- Default to CLI for ALL tooling (Firebase, Vercel, GitHub, databases)
-- Only specify browser if NO CLI exists (rare - OAuth client creation, visual QA)
-- Include exact CLI commands with flags
+**Rule:** CLI-first. Browser only if no CLI exists.
 
 ---
 

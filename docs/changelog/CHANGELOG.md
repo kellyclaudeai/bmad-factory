@@ -8,23 +8,23 @@
 
 ## 2026-02-18
 
-### 16:34 CST | CLI-First Policy Enforcement (Upstream Fix)
-**What:** Added Factory Automation Context to Winston (Architect) and Bob (Scrum Master) AGENTS.md. Created factory-wide `docs/factory-principles.md` with 10 core principles (CLI-first is #1). Updated Amelia/TOOLS.md, Winston/AGENTS.md, Bob/AGENTS.md with explicit CLI-first guidance.
-**Why:** NoteLite story 1.2 (Firebase setup) had browser-based instructions ("Navigate to Firebase Console") because BMAD workflows assume human operators, not automated agents. Winston/Bob were writing planning artifacts for humans, not agent execution.
-**Root cause:** BMAD workflows are interactive/collaborative by design. Factory agents execute autonomously. Mismatch → browser instructions in stories → slower, less reliable implementation.
-**Solution layers:**
-1. **factory-principles.md** — CLI-first policy as factory principle #1
-2. **Winston context** — "Your output will be executed by AGENTS, not humans" + CLI examples
-3. **Bob context** — "Story tasks executed by AGENTS (Amelia/Barry)" + CLI-first task writing
-4. **Amelia guidance** — Explicit CLI-first policy with Firebase examples + override authority
-**Impact:** Future planning artifacts (architecture.md, story-{N.M}.md) will contain CLI commands by default. Browser automation only when NO CLI exists (OAuth clients, visual QA).
+### 16:38 CST | CLI-First Policy (Minimal Guidance)
+**What:** Added minimal CLI-first guidance to project-lead-flow.md and 5 agent AGENTS.md files (Winston, Bob, Amelia, Barry, John). Removed factory-principles.md (too heavyweight).
+**Why:** NoteLite story 1.2 (Firebase setup) used browser automation because BMAD workflows assume human operators. Winston/Bob were writing planning artifacts for humans, but agents execute them autonomously.
+**Root cause:** BMAD workflows are interactive/collaborative by design. Factory agents execute autonomously. Mismatch → browser instructions → slower implementation.
+**Solution:** Minimal guidance in the right places
+- **project-lead-flow.md** — CLI-first policy section (2 sentences)
+- **Winston/Bob** — "Write CLI commands (not browser steps). Browser only if no CLI exists."
+- **Amelia/Barry** — "Use CLI tools. Browser only if no CLI exists. Override story instructions if needed."
+**Lightest rule:** CLI-first. Browser only if no CLI exists.
 **Files updated:**
-- `docs/factory-principles.md` — NEW: 10 factory principles
-- `docs/factory-overview.md` — References factory-principles.md
-- `workspaces/bmad-bmm-winston/AGENTS.md` — Factory Automation Context + CLI setup examples
-- `workspaces/bmad-bmm-bob/AGENTS.md` — Factory Automation Context + CLI-first task writing
-- `workspaces/bmad-bmm-amelia/TOOLS.md` — CLI-First Policy section with Firebase examples
-**Status:** ✅ Complete — upstream fix prevents browser-heavy implementations in future projects
+- `docs/core/project-lead-flow.md` — CLI-First Policy section
+- `workspaces/bmad-bmm-winston/AGENTS.md` — CLI-First Architecture (3 lines)
+- `workspaces/bmad-bmm-bob/AGENTS.md` — CLI-First Story Tasks (3 lines)
+- `workspaces/bmad-bmm-amelia/TOOLS.md` — CLI-First Policy (condensed)
+- `workspaces/bmad-qf-barry/AGENTS.md` — CLI-First Policy (2 lines)
+- `docs/factory-overview.md` — Removed factory-principles.md reference
+**Status:** ✅ Complete — lightest possible guidance, upstream fix in planning
 
 ### 15:42 CST | BMAD YOLO Mode for All Subagent Spawns
 **What:** Added YOLO MODE directive to all BMAD subagent spawn patterns. Updated 8 AGENTS.md files + core project-lead-flow.md.
