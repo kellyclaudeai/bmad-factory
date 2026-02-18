@@ -70,10 +70,13 @@ function getPlatformLabel(session: Session): string {
 
   // Otherwise fall back to where the last interaction came from.
   const ch = (session.lastChannel || session.channel || "").trim();
-  if (ch) return ch;
+  if (ch && ch !== "unknown") return ch;
 
   // As a last resort, show the raw displayName.
   if (dn) return dn;
+
+  // If channel is "unknown", it's likely a programmatic/background session
+  if (ch === "unknown") return "programmatic";
 
   return "unknown";
 }
