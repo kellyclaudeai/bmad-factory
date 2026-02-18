@@ -8,6 +8,24 @@
 
 ## 2026-02-18
 
+### 16:34 CST | CLI-First Policy Enforcement (Upstream Fix)
+**What:** Added Factory Automation Context to Winston (Architect) and Bob (Scrum Master) AGENTS.md. Created factory-wide `docs/factory-principles.md` with 10 core principles (CLI-first is #1). Updated Amelia/TOOLS.md, Winston/AGENTS.md, Bob/AGENTS.md with explicit CLI-first guidance.
+**Why:** NoteLite story 1.2 (Firebase setup) had browser-based instructions ("Navigate to Firebase Console") because BMAD workflows assume human operators, not automated agents. Winston/Bob were writing planning artifacts for humans, not agent execution.
+**Root cause:** BMAD workflows are interactive/collaborative by design. Factory agents execute autonomously. Mismatch → browser instructions in stories → slower, less reliable implementation.
+**Solution layers:**
+1. **factory-principles.md** — CLI-first policy as factory principle #1
+2. **Winston context** — "Your output will be executed by AGENTS, not humans" + CLI examples
+3. **Bob context** — "Story tasks executed by AGENTS (Amelia/Barry)" + CLI-first task writing
+4. **Amelia guidance** — Explicit CLI-first policy with Firebase examples + override authority
+**Impact:** Future planning artifacts (architecture.md, story-{N.M}.md) will contain CLI commands by default. Browser automation only when NO CLI exists (OAuth clients, visual QA).
+**Files updated:**
+- `docs/factory-principles.md` — NEW: 10 factory principles
+- `docs/factory-overview.md` — References factory-principles.md
+- `workspaces/bmad-bmm-winston/AGENTS.md` — Factory Automation Context + CLI setup examples
+- `workspaces/bmad-bmm-bob/AGENTS.md` — Factory Automation Context + CLI-first task writing
+- `workspaces/bmad-bmm-amelia/TOOLS.md` — CLI-First Policy section with Firebase examples
+**Status:** ✅ Complete — upstream fix prevents browser-heavy implementations in future projects
+
 ### 15:42 CST | BMAD YOLO Mode for All Subagent Spawns
 **What:** Added YOLO MODE directive to all BMAD subagent spawn patterns. Updated 8 AGENTS.md files + core project-lead-flow.md.
 **Why:** BMAD workflows default to interactive mode — halting at every step to ask "Continue?" or "Should I use this file?". When spawned as subagents, there's no human to respond, so they timeout and die. NoteLite test revealed John needed 3 attempts and Sally needed 2 attempts due to this.
