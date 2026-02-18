@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-18T16:36:00-06:00",
+  "lastUpdated": "2026-02-18T16:55:00-06:00",
   
   "heartbeat": {
     "lastProjectScan": 1771456440,
@@ -9,6 +9,12 @@
   },
   
   "pendingActions": [
+    {
+      "what": "Implement fail recovery for Research Lead (heartbeat + auto-restart like Project Lead)",
+      "priority": "high",
+      "addedAt": "2026-02-18T16:51:00-06:00",
+      "notes": "RL sessions can fail mid-workflow (billing errors, timeouts, etc). Need heartbeat monitoring + auto-recovery like PL has. Current: manual CLI restart required."
+    },
     {
       "what": "Update downstream agent configs for research-lead-flow v3.0 (Mary AGENTS.md, Research Lead AGENTS.md, CIS personas)",
       "priority": "high",
@@ -33,6 +39,13 @@
   
   "waitingOn": [
     {
+      "what": "Research Lead session #1 — Product idea generation (web-app, B2C). Testing Mary search post-Brave API removal.",
+      "who": "agent:research-lead:1",
+      "sessionKey": "agent:research-lead:1",
+      "spawnedAt": "2026-02-18T16:55:00-06:00",
+      "notes": "Retry after Brave API billing error. web-search skill deleted, Mary will fallback to web_search (but it's still out of credits). Expect failure unless Brave API credits restored."
+    },
+    {
       "what": "NoteLite project — Phase 2 implementation active (stories 1.2, 1.3, 1.4 complete with code review). Parallel story execution ongoing via PL dependency graph.",
       "who": "agent:project-lead:project-notelite",
       "sessionKey": "agent:project-lead:project-notelite",
@@ -42,6 +55,14 @@
   ],
   
   "notes": [
+    {
+      "timestamp": "2026-02-18T16:55:00-06:00",
+      "text": "Pre-compaction #10. Spawned new Research Lead session (agent:research-lead:1) via openclaw gateway call agent. Operator wanted to retry Mary after billing fix. Note: web_search still out of credits, so expect same error unless fixed."
+    },
+    {
+      "timestamp": "2026-02-18T16:51:00-06:00",
+      "text": "Pre-compaction #9 (updated). Fixed Research Lead Mary billing errors — she was using web_search tool (Brave API, out of credits). Operator decided to delete web-search skill entirely. Removed tools.deny policy on research-lead. Mary will use web_search (Brave API) but it's out of credits, so RL currently blocked pending API credit refill or alternative search solution."
+    },
     {
       "timestamp": "2026-02-18T16:36:00-06:00",
       "text": "Pre-compaction #8. CLI-first policy enforcement — operator flagged NoteLite story 1.2 using too much browser automation. Root cause: BMAD workflows designed for human collaboration, but Winston/Bob output is executed by agents. Fixed upstream: created factory-principles.md (CLI-first is principle #1), added Factory Automation Context to Winston/Bob workspace wrappers, updated Amelia TOOLS.md. Did NOT touch BMAD templates — only workspace configs. Commits: eb94fb1 (factory-principles), 2cce900 (Winston/Bob context), 0008d77 (changelog). Story 1.2 accepted as-is (working, 80% CLI)."

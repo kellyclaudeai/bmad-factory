@@ -5,6 +5,7 @@ import { ProjectHeader } from '@/components/project-view/project-header'
 import { ProjectMetrics } from '@/components/project-view/project-metrics'
 import { SubagentGrid } from '@/components/project-view/subagent-grid'
 import { QueuedStories } from '@/components/project-view/queued-stories'
+import { LogsSection } from '@/components/subagent-view/logs-section'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface ProjectDetailProps {
@@ -410,39 +411,29 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-4">
               {projectLeadSessions.map((s) => (
-                <Link 
-                  key={s.sessionKey}
-                  href={`/session/${encodeURIComponent(s.sessionKey)}`}
-                  className="block"
-                >
-                  <Card className="bg-terminal-card border-terminal-border transition-all duration-200 hover:border-terminal-green hover:shadow-[0_0_10px_rgba(0,255,136,0.1)]">
+                <div key={s.sessionKey} className="space-y-4">
+                  <Card className="bg-terminal-card border-terminal-border">
                     <CardContent className="pt-6 pb-6">
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0 space-y-1">
                           <div className="text-terminal-text font-mono truncate">
                             Project Lead
                             <span className="text-terminal-dim"> • </span>
-                            <span className="text-terminal-text">FULL SESSION</span>
+                            <span className="text-terminal-text">{s.sessionKey}</span>
                           </div>
-                          <div className="text-terminal-dim font-mono text-xs truncate">Task: {s.label}</div>
                           <div className="text-terminal-dim font-mono text-xs truncate">
-                            Running: {formatRelativeTime(s.lastActivity)} (since last activity)
+                            Last activity: {formatRelativeTime(s.lastActivity)} ago
                             {s.model ? ` • Model: ${s.model}` : ''}
                           </div>
-                          {(s.lastChannel || s.channel) && (
-                            <div className="text-terminal-dim font-mono text-xs truncate">
-                              Channel: {s.lastChannel || s.channel}
-                            </div>
-                          )}
-                          <div className="text-terminal-dim font-mono text-xs truncate">{s.sessionKey}</div>
                         </div>
                         <div className="text-terminal-green font-mono text-xs">{(s.status || 'active').toUpperCase()}</div>
                       </div>
                     </CardContent>
                   </Card>
-                </Link>
+                  <LogsSection sessionKey={s.sessionKey} />
+                </div>
               ))}
             </div>
           )}

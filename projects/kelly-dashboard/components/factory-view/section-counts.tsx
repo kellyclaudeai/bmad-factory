@@ -7,6 +7,10 @@ type Session = {
   sessionKey: string;
   agentType: string;
   projectId?: string;
+  label?: string;
+  status?: string;
+  lastActivity?: string;
+  model?: string;
 };
 
 export function SessionsCount() {
@@ -20,7 +24,7 @@ export function ActiveProjectsCount() {
   // Only count project-lead sessions with a projectId (matches display logic)
   const projectLeads =
     sessions?.filter(
-      (s) => s.projectId && (s.agentType === "project-lead" || s.sessionKey.includes("project-lead")),
+      (s) => (s.projectId && s.agentType === "project-lead") || s.sessionKey.includes("project-lead"),
     ) ?? [];
   return <>{projectLeads.length}</>;
 }

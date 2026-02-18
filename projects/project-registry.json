@@ -1,4 +1,34 @@
 {
   "version": "1.0",
-  "projects": []
+  "projects": [
+    {
+      "id": "smart-receipt-budgeting-tracker-2026-02-18-1656",
+      "name": "Prepwise",
+      "state": "discovery",
+      "paused": false,
+      "pausedReason": null,
+      "researchSession": "agent:research-lead:20260218-1656",
+      "researchPhase": "complete",
+      "discoveryStrategy": "review-gap-mining",
+      "timeline": {
+        "discoveredAt": "2026-02-18T23:01:18+0000",
+        "lastUpdated": "2026-02-18T23:08:46+0000"
+      },
+      "intake": {
+        "problem": "Personal budgeting app users struggle with line-item categorization when scanning receipts from multi-category purchases (e.g., Costco trip with groceries, household items, electronics). Business expense apps like Expensify and Dext support line-item extraction but cost $20-50/month and target corporate users. Consumer budgeting apps like YNAB, Copilot, and Monarch require manual entry or only capture receipt totals, making it impossible to accurately track spending by category from a single receipt. This forces users to either manually split transactions (time-consuming) or accept inaccurate category budgets, often leading them to abandon budgeting altogether.",
+        "solution": "Budget from your shopping list, not your receipts. Users build shopping lists in the app BEFORE they shop, tagging items with categories as they add them. At checkout, they photograph the receipt, and the system matches line items to pre-categorized shopping list entries using fuzzy matching. Unmatched items get flagged for one-tap categorization, building a personal item library over time.",
+        "targetAudience": "Budget-conscious consumers, young professionals (25-45), families tracking household spending at multi-category retailers (Costco, Target, Walmart). Currently use YNAB/Copilot/Monarch or spreadsheets. Weekly pain (every shopping trip). Proven willingness to pay $10-15/mo for budgeting apps.",
+        "keyFeatures": [
+          "Shopping list builder with category tagging",
+          "Receipt capture and OCR extraction",
+          "Fuzzy matching (list items to receipt items)",
+          "Personal item library (learns over time)",
+          "Budget dashboard (category spending vs planned)",
+          "One-tap categorization for unmatched items"
+        ]
+      },
+      "implementation": null,
+      "followup": []
+    }
+  ]
 }

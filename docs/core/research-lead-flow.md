@@ -22,13 +22,16 @@
 
 **Timeline:** 34-50 min per Research Lead session  
 **Model:** Sonnet 4.5 for all agents (balanced, cheap)  
-**Output:** Entry in `projects/project-registry.json` (state: `discovery`) with full intake data
+**Output:** 
+- Summary entry in `projects/project-registry.json` (state: `discovery`)
+- Full research artifacts in `projects/<project-id>/` directory
 
 **Architecture:**
 - 1 Research Lead = 1 idea (parallelize for batches)
 - Agent configs in `~/.openclaw/agents/{agentId}/config.json`
 - Agent workspaces in `~/.openclaw/workspace-{agentId}/` (AGENTS.md, SOUL.md, TOOLS.md, memory/)
-- Project Registry (`/Users/austenallred/clawd/projects/project-registry.json`) — single source of truth for all project state and deduplication
+- Project Registry (`/Users/austenallred/clawd/projects/project-registry.json`) — summary registry for all projects
+- Project Artifacts (`/Users/austenallred/clawd/projects/<project-id>/`) — full research documents per project
 
 ---
 
@@ -1075,6 +1078,46 @@ Confirm registry entry is complete:
 ```
 
 **Research Lead session ends.**
+
+---
+
+## Output Structure
+
+### Project Directory Layout
+
+**Root:** `/Users/austenallred/clawd/projects/`
+
+```
+projects/
+├── project-registry.json                          # Summary registry (all projects)
+├── <project-id>/                                   # One directory per project
+│   ├── intake.md                                  # Comprehensive research document
+│   ├── solution-scoring.md                        # Detailed scoring for all 15 solutions
+│   ├── competitive-deepdive.md                    # Full competitive analysis
+│   └── creative-naming.md                         # Naming options and rationale
+└── archived/                                       # Failed/abandoned research (duplicates, NO-GO)
+```
+
+### Project ID Format
+
+**Pattern:** `<slug>-YYYY-MM-DD-HHMM`
+
+**Examples:**
+- `smart-receipt-budgeting-tracker-2026-02-18-1656`
+- `home-maintenance-tracker-2026-02-18-1200`
+
+**Slug generation:** Kebab-case version of Mary's initial analytical name (Phase 1)
+
+### File Descriptions
+
+| File | Purpose | Created By | Phase |
+|------|---------|------------|-------|
+| **intake.md** | Comprehensive research brief with all phases compiled | Research Lead | Phase 6 |
+| **solution-scoring.md** | Full scoring matrix for all 15 CIS solutions with rationale | Research Lead | Phase 4 |
+| **competitive-deepdive.md** | Detailed competitive analysis, novelty assessment, feasibility | Research Lead or Mary | Phase 5 |
+| **creative-naming.md** | Primary name + alternatives with rationale | Carson | Phase 6 |
+
+**Note:** These are working files. Research Lead creates them during the workflow and references them in `intake.md`. The registry entry (`project-registry.json`) contains only summary data for fast lookups and deduplication.
 
 ---
 
