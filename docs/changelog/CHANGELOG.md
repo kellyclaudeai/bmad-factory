@@ -8,6 +8,11 @@
 
 ## 2026-02-18
 
+### 11:15 CST | Kelly Workflow Documentation
+**What:** Created kelly-router-flow.md and kelly-improver-flow.md as comprehensive workflow references  
+**Why:** Separate source-of-truth docs from runtime AGENTS.md. Clear responsibilities, decision frameworks, and quality standards for Kelly and Kelly-Improver.  
+**Status:** ✅ Complete
+
 ### 10:53 CST | Docs Structure
 **What:** Merged userqa-workflow.md into project-lead-flow.md Phase 4, created /core and /changelog folders  
 **Why:** User QA is part of project lifecycle, should live in main flow doc. Structured docs for clarity.
