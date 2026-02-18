@@ -74,21 +74,29 @@ type Session = {
 const PROJECTS_ROOT = '/Users/austenallred/clawd/projects'
 
 async function getProjectState(projectId: string): Promise<ProjectState | null> {
+  // Flat structure: projects/{projectId}/project-state.json
   try {
     const projectStatePath = path.join(PROJECTS_ROOT, projectId, 'project-state.json')
     const contents = await fs.readFile(projectStatePath, 'utf8')
     return JSON.parse(contents)
   } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+      console.error(`Project state not found for ${projectId}`)
+      return null
+    }
     console.error('Failed to read project state:', error)
     return null
   }
 }
 
 async function getStoriesData(projectId: string, storiesPath?: string): Promise<any> {
+  // Flat structure: projects/{projectId}/
+  const projectRoot = path.join(PROJECTS_ROOT, projectId)
+
   try {
     // Try the path from planningArtifacts first
     if (storiesPath) {
-      const fullPath = path.join(PROJECTS_ROOT, projectId, storiesPath)
+      const fullPath = path.join(projectRoot, storiesPath)
       try {
         const contents = await fs.readFile(fullPath, 'utf8')
         return JSON.parse(contents)
@@ -98,7 +106,7 @@ async function getStoriesData(projectId: string, storiesPath?: string): Promise<
     }
 
     // Try _bmad-output/implementation-artifacts/stories-parallelization.json
-    const bmadPath = path.join(PROJECTS_ROOT, projectId, '_bmad-output/implementation-artifacts/stories-parallelization.json')
+    const bmadPath = path.join(projectRoot, '_bmad-output/implementation-artifacts/stories-parallelization.json')
     try {
       const contents = await fs.readFile(bmadPath, 'utf8')
       return JSON.parse(contents)
@@ -107,7 +115,7 @@ async function getStoriesData(projectId: string, storiesPath?: string): Promise<
     }
 
     // Try root stories-parallelization.json
-    const rootPath = path.join(PROJECTS_ROOT, projectId, 'stories-parallelization.json')
+    const rootPath = path.join(projectRoot, 'stories-parallelization.json')
     const contents = await fs.readFile(rootPath, 'utf8')
     return JSON.parse(contents)
   } catch (error) {

@@ -102,7 +102,7 @@ discovery → in-progress → shipped → followup → shipped
       },
       
       "implementation": {
-        "projectDir": "/Users/austenallred/clawd/projects/active/takeouttrap",
+        "projectDir": "/Users/austenallred/clawd/projects/takeouttrap",
         "qaUrl": null,
         "deployedUrl": null,
         "repo": null

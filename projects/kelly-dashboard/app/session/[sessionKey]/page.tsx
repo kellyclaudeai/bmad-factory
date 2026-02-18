@@ -62,11 +62,30 @@ async function getSessionData(sessionKey: string): Promise<SessionData | null> {
       return { sessionKey, status: "active", projectId }
     }
 
-    // For subagents, we need to scan all projects to find which one contains this session
-    const projectDirs = await fs.readdir(PROJECTS_ROOT)
+    // Flat structure: scan projects/{id}/project-state.json
+    async function findProjectStatePaths(rootDir: string): Promise<string[]> {
+      const results: string[] = []
+      try {
+        const entries = await fs.readdir(rootDir, { withFileTypes: true })
+        for (const entry of entries) {
+          if (!entry.isDirectory()) continue
+          const statePath = path.join(rootDir, entry.name, "project-state.json")
+          try {
+            await fs.access(statePath)
+            results.push(statePath)
+          } catch {
+            // No project-state.json in this dir
+          }
+        }
+      } catch {
+        // Can't read root
+      }
+      return results
+    }
 
-    for (const dir of projectDirs) {
-      const projectStatePath = path.join(PROJECTS_ROOT, dir, "project-state.json")
+    const projectStatePaths = await findProjectStatePaths(PROJECTS_ROOT)
+
+    for (const projectStatePath of projectStatePaths) {
       try {
         const contents = await fs.readFile(projectStatePath, "utf8")
         const projectState = JSON.parse(contents)
@@ -75,7 +94,7 @@ async function getSessionData(sessionKey: string): Promise<SessionData | null> {
           const subagent = projectState.subagents.find((s: any) => s.sessionKey === sessionKey)
 
           if (subagent) {
-            projectId = projectState.projectId || dir
+            projectId = projectState.projectId || path.basename(path.dirname(projectStatePath))
             return {
               sessionKey,
               story: subagent.story,

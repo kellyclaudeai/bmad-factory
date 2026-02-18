@@ -1,9 +1,9 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-18T14:45:00-06:00",
+  "lastUpdated": "2026-02-18T15:51:00-06:00",
   
   "heartbeat": {
-    "lastProjectScan": 1771446800,
+    "lastProjectScan": 1771454460,
     "projectChecks": {},
     "surfacedQA": []
   },
@@ -12,24 +12,47 @@
   
   "waitingOn": [
     {
-      "what": "Research Lead v2.0 test completion",
+      "what": "NoteLite project planning + implementation (Normal Greenfield, full BMAD pipeline test)",
+      "who": "agent:project-lead:project-notelite",
+      "sessionKey": "agent:project-lead:project-notelite",
+      "spawnedAt": "2026-02-18T14:48:00-06:00",
+      "expectedCompletion": "~17:00-17:48 CST (2-3 hours from spawn)",
+      "notes": "Phase 1 planning in progress as of 15:34 (PRD✅ UX✅ Arch✅, epics/stories next). YOLO mode added to all agent configs but this run started before those updates."
+    },
+    {
+      "what": "Research Lead v2.0 test run (autonomous product idea generation)",
       "who": "agent:research-lead:20260218-1340",
-      "expectedAt": "2026-02-18T14:30:00-06:00"
+      "sessionKey": "agent:research-lead:20260218-1340",
+      "spawnedAt": "2026-02-18T13:40:00-06:00",
+      "expectedCompletion": "~14:18-14:36 CST (38-56 min from spawn) — may be overdue",
+      "notes": "Testing v2.0 workflow (broad→narrow, config-driven, LLM dedup, Carson naming). Should write first entry to project-registry.json."
     }
   ],
   
   "notes": [
     {
-      "timestamp": "2026-02-18T14:45:00-06:00",
-      "text": "✅ Core docs updated for state architecture (kelly-router, project-lead, project-registry, kelly-improver)"
+      "timestamp": "2026-02-18T15:51:00-06:00",
+      "text": "Pre-compaction state flush #4. NoteLite PL session active (planning phase). RL v2.0 test may be overdue — check on next heartbeat. Dashboard log viewing fix deployed (logs-section.tsx + page.tsx). YOLO mode added to all 14 agent configs."
+    },
+    {
+      "timestamp": "2026-02-18T15:34:00-06:00",
+      "text": "Fixed dashboard session log viewing: logs-section.tsx now resolves sessionKey→agentType→sessions.json→real sessionId→.jsonl transcript. Also fixed page.tsx to scan projects/active/ and projects/archived/ subdirs."
+    },
+    {
+      "timestamp": "2026-02-18T15:10:00-06:00",
+      "text": "Added YOLO MODE to all 14 BMAD agent AGENTS.md files. BMAD workflows default to interactive mode, halting at every confirmation. Without YOLO, subagents timeout. Two-layer defense: orchestrators include directive + agents have standing YOLO instructions."
+    },
+    {
+      "timestamp": "2026-02-18T14:48:00-06:00",
+      "text": "Spawned Project Lead for NoteLite (block-based Notion clone) — Full BMAD pipeline test"
+    },
+    {
+      "timestamp": "2026-02-18T14:46:00-06:00",
+      "text": "State architecture migration complete: All core docs updated (kelly-router, project-lead, project-registry, kelly-improver)"
     },
     {
       "timestamp": "2026-02-18T14:28:00-06:00",
       "text": "Migrated to minimal state architecture (4 systems: registry, kelly, BMAD, memory)"
-    },
-    {
-      "timestamp": "2026-02-18T13:40:00-06:00",
-      "text": "Research Lead v2.0 test spawned (session 20260218-1340)"
     }
   ]
 }

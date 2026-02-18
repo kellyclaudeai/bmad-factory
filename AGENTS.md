@@ -119,7 +119,7 @@ openclaw gateway call agent \
 **Project Lead Example:**
 ```bash
 openclaw gateway call agent \
-  --params '{"message":"Start new project: fleai-market-v5\n\n**Mode:** Normal Greenfield\n**Project Directory:** /Users/austenallred/clawd/projects/active/fleai-market-v5/\n**Intake:** intake.md\n\nFollow docs/project-lead-flow.md.","sessionKey":"agent:project-lead:project-fleai-market-v5","idempotencyKey":"'$(uuidgen)'"}' \
+  --params '{"message":"Start new project: fleai-market-v5\n\n**Mode:** Normal Greenfield\n**Project Directory:** /Users/austenallred/clawd/projects/fleai-market-v5/\n**Intake:** intake.md\n\nFollow docs/project-lead-flow.md.","sessionKey":"agent:project-lead:project-fleai-market-v5","idempotencyKey":"'$(uuidgen)'"}' \
   --expect-final --timeout 120000
 ```
 
