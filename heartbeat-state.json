@@ -1,5 +1,5 @@
 {
-  "lastProjectCheck": 1739895600,
+  "lastProjectCheck": 1739900520,
   "surfacedQA": [
     "calculator-app",
     "kelly-dashboard",
@@ -7,21 +7,21 @@
   ],
   "projectChecks": {
     "fleai-market-v5": {
-      "lastCheck": 1739895600,
-      "status": "active",
-      "stage": "implementation",
-      "note": "Story 3.6 retry active with Claude Code (session faint-crustacean, started 09:16 CST), 47/48 stories complete (97.9%), TEA testing queued after completion"
+      "lastCheck": 1739900520,
+      "status": "testing",
+      "stage": "testing",
+      "note": "TEA testing active (Murat session 369b796f, started 10:36 CST, ~6 min elapsed), 48/48 stories complete (100%), ETA User QA ~10:50-11:00 CST"
     },
     "takeouttrap": {
-      "lastCheck": 1739895600,
+      "lastCheck": 1739900520,
       "status": "blocked",
       "stage": "implementation",
-      "note": "26/37 stories complete (70%), 2 blocked by Codex rate limit (resets 14:19 CST), 9 remaining unstarted, will auto-resume with Claude Code fallback"
+      "note": "Code review found 10 blockers (12 PASSED, 10 BLOCKED, 9 unstarted), need remediation plan from Project Lead"
     }
   },
   "researchQueue": {
     "count": 20,
-    "lastChecked": 1739895600,
+    "lastChecked": 1739900520,
     "batch1": {
       "sessions": 20,
       "complete": 10,
@@ -37,15 +37,52 @@
   },
   "openaiIssue": {
     "detectedAt": "2026-02-18T09:09:00-06:00",
-    "status": "active",
+    "status": "resolved",
     "error": "billing - API key out of credits",
     "impact": "All Codex CLI calls blocked",
-    "workaround": "Claude Code fallback active"
+    "workaround": "4-tier fallback validated in production (Story 3.6 + TakeoutTrap stories 2.8 & 3.2)",
+    "validation": {
+      "story3.6Retry2": {
+        "startedAt": "2026-02-18T10:26:00-06:00",
+        "completedAt": "2026-02-18T10:36:00-06:00",
+        "duration": "10m",
+        "result": "success",
+        "tier": "Claude Code Anthropic plan (Tier 3)"
+      },
+      "story2.8Retry": {
+        "startedAt": "2026-02-18T10:26:00-06:00",
+        "completedAt": "2026-02-18T10:34:00-06:00",
+        "duration": "8m",
+        "result": "success",
+        "tier": "Claude Code (Tier 3)"
+      },
+      "story3.2Retry": {
+        "startedAt": "2026-02-18T10:26:00-06:00",
+        "completedAt": "2026-02-18T10:33:00-06:00",
+        "duration": "7m",
+        "result": "success",
+        "tier": "Claude Code (Tier 3)"
+      }
+    }
   },
   "autoFallbackArchitecture": {
     "decidedAt": "2026-02-18T09:20:00-06:00",
-    "location": "coding-agent skill (not Amelia AGENTS.md)",
+    "location": "coding-cli skill (shared 4-tier wrapper)",
     "reasoning": "DRY principle, single source of truth, all agents inherit (Amelia, Barry, Murat)",
-    "status": "design complete, implementation pending Story 3.6 validation"
+    "status": "validated in production",
+    "commits": ["f1cf231", "7f88db9", "dda1c8f", "d1e33d2", "a2c3e8f (REVERTED)", "1df742f (FINAL)"]
+  },
+  "documentationRestructuring": {
+    "completedAt": "2026-02-18T10:40:00-06:00",
+    "changes": [
+      "Created docs/core/ folder for main workflows",
+      "Moved project-lead-flow.md and research-lead-flow.md to docs/core/",
+      "Merged userqa-workflow.md into project-lead-flow.md Phase 4 (expanded from 15 lines to 200+ lines)",
+      "Archived docs/userqa-workflow.md to docs/archive/",
+      "Created docs/CHANGELOG.md (Kelly improvement history)",
+      "Created docs/core/README.md (workflow index)"
+    ],
+    "uncommitted": true,
+    "note": "Needs git commit"
   }
 }

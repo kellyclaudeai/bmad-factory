@@ -1,6 +1,6 @@
 # Factory State
 
-**Last Updated:** 2026-02-18 09:20 CST (pre-compaction state flush)
+**Last Updated:** 2026-02-18 10:42 CST (pre-compaction state flush)
 
 ## Project Organization
 
@@ -16,8 +16,8 @@
 
 ## Active Projects
 
-### fleai-market-v5 (Implementation 97.9% Complete, Story 3.6 Retry Active)
-- **Status:** 🟡 **IMPLEMENTATION** — 47/48 stories complete (97.9%), Story 3.6 retry in progress
+### fleai-market-v5 (TEA Testing Active)
+- **Status:** 🟡 **TESTING** — 48/48 stories complete (100%), Murat TEA audit in progress
 - **Session:** `agent:project-lead:project-fleai-market-v5` (created via `gateway call agent`)
 - **Repo path:** `projects/active/fleai-market-v5`
 - **Description:** Multi-chain crypto marketplace (Solana + Ethereum). AI agents as sellers and buyers. Crossmint integration.
@@ -25,15 +25,16 @@
 - **Mode:** Normal Greenfield (full BMAD planning → dependency-driven implementation)
 - **Fresh Restart:** 2026-02-17 17:31 CST (cleaned all BMAD state, kept intake.md only)
 - **Phase 1 Planning:** ✅ COMPLETE (all 8 steps done, 52 min total)
-- **Phase 2 Implementation:** 🟡 ACTIVE (47/48 stories complete)
-  - **Complete:** 47 stories implemented and committed
-  - **Active:** Story 3.6 (Agent Payments Protocol) retry with Claude Code (started 09:16 CST, session faint-crustacean)
+- **Phase 2 Implementation:** ✅ COMPLETE (48/48 stories)
+  - **Complete:** 48 stories implemented and committed
+  - **Story 3.6 retry history:**
+    - First attempt: Failed 01:10 CST (OpenAI billing)
+    - Retry #1: Session faint-crustacean died 09:46 CST (signal 9)
+    - Retry #2: Succeeded 10:36 CST with new 4-tier fallback wrapper (10m duration)
   - **Deferred:** Story 4.8 (Email Notifications) actually completed on retry
-  - **Issue:** Story 3.6 first attempt failed 01:10 CST (OpenAI billing error), retry using Claude Code fallback
-  - **OpenAI billing error:** Hit again at 09:09 CST, confirming account out of credits
-- **Phase 3 Testing:** ⏳ QUEUED — Murat (TEA) will spawn after Story 3.6 completes
+- **Phase 3 Testing:** 🟡 ACTIVE — Murat spawned 10:36 CST (session 369b796f, automate → test-review → trace → nfr-assess)
 - **Artifacts:** Full planning docs + 48 stories + dependency-graph.json
-- **Last Status Check:** 09:20 CST — Story 3.6 retry active (~4 min elapsed), Claude Code analyzing story
+- **Last Status Check:** 10:42 CST — Murat TEA audit running (~6 min elapsed), ETA 20-30 min total
 
 ### daily-todo-tracker (Ready for User QA)
 - **Status:** 🧪 **READY FOR QA**
@@ -56,8 +57,8 @@
 - **Repo path:** `projects/active/kelly-dashboard`
 - **Progress:** 20/21 stories complete
 
-### takeouttrap (Implementation 70% Complete, 2 Stories Blocked)
-- **Status:** 🟡 **IMPLEMENTATION** — 26/37 stories complete (70%), 2 blocked by Codex rate limit
+### takeouttrap (Code Review Found 10 Blockers)
+- **Status:** 🔴 **BLOCKED** — 28/37 stories implemented, 10 stories blocked by code review issues, 9 unstarted
 - **Session:** `agent:project-lead:project-takeouttrap` (created via `gateway call agent`)
 - **Repo path:** `projects/active/takeouttrap`
 - **Description:** Browser extension to intervene at DoorDash/Uber Eats checkout with healthier/cheaper alternatives (meal kits, local pickup, home cooking)
@@ -73,15 +74,44 @@
   - ✅ Bob (Sprint Planning) — 56s
   - ✅ Bob (Dependency Graph) — 1m35s
   - ✅ Bob (Create Stories) — 10m creating 37 story files (26 initially, 11 added via self-heal at 04:02 CST)
-- **Phase 2 Implementation:** 🟡 ACTIVE (26/37 stories complete, 70%)
-  - **Complete:** 26 stories implemented (as of 05:06 CST last check)
-  - **Blocked:** Story 2.8, Story 3.2 (Codex rate limit, resets 14:19 CST 2:19 PM)
-  - **Remaining:** 9 stories unstarted (Epic 2: 2.9-2.10, Epic 3: 3.3-3.4, Epic 4: 4.3-4.11)
-  - **Implementation started:** 04:14 CST (overnight run)
-  - **Auto-fallback:** Coding-agent skill will auto-retry with Claude Code when Codex limit hits
-- **ETA to completion:** ~4 hours after rate limit clears (14:19 CST), target ~18:00 CST
+- **Phase 2 Implementation:** 🔴 BLOCKED (28 implemented, 10 blocked, 9 unstarted)
+  - **Complete & Passing Code Review (12):** 1.8, 3.2, 1.5, 1.4, 1.2, 1.9, 1.7, 1.11, 1.6, 2.1, 3.1, 3.3
+  - **Blocked by Code Review (10):** 1.1 (129 ESLint), 1.3 (Sentry setup), 1.10 (test code in prod), 2.2 (AC violations), 2.3 (cook time AC), 2.4 (duplicate recipes), 2.5 (Redis bug), 2.6 (multi-story commit), 2.7 (3 blockers), 2.8 (4 critical), 2.10 (3 deployment blockers)
+  - **Unstarted (9):** 2.9, 3.4-3.7, 4.1-4.8
+  - **Implementation started:** 04:14 CST
+  - **Codex rate limit hits:** Stories 2.8 & 3.2 at 05:02-05:03 CST
+  - **4-tier fallback validated:** Both retries succeeded with Claude Code (10:26-10:34 CST)
+  - **Code review results (10:34-11:03 CST):** 12 PASSED, 10 BLOCKED (critical issues require rework)
+- **Blockers require:** Fix critical issues (ESLint, test code, AC violations, Redis bugs) before resuming implementation
+- **ETA unknown:** Waiting on blocker remediation plan from Project Lead
 
 ## Research Lead
+
+### Workflow Improvement (IN PROGRESS - 2026-02-18 11:02 CST)
+- **Status:** 🟡 **PLANNING** — Design phase for Research Lead workflow improvements
+- **Problem identified:** Batch runs 1+2 produced low diversity output
+  - Too many subscription-cancellation ideas (6+ similar concepts)
+  - Formulaic compound-word naming (MeetCost, EventSquad, TakeoutTrap pattern)
+  - Mary's "random vertical" approach creates artificial constraints, not real stochasticity
+- **Root causes:**
+  1. **Phase 1 randomness is superficial** - "Pick a random vertical" doesn't vary search approach
+  2. **Search strategy too mechanical** - Following checklist instead of genuine discovery
+  3. **Naming is formulaic** - Always generates compound words
+  4. **No real stochastic variation** - Every session follows same pattern with different inputs
+- **Proposed fixes:**
+  1. **Rewrite Phase 1 (Pain Point Discovery):** 8 stochastic search strategies (Sentiment Mining, Workflow Analysis, Money Signals, Time Signals, Failure Mining, Workaround Archaeology, Emerging Context, Anti-pattern Discovery) - Mary picks 2-3 randomly per session
+  2. **Add naming diversity (Phase 6):** 9 naming styles to rotate (Compound Words, Single Evocative, Playful, Descriptive Phrases, Made-up Words, Domain-style, Metaphorical, Action-oriented, Outcome-focused)
+  3. **Remove "random vertical" language:** Stochastic element is search STRATEGY, not arbitrary vertical selection
+- **Implementation plan:**
+  1. Update `/Users/austenallred/clawd/docs/core/research-lead-flow.md` (Phase 1 + Phase 6)
+  2. Update Mary's AGENTS.md with new search strategy instructions
+  3. Update Research Lead's AGENTS.md with naming diversity
+  4. Test with 3-5 parallel runs to validate diversity improvement
+- **Files to change:**
+  - `docs/core/research-lead-flow.md` (source of truth)
+  - `~/.openclaw/workspace-mary/AGENTS.md` (Phase 1 execution)
+  - `~/.openclaw/workspace-research-lead/AGENTS.md` (Phase 6 naming)
+- **Next action:** Awaiting operator confirmation to proceed with edits
 
 ### Batch Run #1 - 20 Parallel Sessions (COMPLETE)
 - **Status:** ✅ **COMPLETE** — 10 project directories created from 20 sessions (50% success rate)
@@ -115,41 +145,45 @@
 | Session | Model | Context | Status |
 |---------|-------|---------|--------|
 | agent:main:matrix:direct:@matt:austens-mac-mini.local | opus-4-6 | Multiple compactions | ✅ Active (Kelly main session) |
-| agent:project-lead:project-fleai-market-v5 | sonnet-4-5 | Active | 🟡 Story 3.6 retry (Claude Code session faint-crustacean) |
-| agent:project-lead:project-takeouttrap | sonnet-4-5 | Active | 🟡 Implementation (26/37, 2 blocked by Codex rate limit) |
+| agent:project-lead:project-fleai-market-v5 | sonnet-4-5 | Active | 🟡 TEA testing (Murat session 369b796f, ~6 min elapsed) |
+| agent:project-lead:project-takeouttrap | sonnet-4-5 | Active | 🔴 Blocked (10 stories failed code review, need remediation) |
 | agent:project-lead:main | sonnet-4-5 | Active | ✅ Heartbeat |
 | agent:main:main | opus-4-6 | Active | ✅ Heartbeat |
 
 ## Pending Actions
 
 ### In Progress
-- **fleai-market-v5 Story 3.6:** Retry needed (session faint-crustacean died 09:46 CST), will retry with new amelia-coding skill
-- **fleai-market-v5 TEA testing:** Queued after Story 3.6 completes (Murat, ~20-30 min)
-- **takeouttrap:** Implementation — 26/37 stories complete (70%), 2 blocked by Codex rate limit (resets 14:19 CST)
+- **fleai-market-v5 TEA testing:** Active (Murat session 369b796f, started 10:36 CST, ~6 min elapsed, ETA 20-30 min)
+- **takeouttrap:** Blocked — 10 stories failed code review, need remediation plan
 
 ### Recently Completed
 - ✅ **Skill refactor:** Agent-specific skills with 4-tier fallback (09:30-10:10 CST, commits `f1cf231`, `7f88db9`, `dda1c8f`)
+- ✅ **Story 3.6 retry #2:** Succeeded with 4-tier fallback (10:26-10:36 CST, 10m duration)
+- ✅ **TakeoutTrap retries:** Stories 2.8 & 3.2 both succeeded with Claude Code fallback (10:26-10:34 CST)
+- ✅ **Documentation restructuring:** Created docs/core/, merged userqa-workflow.md into project-lead-flow.md Phase 4, created CHANGELOG.md
 
 ### Waiting-on-Operator
 - **QA review:** calculator-app, kelly-dashboard, daily-todo-tracker awaiting operator testing
 - **Research briefs review:** 20 product briefs available in projects-queue/ (17 from batches 1+2, 3 pre-batch)
   - Batch 1: 10 complete (50% success, Brave API rate limits)
   - Batch 2: 7 complete (70% success, SearXNG improved reliability)
-- **fleai-market-v5 User QA:** Available after TEA testing completes (ETA ~09:40-09:50 CST)
-- **takeouttrap User QA:** Available after implementation completes (ETA ~10:30-11:00 AM, blocked by Codex rate limit)
+- **fleai-market-v5 User QA:** Available after TEA testing completes (ETA ~10:50-11:00 CST)
+- **takeouttrap:** Remediation plan needed — 10 stories blocked by code review (critical issues require fixes before resuming)
 
 ## Known Issues
 
-### OpenAI API Billing Error (MITIGATED 10:10 CST)
+### OpenAI API Billing Error (RESOLVED 10:36 CST)
 - **Issue:** OpenAI API out of credits (billing error returned at 09:09 CST)
 - **Impact:** All Codex CLI calls blocked (gpt-5.3-codex, gpt-5.3-spark)
-- **Affected projects:** fleai-market-v5 Story 3.6 (failed 01:10 CST), TakeoutTrap stories 2.8 & 3.2 when rate limit clears
 - **Mitigation:** 4-tier automatic fallback implemented (10:10 CST, commit `f1cf231`)
   - **Architecture:** Shared wrapper in `build/coding-cli/bin/code-with-fallback`
   - **Cascade:** Codex GPT plan → Codex API key → Claude Code Anthropic plan → Claude Code API key
   - **Detection:** Auto-detects billing/rate/quota errors, retries next tier automatically
   - **Inheritance:** Amelia, Barry, Murat all use same wrapper (no duplication)
-  - **Status:** Ready for validation with Story 3.6 retry
+- **Validation:** ✅ VALIDATED (10:26-10:36 CST)
+  - Story 3.6 retry #2 succeeded with Claude Code fallback (10m duration)
+  - TakeoutTrap stories 2.8 & 3.2 both succeeded with Claude Code fallback (~6 min each)
+  - System auto-detected billing errors and cascaded to Tier 3 (Claude Code) successfully
 - **Operator action:** Optional - Top up OpenAI credits OR rely on Claude Code long-term (both work now)
 
 ### Orchestrator Session Creation (RESOLVED 16:49 CST)
@@ -237,9 +271,21 @@
 - **Project Lead:** 60s heartbeat polls (no `target` restriction)
 - **Checks:** QA surfacing, stall detection (60 min threshold)
 
+### Documentation Restructuring (10:10-10:40 CST)
+- **Created:** `docs/core/` folder for main workflow documentation
+  - Moved `project-lead-flow.md` and `research-lead-flow.md` to `docs/core/`
+  - Created `docs/core/README.md` as index
+- **Merged:** `docs/userqa-workflow.md` content into `project-lead-flow.md` Phase 4 (expanded from 15 lines to comprehensive 200+ lines)
+- **Archived:** `docs/userqa-workflow.md` moved to `docs/archive/` (deprecated)
+- **Created:** `docs/CHANGELOG.md` — Kelly improvement history (skill refactors, fallback systems, BMAD workflows, Research Lead, doc restructuring)
+- **Rationale:** Main workflows easy to find, userqa integrated into project flow, architectural decisions tracked
+
 ### Git Commits (Last 2 Days)
 
 **2026-02-18:**
+- `1df742f` — revert: allow CLI continuation (no workspace reset between tiers) - FINAL decision
+- `a2c3e8f` — fix: clean working directory (REVERTED - breaks continuation)
+- `d1e33d2` — state: update factory state
 - `dda1c8f` — docs: update for skill refactor (remove Codex reference, mark audit as superseded)
 - `7f88db9` — docs: skill refactor complete - agent-specific skills + 4-tier fallback
 - `f1cf231` — refactor: split coding-agent into agent-specific skills with 4-tier fallback
