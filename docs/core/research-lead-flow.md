@@ -898,9 +898,25 @@ Update existing project-registry.json entry with final name and full intake data
 
 ---
 
-**3. Compile intake.md (2-3 min)**
+**3. Create Project Directory (10 sec)**
 
-Research Lead compiles all outputs into final brief following the intake template:
+Research Lead creates project directory:
+
+```bash
+PROJECT_ID="<slug>-YYYY-MM-DD-HHMM"
+mkdir -p "/Users/austenallred/clawd/projects/${PROJECT_ID}"
+```
+
+Copy working files from Research Lead workspace:
+- `solution-scoring.md` → `projects/${PROJECT_ID}/solution-scoring.md`
+- `competitive-deepdive.md` → `projects/${PROJECT_ID}/competitive-deepdive.md`
+- `creative-naming.md` → `projects/${PROJECT_ID}/creative-naming.md`
+
+---
+
+**4. Compile intake.md (2-3 min)**
+
+Research Lead compiles all outputs into final brief at `projects/${PROJECT_ID}/intake.md` following the intake template:
 
 ```markdown
 # [PRIMARY NAME from Carson]
@@ -1045,7 +1061,7 @@ Research Lead compiles all outputs into final brief following the intake templat
 
 ---
 
-**4. Registry Finalization (30 sec)**
+**5. Registry Finalization (30 sec)**
 
 Confirm registry entry is complete:
 ```json
@@ -1057,7 +1073,7 @@ Confirm registry entry is complete:
 
 ---
 
-**5. Announce to Kelly (30 sec)**
+**6. Announce to Kelly (30 sec)**
 
 ```
 ✅ Research Complete: [Name]

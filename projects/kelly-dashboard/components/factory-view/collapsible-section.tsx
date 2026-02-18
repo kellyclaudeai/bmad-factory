@@ -45,20 +45,14 @@ export function CollapsibleSection({
         className,
       )}
     >
-      <CardContent
-        className="pt-4 pb-6 cursor-pointer"
-        // Clicking anywhere in the section card (including whitespace) toggles,
-        // but interactive elements inside the content should not.
-        onClick={toggle}
-      >
+      <CardContent className="pt-4 pb-6">
         <div
           role="button"
           tabIndex={0}
           aria-expanded={!collapsed}
           aria-controls={contentId}
-          // No special “yellow highlight strip” for the header; the outer card/body
-          // is the click target.
-          className="-mx-6 -mt-4 px-6 py-4"
+          className="-mx-6 -mt-4 px-6 py-4 cursor-pointer"
+          onClick={toggle}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();

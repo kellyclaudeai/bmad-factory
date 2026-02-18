@@ -10,6 +10,8 @@
 
 Project Lead owns a single project from intake to ship. One PL session per project. PL spawns BMAD agents as subagents and tracks their progress.
 
+**Intake Source:** Research Lead creates comprehensive intake document at `projects/<project-id>/intake.md`. Project Lead reads this file (along with supporting research documents) when starting a new project. The `project-registry.json` entry contains the `project-id` to locate these files.
+
 **State tracking:** PL updates `projects/project-registry.json` at key lifecycle transitions. See `docs/core/project-registry-workflow.md` for full spec.
 
 **Story status:** BMAD artifacts (`sprint-status.yaml`, `dependency-graph.json`) track implementation progress.
