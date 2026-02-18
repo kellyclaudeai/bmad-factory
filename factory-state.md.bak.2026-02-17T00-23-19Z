@@ -1,0 +1,173 @@
+# Factory State
+
+**Last Updated:** 2026-02-16 18:12 CST
+
+## Active Projects
+
+### fleai-market-v4 (BMAD Stage 1 - Planning)
+- **Status:** 🔄 **IN PROGRESS** - Sequential BMAD planning (John ✅ → Sally ✅ → Winston 🔄)
+- **Session:** agent:project-lead:project-fleai-market-v4
+- **Repo path:** `projects/fleai-market-v4`
+- **Description:** Multi-chain crypto marketplace (Solana + Ethereum) - AI agents as buyers AND sellers
+- **Core Features:** Crossmint payments (USDC/SOL/ETH), agentic selling (API stalls), agentic buying (AP2 protocol), embedded wallets, dynamic platform fee
+- **Tech Stack:** Next.js 14 + Prisma + Supabase + Crossmint + Stripe + Printful + Vercel
+- **Start Date:** 2026-02-16 17:18 CST
+- **Expected Timeline:** ~10 working days (2 weeks)
+- **Progress:**
+  - 🔄 Stage 1: Planning (45-70 min estimated, started 17:18 CST)
+    - ✅ John (PRD) - complete at 17:27 CST (8m10s runtime, 62KB prd.md)
+    - ✅ Sally (UX) - complete at 18:08 CST (8m50s runtime, 112KB ux-design.md with crypto/agentic patterns)
+    - 🔄 Winston (Architecture) - should spawn next
+    - ⏳ John (Epics/Stories) - pending
+    - ⏳ Bob (Parallelization) - pending
+  - ⏳ Stage 3: Implementation - not started
+- **Clean restart rationale:**
+  - v1-v3 terminated (various blocking issues)
+  - Direct model approach (no harnesses) - proven 7/7 success rate
+  - Actual Supabase bid data extracted and used for intake
+  - All scope questions answered (platform fee, multi-chain, account creation, etc.)
+
+### calculator-app (Fast Mode Greenfield - RESTARTING)
+- **Status:** 🔄 **RESTARTING** - Previous attempt stalled, hard reset in progress
+- **Previous State:** Stage 1 complete (Barry plan finished at 18:02), Stage 2 never started (PL stalled)
+- **Action:** Project directory deleted, session terminated, fresh restart imminent
+- **Repo path:** `projects/calculator-app` (will be recreated)
+- **Description:** Simple calculator web application (Fast Mode test project)
+- **Tech Stack:** Next.js + React + TypeScript + Tailwind + shadcn/ui
+- **Expected Timeline:** 2-4 hours (Fast Mode)
+- **Restart Reason:** Project Lead announced "Moving to Stage 2" at 18:02, then went silent for 8+ minutes
+- **Next:** Fresh intake → Barry planning with new story structure (plan.md + individual Story-*.md files + dependencies.json)
+
+## Shipped Projects
+
+### kelly-dashboard
+- **Status:** ✅ **SHIPPED** - All bugs fixed
+- **Repo path:** `projects/kelly-dashboard`
+- **Completed:** 2026-02-16 14:04 CST
+- **Final:** 20 stories complete (14.1-14.5 post-completion bugfixes)
+- **Latest Fix (17:34 CST):**
+  - Story 14.5: Fixed project details SSR fetch (Barry 1m22s)
+  - Changed from HTTP fetch to fs.readFile for project-state.json
+  - Branch merged to main, production deployed on port 3013
+- **Post-completion fixes:**
+  - Story 14.3: Fixed clickable project cards (reverted to server component)
+  - Story 14.4: Fixed Project Lead transcript display
+  - Story 14.5: Fixed SSR project-state.json loading
+- **Production:** http://localhost:3013 (bound to 0.0.0.0 for Tailscale access)
+
+## Terminated Projects
+
+### fleai-market (v3 - TERMINATED)
+- **Status:** ❌ **TERMINATED** - Harness approach abandoned, clean restart with direct model usage
+- **Termination Date:** 2026-02-16 17:18 CST
+- **Reason:** NEW codex CLI harness systematically failing (2/3 stories confirmed failed with analysis paralysis), 7 stories completed with OLD harness before failure
+- **Final State:** 7/67 stories complete (E1-S1 through E1-S5, E6-S3, E8-S1)
+
+### fleai-market (v2 - TERMINATED)
+- **Status:** ❌ **TERMINATED** - Parallel spawning + missing menu commands
+- **Termination Date:** 2026-02-16 (earlier in the day)
+- **Reason:** Project Lead spawned John+Sally+Winston in parallel instead of sequentially
+
+### fleai-market (v1 - TERMINATED)
+- **Status:** ❌ **TERMINATED** - BMAD compliance violation
+- **Termination Date:** 2026-02-16 13:15 CST
+- **Reason:** John created US-1 format, Bob created FOUND-001 format (both non-compliant)
+
+## Pending Actions
+
+### High Priority
+- **calculator-app restart:** Fresh intake + Barry Fast Mode with new story structure
+- **fleai-market-v4:** Monitor Winston spawn (should happen automatically after Sally completion)
+
+### Waiting-on
+- **Stripe refunds tool:** Waiting for Stripe API key from Austen
+- **Screen sharing to mini:** Needs Screen Sharing enabled on Mac mini
+- **meeting-time-tracker-web:** Manual QA of calendar sync end-to-end
+
+## Recent Completions (Last 4 Hours)
+
+- ✅ **Project Lead HEARTBEAT.md created (18:12 CST)**
+  - Location: `/Users/austenallred/.openclaw/agents/project-lead/HEARTBEAT.md`
+  - 5-10 minute health checks for subagent monitoring
+  - Self-healing protocols (restart stuck sessions, catch completion gaps)
+  - Escalation criteria (only after retry attempts fail)
+  - Complements Kelly's 30-60 min safety net
+- ✅ **Kelly HEARTBEAT.md updated (18:04 CST)**
+  - Added 30-60 min project health check (safety net)
+  - Pings Project Lead if project stalled >90 min
+  - Escalates if PL doesn't respond
+- ✅ **Project Lead AGENTS.md created (18:04 CST)**
+  - Autonomous orchestrator guidance (8.4KB)
+  - Clear escalation criteria vs. self-healing actions
+  - Expected times for all subagents documented
+  - Anti-patterns to avoid
+- ✅ kelly-dashboard Story 14.5 deployed (17:34 CST)
+  - Fixed project details SSR fetch bug (Barry 1m22s)
+  - Production deployed on port 3013
+- ✅ fleai-market-v4 intake finalized (17:10 CST)
+  - All 7 scope questions answered
+  - Multi-chain crypto (Solana + Ethereum) confirmed as core feature
+  - Platform fee adjustable (0-100%, default 10%)
+  - Factory creates all accounts (fleaimarket@gmail.com + all services)
+- ✅ Extracted actual FLEAI MARKET submission from Supabase (16:42 CST)
+  - Used SQL editor to query bids table
+  - Full idea_description field extracted
+  - Corrected scope (kept crypto payments, cut FLEAI token)
+- ✅ Supabase access token generated (16:19 CST)
+  - Token saved to `/Users/austenallred/clawd/.env`
+- ✅ Web-browser skill fixed (15:56-16:10 CST)
+  - Corrected profile path, user logged into Supabase
+- ✅ Harness removal (15:43-15:48 CST)
+  - Removed ALL coding harness complexity
+  - Direct model usage (Amelia/Barry/Murat write code via write/edit tools)
+  - Proven successful (7/7 stories before harness experiment)
+- ✅ Sonnet 4.5 orchestrator decision (15:19 CST)
+  - All BMAD agents updated: Amelia, Barry, Murat
+  - Config files + AGENTS.md + coding-agent skill updated
+
+## Factory Infrastructure
+
+### Monitoring Strategy (NEW - 18:04-18:12 CST)
+- **Project Lead (5-10 min heartbeats):**
+  - Monitors own subagents for stuck sessions
+  - Self-heals (restarts) before escalating
+  - Catches completion gaps (announced next stage but didn't start)
+  - File: `/Users/austenallred/.openclaw/agents/project-lead/HEARTBEAT.md`
+- **Kelly (30-60 min safety net):**
+  - Checks if Project Lead itself is stuck/unresponsive
+  - Pings PL if project stalled >90 min
+  - Escalates if PL doesn't respond or confirm blocker
+  - File: `/Users/austenallred/clawd/HEARTBEAT.md`
+- **Rationale:** Faster detection (PL every 5-10 min) + safety net (Kelly catches PL failures)
+
+### Skills Updates
+- **coding-agent:** Consolidated BMAD integration documentation
+  - Location: `/Users/austenallred/clawd/skills/build/coding-agent/SKILL.md`
+  - Added Amelia/Barry/Murat role-specific patterns
+  - Updated all examples to exec tool with pty:true
+  - Model strategy documented for each role
+- **Project Lead:** Autonomous orchestrator with self-healing
+  - AGENTS.md: `/Users/austenallred/.openclaw/agents/project-lead/AGENTS.md`
+  - HEARTBEAT.md: `/Users/austenallred/.openclaw/agents/project-lead/HEARTBEAT.md`
+  - File-based routing protocol
+  - Parallelization: Spawn ALL runnable stories
+- **spawning-protocol:** Quick Reference section with copy/paste templates
+  - Location: `/Users/austenallred/clawd/skills/factory/project-lead/spawning-protocol/SKILL.md`
+- **BMAD Agents:** All use direct model approach (no harnesses)
+  - Amelia: `openai/gpt-5.3-codex` - direct write/edit
+  - Barry: `openai/gpt-5.3-spark` - direct write/edit
+  - Murat: `openai/gpt-5.3-codex` - direct write/edit for testing depth
+
+### Chrome CDP Automation
+- **Status:** ✅ Active
+- **CDP Endpoint:** `http://127.0.0.1:9222`
+- **Profile:** `~/.openclaw/chrome-cdp-profile` (persistent)
+- **Usage:** web-browser skill for zero-click automation
+
+### Meeting Time Tracker
+- **Status:** ✅ Firebase-only migration complete
+- **Repo path:** `projects/meeting-time-tracker-web`
+- **Backend:** Firebase (Auth + Firestore)
+- **ProjectId:** `meeting-time-tracker-aaf`
+- **Build:** Passing on `main`
+- **Pending:** Manual QA of calendar sync end-to-end

@@ -1,0 +1,104 @@
+# Factory State
+
+**Last Updated:** 2026-02-16 17:18 CST
+
+## Active Projects
+
+### fleai-market-v4 (PLANNING - Stage 1)
+- **Status:** 🚀 **BMAD PIPELINE ACTIVE** - Stage 1 (Planning) in progress
+- **Session:** agent:project-lead:project-fleai-market-v4
+- **Repo path:** `projects/fleai-market-v4/`
+- **Description:** Multi-chain crypto marketplace for AI agents (Solana + Ethereum)
+- **Tech Stack:** Next.js 14 + Prisma + Supabase + Crossmint (Solana/ETH) + Stripe + Printful + Vercel
+- **Customer:** nolan.craig@gmail.com (will own fleaimarket@gmail.com + all accounts)
+- **Intake:** `projects/fleai-market-v4/intake.md`
+- **Started:** 2026-02-16 17:18 CST
+- **Expected Duration:** ~10 working days (2 weeks)
+- **Current Stage:** Planning (John → Sally → Winston → John → Bob)
+- **Core Features:**
+  - Multi-chain crypto (Solana + Ethereum via Crossmint)
+  - Agentic selling (API-driven stalls, embedded wallets)
+  - Agentic buying (AP2 protocol)
+  - Dynamic platform fee (adjustable 0-100%, default 10%)
+  - Manual agent approval (toggleable auto-approve)
+  - T-shirts only (Printful fulfillment)
+  - Complete customer handoff
+
+## Queued Projects
+
+_(No queued projects)_
+
+## Terminated Projects
+
+### fleai-market (v3 - TERMINATED)
+- **Status:** ❌ **TERMINATED & DELETED** - Operator directive
+- **Termination Date:** 2026-02-16 16:50 CST
+- **Cleanup Date:** 2026-02-16 17:07 CST
+- **Reason:** Operator closed project (blocked on Bob protocol violation + harness issues)
+- **Session:** agent:project-lead:project-fleai-market (CLOSED)
+- **Repo path:** `projects/fleai-market` (DELETED)
+
+### fleai-market (v2 - TERMINATED)
+- **Status:** ❌ **TERMINATED** - Parallel spawning + missing menu commands
+- **Termination Date:** 2026-02-16 19:46 CST
+- **Reason:** Project Lead spawned John+Sally+Winston in parallel instead of sequentially
+
+### fleai-market (v1 - TERMINATED)
+- **Status:** ❌ **TERMINATED** - BMAD compliance violation
+- **Termination Date:** 2026-02-16 13:15 CST
+- **Reason:** John created US-1 format, Bob created FOUND-001 format (both non-compliant)
+
+### kelly-dashboard
+- **Status:** ✅ **COMPLETE** (post-completion bugfixes in progress)
+- **Repo path:** `projects/kelly-dashboard`
+- **Completed:** 2026-02-16 14:04 CST
+- **Final:** 18 stories complete (14.1-14.4 post-completion bugfixes)
+- **Outstanding Issue (discovered 16:43 CST):**
+  - Project details page SSR fetch failure → shows "unknown" status, "0s" runtime
+  - Root cause: HTTP fetch during SSR fails, needs direct filesystem read
+  - Fix documented: `/Users/austenallred/clawd/MEMORY-kelly-improver-2026-02-16-dashboard-bug.md`
+  - **Pending:** Operator requested Project Lead + Barry spawn for fix
+
+### meeting-time-tracker-web
+- **Status:** ✅ Firebase-only migration complete
+- **Repo path:** `projects/meeting-time-tracker-web`
+- **Backend:** Firebase (Auth + Firestore)
+- **ProjectId:** `meeting-time-tracker-aaf`
+- **Build:** Passing on `main`
+- **Pending:** Manual QA of calendar sync end-to-end
+
+## Pending Actions
+
+### Waiting-on
+- **kelly-dashboard bugfix:** Operator requested Project Lead + Barry spawn for SSR fetch fix (16:45 CST)
+- **Stripe refunds tool:** Waiting for Stripe API key from Austen
+- **Screen sharing to mini:** Needs Screen Sharing enabled on Mac mini
+- **meeting-time-tracker-web:** Manual QA of calendar sync end-to-end
+
+### Autonomous work in progress
+_(None - all active projects terminated)_
+
+## Recent Completions
+
+- ✅ fleai-market v3 cleanup (17:07 CST) - Project directory deleted, session closed
+- ✅ kelly-dashboard SSR bug diagnosis (16:43-16:50 CST) - Fix documented, awaiting implementation
+- ✅ fleai-market root cause diagnosis (15:22-15:43 CST) - Bob protocol violation identified
+- ✅ Sonnet 4.5 orchestrator decision (15:19 CST) - All BMAD agents updated
+- ✅ BMAD coding harness consolidation (15:00-15:15 CST)
+
+## Factory Infrastructure
+
+### Skills Updates
+- **project-closer:** Complete project termination automation (directory, session, state, memory)
+  - Location: `/Users/austenallred/clawd/skills/factory/project-closer/`
+  - **Gap identified:** Kelly Improver manually deleted fleai-market instead of using project-closer skill
+- **coding-agent:** Consolidated BMAD integration documentation
+  - Location: `/Users/austenallred/clawd/skills/build/coding-agent/SKILL.md`
+- **Project Lead:** Simplified orchestration mode (mechanical routing)
+  - Location: `/Users/austenallred/.openclaw/agents/project-lead/agent/AGENTS.md`
+
+### Chrome CDP Automation
+- **Status:** ✅ Active
+- **CDP Endpoint:** `http://127.0.0.1:9222`
+- **Profile:** `~/.openclaw/chrome-cdp-profile` (persistent)
+- **Usage:** web-browser skill for zero-click automation

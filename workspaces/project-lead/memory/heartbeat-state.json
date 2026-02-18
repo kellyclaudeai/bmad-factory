@@ -1,0 +1,59 @@
+{
+  "lastCheck": 1771453397,
+  "lastSubagentCount": 18,
+  "checksToday": 1086,
+  "restarts": [
+    {
+      "timestamp": 1771376553,
+      "subagent": "amelia-dev-4.8-fleai-market-v5-retry",
+      "reason": "Process died at 19min with no output after first attempt",
+      "outcome": "restarted successfully"
+    },
+    {
+      "timestamp": 1771380508,
+      "subagent": "winston-arch-takeouttrap",
+      "reason": "Stuck at 5+ hours (expected 5-10min)",
+      "outcome": "restarted"
+    },
+    {
+      "timestamp": "2026-02-18T04:02:24-06:00",
+      "subagent": "bob-missing-stories-takeouttrap",
+      "reason": "Protocol violation: Only 26/37 story files created (missing Epic 3.5-3.7, Epic 4 all)",
+      "outcome": "spawned to create missing files"
+    },
+    {
+      "timestamp": "2026-02-18T15:05:35-06:00",
+      "subagent": "john-prd-notelite-retry2",
+      "reason": "Process died at 11.9min (expected 2-7min), only completed step-01-init",
+      "outcome": "restarted as retry #3"
+    },
+    {
+      "timestamp": "2026-02-18T15:20:20-06:00",
+      "subagent": "sally-ux-notelite",
+      "reason": "Stopped to ask confirmation (28s) instead of proceeding autonomously",
+      "outcome": "restarted as retry #2"
+    },
+    {
+      "timestamp": "2026-02-18T15:43:31-06:00",
+      "subagent": "john-epics-notelite",
+      "reason": "Stopped to ask confirmation (33s) instead of proceeding autonomously",
+      "outcome": "restarted as retry #2"
+    }
+  ],
+  "escalations": [
+    {
+      "timestamp": "2026-02-18T05:02:00-06:00",
+      "story": "3.2 & 2.8",
+      "reason": "Codex CLI usage limit reached (resets 2:19 PM CST)",
+      "options": [
+        "wait 9 hours",
+        "purchase credits",
+        "authorize manual implementation"
+      ],
+      "impact": "2 stories blocked (3.2, 2.8), 2 more ready but waiting (1.12, 4.1)",
+      "decision": "Option 1 confirmed by Kelly - wait for Codex reset at 2:19 PM CST",
+      "note": "Project at 97% complete (36/37 stories). Auto-resume at 2:19 PM for final 4 stories."
+    }
+  ],
+  "notes": "notelite: Bob creating 49 story files (active ~2min)"
+}

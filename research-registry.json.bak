@@ -1,0 +1,86 @@
+{
+  "inProgress": [
+    {
+      "sessionId": "agent:research-lead:20260217-2049",
+      "conceptName": "WedCalm",
+      "briefDescription": "Stress-focused wedding planning web app with intelligent task guidance, couples communication tools, and budget optimization",
+      "painPoint": "Wedding planning stress - 75%+ of couples report anxiety, overwhelm, relationship strain during planning",
+      "timestamp": "2026-02-17T20:52:51-06:00",
+      "phase": "registration"
+    }
+  ],
+  "historical": [
+    {
+      "projectPath": "projects-queue/cancelpilot-2026-02-17-1944/",
+      "conceptName": "CancelPilot",
+      "briefDescription": "Crowdsourced cancellation playbook database - Yelp for cancellation experiences with step-by-step guides, dark pattern warnings, and community verification",
+      "timestamp": "2026-02-17T19:44:00-06:00"
+    },
+    {
+      "projectPath": "projects-queue/takeouttrap-2026-02-17-1915/",
+      "conceptName": "TakeoutTrap",
+      "briefDescription": "Browser extension that intervenes when ordering takeout, offering homemade clone recipes with instant grocery lists and savings tracking",
+      "timestamp": "2026-02-17T19:15:00-06:00"
+    },
+    {
+      "projectPath": "projects-queue/benchmarkiq-2026-02-17-1802/",
+      "conceptName": "BenchmarkIQ",
+      "briefDescription": "Anonymous peer benchmarking network showing agencies if their project margins are competitive vs industry standards",
+      "timestamp": "2026-02-17T18:02:00-06:00"
+    },
+    {
+      "projectPath": "projects-queue/clientsignal-2026-02-17-1656/",
+      "conceptName": "ClientSignal",
+      "briefDescription": "Pre-quote client risk intelligence tool that flags high-risk clients before freelancers invest time in estimation",
+      "timestamp": "2026-02-17T16:56:00-06:00"
+    },
+    {
+      "projectPath": "projects-queue/now-or-never-2026-02-17-1942/",
+      "conceptName": "NowOrNever",
+      "briefDescription": "Time-limited task launch windows that create urgency for immediate action through expiring opportunities",
+      "timestamp": "2026-02-17T19:44:53-06:00"
+    },
+    {
+      "projectPath": "projects-queue/done-ish-2026-02-17-1942/",
+      "conceptName": "Done-ish",
+      "briefDescription": "Three-level completion tracker (Started/Done-ish/Crushed) that reframes partial progress as success, targeting perfectionists with execution anxiety",
+      "timestamp": "2026-02-17T19:45:56-06:00"
+    },
+    {
+      "projectPath": "projects-queue/cancelchampion-2026-02-17-1944/",
+      "conceptName": "CancelChampion",
+      "briefDescription": "Gamified subscription cancellation with achievements, badges, and social sharing that turns avoided task into rewarding game",
+      "timestamp": "2026-02-17T19:47:31-06:00"
+    },
+    {
+      "projectPath": "projects-queue/patternwitness-2026-02-17-1947/",
+      "conceptName": "PatternWitness",
+      "briefDescription": "Dashboard revealing perception gap between estimated vs actual kitchen visits - makes unconsciousness visible through data tracking",
+      "timestamp": "2026-02-17T19:50:43-06:00"
+    },
+    {
+      "projectPath": "projects-queue/clearrate-2026-02-17-1952/",
+      "conceptName": "ClearRate",
+      "briefDescription": "Instant financial proposal scanner with AI red flag detection - upload advisor proposals, get immediate breakdown of hidden fees and predatory tactics",
+      "timestamp": "2026-02-17T19:53:03-06:00"
+    },
+    {
+      "projectPath": "projects-queue/redux-2026-02-17-1948/",
+      "conceptName": "Redux",
+      "briefDescription": "Re-reading journal with timeline entries - track multiple reads of same book without overwriting, capture reading evolution over time",
+      "timestamp": "2026-02-17T19:53:09-06:00"
+    },
+    {
+      "projectPath": "projects-queue/mealmemory-2026-02-17-1950/",
+      "conceptName": "MealMemory",
+      "briefDescription": "Behavioral intelligence meal planner that learns from bank transactions and receipts to auto-generate meal plans based on actual eating patterns",
+      "timestamp": "2026-02-17T19:55:01-06:00"
+    },
+    {
+      "projectPath": "projects-queue/intentstack-2026-02-17-1951/",
+      "conceptName": "IntentStack",
+      "briefDescription": "Intent-based bookmark resurfacing - users declare purpose when saving, system proactively surfaces content when workflow context matches",
+      "timestamp": "2026-02-17T19:57:40-06:00"
+    }
+  ]
+}

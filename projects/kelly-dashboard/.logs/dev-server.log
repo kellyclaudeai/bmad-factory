@@ -1,0 +1,19 @@
+
+> kelly-dashboard@0.1.0 dev
+> next dev
+
+⚠ Invalid next.config.ts options detected: 
+⚠     Unrecognized key(s) in object: 'turbo' at "experimental"
+⚠     Unrecognized key(s) in object: 'turbo'
+⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3010
+- Network:       http://10.17.7.27:3010
+
+✓ Starting...
+✓ Ready in 412ms
+ GET /api/sessions 200 in 212ms (compile: 160ms, render: 52ms)
+ GET /api/sessions 200 in 43ms (compile: 5ms, render: 38ms)
+ GET /api/sessions 200 in 3ms (compile: 1007µs, render: 1797µs)
+ GET /api/project-state?id=kelly-dashboard 200 in 42ms (compile: 35ms, render: 6ms)
+[?25h

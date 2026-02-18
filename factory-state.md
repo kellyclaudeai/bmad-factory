@@ -1,6 +1,6 @@
 # Factory State
 
-**Last Updated:** 2026-02-18 13:42 CST (pre-compaction state flush)
+**Last Updated:** 2026-02-18 14:01 CST (pre-compaction state flush)
 
 ## Project Organization
 
@@ -32,13 +32,14 @@
 
 ## Research Lead
 
-### Workflow v2.0 Test Run (IN PROGRESS)
+### Workflow v2.0 Test Run (STATUS UNKNOWN)
 - **Session:** `agent:research-lead:20260218-1340`
 - **Spawned:** 13:40 CST
 - **PID:** 90161
 - **Expected duration:** 38-56 minutes (completion ~14:18-14:36 CST)
 - **Test objective:** Validate v2.0 workflow with new registry writes
 - **Expected output:** First discovery entry in `projects/project-registry.json`
+- **Status as of 14:01:** Session not showing in active sessions, registry still empty — session may be dead or still running
 
 ### Workflow v2.0 (AGENT CONFIGS UPDATED)
 - **Doc:** `docs/core/research-lead-flow.md` (v2.0)
@@ -70,12 +71,14 @@
 ## Pending Actions
 
 ### In Progress
-- **Research Lead v2.0 test run:** Validating new workflow + registry writes (13:40 CST, expected completion ~14:18-14:36 CST)
+- **Research Lead v2.0 test run:** Validating new workflow + registry writes (13:40 CST, status unknown as of 14:01)
 
 ### Waiting-on-Operator
+- **Compaction state refresh:** Proposal created at `docs/proposals/compaction-state-refresh.md` — need operator decision on short-term fix (Proposal A vs B) and long-term JSON consolidation interest
 - **Normal Mode Greenfield end-to-end test:** Will use Research Lead output as intake for full BMAD pipeline test
 
 ### Recently Completed
+- ✅ **Compaction State Refresh Analysis** (13:57-14:01 CST) - Identified outdated compaction prompt referencing non-existent files. Created proposal doc with 3 options (role-based prompts, unified minimal, JSON consolidation). Location: `docs/proposals/compaction-state-refresh.md`
 - ✅ **Agent Config Audit** (13:31-13:37 CST) - All 15 agents audited against core docs. Research Lead fully rewritten. Commit: `8e057ca`
 - ✅ **Project Registry Lifecycle Architecture** (13:10-13:25 CST)
   - Created `docs/core/project-registry-workflow.md` (full state machine spec)

@@ -70,10 +70,13 @@ function getPlatformLabel(session: Session): string {
 
   // Otherwise fall back to where the last interaction came from.
   const ch = (session.lastChannel || session.channel || "").trim();
-  if (ch) return ch;
+  if (ch && ch !== "unknown") return ch;
 
   // As a last resort, show the raw displayName.
   if (dn) return dn;
+
+  // If channel is "unknown", it's likely a programmatic/background session
+  if (ch === "unknown") return "programmatic";
 
   return "unknown";
 }
@@ -183,17 +186,15 @@ export function NowRunning() {
     );
   }
 
-  // Filter for non-project-lead sessions (Barry, Mary, independent agents)
-  const runningAgents = sessions?.filter((s) =>
-    s.agentType !== "project-lead" && !s.sessionKey.includes("project-lead")
-  ) || [];
+  // Show all sessions (including heartbeats and project-lead sessions)
+  const runningAgents = sessions || [];
 
   if (runningAgents.length === 0) {
     return (
       <Card className="border-terminal-dim/30 bg-terminal-card">
         <CardContent className="pt-6 text-center">
           <p className="text-terminal-dim font-mono text-sm">
-            No other agents running
+            No sessions running
           </p>
         </CardContent>
       </Card>
@@ -209,7 +210,7 @@ export function NowRunning() {
 
   const groupNames = Object.keys(grouped).sort((a, b) => {
     // Prefer a stable priority ordering for common agents.
-    const priority: Record<string, number> = { main: 0, "kelly-improver": 1 };
+    const priority: Record<string, number> = { main: 0, "kelly-improver": 1, "project-lead": 2 };
     const pa = priority[a] ?? 50;
     const pb = priority[b] ?? 50;
     if (pa !== pb) return pa - pb;

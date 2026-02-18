@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "node:fs";
-import path from "node:path";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const FACTORY_STATE_PATH =
-  process.env.FACTORY_STATE_PATH ||
-  // Default for this repo: /Users/austenallred/clawd/factory-state.md
-  "/Users/austenallred/clawd/factory-state.md";
-
+const REGISTRY_PATH =
+  process.env.PROJECT_REGISTRY_PATH ||
+  "/Users/austenallred/clawd/projects/project-registry.json";
 
 type FactoryStateResponse = {
   active: string[];
@@ -25,19 +22,19 @@ const EMPTY_FACTORY_STATE: FactoryStateResponse = {
   shipped: [],
 };
 
-function extractProjectIdFromHeading(rawHeading: string): string | null {
-  const trimmed = rawHeading.trim();
-  if (!trimmed) return null;
+type RegistryProject = {
+  id: string;
+  name: string;
+  state: "discovery" | "in-progress" | "shipped" | "followup";
+  paused: boolean;
+};
 
-  const linkMatch = trimmed.match(/^\[([^\]]+)\]\([^)]+\)/);
-  const heading = (linkMatch?.[1] ?? trimmed).trim();
-  if (!heading) return null;
+type ProjectRegistry = {
+  version: string;
+  projects: RegistryProject[];
+};
 
-  const slugMatch = heading.match(/^([A-Za-z0-9][A-Za-z0-9-_]*)/);
-  return (slugMatch?.[1] ?? heading).trim() || null;
-}
-
-function parseFactoryStateMarkdown(markdown: string): FactoryStateResponse {
+function parseProjectRegistry(registry: ProjectRegistry): FactoryStateResponse {
   const parsed: FactoryStateResponse = {
     active: [],
     queued: [],
@@ -45,40 +42,24 @@ function parseFactoryStateMarkdown(markdown: string): FactoryStateResponse {
     shipped: [],
   };
 
-  const sectionToKey: Record<string, keyof FactoryStateResponse> = {
-    "Active Projects": "active",
-    "Queued Projects": "queued",
-    "Completed Projects": "completed",
-    "Shipped Projects": "shipped",
-  };
+  for (const project of registry.projects) {
+    if (project.paused) continue; // Skip paused projects
 
-  const seen: Record<keyof FactoryStateResponse, Set<string>> = {
-    active: new Set(),
-    queued: new Set(),
-    completed: new Set(),
-    shipped: new Set(),
-  };
-
-  let currentSection: keyof FactoryStateResponse | null = null;
-
-  for (const line of markdown.split(/\r?\n/)) {
-    const h2Match = line.match(/^##\s+(.*)\s*$/);
-    if (h2Match) {
-      currentSection = sectionToKey[h2Match[1].trim()] ?? null;
-      continue;
+    switch (project.state) {
+      case "discovery":
+        parsed.queued.push(project.id);
+        break;
+      case "in-progress":
+        parsed.active.push(project.id);
+        break;
+      case "shipped":
+        parsed.shipped.push(project.id);
+        break;
+      case "followup":
+        // Followup is post-ship maintenance, show as active
+        parsed.active.push(project.id);
+        break;
     }
-
-    if (!currentSection) continue;
-
-    const h3Match = line.match(/^###\s+(.*)\s*$/);
-    if (!h3Match) continue;
-
-    const projectId = extractProjectIdFromHeading(h3Match[1]);
-    if (!projectId) continue;
-    if (seen[currentSection].has(projectId)) continue;
-
-    parsed[currentSection].push(projectId);
-    seen[currentSection].add(projectId);
   }
 
   return parsed;
@@ -86,8 +67,9 @@ function parseFactoryStateMarkdown(markdown: string): FactoryStateResponse {
 
 export async function GET() {
   try {
-    const markdown = await fs.readFile(FACTORY_STATE_PATH, "utf8");
-    const parsed = parseFactoryStateMarkdown(markdown);
+    const json = await fs.readFile(REGISTRY_PATH, "utf8");
+    const registry: ProjectRegistry = JSON.parse(json);
+    const parsed = parseProjectRegistry(registry);
     return NextResponse.json(parsed);
   } catch (error) {
     if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
@@ -95,9 +77,8 @@ export async function GET() {
     }
 
     return NextResponse.json(
-      { error: "Failed to read factory state.", ...EMPTY_FACTORY_STATE },
+      { error: "Failed to read project registry.", ...EMPTY_FACTORY_STATE },
       { status: 500 },
     );
   }
 }
-

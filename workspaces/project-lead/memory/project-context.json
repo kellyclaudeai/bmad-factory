@@ -1,0 +1,9 @@
+{
+  "projectId": "notelite",
+  "projectDir": "/Users/austenallred/clawd/projects/notelite",
+  "projectState": "/Users/austenallred/clawd/projects/notelite/project-state.json",
+  "bmadOutput": "/Users/austenallred/clawd/projects/notelite/_bmad-output",
+  "planningArtifacts": "/Users/austenallred/clawd/projects/notelite/_bmad-output/planning-artifacts",
+  "implementationArtifacts": "/Users/austenallred/clawd/projects/notelite/_bmad-output/implementation-artifacts",
+  "storyDir": "/Users/austenallred/clawd/projects/notelite/_bmad-output/implementation-artifacts/stories"
+}

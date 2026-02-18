@@ -1,0 +1,41 @@
+# TOOLS.md — {Agent Name}
+
+## Built-in Tools
+
+Core OpenClaw tools (`read`, `exec`, `edit`, `write`) always available per tool policy.
+
+**TOOLS.md does NOT control tool availability** — it's guidance for how you use them.
+
+## Core Skills (Universal)
+
+**web-research:** `/Users/austenallred/clawd/skills/utilities/web-research/`
+- Multi-provider web search (SearXNG → DuckDuckGo → Brave)
+- Use for: {agent-specific use case}
+
+## {Agent Role} Skills
+
+**{skill-name}:** `/path/to/skill/`
+- Brief description (1 line)
+- **{MANDATORY/RECOMMENDED}:** {When to use}
+
+## Platform Skills (Project-Dependent)
+
+**iOS projects:** Skills in `/Users/austenallred/clawd/skills/ios/`
+
+**Web projects:** Skills in `/Users/austenallred/clawd/skills/web/`
+
+**Android projects:** Skills in `/Users/austenallred/clawd/skills/android/`
+
+## Factory Reference (Orchestrators Only)
+
+**bmad:** `/Users/austenallred/clawd/skills/factory/kelly-improver/bmad/`
+- Complete BMAD Method documentation
+- **CRITICAL:** Read before spawning BMAD personas or making workflow assumptions
+
+**openclaw:** `/Users/austenallred/clawd/skills/factory/kelly-improver/openclaw/`
+- Complete OpenClaw documentation
+- **CRITICAL:** Read before proposing factory architecture changes
+
+---
+
+**Progressive Disclosure:** Load full skill content only when needed. TOOLS.md provides directory-level awareness; read SKILL.md files when task requires detailed guidance.

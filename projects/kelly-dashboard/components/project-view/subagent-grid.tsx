@@ -7,6 +7,11 @@ import { SubagentCard } from './subagent-card'
 interface Subagent {
   sessionKey?: string
   story?: string
+  storyId?: string
+  storyTitle?: string
+  persona?: string
+  role?: string
+  task?: string
   status: string
   startedAt?: string
   completedAt?: string
@@ -128,7 +133,11 @@ export function SubagentGrid({ subagents }: SubagentGridProps) {
                       <SubagentCard
                         key={subagent.sessionKey || `${sectionKey}-${idx}`}
                         sessionKey={subagent.sessionKey}
-                        story={subagent.story}
+                        story={subagent.story || subagent.storyId}
+                        storyTitle={subagent.storyTitle}
+                        persona={subagent.persona}
+                        role={subagent.role}
+                        task={subagent.task}
                         status={subagent.status as 'active' | 'complete' | 'queued' | 'pending'}
                         startedAt={subagent.startedAt}
                         completedAt={subagent.completedAt}

@@ -100,11 +100,26 @@ async function readTranscriptPreview(sessionKey: string): Promise<TranscriptPrev
   const subagentMatch = sessionKey.match(/^agent:([^:]+):subagent:(.+)$/)
   if (subagentMatch) {
     const agentType = subagentMatch[1]
-    const sessionId = subagentMatch[2]
+    const subagentKeyId = subagentMatch[2]
     sessionsDir = path.join(homeDir, '.openclaw', 'agents', agentType, 'sessions')
-    transcriptPathDisplay = `~/.openclaw/agents/${agentType}/sessions/${sessionId}.jsonl`
-    transcriptPath = path.join(sessionsDir, `${sessionId}.jsonl`)
-    archiveSessionId = sessionId
+    
+    // The UUID in the session key is NOT the transcript filename.
+    // Look up the real sessionId from the agent's sessions.json.
+    let realSessionId = subagentKeyId // fallback
+    try {
+      const sessionsJsonPath = path.join(sessionsDir, 'sessions.json')
+      const sessionsData = JSON.parse(await fs.readFile(sessionsJsonPath, 'utf-8'))
+      const entry = sessionsData[sessionKey]
+      if (entry?.sessionId) {
+        realSessionId = entry.sessionId
+      }
+    } catch {
+      // sessions.json not found or parse error — fall back to key UUID
+    }
+    
+    transcriptPathDisplay = `~/.openclaw/agents/${agentType}/sessions/${realSessionId}.jsonl`
+    transcriptPath = path.join(sessionsDir, `${realSessionId}.jsonl`)
+    archiveSessionId = realSessionId
   } else if (sessionKey.startsWith('agent:')) {
     // Handle other agent sessions (like project-lead)
     // Format: agent:{agent-type}:{project-id}

@@ -1,13 +1,14 @@
 import { StatsCards } from "@/components/factory-view/stats-cards";
 import { HealthDashboard } from "@/components/factory-view/health-dashboard";
 import { ActiveProjectLeads } from "@/components/factory-view/active-project-leads";
+import { ResearchCards } from "@/components/research-view/research-cards";
 import { NowRunning } from "@/components/factory-view/now-running";
 import { NextUp } from "@/components/factory-view/next-up";
 import { HistoricalProjects } from "@/components/factory-view/historical-projects";
 import { CollapsibleSection } from "@/components/factory-view/collapsible-section";
 import { ViewControls } from "@/components/factory-view/view-controls";
 import { ViewPrefsProvider } from "@/components/factory-view/view-prefs-provider";
-import { ActiveProjectsCount, SessionsCount } from "@/components/factory-view/section-counts";
+import { ActiveProjectsCount, SessionsCount, ResearchCount } from "@/components/factory-view/section-counts";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -62,6 +63,7 @@ export default async function FactoryView() {
   const queuedCount = factoryState.queued.length;
 
   const sectionIds = [
+    "active-research",
     "active-projects",
     "openclaw-sessions",
     "queued-projects",
@@ -87,6 +89,15 @@ export default async function FactoryView() {
         </div>
 
         <main className="mt-6 space-y-6">
+          <CollapsibleSection
+            id="active-research"
+            title="Active Research"
+            count={<ResearchCount />}
+            defaultCollapsed={false}
+          >
+            <ResearchCards />
+          </CollapsibleSection>
+
           <CollapsibleSection
             id="active-projects"
             title="Active Projects"

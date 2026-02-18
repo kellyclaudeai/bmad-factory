@@ -46,8 +46,9 @@ export function SubagentCard({
       .join(' ')
   }
   
-  // Build display name: prioritize storyTitle/story, then formatted task, finally persona+role
+  // Build display name: story ID + title when both available, otherwise fallback chain
   const displayName = 
+    (story && storyTitle ? `${story}: ${storyTitle}` : null) ||
     storyTitle ||
     story ||
     formatTask(task) ||
@@ -135,6 +136,16 @@ export function SubagentCard({
             <div className="flex items-center gap-2 text-terminal-dim">
               <span>Duration:</span>
               <span className="text-terminal-green">{duration}</span>
+            </div>
+          )}
+          
+          {normalizedStatus === 'complete' && startedAt && (
+            <div className="flex items-center gap-2 text-terminal-dim">
+              <span>Started:</span>
+              <Timestamp 
+                date={startedAt} 
+                className="text-terminal-green/70"
+              />
             </div>
           )}
           

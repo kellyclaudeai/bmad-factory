@@ -1,0 +1,48 @@
+{
+  "projectId": "kelly-dashboard",
+  "stage": "user-qa",
+  "currentStage": "user-qa",
+  "currentPhase": "complete",
+  "createdAt": "2026-02-15T11:24:00.000Z",
+  "updatedAt": "2026-02-16T20:05:00.000Z",
+  "fastTrack": true,
+  "barryPlanComplete": true,
+  "implementationStartedAt": "2026-02-15T11:26:30.000Z",
+  "phases": {
+    "phase1": { "name": "Foundation", "stories": [1, 2], "status": "complete" },
+    "phase2": { "name": "Factory View", "stories": [3, 4, 5, 6], "status": "complete" },
+    "phase3": { "name": "Detail Views", "stories": [7, 8, 9], "status": "complete" },
+    "phase4": { "name": "Polish", "stories": [10, 11, 12], "status": "complete" },
+    "phase5": { "name": "Active Project Leads", "stories": [13], "status": "complete" },
+    "phase6": { "name": "Session Detail Enhancements", "stories": [14], "status": "complete" }
+  },
+  "subagents": [
+    { "story": "Planning", "status": "complete" },
+    { "story": "Stories 1-12", "status": "complete", "note": "Initial dashboard implementation" },
+    { "story": "Story 13: Active Project Leads + Real Sessions", "status": "complete", "duration": "5m46s" },
+    {
+      "sessionKey": "agent:bmad-bmm-barry:subagent:87b9ecb2-cfd6-4e85-9fe5-5ed330f4d588",
+      "story": "Story 14: Session Detail Enhancements",
+      "status": "complete",
+      "phase": "phase-6",
+      "startedAt": "2026-02-16T20:01:00.000Z",
+      "completedAt": "2026-02-16T20:05:00.000Z",
+      "duration": "2m9s",
+      "branch": "barry-session-detail-enhancements",
+      "commit": "a72e6e5",
+      "persona": "Barry",
+      "role": "Developer",
+      "artifacts": [
+        "app/subagent/[sessionKey]/page.tsx",
+        "components/shared/timestamp.tsx",
+        "components/subagent-view/logs-section.tsx"
+      ]
+    }
+  ],
+  "pipelineResult": {
+    "totalStories": 14,
+    "completedStories": 14,
+    "failedStories": 0,
+    "totalSubagents": 16
+  }
+}

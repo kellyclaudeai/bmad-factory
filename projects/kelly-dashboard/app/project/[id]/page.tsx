@@ -40,6 +40,7 @@ type ProjectState = {
     id?: string
     story?: string
     storyId?: string
+    storyTitle?: string
     persona?: string
     role?: string
     task?: string
@@ -87,6 +88,52 @@ async function getProjectState(projectId: string): Promise<ProjectState | null> 
     console.error('Failed to read project state:', error)
     return null
   }
+}
+
+async function getStoryTitleMap(projectId: string): Promise<Record<string, string>> {
+  const projectRoot = path.join(PROJECTS_ROOT, projectId)
+  const titleMap: Record<string, string> = {}
+
+  // Try dependency-graph.json first (has id + title for every story)
+  try {
+    const dgPath = path.join(projectRoot, '_bmad-output/implementation-artifacts/dependency-graph.json')
+    const contents = await fs.readFile(dgPath, 'utf8')
+    const data = JSON.parse(contents)
+    const stories = data.stories || []
+    if (Array.isArray(stories)) {
+      for (const s of stories) {
+        if (s.id && s.title) titleMap[s.id] = s.title
+      }
+    } else if (typeof stories === 'object') {
+      for (const [id, s] of Object.entries(stories)) {
+        if (s && typeof s === 'object' && 'title' in (s as any)) {
+          titleMap[id] = (s as any).title
+        }
+      }
+    }
+  } catch {
+    // Fall through — try parsing story markdown files
+  }
+
+  // If dependency-graph didn't yield titles, scan story files for "# Story X.X: Title"
+  if (Object.keys(titleMap).length === 0) {
+    try {
+      const storiesDir = path.join(projectRoot, '_bmad-output/implementation-artifacts/stories')
+      const files = await fs.readdir(storiesDir)
+      for (const file of files) {
+        if (!file.endsWith('.md')) continue
+        try {
+          const content = await fs.readFile(path.join(storiesDir, file), 'utf8')
+          const match = content.match(/^#\s+Story\s+([\d.]+):\s*(.+)/m)
+          if (match) {
+            titleMap[match[1]] = match[2].trim()
+          }
+        } catch { /* skip unreadable files */ }
+      }
+    } catch { /* no stories dir */ }
+  }
+
+  return titleMap
 }
 
 async function getStoriesData(projectId: string, storiesPath?: string): Promise<any> {
@@ -199,11 +246,39 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
     ? await getStoriesData(id, projectState.planningArtifacts.storiesJson)
     : await getStoriesData(id)
 
+  // Build story title lookup and enrich subagent entries
+  const storyTitleMap = await getStoryTitleMap(id)
+  if (projectState?.subagents) {
+    for (const sa of projectState.subagents) {
+      if (!sa.storyTitle && sa.story && storyTitleMap[sa.story]) {
+        sa.storyTitle = storyTitleMap[sa.story]
+      }
+      if (!sa.storyTitle && sa.storyId && storyTitleMap[sa.storyId]) {
+        sa.storyTitle = storyTitleMap[sa.storyId]
+      }
+    }
+  }
+
+  // Also enrich storiesData entries if they lack titles
+  if (storiesData?.stories) {
+    if (Array.isArray(storiesData.stories)) {
+      for (const s of storiesData.stories) {
+        if (!s.title && s.id && storyTitleMap[s.id]) s.title = storyTitleMap[s.id]
+      }
+    } else if (typeof storiesData.stories === 'object') {
+      for (const [storyId, s] of Object.entries(storiesData.stories)) {
+        if (s && typeof s === 'object' && !(s as any).title && storyTitleMap[storyId]) {
+          (s as any).title = storyTitleMap[storyId]
+        }
+      }
+    }
+  }
+
   // Extract completed and active story IDs
   const completedStoryIds = projectState?.implementationArtifacts?.completedStories || []
   const activeStoryIds = (projectState?.subagents || [])
     .filter((s) => s.status?.toLowerCase() === 'active')
-    .map((s) => s.storyId)
+    .map((s) => s.storyId || s.story)
     .filter(Boolean) as string[]
 
   const projectName = formatProjectName(id)

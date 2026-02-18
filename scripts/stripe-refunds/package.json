@@ -1,0 +1,14 @@
+{
+  "name": "stripe-refund-tool",
+  "version": "1.0.0",
+  "description": "Bulk refund tool for Stripe payments",
+  "main": "refund-tool.js",
+  "scripts": {
+    "dry-run": "node refund-tool.js --dry-run --skip=skip-list.json",
+    "refund": "node refund-tool.js --skip=skip-list.json"
+  },
+  "dependencies": {
+    "stripe": "^17.5.0",
+    "dotenv": "^16.4.7"
+  }
+}

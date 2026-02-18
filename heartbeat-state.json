@@ -1,28 +1,7 @@
 {
-  "lastProjectCheck": 1771440801,
-  "surfacedQA": [
-    "calculator-app",
-    "kelly-dashboard",
-    "daily-todo-tracker",
-    "fleai-market-v5"
-  ],
-  "projectChecks": {
-    "fleai-market-v5": {
-      "lastCheck": 1771437660,
-      "lastPing": 1771436885,
-      "status": "user-qa",
-      "stage": "user-qa",
-      "note": "Ready for User QA 12:01 CST. Dev server running (PID 83461) at http://localhost:3000. TEA retry successful after stall recovery."
-    },
-    "takeouttrap": {
-      "lastCheck": 1771438102,
-      "lastPing": 1771438102,
-      "status": "ok",
-      "stage": "implementation-fixes",
-      "note": "Kelly safety net ping 12:08 CST - Project Lead confirmed: 3 fix sessions complete (1.10, 2.8, 2.6), 5 new code reviews spawned, pipeline healthy. Skip checks until 12:53 CST.",
-      "skipUntil": 1771440802
-    }
-  },
+  "lastProjectCheck": 1771453403,
+  "surfacedQA": [],
+  "projectChecks": {},
   "researchQueue": {
     "count": 0,
     "lastCleared": 1771441125,

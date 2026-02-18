@@ -40,6 +40,27 @@ function extractTextContent(content: Message['content']): string {
   return textBlocks.map(block => block.text).join('\n')
 }
 
+function extractThinkingBlocks(content: Message['content']): Array<{thinking: string, thinkingSignature?: string}> {
+  if (!content || typeof content === 'string') return []
+  return content
+    .filter(block => block.type === 'thinking')
+    .map(block => ({
+      thinking: block.thinking || block.text || '',
+      thinkingSignature: block.thinkingSignature
+    }))
+}
+
+function extractToolCalls(content: Message['content']): Array<{id: string, name: string, arguments: any}> {
+  if (!content || typeof content === 'string') return []
+  return content
+    .filter(block => block.type === 'toolCall')
+    .map(block => ({
+      id: block.id || '',
+      name: block.name || '',
+      arguments: block.arguments || {}
+    }))
+}
+
 function parseToolArguments(argsString: string): Record<string, any> {
   try {
     return JSON.parse(argsString)
@@ -129,41 +150,52 @@ export function FormattedMessage({ message }: FormattedMessageProps) {
   const roleEmoji = getRoleEmoji(message.role)
   const textContent = extractTextContent(message.content)
   
-  // Handle thinking blocks
-  if (message.thinking) {
+  // Extract thinking blocks from content array (new format) or top-level property (old format)
+  const thinkingBlocks = extractThinkingBlocks(message.content)
+  const hasThinking = message.thinking || thinkingBlocks.length > 0
+  
+  // Extract tool calls from content array (new format) or top-level property (old format)
+  const contentToolCalls = extractToolCalls(message.content)
+  const legacyToolCalls = message.toolCalls?.map(tc => ({
+    id: tc.id,
+    name: tc.function.name,
+    arguments: parseToolArguments(tc.function.arguments)
+  })) || []
+  const allToolCalls = [...contentToolCalls, ...legacyToolCalls]
+  
+  // Render thinking blocks and/or tool calls
+  const hasContent = hasThinking || allToolCalls.length > 0
+  
+  if (hasContent) {
     return (
       <div className="mb-3 last:mb-0">
-        <div className="flex items-start gap-2">
-          <span className="text-base">💭</span>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-mono text-terminal-dim mb-1">
-              Thinking
-            </div>
-            <div className="p-3 bg-terminal-card rounded border border-terminal-border">
-              <pre className="text-xs font-mono text-terminal-text whitespace-pre-wrap break-words">
-                {message.thinking}
-              </pre>
+        {/* Thinking block */}
+        {hasThinking && (
+          <div className="flex items-start gap-2 mb-2">
+            <span className="text-base">💭</span>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-mono text-terminal-dim mb-1">
+                Thinking
+              </div>
+              <div className="p-3 bg-terminal-card rounded border border-terminal-border">
+                <pre className="text-xs font-mono text-terminal-text whitespace-pre-wrap break-words">
+                  {message.thinking || thinkingBlocks[0]?.thinking || ''}
+                </pre>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    )
-  }
-  
-  // Handle tool calls (assistant proposing tool use)
-  if (message.toolCalls && message.toolCalls.length > 0) {
-    return (
-      <div className="mb-3 last:mb-0">
-        {message.toolCalls.map((toolCall, idx) => {
-          const args = parseToolArguments(toolCall.function.arguments)
-          const formattedArgs = formatToolArguments(args)
+        )}
+        
+        {/* Tool calls */}
+        {allToolCalls.map((toolCall, idx) => {
+          const formattedArgs = formatToolArguments(toolCall.arguments)
           
           return (
             <div key={toolCall.id || idx} className="flex items-start gap-2 mb-2 last:mb-0">
               <span className="text-base">🔧</span>
               <div className="flex-1 min-w-0 bg-terminal-card p-3 rounded border border-terminal-border">
                 <div className="text-sm font-mono font-bold text-terminal-green mb-1">
-                  {toolCall.function.name}
+                  {toolCall.name}
                 </div>
                 {formattedArgs && (
                   <pre className="text-xs font-mono text-terminal-text whitespace-pre-wrap break-words">

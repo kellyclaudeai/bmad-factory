@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 type FrontendSession = {
   sessionKey: string;
+  sessionId: string;
   label: string;
   agentType: string;
   projectId?: string;
@@ -182,6 +183,7 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
 
         return {
           sessionKey,
+          sessionId: session.sessionId,
           label,
           agentType,
           projectId,
