@@ -1,0 +1,92 @@
+#!/bin/bash
+# 4-tier coding CLI fallback wrapper
+# Usage: code-with-fallback [codex-args] "prompt"
+# Tries: Codex (GPT plan) → Codex (API key) → Claude Code (Anthropic plan) → Claude Code (API key)
+
+set -e
+
+# Detect which tier to start from (can skip to tier 3/4 if FORCE_CLAUDE=1)
+TIER=${TIER:-1}
+if [[ -n "$FORCE_CLAUDE" ]]; then
+    TIER=3
+fi
+
+# Extract prompt (last argument)
+PROMPT="${@: -1}"
+CODEX_ARGS="${@:1:$(($#-1))}"
+
+# Error detection helper
+detect_error() {
+    local output="$1"
+    # Check for billing/rate limit errors
+    if echo "$output" | grep -qiE "(billing|insufficient.*credit|quota.*exceed|rate.*limit|usage.*limit)"; then
+        return 0  # Error detected
+    fi
+    return 1  # No error
+}
+
+# Tier 1: Codex with GPT plan (OpenAI subscription)
+if [[ $TIER -eq 1 ]]; then
+    echo "🔵 Tier 1: Trying Codex with GPT plan..." >&2
+    OUTPUT=$(codex $CODEX_ARGS exec "$PROMPT" 2>&1) || true
+    EXIT_CODE=$?
+    
+    if [[ $EXIT_CODE -eq 0 ]] && ! detect_error "$OUTPUT"; then
+        echo "$OUTPUT"
+        exit 0
+    fi
+    
+    echo "⚠️ Tier 1 failed, trying Tier 2..." >&2
+    TIER=2
+fi
+
+# Tier 2: Codex with API key (OpenAI API credits)
+if [[ $TIER -eq 2 ]]; then
+    echo "🔵 Tier 2: Trying Codex with API key..." >&2
+    # Codex uses OPENAI_API_KEY env var by default
+    OUTPUT=$(codex $CODEX_ARGS exec "$PROMPT" 2>&1) || true
+    EXIT_CODE=$?
+    
+    if [[ $EXIT_CODE -eq 0 ]] && ! detect_error "$OUTPUT"; then
+        echo "$OUTPUT"
+        exit 0
+    fi
+    
+    echo "⚠️ Tier 2 failed, trying Tier 3..." >&2
+    TIER=3
+fi
+
+# Tier 3: Claude Code with Anthropic max plan
+if [[ $TIER -eq 3 ]]; then
+    echo "🟣 Tier 3: Trying Claude Code with Anthropic plan..." >&2
+    # Convert @bmad-xxx to /bmad-xxx for Claude Code syntax
+    CLAUDE_PROMPT=$(echo "$PROMPT" | sed 's/@/\//g')
+    OUTPUT=$(claude "$CLAUDE_PROMPT" --dangerously-skip-permissions 2>&1) || true
+    EXIT_CODE=$?
+    
+    if [[ $EXIT_CODE -eq 0 ]] && ! detect_error "$OUTPUT"; then
+        echo "$OUTPUT"
+        exit 0
+    fi
+    
+    echo "⚠️ Tier 3 failed, trying Tier 4..." >&2
+    TIER=4
+fi
+
+# Tier 4: Claude Code with API key (last resort)
+if [[ $TIER -eq 4 ]]; then
+    echo "🟣 Tier 4: Trying Claude Code with API key..." >&2
+    # Claude uses ANTHROPIC_API_KEY env var by default
+    CLAUDE_PROMPT=$(echo "$PROMPT" | sed 's/@/\//g')
+    OUTPUT=$(claude "$CLAUDE_PROMPT" --dangerously-skip-permissions 2>&1) || true
+    EXIT_CODE=$?
+    
+    if [[ $EXIT_CODE -eq 0 ]] && ! detect_error "$OUTPUT"; then
+        echo "$OUTPUT"
+        exit 0
+    fi
+    
+    echo "❌ All 4 tiers exhausted. Last error:" >&2
+    echo "$OUTPUT" >&2
+    exit 1
+fi
