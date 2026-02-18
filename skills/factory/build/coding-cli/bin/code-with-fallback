@@ -58,10 +58,7 @@ fi
 
 # Tier 3: Claude Code with Anthropic max plan
 if [[ $TIER -eq 3 ]]; then
-    echo "🟣 Tier 3: Trying Claude Code with Anthropic plan..." >&2
-    echo "🧹 Resetting working directory (cleaning Codex's partial changes)..." >&2
-    git checkout . 2>/dev/null || true  # Reset uncommitted changes
-    git clean -fd 2>/dev/null || true   # Remove untracked files
+    echo "🟣 Tier 3: Trying Claude Code with Anthropic plan (continuing from Codex's work)..." >&2
     # Convert @bmad-xxx to /bmad-xxx for Claude Code syntax
     CLAUDE_PROMPT=$(echo "$PROMPT" | sed 's/@/\//g')
     OUTPUT=$(claude "$CLAUDE_PROMPT" --dangerously-skip-permissions 2>&1) || true
@@ -78,10 +75,7 @@ fi
 
 # Tier 4: Claude Code with API key (last resort)
 if [[ $TIER -eq 4 ]]; then
-    echo "🟣 Tier 4: Trying Claude Code with API key..." >&2
-    echo "🧹 Resetting working directory (cleaning tier 3's partial changes)..." >&2
-    git checkout . 2>/dev/null || true  # Reset uncommitted changes
-    git clean -fd 2>/dev/null || true   # Remove untracked files
+    echo "🟣 Tier 4: Trying Claude Code with API key (continuing from previous work)..." >&2
     # Claude uses ANTHROPIC_API_KEY env var by default
     CLAUDE_PROMPT=$(echo "$PROMPT" | sed 's/@/\//g')
     OUTPUT=$(claude "$CLAUDE_PROMPT" --dangerously-skip-permissions 2>&1) || true
