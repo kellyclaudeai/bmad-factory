@@ -150,40 +150,34 @@ Story COMPLETE when status = "done"
 
 A HIGH severity bug can be MINOR scope (simple code fix). A MEDIUM severity issue can be MAJOR scope (requires architectural redesign).
 
-#### Step 1: Build & Test Verification (Sequential)
+#### Step 1: Quality Assessment (Parallel Murat Spawns)
 
-```
-1. Build check: npm run build
-   → Catches: TypeScript errors, missing deps, compile failures
-   → If FAIL: Create fix story, back to dependency-driven implementation
-
-2. Run test suite: npm test
-   → Runs: Amelia's unit/integration tests from story implementation
-   → Report: Coverage %, pass/fail counts
-   → If FAIL: Create fix stories for failing tests, back to dependency-driven implementation
-```
-
-#### Step 2: Quality Assessment (Parallel)
-
-After build + tests pass, spawn both assessments **simultaneously**:
+**Murat owns the entire quality gate.** Project Lead spawns, Murat executes.
 
 ```
 Parallel spawn:
-  A. E2E Functional Smoke Test (Murat subagent)
-     → Start dev server (npm run dev)
-     → Browser automation: Test PRD functional requirements
-     → Screenshot evidence for each tested feature
-     → Report: Which features work, which are broken
+  A. Murat E2E (single subagent — sequential gates):
+     Gate 1: Build check (npm run build)
+       → If FAIL: Report build errors, skip remaining gates
+     Gate 2: Test suite (npm test)
+       → If FAIL: Report failing tests, skip remaining gates
+     Gate 3: Functional smoke test (browser automation)
+       → Start dev server (npm run dev)
+       → Test PRD functional requirements in browser
+       → Screenshot evidence for each tested feature
+       → Report: Which features work, which are broken
      
-  B. Security & Performance Assessment (Murat subagent, nfr-assess workflow)
+  B. Murat NFR (separate subagent — parallel with E2E):
      → Security: Auth vulnerabilities, XSS/CSRF, API exposure, HIPAA/GDPR basics
      → Performance: Load time, bundle size, database queries
+     → Compliance: HIPAA/GDPR basics (if applicable)
      → Report: Issues found with severity (BLOCKER/HIGH/MEDIUM/LOW)
 
 Both complete independently (~15-20 min each)
+Wait for BOTH reports before proceeding to Step 2.
 ```
 
-#### Step 3: Remediation (via correct-course)
+#### Step 2: Remediation (via correct-course)
 
 **Consolidated remediation path: ALL bugs route through John's correct-course workflow.**
 
@@ -244,7 +238,7 @@ Both complete independently (~15-20 min each)
    d. Bob updates epics + stories
    e. Dependency-driven implementation
 
-5. Re-run Quality Gate (Steps 1-2):
+5. Re-run Quality Gate (Step 1):
    → If new bugs found: Spawn John correct-course again, repeat Step 2-4
    → If clean: Proceed to Phase 4
 ```
@@ -469,27 +463,16 @@ FOR EACH story in tech-spec.md:
 
 ### Phase 3: Fast Quality Gate (Barry Projects)
 
-**Simplified for speed.** No comprehensive E2E or NFR assessment.
+**Build check only.** User QA is the primary quality gate for Barry projects.
 
 ```
-1. Build check: npm run build
-   → If FAIL: Barry fixes inline, re-run
-
-2. Run tests: npm test
-   → If FAIL: Barry fixes inline, re-run
-
-3. Basic smoke test:
-   → Start dev server (npm run dev)
-   → Load homepage, screenshot
-   → Verify app boots without crashes
-
-If any step FAIL after inline fixes → Create fix story, back to dependency-driven implementation
-If PASS → Phase 4
+1. Spawn Murat (fast mode): Build check only
+   → npm run build
+   → If PASS: Phase 4 (User QA)
+   → If FAIL: Route through John correct-course
 ```
 
-**No parallel spawning.** Sequential checks optimized for Barry's fast-track workflow.
-
-**No comprehensive bug hunting.** User QA is primary quality gate for Barry projects.
+**No test suite, no E2E, no NFR.** Fast Mode prioritizes speed — User QA catches functional bugs.
 
 ### Phase 4: User QA
 
