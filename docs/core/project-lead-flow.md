@@ -10,11 +10,9 @@
 
 Project Lead owns a single project from intake to ship. One PL session per project. PL spawns BMAD agents as subagents and tracks their progress.
 
-**State files PL must maintain:**
-- `project-state.json` — subagent tracking, completed stories, pipeline status
-- `implementation-state.md` — required during implementation phase (dependency-driven spawning status)
+**State tracking:** PL updates `projects/project-registry.json` at key lifecycle transitions. See `docs/core/project-registry-workflow.md` for full spec.
 
-**Project Registry:** PL updates `/Users/austenallred/clawd/projects/project-registry.json` at key lifecycle transitions. See `docs/core/project-registry-workflow.md` for full spec.
+**Story status:** BMAD artifacts (`sprint-status.yaml`, `dependency-graph.json`) track implementation progress.
 
 **Registry updates (PL responsibility):**
 - **Project start:** `discovery` → `in-progress` (set `implementation.projectDir`, `timeline.startedAt`)
@@ -115,11 +113,11 @@ All sequential — each step waits for the previous to complete.
 CONTINUOUS LOOP (every 60 seconds):
 
 1. Read dependency-graph.json
-2. Read sprint-status.yaml or project-state.json (which stories are "done")
+2. Read sprint-status.yaml (which stories are "done")
 3. For EACH incomplete story:
    - Check if ALL entries in its dependsOn array are "done"
    - If yes AND not already spawned → spawn immediately
-4. Track spawned subagents in project-state.json
+4. Track active spawns (session keys, start times)
 
 UNLIMITED PARALLELISM:
   - 1 story ready → spawn 1
@@ -147,7 +145,7 @@ Story COMPLETE when status = "done"
 **Subagent death handling:**
 - If an Amelia session dies, PL detects (no completion announcement) and respawns
 - Coding CLI fallback (Claude Code → Codex) happens transparently within Amelia's execution (Claude Code primary as of 2026-02-18)
-- Track failed attempts in project-state.json with failure reason
+- Log failed attempts in daily memory notes with failure reason
 - Increment version suffix on retry (e.g., `story-2.4-v1`, `story-2.4-v2`)
 
 ### Phase 3: Quality Gate
@@ -279,20 +277,21 @@ Choose based on project type:
 - **Vercel (web apps):** Deploy preview or production
   - Get live URL (e.g., `https://app-name.vercel.app`)
 
-**2. Update project-state.json**
-```json
-{
-  "stage": "userQA",
-  "qaUrl": "http://localhost:3000",
-  "qaReadyAt": "2026-02-16T18:50:00Z",
-  "qaInstructions": "Run 'npm run dev' in projects/{projectId}. Test features: ..."
-}
+**2. Update project-registry.json**
+Update your project entry in the registry:
+```bash
+# Set qaUrl and update timestamp
+jq '.projects |= map(
+  if .id == "your-project-id" then
+    .implementation.qaUrl = "http://localhost:3000" |
+    .timeline.lastUpdated = (now|todate)
+  else . end
+)' projects/project-registry.json > tmp && mv tmp projects/project-registry.json
 ```
 
 **Required fields:**
-- `qaUrl` - Testable URL (localhost or deployed)
-- `qaReadyAt` - ISO timestamp
-- `qaInstructions` - How to run/test (especially for localhost)
+- `implementation.qaUrl` - Testable URL (localhost or deployed)
+- `timeline.lastUpdated` - ISO timestamp (updated automatically)
 
 **3. Notify Kelly (Push)**
 ```javascript
@@ -315,17 +314,16 @@ Project Lead's own heartbeat (every 5-10 min):
 
 **Every 30-60 minutes**, Kelly scans for projects ready for QA:
 
-1. Read all `projects/*/project-state.json` files
-2. Filter: `stage="userQA"` AND `qaUrl` present
-3. Check `heartbeat-state.json` → if NOT in `surfacedQA[]`:
-   - Alert operator: `🧪 **{projectName}** ready for user QA: {qaUrl}`
-   - Include `qaInstructions` if present
-   - Add `projectId` to `surfacedQA[]` in `heartbeat-state.json`
+1. Read `projects/project-registry.json`
+2. Filter: `state="in-progress"` AND `implementation.qaUrl` present
+3. Check `state/kelly.json` → if NOT in `heartbeat.surfacedQA[]`:
+   - Alert operator: `🧪 **{name}** ready for user QA: {implementation.qaUrl}`
+   - Add `projectId` to `heartbeat.surfacedQA[]` in `state/kelly.json`
 
 **What NOT to surface:**
-- Projects with `status="paused"` (explicitly paused)
-- Projects already in `surfacedQA[]` list
-- Projects without a `qaUrl` (not ready yet)
+- Projects with `paused: true` (explicitly paused)
+- Projects already in `heartbeat.surfacedQA[]` list
+- Projects without `implementation.qaUrl` (not ready yet)
 
 #### Stage 4.7: Operator Testing
 
@@ -333,14 +331,13 @@ Project Lead's own heartbeat (every 5-10 min):
 ```bash
 git checkout main && git merge dev && git push origin main
 # CI/CD deploys to production from main
-# Project Lead updates project-state.json status="shipped"
 # Project Lead updates project-registry.json: state="shipped", timeline.shippedAt, implementation.deployedUrl
 ```
 
 **SCENARIO B: User Pauses → PAUSE**
 ```
 Operator: "pause {project}"
-Kelly updates factory-state.md → status="paused"
+# Kelly updates project-registry.json → paused: true with pausedReason
 # Kelly stops surfacing in heartbeats until resumed
 ```
 
@@ -376,17 +373,13 @@ Kelly updates factory-state.md → status="paused"
 
 #### State Files
 
-**project-state.json:**
-- `stage`: "userQA"
-- `qaUrl`: testable URL
-- `qaReadyAt`: ISO timestamp
-- `qaInstructions`: how to run/test
+**project-registry.json (your project entry):**
+- `state`: "in-progress"
+- `implementation.qaUrl`: testable URL
+- `timeline.lastUpdated`: ISO timestamp (updated when qaUrl set)
 
-**heartbeat-state.json:**
-- `surfacedQA[]`: projects already announced
-
-**factory-state.md:**
-- `status`: "in-progress" | "paused" | "shipped"
+**state/kelly.json (Kelly maintains):**
+- `heartbeat.surfacedQA[]`: projects already announced to operator
 
 ---
 
@@ -512,39 +505,37 @@ Same as Normal Mode. Barry handles remediation instead of Amelia.
 
 ## State Management
 
-### project-state.json (always required)
+### projects/project-registry.json (Project Lead updates)
 
-```json
-{
-  "projectId": "...",
-  "status": "planning|implementation|testing|userQA|shipped",
-  "stage": "...",
-  "subagents": [
-    {
-      "id": "amelia-story-1.1",
-      "persona": "Amelia",
-      "storyId": "1.1",
-      "status": "active|complete|failed",
-      "startedAt": "...",
-      "completedAt": "..."
-    }
-  ],
-  "implementationArtifacts": {
-    "completedStories": ["1.1", "1.2"],
-    "blockedStories": [],
-    "failedAttempts": []
-  }
-}
+Update your project entry at key lifecycle transitions:
+
+```bash
+# Example: Mark project as in-progress
+jq '.projects |= map(
+  if .id == "your-project-id" then
+    .state = "in-progress" |
+    .implementation.projectDir = "/Users/austenallred/clawd/projects/your-project-id" |
+    .timeline.startedAt = (now|todate) |
+    .timeline.lastUpdated = (now|todate)
+  else . end
+)' projects/project-registry.json > tmp && mv tmp projects/project-registry.json
 ```
 
-### implementation-state.md (required during Phase 2)
+**When to update:**
+- Project start (`discovery` → `in-progress`, set projectDir + startedAt)
+- QA ready (set `implementation.qaUrl`, update `lastUpdated`)
+- Ship (`in-progress` → `shipped`, set deployedUrl + shippedAt)
+- Pause/resume (set `paused` + `pausedReason`)
 
-Human-readable summary of:
-- Current dependency frontier (which stories are ready to spawn)
-- Active subagents with PIDs/session keys
-- Recently completed stories
-- Any blocked/failed stories
-- Update after: story completion, subagent spawn, stuck recovery
+### _bmad-output/implementation-artifacts/ (BMAD tracks)
+
+**Story status:** `sprint-status.yaml`
+- Which stories are done/in-progress/todo
+- Updated by Bob and Amelia
+
+**Dependencies:** `dependency-graph.json`
+- Story dependency tree
+- Created by Bob, read by PL for spawning logic
 
 ---
 
@@ -568,9 +559,9 @@ Human-readable summary of:
 
 1. **Dependency-graph.json is the authority** for story ordering — not artificial batches
 2. **Spawn immediately** when dependencies satisfy — don't wait for groups
-3. **Track everything** in project-state.json — subagent statuses, failures, retries
+3. **Update registry at lifecycle transitions** — Kelly reads for monitoring
 4. **Two subagents per story** in Normal Mode: dev-story then code-review
 5. **One subagent per story** in Fast Mode: quick-dev only
 6. **Detect dead subagents** — no completion = likely dead, respawn
-7. **Update implementation-state.md** during Phase 2 for Kelly visibility
+7. **BMAD tracks story status** — sprint-status.yaml is source of truth
 8. **All work on `dev` branch** — merge to `main` only at Ship

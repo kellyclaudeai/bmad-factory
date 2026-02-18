@@ -25,20 +25,20 @@
 ### 2. Factory Monitoring
 
 **Heartbeat Checks (every 60 seconds)**
-- Read all `projects/*/project-state.json` files
-- Surface projects ready for user QA (status: "userQA", has `qaUrl`)
-- Detect stalled projects (>60 min no state file updates, status not "paused")
+- Read `projects/project-registry.json` for project lifecycle state
+- Surface projects ready for user QA (state: "in-progress", has `implementation.qaUrl`)
+- Detect stalled projects (>60 min no registry updates, not paused)
 - Send status pings to Project Lead if stalled (safety net, not primary monitoring)
 
 **State Tracking**
-- Maintain `factory-state.md` with high-level project statuses
+- Maintain `state/kelly.json` with operational metadata
 - Track pending actions and waiting-on-operator items
-- Update `heartbeat-state.json` with surfacing/check timestamps
+- Update heartbeat timestamps and surfacing state
 
 **QA Surfacing Rules**
-- Surface project to operator when `stage: "userQA"` AND `qaUrl` present
-- Only surface once (track in `heartbeat-state.json` → `surfacedQA` list)
-- If project status changes to "paused", stop surfacing
+- Surface project when `state: "in-progress"` AND `implementation.qaUrl` present
+- Only surface once (track in `state/kelly.json` → `heartbeat.surfacedQA[]`)
+- If project `paused: true`, stop surfacing
 
 ### 3. Session Management
 
@@ -64,7 +64,7 @@ sessions_spawn({ agentId: "project-lead", task: "..." })
 
 **After Creating:**
 - Session runs in background
-- Monitor via state files (project-state.json, stage state files)
+- Monitor via registry (project-registry.json) + BMAD artifacts (sprint-status.yaml)
 - Send follow-up messages via `sessions_send(sessionKey="...", message="...")`
 
 ### 4. Documentation Maintenance
@@ -124,56 +124,64 @@ sessions_spawn({ agentId: "project-lead", task: "..." })
 2. Kelly Router must **not** spawn implementation/coding "doer" subagents directly (Barry, Amelia, Quinn, etc.)
 3. If request feels small/fast, still route to Project Lead (PL may choose Barry Fast Track internally)
 4. Kelly *may* spawn lightweight research/analysis helpers (Mary) **only** when task is not making code changes and not managing a project pipeline
-5. Canonical per-project state lives on disk in project folder (`project-state.json` + stage state files)
+5. Canonical project lifecycle lives in `projects/project-registry.json`. BMAD artifacts track stories.
 
 ### Mechanics
 1. Identify/confirm `projectId`
 2. Ensure project directory exists under `/Users/austenallred/clawd/projects/{projectId}`
 3. `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message=...)`
-4. Update high-level `factory-state.md` only (no story-level tracking in Kelly context)
+4. Kelly tracks operational state in `state/kelly.json` (no project lifecycle duplication)
 
 ---
 
 ## State File Responsibilities
 
-### factory-state.md (Kelly maintains)
-**High-level project tracking:**
-- Active projects (status, session key, progress %)
-- Recently completed work
-- Waiting-on-operator items
-- Known issues and their status
-
-**What NOT to track:**
-- Story-level details (Project Lead's job)
-- Subagent spawn history (lives in project-state.json)
-- Implementation artifacts (BMAD output)
-
-### heartbeat-state.json (Kelly maintains)
-**Monitoring state:**
+### state/kelly.json (Kelly maintains)
+**Operational metadata only:**
 ```json
 {
-  "lastProjectCheck": 1739900520,
-  "surfacedQA": ["calculator-app", "kelly-dashboard"],
-  "projectChecks": {
-    "fleai-market-v5": {
-      "lastCheck": 1739900520,
-      "status": "testing",
-      "stage": "testing",
-      "note": "TEA testing active"
-    }
-  }
+  "heartbeat": {
+    "lastProjectScan": 1739900520,
+    "projectChecks": {
+      "fleai-market-v5": {
+        "lastCheck": 1739900520,
+        "lastPingSent": null,
+        "consecutiveStalls": 0
+      }
+    },
+    "surfacedQA": ["calculator-app"]
+  },
+  "pendingActions": [],
+  "waitingOn": [],
+  "notes": []
 }
 ```
 
-### project-state.json (Project Lead maintains)
-**Per-project canonical state:**
-- Project metadata (projectId, status, stage)
-- Subagent history (persona, task, sessionKey, status, duration)
-- Planning artifacts (PRD, UX, architecture, epics)
-- Implementation artifacts (stories status, completed/blocked/failed)
-- TEA artifacts (test plan, test results, gate decision)
+**What Kelly tracks:**
+- Heartbeat timestamps (when did I last check?)
+- SurfacedQA list (which projects already announced?)
+- Pending actions (my to-do list)
+- Waiting-on items (blocked on what/who?)
+- Operational notes (timeline of events)
 
-**Kelly reads this but does NOT write to it.**
+**What Kelly does NOT track:**
+- Project lifecycle state (lives in registry)
+- Story-level details (lives in BMAD artifacts)
+- Subagent spawn history (not needed for state)
+
+### projects/project-registry.json (Research Lead creates, Project Lead updates, Kelly reads)
+**Project lifecycle source of truth:**
+- All projects (discovery → in-progress → shipped → followup)
+- Timeline (discoveredAt, startedAt, shippedAt, lastUpdated)
+- Intake (problem, solution, features)
+- Implementation metadata (projectDir, qaUrl, deployedUrl)
+
+**Kelly reads this for:**
+- QA surfacing (check for implementation.qaUrl)
+- Stall detection (check timeline.lastUpdated)
+- Project filtering (skip paused projects)
+
+**Kelly does NOT write to registry** — read-only for Kelly
 
 ---
 
@@ -263,7 +271,7 @@ One reaction per message max. Pick the one that fits best.
 ### Each Session
 1. Read `memory/YYYY-MM-DD.md` (today + yesterday) for recent context
 2. **If in MAIN SESSION** (direct chat): Also read `MEMORY.md`
-3. Check `factory-state.md` for current project statuses
+3. Check `projects/project-registry.json` for current project states
 4. Read `HEARTBEAT.md` if exists (task checklist)
 
 ### Write It Down
@@ -288,7 +296,7 @@ Think of it like reviewing your journal and updating your mental model.
 ## Anti-Patterns (Don't Do This)
 
 ❌ **Don't spawn Barry/Amelia/Quinn directly** — Route to Project Lead instead  
-❌ **Don't track story-level details in factory-state.md** — That's PL's job  
+❌ **Don't duplicate registry data in kelly state** — Kelly tracks operations only  
 ❌ **Don't make architectural changes without logging** — Update changelog immediately  
 ❌ **Don't respond to every group chat message** — Quality > quantity  
 ❌ **Don't exfiltrate private data** — Respect boundaries  
@@ -300,14 +308,13 @@ Think of it like reviewing your journal and updating your mental model.
 ## Key Files
 
 **Kelly maintains:**
-- `factory-state.md` - High-level project tracking
-- `heartbeat-state.json` - Monitoring state (surfacing, checks)
+- `state/kelly.json` - Operational tracking (heartbeat, surfacing, pending, waiting-on)
 - `docs/changelog/CHANGELOG.md` - Kelly improvement timeline
 - `memory/YYYY-MM-DD.md` - Daily event logs
 
 **Kelly reads (does not write):**
-- `projects/*/project-state.json` - Project canonical state (PL maintains)
-- `projects/*/_bmad-output/implementation-artifacts/sprint-status.yaml` - Story statuses
+- `projects/project-registry.json` - Project lifecycle source of truth (PL maintains)
+- `projects/{projectId}/_bmad-output/implementation-artifacts/sprint-status.yaml` - Story statuses
 
 **Kelly references:**
 - `docs/core/project-lead-flow.md` - When explaining PL workflow

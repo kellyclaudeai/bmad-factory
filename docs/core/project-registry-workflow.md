@@ -300,7 +300,7 @@ Array of post-ship work items:
 #### Heartbeat monitoring (shipped projects)
 - Check registry for `state: "shipped"` with new `qaUrl` (not yet surfaced)
 - Surface to operator: "🧪 **{name}** ready for user QA: {qaUrl}"
-- Track surfaced projects in `heartbeat-state.json` to avoid duplicates
+- Track surfaced projects in `state/kelly.json` to avoid duplicates
 
 #### Stall detection
 - Check `state: "in-progress"` projects with `lastUpdated > 60 min ago`
@@ -337,10 +337,10 @@ Array of post-ship work items:
 
 ## Migration from Current System
 
-### Current State
+### Old State (Pre-Migration)
 - `projects-queue/{name}-{timestamp}/intake.md` - 20 discovery entries
 - `research-registry.json` - Minimal state tracking
-- `factory-state.md` - Active project tracking
+- `factory-state.md` - Active project tracking (deprecated as of 2026-02-18)
 
 ### Migration Steps
 1. **Create new registry** at `/Users/austenallred/clawd/projects/project-registry.json`
@@ -362,10 +362,9 @@ Array of post-ship work items:
 
 | File | Purpose |
 |------|---------|
-| `/Users/austenallred/clawd/projects/project-registry.json` | Single source of truth for all project state |
+| `/Users/austenallred/clawd/projects/project-registry.json` | Single source of truth for all project lifecycle state |
 | `/Users/austenallred/clawd/projects/{id}/` | Project workspace (code, BMAD artifacts) |
-| `/Users/austenallred/clawd/heartbeat-state.json` | Kelly's tracking for surfaced projects |
-| `/Users/austenallred/clawd/factory-state.md` | High-level factory status (may be deprecated) |
+| `/Users/austenallred/clawd/state/kelly.json` | Kelly's operational state (heartbeat, surfacing, pending actions) |
 
 ---
 

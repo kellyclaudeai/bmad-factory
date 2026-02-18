@@ -146,7 +146,7 @@ Kelly-Improver works on:
 1. Core docs (`docs/core/*.md`) - source of truth
 2. AGENTS.md files (workspace-specific behavior)
 3. Skills (if adding/updating capabilities)
-4. factory-state.md or other state files (if structure changed)
+4. state/kelly.json or other state files (if structure changed)
 
 **Test Changes:**
 - Read updated docs to verify clarity
@@ -310,7 +310,8 @@ git commit -m "area: brief description of change"
 - Skills documentation
 
 **Kelly-Improver reads:**
-- `factory-state.md` - Current factory state
+- `state/kelly.json` - Kelly operational state
+- `projects/project-registry.json` - Project lifecycle state
 - `memory/YYYY-MM-DD.md` - Recent events and lessons
 - Agent session histories (for debugging)
 
