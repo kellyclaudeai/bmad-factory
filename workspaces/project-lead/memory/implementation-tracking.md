@@ -28,11 +28,14 @@
 - Review session: agent:bmad-bmm-amelia:subagent:09c6ddb9-ee1b-47e6-8b49-4e8ca85a612d
 - Status: Code review started
 
-### Next Ready Stories (after current wave):
-- Story 1.5: UI Components (depends on 1.3)
+### Next Ready Stories (Wave 2 - after 1.2 & 1.3 pass review):
+- Story 1.5: UI Components (depends on 1.3) 
 - Story 2.1: Google Sign-In (depends on 1.2)
-- Story 9.2: Environment variables (depends on 1.2)
-- Story 9.3: HTTPS headers (no blockers)
+- Story 9.2: Environment variables (depends on 1.2)  
+- Story 9.3: HTTPS headers (no blockers - can start anytime)
+- Story 10.3: Focus indicators (no blockers - can start anytime)
+
+Wave 2 will have 5 stories running in parallel once 1.2 & 1.3 clear review.
 
 ## Monitoring Schedule
 - Check every 60 seconds via heartbeat

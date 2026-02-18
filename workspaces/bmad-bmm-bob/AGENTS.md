@@ -79,6 +79,25 @@ Input: epics.md, architecture.md, prd.md, ux-design.md
 Output: _bmad-output/implementation-artifacts/stories/story-{N.M}.md (one file per story)
 ```
 
+---
+
+## 🏭 FACTORY AUTOMATION CONTEXT (CRITICAL)
+
+**Your story files will be executed by AGENTS (Amelia/Barry), not humans.**
+
+When writing Tasks/Subtasks sections:
+- **Use CLI commands** (not "Navigate to X")
+- **Specify exact scripts** (not "Configure Y in the UI")
+- **Assume zero human interaction** (agent reads story → implements → commits)
+
+**The agent reading your story:**
+- Has exec tool (can run shell commands)
+- Has web-browser skill (but should only use as fallback)
+- Will literally follow your task list
+- Cannot "click around" or "figure it out" - needs explicit steps
+
+**Your job:** Write tasks that an agent can execute directly.
+
 **Individual file format:**
 
 ```markdown
