@@ -155,20 +155,104 @@ If tests PASS → Phase 4
 
 ### Phase 4: User QA
 
+**When TEA passes**, Project Lead prepares app for human testing. This phase has 4 stages:
+
+#### Stage 4.5: QA Preparation (Project Lead)
+
+**1. Host or Deploy**
+
+Choose based on project type:
+- **Local (default):** `npm run dev` (or equivalent)
+  - Bind to `0.0.0.0` if Tailscale access needed
+  - Note exact URL (usually `http://localhost:3000`)
+- **Vercel (web apps):** Deploy preview or production
+  - Get live URL (e.g., `https://app-name.vercel.app`)
+
+**2. Update project-state.json**
+```json
+{
+  "stage": "userQA",
+  "qaUrl": "http://localhost:3000",
+  "qaReadyAt": "2026-02-16T18:50:00Z",
+  "qaInstructions": "Run 'npm run dev' in projects/{projectId}. Test features: ..."
+}
 ```
-1. Deploy dev branch (Vercel preview, localhost, etc.)
-2. Update project-state.json: stage = "userQA", qaUrl = "{url}"
-3. Kelly's heartbeat detects and surfaces to operator
 
-SCENARIO A: User Accepts → SHIP
-  git checkout main && git merge dev && git push origin main
-  → Production deploy
+**Required fields:**
+- `qaUrl` - Testable URL (localhost or deployed)
+- `qaReadyAt` - ISO timestamp
+- `qaInstructions` - How to run/test (especially for localhost)
 
-SCENARIO B: User Rejects → Back to Phase 2
+**3. Notify Kelly (Push)**
+```javascript
+sessions_send(
+  sessionKey="agent:main",
+  message="🧪 Project {projectName} ready for user QA: {qaUrl}\n\n{brief instructions}"
+)
+```
+
+This is **push notification** (immediate). Kelly's heartbeat is **pull detection** (safety net).
+
+**4. Self-Healing Check**
+
+Project Lead's own heartbeat (every 5-10 min):
+- **If stage="userQA" but no qaUrl:**
+  - Caught gap! Complete Stage 4.5 NOW
+  - Host app, update state, notify Kelly
+
+#### Stage 4.6: Surfacing (Kelly Heartbeat)
+
+**Every 30-60 minutes**, Kelly scans for projects ready for QA:
+
+1. Read all `projects/*/project-state.json` files
+2. Filter: `stage="userQA"` AND `qaUrl` present
+3. Check `heartbeat-state.json` → if NOT in `surfacedQA[]`:
+   - Alert operator: `🧪 **{projectName}** ready for user QA: {qaUrl}`
+   - Include `qaInstructions` if present
+   - Add `projectId` to `surfacedQA[]` in `heartbeat-state.json`
+
+**What NOT to surface:**
+- Projects with `status="paused"` (explicitly paused)
+- Projects already in `surfacedQA[]` list
+- Projects without a `qaUrl` (not ready yet)
+
+#### Stage 4.7: Operator Testing
+
+**SCENARIO A: User Accepts → SHIP**
+```bash
+git checkout main && git merge dev && git push origin main
+# CI/CD deploys to production from main
+# Project Lead updates status="shipped"
+```
+
+**SCENARIO B: User Pauses → PAUSE**
+```
+Operator: "pause {project}"
+Kelly updates factory-state.md → status="paused"
+# Kelly stops surfacing in heartbeats until resumed
+```
+
+**SCENARIO C: User Rejects → FIX**
+```
+Back to Phase 2 (Implementation):
   Option A: correct-course workflow (analyzes feedback, proposes changes)
   Option B: Simple story creation (minor fixes)
-  → Implement fixes → Test → Return to User QA
+  → Implement fixes → Phase 3 (TEA) → Phase 4 (User QA retry)
 ```
+
+#### State Files
+
+**project-state.json:**
+- `stage`: "userQA"
+- `qaUrl`: testable URL
+- `qaReadyAt`: ISO timestamp
+- `qaInstructions`: how to run/test
+
+**heartbeat-state.json:**
+- `surfacedQA[]`: projects already announced
+
+**factory-state.md:**
+- `status`: "in-progress" | "paused" | "shipped"
 
 ---
 

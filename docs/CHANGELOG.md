@@ -1,0 +1,81 @@
+# Kelly Factory Changelog
+
+**Purpose:** Log significant changes to Kelly's architecture, workflows, and agent behavior. Brief entries with timestamps - what changed and why.
+
+**Format:** `YYYY-MM-DD HH:MM CST | Component | What Changed | Why`
+
+---
+
+## 2026-02-18
+
+### 10:53 CST | Docs Structure
+**What:** Merged userqa-workflow.md into project-lead-flow.md Phase 4, created /core and /changelog folders  
+**Why:** User QA is part of project lifecycle, should live in main flow doc. Structured docs for clarity.
+
+### 10:36 CST | Coding CLI Fallback - Continuation
+**What:** 4-tier fallback allows workspace continuation (no reset between Codex → Claude Code)  
+**Why:** Avoid wasting work. Both tools read same story file + git diff, can pick up where the other left off. BMAD workflow provides coordination structure.
+
+### 09:30 CST | Skill Refactor - Agent-Specific Skills
+**What:** Split coding-agent into 3 skills: coding-cli (shared wrapper), amelia-coding, barry-coding, test/murat-testing  
+**Why:** Eliminate context bleed. Each agent sees only their workflows. DRY principle for fallback logic in shared wrapper.
+
+### 09:06 CST | 4-Tier Automatic Fallback
+**What:** Created code-with-fallback wrapper with cascade: Codex GPT plan → Codex API key → Claude Code Anthropic plan → Claude Code API key  
+**Why:** Handle OpenAI billing errors and rate limits automatically. No manual intervention, no blocked stories.
+
+---
+
+## 2026-02-17
+
+### 20:41 CST | Gate Check Strict Mode
+**What:** Enforced strict gate check - only PASS proceeds to implementation, CONCERNS/FAIL require remediation loop  
+**Why:** Prevent shipping with known issues. Gate check exists to catch problems early, not rubber-stamp.
+
+### 20:10 CST | BMAD Workflow Paths Fix
+**What:** Corrected all 8 BMAD agent AGENTS.md files with proper workflow paths: `_bmad/{module}/workflows/{phase}/{workflow}/`  
+**Why:** Sally failures due to wrong paths. John (Opus 4.6) smart enough to find correct paths despite wrong docs, Sally (Sonnet 4.5) followed instructions literally and failed.
+
+### 19:39 CST | Web Search Migration - SearXNG
+**What:** Research Lead + Mary switched from Brave API (web_search tool) to SearXNG skill (local Docker)  
+**Why:** Brave API rate limits caused 50% failure rate in Research Lead Batch 1. SearXNG has no limits, improved to 70% success in Batch 2.
+
+### 15:50 CST | Factory Architecture - docs/ Folder
+**What:** Moved factory architecture docs from skills/factory/factory-architecture/ to docs/  
+**Why:** Core architecture docs shouldn't live in skills folder. docs/ is canonical source of truth.
+
+---
+
+## 2026-02-16
+
+### 18:47 CST | BMAD Skills Created
+**What:** Created coding-agent (Amelia/Barry) and testing-agent (Murat) skills with BMAD workflow documentation  
+**Why:** Centralize BMAD CLI invocation patterns. Agents reference skills for implementation guidance.
+
+---
+
+## 2026-02-15
+
+### 14:22 CST | Project Lead - Dependency-Driven Spawning
+**What:** Removed artificial batching/waves, implemented dependency-driven story spawning from Bob's dependency-graph.json  
+**Why:** Maximize parallelism. Stories spawn as soon as dependencies satisfied, not in fixed batches.
+
+---
+
+## 2026-02-14
+
+### 09:15 CST | Research Lead - Autonomous Idea Generation
+**What:** Created Research Lead orchestrator with 5-phase autonomous product idea generation workflow  
+**Why:** Scale idea generation. Research Lead spawns Mary for pain point research, creates complete product briefs without human intervention.
+
+---
+
+## 2026-02-13
+
+### 16:30 CST | Project Structure - 4 Folders
+**What:** Reorganized projects into: ideas/, active/, shipped/, archived/  
+**Why:** Clear lifecycle stages. Makes it obvious where projects are in the pipeline.
+
+---
+
+**Note:** This log started 2026-02-18. Earlier entries reconstructed from git history and memory files.

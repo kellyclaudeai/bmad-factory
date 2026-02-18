@@ -1,5 +1,12 @@
 # User QA Workflow
 
+**⚠️ DEPRECATED:** 2026-02-18 - Merged into `project-lead-flow.md` Phase 4
+
+This content is now part of the main Project Lead flow documentation. See:
+- `/Users/austenallred/clawd/docs/project-lead-flow.md` → Phase 4: User QA
+
+---
+
 This document describes the complete workflow for surfacing projects ready for user testing.
 
 ## Overview
