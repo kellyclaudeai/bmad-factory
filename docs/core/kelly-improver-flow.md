@@ -42,9 +42,9 @@ Kelly-Improver works on:
 
 **Kelly Router**
 - Decision framework (what to route where)
-- Proactive work patterns (heartbeats, monitoring)
+- Proactive work patterns (project monitoring, memory maintenance)
 - Group chat behavior
-- Memory maintenance
+- Session management
 
 **Project Lead**
 - Mode selection (Normal, Fast Track, Resume, Brownfield)
