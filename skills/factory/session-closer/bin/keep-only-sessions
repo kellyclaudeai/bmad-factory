@@ -1,20 +1,44 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ $# -eq 0 ]; then
-  echo "Usage: keep-only-sessions <projectId1> [<projectId2> ...]" >&2
+# Parse arguments
+AGENT="project-lead"
+PROJECT_IDS=()
+SESSION_KEYS=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --agent)
+      AGENT="$2"
+      shift 2
+      ;;
+    *)
+      # Check if it's a session key or project ID
+      if [[ "$1" == agent:* ]]; then
+        SESSION_KEYS+=("$1")
+      else
+        PROJECT_IDS+=("$1")
+      fi
+      shift
+      ;;
+  esac
+done
+
+if [ ${#PROJECT_IDS[@]} -eq 0 ] && [ ${#SESSION_KEYS[@]} -eq 0 ]; then
+  echo "Usage: keep-only-sessions [--agent <agent>] <projectId1|sessionKey1> [<projectId2|sessionKey2> ...]" >&2
   echo "" >&2
-  echo "Removes ALL project-lead sessions EXCEPT the ones specified." >&2
-  echo "Always keeps: agent:project-lead:main (system session)" >&2
+  echo "Removes ALL sessions for the agent EXCEPT the ones specified." >&2
+  echo "Always keeps: agent:<agent>:main (system session)" >&2
   echo "" >&2
   echo "Examples:" >&2
   echo "  keep-only-sessions kelly-dashboard" >&2
-  echo "  keep-only-sessions kelly-dashboard meeting-tracker" >&2
+  echo "  keep-only-sessions --agent main jason" >&2
+  echo "  keep-only-sessions --agent main agent:main:jason agent:main:matt" >&2
   exit 2
 fi
 
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SESS_DIR="$HOME/.openclaw/agents/project-lead/sessions"
+SESS_DIR="$HOME/.openclaw/agents/$AGENT/sessions"
 INDEX_PATH="$SESS_DIR/sessions.json"
 
 if [ ! -f "$INDEX_PATH" ]; then
@@ -31,14 +55,16 @@ echo "✅ Backed up sessions.json to $BACKUP_PATH"
 
 # Build list of keys to KEEP
 KEYS_TO_KEEP=()
-KEYS_TO_KEEP+=("agent:project-lead:main") # Always keep main
+KEYS_TO_KEEP+=("agent:$AGENT:main") # Always keep main
 
-for PROJECT_ID in "$@"; do
-  CANONICAL="agent:project-lead:$PROJECT_ID"
-  LEGACY="agent:project-lead:project-$PROJECT_ID"
+CURRENT_JSON=$(cat "$INDEX_PATH")
+
+# Process project IDs
+for PROJECT_ID in "${PROJECT_IDS[@]}"; do
+  CANONICAL="agent:$AGENT:$PROJECT_ID"
+  LEGACY="agent:$AGENT:project-$PROJECT_ID"
   
   # Add whichever format exists
-  CURRENT_JSON=$(cat "$INDEX_PATH")
   if echo "$CURRENT_JSON" | jq -e ".[\"$CANONICAL\"]" > /dev/null 2>&1; then
     KEYS_TO_KEEP+=("$CANONICAL")
     echo "  - Keeping: $CANONICAL"
@@ -50,11 +76,18 @@ for PROJECT_ID in "$@"; do
   fi
 done
 
+# Process explicit session keys
+for KEY in "${SESSION_KEYS[@]}"; do
+  if echo "$CURRENT_JSON" | jq -e ".[\"$KEY\"]" > /dev/null 2>&1; then
+    KEYS_TO_KEEP+=("$KEY")
+    echo "  - Keeping: $KEY"
+  else
+    echo "  ⚠️  Not found: $KEY"
+  fi
+done
+
 echo ""
 echo "Building new sessions.json with only kept sessions..."
-
-# Load current index
-CURRENT_JSON=$(cat "$INDEX_PATH")
 
 # Get all current keys
 ALL_KEYS=$(echo "$CURRENT_JSON" | jq -r 'keys[]')

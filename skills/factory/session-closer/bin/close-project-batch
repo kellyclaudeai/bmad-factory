@@ -1,17 +1,41 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ $# -eq 0 ]; then
-  echo "Usage: close-project-batch <projectId1> [<projectId2> ...]" >&2
+# Parse arguments
+AGENT="project-lead"
+PROJECT_IDS=()
+SESSION_KEYS=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --agent)
+      AGENT="$2"
+      shift 2
+      ;;
+    *)
+      # Check if it's a session key or project ID
+      if [[ "$1" == agent:* ]]; then
+        SESSION_KEYS+=("$1")
+      else
+        PROJECT_IDS+=("$1")
+      fi
+      shift
+      ;;
+  esac
+done
+
+if [ ${#PROJECT_IDS[@]} -eq 0 ] && [ ${#SESSION_KEYS[@]} -eq 0 ]; then
+  echo "Usage: close-project-batch [--agent <agent>] <projectId1|sessionKey1> [<projectId2|sessionKey2> ...]" >&2
   echo "" >&2
   echo "Examples:" >&2
   echo "  close-project-batch calculator-app daily-todo-tracker" >&2
-  echo "  close-project-batch fleai-market-v5 hydration-tracker meeting-time-tracker" >&2
+  echo "  close-project-batch --agent main jason jason-dashupdate" >&2
+  echo "  close-project-batch --agent main agent:main:matrix:channel:xyz" >&2
   exit 2
 fi
 
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SESS_DIR="$HOME/.openclaw/agents/project-lead/sessions"
+SESS_DIR="$HOME/.openclaw/agents/$AGENT/sessions"
 INDEX_PATH="$SESS_DIR/sessions.json"
 
 if [ ! -f "$INDEX_PATH" ]; then
@@ -31,10 +55,12 @@ CURRENT_JSON=$(cat "$INDEX_PATH")
 
 # Build list of session keys to remove
 KEYS_TO_REMOVE=()
-for PROJECT_ID in "$@"; do
+
+# Process project IDs
+for PROJECT_ID in "${PROJECT_IDS[@]}"; do
   # Try both canonical and legacy formats
-  CANONICAL="agent:project-lead:$PROJECT_ID"
-  LEGACY="agent:project-lead:project-$PROJECT_ID"
+  CANONICAL="agent:$AGENT:$PROJECT_ID"
+  LEGACY="agent:$AGENT:project-$PROJECT_ID"
   
   # Check if either exists
   if echo "$CURRENT_JSON" | jq -e ".[\"$CANONICAL\"]" > /dev/null 2>&1; then
@@ -45,6 +71,16 @@ for PROJECT_ID in "$@"; do
     echo "  - Found: $LEGACY"
   else
     echo "  ⚠️  Not found: $PROJECT_ID (tried $CANONICAL and $LEGACY)"
+  fi
+done
+
+# Process explicit session keys
+for KEY in "${SESSION_KEYS[@]}"; do
+  if echo "$CURRENT_JSON" | jq -e ".[\"$KEY\"]" > /dev/null 2>&1; then
+    KEYS_TO_REMOVE+=("$KEY")
+    echo "  - Found: $KEY"
+  else
+    echo "  ⚠️  Not found: $KEY"
   fi
 done
 

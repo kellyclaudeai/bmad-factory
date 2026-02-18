@@ -1,11 +1,50 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_ID="${1:-}"
-if [[ -z "$PROJECT_ID" ]]; then
-  echo "Usage: close-project <projectId>" >&2
+# Usage: close-project [--agent <agent>] <projectId|sessionKey>
+# Defaults to --agent project-lead for backward compatibility
+
+AGENT="project-lead"
+SESSION_KEY=""
+PROJECT_ID=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --agent)
+      AGENT="$2"
+      shift 2
+      ;;
+    --session-key)
+      SESSION_KEY="$2"
+      shift 2
+      ;;
+    *)
+      if [[ -z "$PROJECT_ID" && -z "$SESSION_KEY" ]]; then
+        # First positional arg - could be project-id or session-key
+        if [[ "$1" == agent:* ]]; then
+          SESSION_KEY="$1"
+        else
+          PROJECT_ID="$1"
+        fi
+      fi
+      shift
+      ;;
+  esac
+done
+
+if [[ -z "$PROJECT_ID" && -z "$SESSION_KEY" ]]; then
+  echo "Usage: close-project [--agent <agent>] <projectId|sessionKey>" >&2
+  echo "Examples:" >&2
+  echo "  close-project kelly-dashboard" >&2
+  echo "  close-project --agent main jason" >&2
+  echo "  close-project --session-key agent:main:matrix:channel:xyz" >&2
   exit 2
 fi
 
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-python3 "$BASE_DIR/scripts/close_project_lead_session.py" --project-id "$PROJECT_ID"
+
+if [[ -n "$SESSION_KEY" ]]; then
+  python3 "$BASE_DIR/scripts/close_project_lead_session.py" --agent "$AGENT" --session-key "$SESSION_KEY"
+else
+  python3 "$BASE_DIR/scripts/close_project_lead_session.py" --agent "$AGENT" --project-id "$PROJECT_ID"
+fi

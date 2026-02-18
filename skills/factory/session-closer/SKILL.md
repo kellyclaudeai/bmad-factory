@@ -1,11 +1,11 @@
 ---
 name: session-closer
-description: Close/remove stale OpenClaw sessions (especially Project Lead project sessions) by pruning the session index and archiving transcripts; used when a project is Shipped/Done to keep the dashboard clean.
+description: Close/remove stale OpenClaw sessions (any agent) by pruning the session index and archiving transcripts; used when a project is Shipped/Done or to clean up test/abandoned sessions.
 ---
 
 # session-closer
 
-**Generic session cleanup** - closes any OpenClaw session (Project Lead, isolated agents, etc.) by removing from session index and archiving transcripts.
+**Generic session cleanup** - closes any OpenClaw session (Project Lead, main agent, or any other agent) by removing from session index and archiving transcripts.
 
 ## When to Use
 
@@ -25,9 +25,14 @@ Use:
 - **project-closer** when you want COMPLETE project cleanup (session + directory + state)
 
 ## What it changes
-Project Lead sessions are stored under:
-- `~/.openclaw/agents/project-lead/sessions/sessions.json` (sessionKey → sessionId index)
-- `~/.openclaw/agents/project-lead/sessions/<sessionId>.jsonl` (transcript)
+Agent sessions are stored under:
+- `~/.openclaw/agents/<agent>/sessions/sessions.json` (sessionKey → sessionId index)
+- `~/.openclaw/agents/<agent>/sessions/<sessionId>.jsonl` (transcript)
+
+Examples:
+- **Project Lead:** `~/.openclaw/agents/project-lead/sessions/`
+- **Main agent:** `~/.openclaw/agents/main/sessions/`
+- **Other agents:** `~/.openclaw/agents/<agent-name>/sessions/`
 
 "Closing" a session means:
 1) Backup + remove the sessionKey entry from `sessions.json`
@@ -36,51 +41,82 @@ Project Lead sessions are stored under:
 
 ## Commands
 
+All commands support `--agent <agent-name>` to target a specific agent. Defaults to `project-lead` if not specified.
+
 ### Single Session Close
 Close one session at a time (restarts gateway after each):
 ```bash
-bin/close-project <projectId>
+bin/close-project [--agent <agent>] <projectId|sessionKey>
 ```
 
-Examples:
-- `bin/close-project kelly-dashboard`
-- `bin/close-project meeting-time-tracker`
+**Project Lead examples:**
+- `bin/close-project kelly-dashboard` (defaults to project-lead)
+- `bin/close-project --agent project-lead meeting-time-tracker`
+
+**Main agent examples:**
+- `bin/close-project --agent main jason`
+- `bin/close-project --agent main jason-dashupdate`
+- `bin/close-project --session-key agent:main:matrix:channel:!wbxlmlrvmmzmzchiaf:austens-mac-mini.local`
 
 ### Batch Close
 Close multiple sessions at once (single gateway restart at end):
 ```bash
-bin/close-project-batch <projectId1> <projectId2> <projectId3> ...
+bin/close-project-batch [--agent <agent>] <projectId1|sessionKey1> <projectId2|sessionKey2> ...
 ```
 
-Examples:
+**Project Lead examples:**
 - `bin/close-project-batch calculator-app daily-todo-tracker takeouttrap`
 - `bin/close-project-batch fleai-market-v5 hydration-tracker meeting-time-tracker`
 
-**Batch mode is faster** when closing multiple sessions (3+ sessions = use batch).
+**Main agent examples:**
+- `bin/close-project-batch --agent main jason jason-dashupdate`
+- `bin/close-project-batch --agent main agent:main:matrix:channel:xyz agent:main:project-test`
+
+**Mixed (same agent):**
+- `bin/close-project-batch --agent main jason agent:main:matrix:channel:xyz` (project ID + full key)
+
+**Batch mode is faster** when closing 3+ sessions (single gateway restart).
 
 ### Keep Only Specific Session(s)
 Clean all sessions EXCEPT the ones you want to keep:
 ```bash
-bin/keep-only-sessions <projectId1> <projectId2> ...
+bin/keep-only-sessions [--agent <agent>] <projectId1|sessionKey1> <projectId2|sessionKey2> ...
 ```
 
-Examples:
-- `bin/keep-only-sessions kelly-dashboard` (removes all others)
+**Project Lead examples:**
+- `bin/keep-only-sessions kelly-dashboard` (removes all other project-lead sessions)
 - `bin/keep-only-sessions kelly-dashboard meeting-tracker` (keeps both, removes others)
 
-This is useful for "fresh slate" scenarios where you want to archive everything except 1-2 active projects.
+**Main agent examples:**
+- `bin/keep-only-sessions --agent main jason` (removes all other main sessions)
+- `bin/keep-only-sessions --agent main agent:main:jason agent:main:matt`
+
+**Note:** Always keeps `agent:<agent>:main` (system session) regardless of what you specify.
+
+This is useful for "fresh slate" scenarios where you want to archive everything except 1-2 active sessions.
 
 ## Session Key Formats
 
-The scripts support both canonical and legacy formats:
+**For Project Lead sessions:**
 - `agent:project-lead:<projectId>` (canonical)
 - `agent:project-lead:project-<projectId>` (legacy)
 
 Just pass the `<projectId>` (e.g., `kelly-dashboard`) and the script will try both formats.
+
+**For other agents:**
+- You can pass a project ID: `--agent main jason`
+- Or a full session key: `--session-key agent:main:matrix:channel:xyz`
+
+**Examples of full session keys:**
+- `agent:main:jason` (simple session)
+- `agent:main:project-test` (project-style naming)
+- `agent:main:matrix:channel:!wbxlmlrvmmzmzchiaf:austens-mac-mini.local` (Matrix channel)
+- `agent:main:matrix:direct:@user:server.local` (Matrix direct message)
 
 ## Notes
 
 - **Backup:** sessions.json is backed up before modification (`.bak-<timestamp>`)
 - **Transcripts:** Archived as `<sessionId>.jsonl.deleted.<timestamp>` (not deleted, just renamed)
 - **Gateway restart:** Required for changes to take effect immediately in dashboard/sessions_list
-- **agent:project-lead:main:** Never cleaned (system session)
+- **System sessions:** `agent:<agent>:main` sessions are always preserved by `keep-only-sessions` (e.g., `agent:project-lead:main`, `agent:main:main`)
+- **Agent parameter:** Defaults to `project-lead` for backward compatibility with existing scripts/workflows

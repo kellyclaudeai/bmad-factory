@@ -9,28 +9,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 STATE_DIR = Path(os.path.expanduser("~/.openclaw"))
-AGENT_ID = "project-lead"
-SESS_DIR = STATE_DIR / "agents" / AGENT_ID / "sessions"
-INDEX_PATH = SESS_DIR / "sessions.json"
 
 
 def utc_ts() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
 
 
-def load_index() -> dict:
-    if not INDEX_PATH.exists():
-        return {}
-    return json.loads(INDEX_PATH.read_text())
-
-
-def write_index(obj: dict) -> None:
-    INDEX_PATH.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n")
-
-
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--project-id", required=True, help="e.g. kelly-dashboard")
+    ap.add_argument("--agent", default="project-lead", help="Agent name (e.g., project-lead, main)")
+    ap.add_argument("--session-key", help="Full session key (e.g., agent:main:jason)")
+    ap.add_argument("--project-id", help="Project ID (for project-lead sessions)")
 
     # Defaults: archive + restart (safe and matches operator preference)
     ap.add_argument("--restart-gateway", action="store_true", default=True)
@@ -40,13 +29,30 @@ def main() -> int:
 
     args = ap.parse_args()
 
-    # Support both canonical and legacy session key formats.
-    candidates = [
-        f"agent:{AGENT_ID}:{args.project_id}",
-        f"agent:{AGENT_ID}:project-{args.project_id}",
-    ]
+    # Compute paths from agent
+    sess_dir = STATE_DIR / "agents" / args.agent / "sessions"
+    index_path = sess_dir / "sessions.json"
 
-    index = load_index()
+    # Determine session key candidates
+    if args.session_key:
+        # Full session key provided
+        candidates = [args.session_key]
+    elif args.project_id:
+        # Project ID provided - construct session key patterns
+        candidates = [
+            f"agent:{args.agent}:{args.project_id}",
+            f"agent:{args.agent}:project-{args.project_id}",
+        ]
+    else:
+        print("ERROR: Must provide either --session-key or --project-id", file=sys.stderr)
+        return 2
+
+    # Load index from computed path
+    if not index_path.exists():
+        print(f"ERROR: Index not found at {index_path}", file=sys.stderr)
+        return 1
+
+    index = json.loads(index_path.read_text())
 
     session_key = next((k for k in candidates if k in index), None)
     if not session_key:
@@ -54,21 +60,21 @@ def main() -> int:
         return 0
 
     # Backup index
-    bak = INDEX_PATH.with_suffix(f".json.bak-close-{utc_ts()}")
+    bak = index_path.with_suffix(f".json.bak-close-{utc_ts()}")
     bak.write_text(json.dumps(index, indent=2, sort_keys=True) + "\n")
 
     session_id = (index.get(session_key) or {}).get("sessionId")
 
     # Remove from index
     del index[session_key]
-    write_index(index)
+    index_path.write_text(json.dumps(index, indent=2, sort_keys=True) + "\n")
 
     # Archive transcript
     archive = args.archive_transcript and not args.no_archive_transcript
     if archive and session_id:
-        src = SESS_DIR / f"{session_id}.jsonl"
+        src = sess_dir / f"{session_id}.jsonl"
         if src.exists():
-            dst = SESS_DIR / f"{session_id}.jsonl.deleted.{utc_ts()}"
+            dst = sess_dir / f"{session_id}.jsonl.deleted.{utc_ts()}"
             src.rename(dst)
 
     # Restart gateway
