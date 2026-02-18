@@ -56,13 +56,13 @@ Rules:
 2. Kelly Router must **not** spawn implementation/coding “doer” subagents directly (Barry, Amelia, Quinn, etc.).
 3. If a request feels small/fast, that’s still routed to Project Lead; Project Lead may choose **Barry Fast Track** internally.
 4. Kelly *may* spawn lightweight research/analysis helpers (e.g., Mary) **only** when the task is not making code changes and not managing a project pipeline.
-5. Canonical per-project state lives on disk in the project folder (`project-state.json` + stage state files). Kelly should not track detailed work in chat context.
+5. Canonical project state lives in `projects/project-registry.json` (lifecycle) + BMAD artifacts (stories). Kelly should not track detailed work in chat context.
 
 Mechanics:
 - Identify/confirm `projectId`
 - Ensure project directory exists under `/Users/austenallred/clawd/projects/{projectId}`
 - `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message=... )`
-- Update high-level `factory-state.md` only (no story-level tracking in Kelly context)
+- Kelly tracks operational state only in `state/kelly.json` (heartbeat, surfacing, pending actions)
 
 ## Orchestrator Sessions
 
@@ -133,7 +133,7 @@ openclaw gateway call agent \
 **After creating session:**
 - Session runs in background (use `--expect-final` or run with `&`)
 - Monitor via `openclaw sessions --active 60`
-- Check progress via state files (project-state.json, stage state files)
+- Check progress via registry (projects/project-registry.json) + BMAD artifacts (sprint-status.yaml)
 - Send follow-up messages via `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message="...")`
 
 ### Session Hierarchy
@@ -175,8 +175,8 @@ wait
 ### Monitoring Orchestrator Sub-Agents
 
 Kelly's role after spawning orchestrator sub-agents:
-1. **Track in factory-state.md** (session key, status, timestamp)
-2. **Monitor state files** (heartbeat checks for QA surfacing, stall detection)
+1. **Track in state/kelly.json** (session key, waiting-on items, notes)
+2. **Monitor registry + BMAD artifacts** (heartbeat checks for QA surfacing, stall detection)
 3. **Announce completion** when orchestrator finishes
 4. **DO NOT micromanage** — orchestrators handle their own workflows
 
@@ -301,13 +301,14 @@ You are free to edit `HEARTBEAT.md` with a short checklist or reminders. Keep it
 - **Calendar** - Upcoming events in next 24-48h?
 - **Mentions** - Twitter/social notifications?
 
-**Track your checks** in `memory/heartbeat-state.json`:
+**Track your checks** in `state/kelly.json`:
 
 ```json
 {
-  "lastChecks": {
-    "email": 1703275200,
-    "calendar": 1703260800
+  "heartbeat": {
+    "lastProjectScan": 1703275200,
+    "projectChecks": {},
+    "surfacedQA": []
   }
 }
 ```

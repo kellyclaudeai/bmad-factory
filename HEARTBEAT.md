@@ -7,57 +7,52 @@
 **Task:** Surface projects that Project Lead has moved to userQA.
 
 **Process:**
-1. Read all `projects/*/project-state.json` files
-2. Find projects with `stage: "userQA"` AND `qaUrl` field present
-3. Check `heartbeat-state.json` → if project NOT in `surfacedQA` list:
-   - Alert operator: "🧪 **{projectName}** ready for user QA: {qaUrl}"
-   - Add projectId to `surfacedQA` list in `heartbeat-state.json`
-4. If project status changes from "userQA" to "paused", remove from surfacing
+1. Read `projects/project-registry.json`
+2. Filter for projects with `state: "in-progress"` AND `implementation.qaUrl` present
+3. Check `state/kelly.json` → if project NOT in `heartbeat.surfacedQA[]` list:
+   - Alert operator: "🧪 **{name}** ready for user QA: {implementation.qaUrl}"
+   - Add projectId to `heartbeat.surfacedQA[]` in `state/kelly.json`
+4. If project `paused: true`, stop surfacing
 
 **What NOT to surface:**
-- Projects with status "paused" (user explicitly paused QA)
-- Projects already surfaced (check `surfacedQA` list)
-- Projects without a `qaUrl` (not ready yet)
+- Projects with `paused: true` (user explicitly paused QA)
+- Projects already in `heartbeat.surfacedQA[]` list
+- Projects without `implementation.qaUrl` (not ready yet)
 
 ### 2. Active Project Stall Check
 
 **Task:** Check if any active projects have stalled without Project Lead escalation.
 
 **Process:**
-1. Read `factory-state.md` to identify active projects (status: "planning" or "in-progress" or "implementation")
-2. **Skip projects with status "paused"** (user explicitly paused them)
-3. For each active (non-paused) project, check last state file update timestamp:
-   - Check `project-state.json` (always exists)
-   - Check `implementation-state.md` (if exists - should exist for projects in implementation)
-   - Use most recent timestamp
-4. If a project has been in the same stage **>60 minutes** with no file updates:
+1. Read `projects/project-registry.json` to identify active projects (state: "in-progress")
+2. **Skip projects with `paused: true`** (user explicitly paused them)
+3. For each active (non-paused) project, check `timeline.lastUpdated`:
+   - Compare with current time
+   - Use registry's `timeline.lastUpdated` as source of truth
+4. If a project has been in same state **>60 minutes** with no registry updates:
    - Send message to Project Lead: "Status check - any blockers? (Kelly safety net ping)"
-   - If Project Lead responds "all good", mark in `heartbeat-state.json` and skip for 45 min
+   - If Project Lead responds "all good", mark in `state/kelly.json` → `heartbeat.projectChecks.{id}.lastPing` and skip for 45 min
    - If Project Lead confirms blocker OR doesn't respond in 5 min, escalate to operator
-5. Update `heartbeat-state.json` with check timestamp
+5. Update `state/kelly.json` → `heartbeat.lastProjectScan` with check timestamp
 
 **When to escalate to operator:**
 - Project Lead confirms they're blocked after retry attempts
 - Project Lead session doesn't respond to ping (session may be dead)
 - Project has been stalled **>2 hours** even with "all good" responses (sanity check)
 
-**Required State Files (Project Lead responsibility):**
-- `project-state.json` - Always required (project metadata, subagent statuses)
-- `implementation-state.md` - Required during implementation stage (wave tracking, current stories)
-- Missing implementation-state.md during implementation triggers warning to PL
-- Planning projects only need `project-state.json` (no implementation-state.md yet)
-
-**Storage:**
+**State tracking (Kelly's responsibility):**
 ```json
 {
-  "lastProjectCheck": 1708128000,
-  "surfacedQA": ["calculator-app", "kelly-dashboard"],
-  "projectChecks": {
-    "fleai-market-v4": {
-      "lastPing": 1708128000,
-      "status": "ok",
-      "stage": "stage-1-planning"
-    }
+  "heartbeat": {
+    "lastProjectScan": 1708128000,
+    "projectChecks": {
+      "fleai-market-v5": {
+        "lastCheck": 1708128000,
+        "lastPingSent": null,
+        "consecutiveStalls": 0
+      }
+    },
+    "surfacedQA": ["calculator-app"]
   }
 }
 ```
@@ -67,9 +62,9 @@
 ## Pausing Projects
 
 When operator says "pause {project}" or "pause QA for {project}":
-1. Update `factory-state.md` → change status to "paused" with reason
+1. Update `projects/project-registry.json` → set `paused: true` with `pausedReason`
 2. Kelly stops surfacing the project in heartbeat checks
-3. To resume: change status back to "in-progress" or "userQA"
+3. To resume: set `paused: false` in registry
 
 ---
 
