@@ -8,8 +8,8 @@
 
 ## 2026-02-18
 
-### 16:38 CST | CLI-First Policy (Minimal Guidance)
-**What:** Added minimal CLI-first guidance to project-lead-flow.md and 5 agent AGENTS.md files (Winston, Bob, Amelia, Barry, John). Removed factory-principles.md (too heavyweight).
+### 16:45 CST | CLI-First Policy (Minimal Guidance)
+**What:** Added minimal CLI-first guidance to project-lead-flow.md and 6 agent AGENTS.md files (Winston, Bob, John, Amelia, Barry). Removed factory-principles.md (too heavyweight).
 **Why:** NoteLite story 1.2 (Firebase setup) used browser automation because BMAD workflows assume human operators. Winston/Bob were writing planning artifacts for humans, but agents execute them autonomously.
 **Root cause:** BMAD workflows are interactive/collaborative by design. Factory agents execute autonomously. Mismatch → browser instructions → slower implementation.
 **Solution:** Minimal guidance in the right places
@@ -21,9 +21,14 @@
 - `docs/core/project-lead-flow.md` — CLI-First Policy section
 - `workspaces/bmad-bmm-winston/AGENTS.md` — CLI-First Architecture (3 lines)
 - `workspaces/bmad-bmm-bob/AGENTS.md` — CLI-First Story Tasks (3 lines)
+- `workspaces/bmad-bmm-john/AGENTS.md` — CLI-First Epics & Stories (3 lines)
 - `workspaces/bmad-bmm-amelia/TOOLS.md` — CLI-First Policy (condensed)
 - `workspaces/bmad-qf-barry/AGENTS.md` — CLI-First Policy (2 lines)
 - `docs/factory-overview.md` — Removed factory-principles.md reference
+**Commits:**
+- `68932f0` — refactor: Simplify CLI-first guidance (remove factory-principles.md)
+- `8c92734` — docs: Add CLI-first guidance to John (PM)
+
 **Status:** ✅ Complete — lightest possible guidance, upstream fix in planning
 
 ### 15:42 CST | BMAD YOLO Mode for All Subagent Spawns
