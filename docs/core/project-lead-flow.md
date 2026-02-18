@@ -14,6 +14,16 @@ Project Lead owns a single project from intake to ship. One PL session per proje
 - `project-state.json` — subagent tracking, completed stories, pipeline status
 - `implementation-state.md` — required during implementation phase (dependency-driven spawning status)
 
+**Project Registry:** PL updates `/Users/austenallred/clawd/projects/project-registry.json` at key lifecycle transitions. See `docs/core/project-registry-workflow.md` for full spec.
+
+**Registry updates (PL responsibility):**
+- **Project start:** `discovery` → `in-progress` (set `implementation.projectDir`, `timeline.startedAt`)
+- **QA ready:** Set `implementation.qaUrl`, update `timeline.lastUpdated`
+- **Ship:** `in-progress` → `shipped` (set `implementation.deployedUrl`, `timeline.shippedAt`)
+- **Followup:** `shipped` → `followup` (add entries to `followup[]`)
+- **Followup done:** `followup` → `shipped`
+- **Pause/Resume:** Set `paused: true/false` with `pausedReason`
+
 **Dependency authority:** Bob's `dependency-graph.json` (or `stories-parallelization.json`) in `_bmad-output/implementation-artifacts/`. Each story has individual `dependsOn` arrays.
 
 ---
@@ -323,7 +333,8 @@ Project Lead's own heartbeat (every 5-10 min):
 ```bash
 git checkout main && git merge dev && git push origin main
 # CI/CD deploys to production from main
-# Project Lead updates status="shipped"
+# Project Lead updates project-state.json status="shipped"
+# Project Lead updates project-registry.json: state="shipped", timeline.shippedAt, implementation.deployedUrl
 ```
 
 **SCENARIO B: User Pauses → PAUSE**

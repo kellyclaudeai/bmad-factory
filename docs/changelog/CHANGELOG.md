@@ -8,6 +8,20 @@
 
 ## 2026-02-18
 
+### 13:15 CST | Project Registry Lifecycle Architecture
+**What:** Created unified project-registry.json at /projects/ root to track all project state (discovery → in-progress → shipped → followup). Replaces projects-queue folder structure.  
+**Why:** Factory needs single source of truth for project lifecycle. Folder-based queue was messy; JSON registry enables atomic updates, query by state, version tracking, and futures management.  
+**States:** discovery (RL generated), in-progress (PL building), shipped (deployed), followup (post-ship work), paused (any state).  
+**Ownership:**
+- Research Lead: Creates discovery entries with full intake data
+- Project Lead: Moves discovery→in-progress when starting, updates qaUrl/deployedUrl, transitions to shipped/followup
+- Kelly: Routes discovery to PL, monitors for QA surfacing and stall detection  
+**Schema:** ID, name, state, timeline (discovered/started/shipped), intake (immutable brief), implementation (dirs/URLs), followup array  
+**Files:** docs/core/project-registry-workflow.md (new), research-lead-flow.md (updated), project-lead-flow.md (updated)  
+**Migration:** Cleared 20 projects-queue entries, created empty projects/project-registry.json, deleted old research-registry.json  
+**Impact:** Cleaner state management, easier querying, built-in version history, followup tracking in same place  
+**Status:** ✅ Complete
+
 ### 12:30 CST | Consolidated Remediation via correct-course
 **What:** ALL bug reports, user feedback, and complex new features now route through John's correct-course workflow for unified Sprint Change Management.  
 **Why:** Single remediation path with John as decision-maker. John categorizes scope (Minor/Moderate/Major) and recommends approach. Eliminates ad-hoc fix story creation - everything goes through formal change analysis.  

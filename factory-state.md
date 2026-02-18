@@ -1,6 +1,6 @@
 # Factory State
 
-**Last Updated:** 2026-02-18 12:47 CST (fresh slate - all projects archived)
+**Last Updated:** 2026-02-18 13:13 CST
 
 ## Project Organization
 
@@ -70,15 +70,21 @@ Ready for new projects.
   - Reset research-registry.json
 - **Next:** Ready for fresh batch with v2.0 workflow (updated flows in docs/core/research-lead-flow.md)
 
-## Active Sessions (as of 09:20 CST)
+## Active Sessions (as of 13:08 CST)
 
 | Session | Model | Context | Status |
 |---------|-------|---------|--------|
-| agent:main:matrix:direct:@matt:austens-mac-mini.local | opus-4-6 | Multiple compactions | ✅ Active (Kelly main session) |
-| agent:project-lead:project-fleai-market-v5 | sonnet-4-5 | Active | 🟡 TEA testing (Murat session 369b796f, ~6 min elapsed) |
-| agent:project-lead:project-takeouttrap | sonnet-4-5 | Active | 🔴 Blocked (10 stories failed code review, need remediation) |
+| agent:main:matt | sonnet-4-5 | Active | ✅ Active (Kelly main session) |
+| agent:main:main | sonnet-4-5 | 200k tokens | ✅ Heartbeat |
+| agent:project-lead:kelly-dashboard | sonnet-4-5 | 200k tokens | ✅ Active |
 | agent:project-lead:main | sonnet-4-5 | Active | ✅ Heartbeat |
-| agent:main:main | opus-4-6 | Active | ✅ Heartbeat |
+| agent:main:jason | sonnet-4-5 | 200k tokens | ✅ Active |
+| agent:kelly-improver:main | sonnet-4-5 | 200k tokens | ✅ Heartbeat |
+
+**Session Cleanup (13:08-13:13 CST):**
+- Closed: project-fleai-market-v5-test, jason-dashupdate, agent:main (duplicate), matrix:channel session
+- Fixed duplicate main session issue (agent:main vs agent:main:main)
+- Updated session-closer skill to support any agent (not just project-lead)
 
 ## Pending Actions
 
@@ -97,6 +103,7 @@ Ready for new projects.
 - **QA review:** calculator-app, kelly-dashboard, daily-todo-tracker, fleai-market-v5 awaiting operator testing
   - fleai-market-v5: http://localhost:3000 (PID 83461, dev server running since 12:00 CST)
   - Focus: Multi-chain checkout, Story 3.6 (AP2 launch blocker), Printful fulfillment, agent payouts
+- **kelly-dashboard:** Running on port 3000 (not 3001), restarted 13:05 CST
 - **Research briefs:** Queue cleared (12:58 CST) - ready for fresh batch with v2.0 workflow
 - **takeouttrap:** Remediation in progress (3 stories being fixed, 7 still awaiting remediation after first batch completes)
 - **Kelly workflow README updates:** kelly-router-flow.md and kelly-improver-flow.md created, need to update docs/core/README.md and docs/README.md with links
