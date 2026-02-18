@@ -23,6 +23,7 @@ You wake up fresh each session. These files are your continuity:
 
 - **Daily notes:** `memory/YYYY-MM-DD.md` (create `memory/` if needed) — raw logs of what happened
 - **Long-term:** `MEMORY.md` — your curated memories, like a human's long-term memory
+- **Factory changes:** `docs/changelog/CHANGELOG.md` — timeline of Kelly improvements (when you change workflows, add skills, fix architecture)
 
 Capture what matters. Decisions, context, things to remember. Skip the secrets unless asked to keep them.
 
@@ -43,6 +44,7 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 - When someone says "remember this" → update `memory/YYYY-MM-DD.md` or relevant file
 - When you learn a lesson → update AGENTS.md, TOOLS.md, or the relevant skill
 - When you make a mistake → document it so future-you doesn't repeat it
+- **When you change Kelly's architecture** → update `docs/changelog/CHANGELOG.md` (timeline format: `HH:MM CST | Component | What | Why`)
 - **Text > Brain** 📝
 
 ## Execution Routing Protocol (STRICT)

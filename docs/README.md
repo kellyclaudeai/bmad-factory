@@ -8,14 +8,16 @@
 
 ```
 /docs/
-├── CHANGELOG.md              # Log of changes to Kelly (what/why/when)
 ├── factory-overview.md       # High-level architecture overview
-├── gateway-session-recovery-proposal.md  # Proposal/reference doc
 │
 ├── core/                     # Core orchestrator workflows (source of truth)
 │   ├── README.md
 │   ├── project-lead-flow.md  # Project Lead: 4 modes × 4 phases
 │   └── research-lead-flow.md # Research Lead: 5-phase idea generation
+│
+├── changelog/                # Kelly improvement history
+│   ├── CHANGELOG.md          # Timeline of changes (what/why/when)
+│   └── gateway-session-recovery-proposal.md  # Detailed proposal docs
 │
 └── archive/                  # Deprecated/superseded docs
     ├── bmad-skills-documentation-audit.md
@@ -48,13 +50,25 @@
 - Approach superseded by new architecture
 - Historical reference only (no longer accurate)
 
+### /changelog/
+**Kelly improvement history and detailed proposal docs.**
+
+**CHANGELOG.md format:** `HH:MM CST | Component | What Changed | Why`
+
+**When to log:**
+- New skills added
+- Workflows changed (PL, RL, Kelly)
+- Architecture improvements (fallback systems, session recovery)
+- Bug fixes that change behavior
+- Performance optimizations
+
+**Detail docs:** For architectural decisions, proposals, or deep-dive specs, create a separate file in `/changelog/` and reference it from CHANGELOG.md.
+
 ### Top Level
 **Reference and overview docs.**
 
 **Current files:**
 - `factory-overview.md` - High-level architecture (agent hierarchy, modes, phases)
-- `gateway-session-recovery-proposal.md` - Technical proposal/reference
-- `CHANGELOG.md` - Log of changes to Kelly architecture
 
 ---
 
@@ -64,9 +78,19 @@
 
 1. **Update source doc** (usually /core/ or top-level)
 2. **Update downstream files** (AGENTS.md in workspaces)
-3. **Log in CHANGELOG.md** (what changed, why, timestamp)
+3. **Log in changelog/CHANGELOG.md** (what changed, why, timestamp)
 4. **Test with affected agents**
 5. **Commit with descriptive message**
+
+### Kelly and Kelly-Improver Responsibility
+
+**When you (Kelly) or Kelly-Improver make architectural changes:**
+1. Update the relevant docs (flows, AGENTS.md, skills)
+2. **Document in changelog/CHANGELOG.md** immediately after the change
+3. Format: `HH:MM CST | Component | What | Why`
+4. For complex changes, create a detail doc in `changelog/` and link it
+
+**This is not optional.** Future-you needs this context. Operator needs this audit trail.
 
 ### Adding New Docs
 
