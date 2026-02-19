@@ -50,8 +50,11 @@ service cloud.firestore {
       match /channels/{channelId} {
         allow read: if isWorkspaceMember(workspaceId);
         allow create: if isWorkspaceMember(workspaceId);
-        allow update, delete: if isWorkspaceOwner(workspaceId) || 
-                                  resource.data.createdBy == request.auth.uid;
+        allow update: if isWorkspaceOwner(workspaceId) || 
+                        resource.data.createdBy == request.auth.uid;
+        allow delete: if (isWorkspaceOwner(workspaceId) || 
+                            resource.data.createdBy == request.auth.uid) &&
+                          resource.data.name != "general";
         
         // Messages: All workspace members can read/create, author can update/delete
         match /messages/{messageId} {
