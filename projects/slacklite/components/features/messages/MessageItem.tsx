@@ -51,6 +51,12 @@ export default function MessageItem({ message }: MessageItemProps) {
               onClick={() => {
                 setIsExpanded((expanded) => !expanded);
               }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  setIsExpanded((expanded) => !expanded);
+                }
+              }}
               className="ml-1 text-primary-brand hover:underline"
               aria-expanded={isExpanded}
             >

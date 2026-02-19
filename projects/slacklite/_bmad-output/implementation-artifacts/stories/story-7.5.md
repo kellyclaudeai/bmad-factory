@@ -6,12 +6,12 @@
 Truncate very long messages (>2000 characters) with "Show more" link. Full text revealed on click for better UI performance.
 
 **Acceptance Criteria:**
-- [ ] MessageItem: Check if `text.length > 2000`
-- [ ] If >2000: Show first 2000 chars + "... Show more" link (Primary Brand color)
-- [ ] Click "Show more" → reveal full text, replace with "Show less" link
-- [ ] State: `useState<boolean>(isExpanded)` per message
-- [ ] Collapsed by default (prevent UI clutter)
-- [ ] Accessibility: Keyboard accessible (Tab + Enter to toggle)
+- [x] MessageItem: Check if `text.length > 2000`
+- [x] If >2000: Show first 2000 chars + "... Show more" link (Primary Brand color)
+- [x] Click "Show more" → reveal full text, replace with "Show less" link
+- [x] State: `useState<boolean>(isExpanded)` per message
+- [x] Collapsed by default (prevent UI clutter)
+- [x] Accessibility: Keyboard accessible (Tab + Enter to toggle)
 
 **Dependencies:**
 dependsOn: ["4.7"]
