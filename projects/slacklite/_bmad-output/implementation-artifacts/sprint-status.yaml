@@ -839,10 +839,31 @@ stories:
   "8.1":
     epic: 8
     title: "Implement Responsive Sidebar (Hamburger Menu)"
-    status: in_progress
+    status: review
     estimated_effort: "2-3 hours"
     dependencies: ["3.1"]
     started_at: "2026-02-19T14:31:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:35:00-06:00"
+    notes: |
+      ✅ Responsive sidebar with hamburger menu implementation complete
+      ✅ Desktop (≥1024px): Sidebar always visible at 250px fixed width
+      ✅ Tablet/Mobile (<1024px): Sidebar collapsible with hamburger menu in top-left
+      ✅ Hamburger icon: ☰ character with 44x44px tap target (h-11 w-11)
+      ✅ Sidebar slides in from left: 280px width on mobile/tablet, covers main view
+      ✅ Overlay backdrop: Semi-transparent bg-black/50 (rgba(0,0,0,0.5))
+      ✅ Close interactions: Tap outside sidebar or tap channel/DM auto-closes
+      ✅ Animation: 200ms slide transition (duration-200)
+      ✅ Updated breakpoints from md: (768px) to lg: (1024px) across both components
+      ✅ All acceptance criteria marked complete in story file
+      ✅ ESLint validation passed
+      
+      Files Changed:
+      - components/layout/AppShell.tsx (hamburger button with icon, overlay backdrop)
+      - components/layout/Sidebar.tsx (responsive widths, animation timing, lg: breakpoints)
+      - _bmad-output/implementation-artifacts/stories/story-8.1.md (criteria marked complete)
+      
+      Commit: 812cb51 (feat(8.1): Implement responsive sidebar with hamburger menu)
   
   "8.2":
     epic: 8
