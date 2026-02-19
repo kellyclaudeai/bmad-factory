@@ -383,9 +383,27 @@ stories:
   "4.5":
     epic: 4
     title: "Subscribe to Real-Time Message Updates"
-    status: todo
+    status: review
     estimated_effort: "2-3 hours"
     dependencies: ["4.1"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T12:05:00-06:00"
+    notes: |
+      ✅ Created lib/hooks/useRealtimeMessages.ts - React hook for RTDB real-time message subscription
+      ✅ Subscribes to RTDB path: /messages/{workspaceId}/{channelId}
+      ✅ Listens for onChildAdded events from Firebase RTDB
+      ✅ Returns { messages: Message[], loading: boolean, error: Error | null }
+      ✅ Handles connection state via .info/connected RTDB reference
+      ✅ Auto-unsubscribes on unmount and channel switch
+      ✅ Implements message deduplication using Set<messageId> (seenMessageIdsRef)
+      ✅ Converts RTDB timestamp (milliseconds) to Firestore Timestamp format
+      ✅ Logs message delivery latency (<500ms target, warns if exceeded)
+      ✅ All acceptance criteria marked complete in story file
+      ✅ ESLint and TypeScript validation passed
+      
+      Commit: 192f659 (bundled with Story 2.8 - feat(2.8): Implement protected route middleware)
+      
+      Status: Ready for code review
   
   "4.6":
     epic: 4
