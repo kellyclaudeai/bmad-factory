@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-18T19:06:00-06:00",
+  "lastUpdated": "2026-02-18T19:16:00-06:00",
   
   "heartbeat": {
     "lastProjectScan": 1771462500,
@@ -50,14 +50,18 @@
       "notes": "Research Details page errors for active Research Lead sessions. Bug report filed. PL session exists but times out."
     },
     {
-      "what": "NoteLite recovery (PL stuck)",
-      "who": "agent:project-lead:project-notelite",
-      "addedAt": "2026-02-18T19:04:00-06:00",
-      "notes": "Project Lead stuck at 0 active subagents. Finished 10 code reviews 9min ago, spawned 4 agents (5.2, 3.6, 3.5, 2.4) but they never started (totalTokens:0). PL session frozen (immediate timeouts). Recovery kick sent via gateway call agent 19:04 CST. Should recover in 30s."
+      "what": "NoteLite zombie session cleanup",
+      "who": "operator",
+      "addedAt": "2026-02-18T19:15:00-06:00",
+      "notes": "ROOT CAUSE FOUND: Gateway received external SIGTERM at 19:07 CST, killing 8 running agents mid-execution (only agent 3.5 completed). Those 8 sessions now zombie (exist in sessions_list but can't process messages). Project Lead also timing out. Need to clean up zombie sessions and respawn fresh agents. Awaiting operator decision on cleanup method."
     }
   ],
   
   "notes": [
+    {
+      "timestamp": "2026-02-18T19:16:00-06:00",
+      "text": "Pre-compaction #20 state flush. ROOT CAUSE DISCOVERED: Gateway received external SIGTERM at 19:07:07 CST, killing 9 running NoteLite agents mid-execution. Only agent 3.5 (Slash Command) completed before SIGTERM. The other 8 (4.2, 4.6, 5.2, 8.3 dev + 3.6, 6.4, 7.1, 7.2 reviews) now zombies - exist in sessions_list but can't process messages. Transcript logs show they WERE working 19:05-19:07. Gateway restarted automatically at 19:07:09, then I restarted again at 19:11:47 (thought it was session deadlock, but actually was SIGTERM aftermath). Project Lead also timing out when messaged. Unknown what sent SIGTERM - not me, not operator (as far as I know). System needs zombie cleanup before NoteLite can continue."
+    },
     {
       "timestamp": "2026-02-18T19:06:00-06:00",
       "text": "Pre-compaction #19 state flush. Dashboard fix #2: Reduced active window from 60min → 15min (19:02 CST). Was still showing 51 sessions because completed sessions lingered in 60min window. NoteLite Project Lead STUCK (19:04 CST): Announced 'All 10 code reviews complete' 9min ago, spawned 4 agents (5.2, 3.6, 3.5, 2.4) but they have totalTokens:0 (never started). PL session frozen/unresponsive (immediate timeouts). Recovery kick sent via gateway call agent (19:04 CST). System should recover in 30s. Root cause: Those 4 agents were spawned with wrong/duplicate story numbers, failed to start, PL session got stuck waiting."
