@@ -315,9 +315,32 @@ stories:
   "3.1":
     epic: 3
     title: "Create App Layout with Sidebar"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["1.6", "2.8"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:17:00-06:00"
+    notes: |
+      ✅ App layout with sidebar complete - all acceptance criteria met
+      ✅ Created components/layout/AppShell.tsx - 3-column responsive layout
+      ✅ Created components/layout/Sidebar.tsx - workspace name, channels, DMs
+      ✅ Integrated Header component from Story 2.6
+      ✅ Desktop: Fixed sidebar (240px width, always visible)
+      ✅ Mobile: Collapsible sidebar with menu toggle, overlay backdrop
+      ✅ Smooth transitions (translate-x and opacity)
+      ✅ Design system components used: Button, Badge, Avatar
+      ✅ Updated app/app/layout.tsx to use AppShell
+      ✅ All acceptance criteria marked complete in story file
+      ✅ Tests passing: pnpm test (1/1 passed)
+      ✅ Lint passed (2 existing warnings outside this story)
+      
+      Files Changed:
+      - components/layout/AppShell.tsx (new)
+      - components/layout/Sidebar.tsx (new)
+      - app/app/layout.tsx (updated to use AppShell)
+      - _bmad-output/implementation-artifacts/stories/story-3.1.md (criteria marked complete)
+      
+      Commit: 7939726 (feat(3.1): Create app layout with sidebar)
   
   "3.2":
     epic: 3
