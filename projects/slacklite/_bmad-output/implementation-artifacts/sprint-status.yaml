@@ -1118,10 +1118,45 @@ stories:
   "5.3":
     epic: 5
     title: "Fetch and Display DM List"
-    status: in_progress
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["5.2"]
     started_at: "2026-02-19T15:09:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T15:13:00-06:00"
+    notes: |
+      ✅ DM list display implementation complete - all acceptance criteria met
+      ✅ Created lib/hooks/useDirectMessages.ts:
+         - Firestore query: workspaces/{workspaceId}/directMessages with array-contains userIds
+         - onSnapshot subscription for real-time updates
+         - Sort by lastMessageAt DESC (most recent first)
+         - Resolve other user names via getDoc from /users/{userId}
+         - Handles displayName fallback to email prefix
+         - Returns { dms, loading, error }
+      ✅ Created components/features/channels/DMList.tsx:
+         - Uses useDirectMessages hook
+         - Loading spinner with role="status"
+         - Error message with role="alert"
+         - Empty state: "No direct messages yet. Click a team member to start chatting."
+         - Maps DMs to Link components with active state detection (usePathname)
+         - No # prefix for DM names (just user name)
+         - Active styling: bg-gray-300, border-l-4 border-primary-brand, font-semibold
+         - Inactive styling: hover:bg-gray-200
+      ✅ Updated components/layout/Sidebar.tsx:
+         - Removed hardcoded DEFAULT_DIRECT_MESSAGES
+         - Replaced hardcoded DM list with <DMList onDirectMessageSelect={onClose} />
+         - Section title changed to "Direct Messages"
+      ✅ All acceptance criteria marked complete in story file
+      ✅ ESLint validation passed
+      ✅ TypeScript compilation passed
+      
+      Files Changed:
+      - lib/hooks/useDirectMessages.ts (new, 279 lines)
+      - components/features/channels/DMList.tsx (new, 74 lines)
+      - components/layout/Sidebar.tsx (updated to use DMList)
+      - _bmad-output/implementation-artifacts/stories/story-5.3.md (criteria marked complete)
+      
+      Commit: 3022817 (feat(5.3): Build DM channel creation logic)
   
   "5.4":
     epic: 5
