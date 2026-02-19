@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getGatewayPort, getGatewayToken } from "@/lib/gateway-token";
-// Registry no longer required: Project Lead sessions use agent:project-lead:<projectId>
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,6 +41,57 @@ type GatewaySession = {
 let cache: { data: FrontendSession[]; timestamp: number } | null = null;
 const CACHE_TTL = 5000; // 5 seconds
 
+const PROJECTS_ROOT = '/Users/austenallred/clawd/projects';
+const REGISTRY_PATH = path.join(PROJECTS_ROOT, 'project-registry.json');
+
+type ProjectRegistryEntry = {
+  id: string;
+  name?: string;
+  implementation?: {
+    plSession?: string;
+    projectDir?: string;
+  };
+};
+
+type ProjectRegistry = {
+  projects: ProjectRegistryEntry[];
+};
+
+// Cache registry lookups (refresh every 30 seconds)
+let registryCache: { sessionToProjectId: Map<string, string>; timestamp: number } | null = null;
+const REGISTRY_CACHE_TTL = 30000; // 30 seconds
+
+async function loadRegistryMapping(): Promise<Map<string, string>> {
+  // Check cache
+  if (registryCache && Date.now() - registryCache.timestamp < REGISTRY_CACHE_TTL) {
+    return registryCache.sessionToProjectId;
+  }
+
+  const mapping = new Map<string, string>();
+
+  try {
+    const content = await fs.readFile(REGISTRY_PATH, 'utf8');
+    const registry: ProjectRegistry = JSON.parse(content);
+
+    for (const project of registry.projects) {
+      if (project.implementation?.plSession) {
+        mapping.set(project.implementation.plSession, project.id);
+      }
+    }
+
+    // Update cache
+    registryCache = {
+      sessionToProjectId: mapping,
+      timestamp: Date.now(),
+    };
+  } catch (error) {
+    console.warn('Failed to load project registry for session mapping:', error);
+    // Return empty map on error (graceful degradation)
+  }
+
+  return mapping;
+}
+
 function extractAgentType(sessionKey: string): string {
   // Extract agent type from session key
   // e.g., "agent:project-lead:project-calc-basic" -> "project-lead"
@@ -51,8 +103,18 @@ function extractAgentType(sessionKey: string): string {
   return "unknown";
 }
 
-function extractProjectId(sessionKey: string, label?: string): string | undefined {
-  // Try to extract project ID from session key
+async function extractProjectId(
+  sessionKey: string,
+  label?: string,
+  registryMapping?: Map<string, string>
+): Promise<string | undefined> {
+  // FIRST: Check registry mapping for canonical project ID
+  // This handles cases where session key != registry ID (e.g., "slacklite" vs "slack-lite-2026-02-18-2310")
+  if (registryMapping?.has(sessionKey)) {
+    return registryMapping.get(sessionKey);
+  }
+
+  // FALLBACK: Try to extract project ID from session key
   const parts = sessionKey.split(":");
 
   // Preferred canonical form:
@@ -113,6 +175,9 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
 
   try {
     const port = getGatewayPort();
+    
+    // Load registry mapping for session key -> canonical project ID
+    const registryMapping = await loadRegistryMapping();
     
     // Fetch recently active sessions (15 min window)
     const activeResponse = await fetch(`http://127.0.0.1:${port}/tools/invoke`, {
@@ -197,13 +262,13 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
 
     const gatewaySessions = Array.from(sessionMap.values());
     
-    // Transform to frontend format
-    const sessions: FrontendSession[] = gatewaySessions
+    // Transform to frontend format (map with async extractProjectId)
+    const sessionPromises = gatewaySessions
       .filter((s) => s.key || s.sessionKey) // Only sessions with keys
-      .map((session) => {
+      .map(async (session) => {
         const sessionKey = session.key || session.sessionKey || session.sessionId;
         const agentType = extractAgentType(sessionKey);
-        const projectId = extractProjectId(sessionKey, session.label);
+        const projectId = await extractProjectId(sessionKey, session.label, registryMapping);
         const meta = undefined;
         const label = session.label || session.displayName || extractLabel(sessionKey);
 
@@ -251,6 +316,9 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
           displayName: normalizedDisplayName,
         };
       });
+
+    // Wait for all projectId extractions to complete
+    const sessions = await Promise.all(sessionPromises);
 
     // Sort by lastActivity (most recent first)
     sessions.sort((a, b) => {

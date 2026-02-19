@@ -59,6 +59,13 @@
         "User acceptance testing on production URL",
         "Monitor Firebase usage and performance"
       ],
+      "notes": [
+        "Auth reverse proxy implemented via Next.js rewrites (Option 3 from Firebase docs)",
+        "signInWithRedirect/signInWithPopup both broken by COOP policies - reverse proxy eliminates cross-origin access",
+        "Admin page created at /admin for debugging auth state and clearing stale Firestore data",
+        "Permissions errors likely due to userId mismatch between old test data and current authenticated user",
+        "OAuth config in progress: adding notelite.vercel.app to Google Cloud Console Authorized JavaScript origins"
+      ],
       "researchDir": null
     },
     {
