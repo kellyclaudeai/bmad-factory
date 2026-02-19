@@ -17,9 +17,11 @@ stories:
   "1.1":
     epic: 1
     title: "Initialize Next.js Project with TypeScript"
-    status: todo
+    status: review
     estimated_effort: "1 hour"
     dependencies: []
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T01:15:00-06:00"
   
   "1.2":
     epic: 1
