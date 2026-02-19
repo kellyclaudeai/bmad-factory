@@ -1,8 +1,11 @@
 # Project Lead Flow
 
-**Last Updated:** 2026-02-17  
+**Last Updated:** 2026-02-18  
 **Purpose:** Complete specification of Project Lead orchestration across all modes and phases.  
 **Audience:** Used as reference when building/updating Project Lead AGENTS.md.
+
+**Recent Updates:**
+- v3.1 (2026-02-18): Automated E2E test generation via Murat trace + automate workflows. Replaced manual smoke testing with systematic Playwright test suite generated from requirements matrix. First pass longer but re-runs 3x faster and catch regressions.
 
 ---
 
@@ -179,46 +182,104 @@ Story COMPLETE when status = "done"
 
 A HIGH severity bug can be MINOR scope (simple code fix). A MEDIUM severity issue can be MAJOR scope (requires architectural redesign).
 
-#### Step 1: Quality Assessment (Parallel Murat Spawns)
+#### Step 1: Quality Assessment (Sequential Gates + Parallel NFR)
 
 **Murat owns the entire quality gate.** Project Lead spawns, Murat executes.
 
+**Sequential test setup (Gates 1-2):**
+
+```
+Gate 1: Requirements Traceability (Murat trace workflow)
+  → Input: PRD (_bmad-output/planning-artifacts/prd.md)
+  → Output: _bmad-output/test-artifacts/requirements-matrix.md
+  → What: Maps every functional requirement to test acceptance criteria
+  → Creates systematic checklist of what MUST be tested
+  → Duration: 15-25 min
+  
+  CLI:
+  /Users/austenallred/clawd/skills/factory/build/coding-cli/bin/code-with-fallback \
+    '@bmad-agent-tea-tea @bmad-tea-testarch-trace' --full-auto
+
+Gate 2: Automated Test Generation (Murat automate workflow)
+  → Input: Requirements matrix + implemented code
+  → Output: Comprehensive test suite in project
+    - Unit tests (components, utilities)
+    - Integration tests (API, database)
+    - E2E Playwright tests (user flows per requirement)
+  → What: Generates automated tests for EVERY requirement in matrix
+  → Playwright for E2E (browser automation)
+  → Duration: 15-30 min
+  
+  CLI:
+  /Users/austenallred/clawd/skills/factory/build/coding-cli/bin/code-with-fallback \
+    '@bmad-agent-tea-tea @bmad-tea-testarch-automate' --full-auto
+```
+
+**After Gates 1-2 complete, run test execution + NFR in parallel:**
+
 ```
 Parallel spawn:
-  A. Murat E2E (single subagent — sequential gates):
-     Gate 1: Build check (npm run build)
+  A. Test Execution (single subagent — sequential gates):
+     Gate 3: Build check (npm run build)
        → If FAIL: Report build errors, skip remaining gates
-     Gate 2: Test suite (npm test)
-       → If FAIL: Report failing tests, skip remaining gates
-     Gate 3: Functional smoke test (browser automation)
-       → Start dev server (npm run dev)
-       → Test PRD functional requirements in browser
-       → Screenshot evidence for each tested feature
-       → Report: Which features work, which are broken
      
-  B. Murat NFR (separate subagent — parallel with E2E):
+     Gate 4: Run test suite (npm test)
+       → Runs unit + integration + E2E Playwright tests
+       → Reports pass/fail per requirement
+       → Screenshot evidence for E2E failures
+       → Duration: 5-15 min (depends on test count)
+       → Output: _bmad-output/test-artifacts/test-execution-report.md
+     
+  B. NFR Assessment (Murat nfr workflow — separate subagent):
      → Security: Auth vulnerabilities, XSS/CSRF, API exposure, HIPAA/GDPR basics
      → Performance: Load time, bundle size, database queries
      → Compliance: HIPAA/GDPR basics (if applicable)
-     → Report: Issues found with severity (BLOCKER/HIGH/MEDIUM/LOW)
+     → Duration: 25-35 min
+     → Output: _bmad-output/test-artifacts/nfr-assessment-report.md
+     
+     CLI:
+     /Users/austenallred/clawd/skills/factory/build/coding-cli/bin/code-with-fallback \
+       '@bmad-agent-tea-tea @bmad-tea-testarch-nfr' --full-auto
 
-Both complete independently (~15-20 min each)
-Wait for BOTH reports before proceeding to Step 2.
+Wait for BOTH A and B to complete before proceeding to Step 2.
 ```
+
+**Timeline:**
+- Gate 1 (trace): 15-25 min
+- Gate 2 (automate): 15-30 min
+- Gate 3 (build): 2-5 min
+- Gate 4 (test execution): 5-15 min  } parallel with NFR
+- NFR assessment: 25-35 min          }
+- **Total: 62-110 min (most time in test generation — one-time cost)**
+
+**Key improvements over manual testing:**
+
+1. **Systematic coverage** - Requirements matrix ensures every PRD requirement gets tested
+2. **Repeatable** - Same tests every time, no human variation
+3. **Regression protection** - Tests prevent bugs from coming back after fixes
+4. **Fast re-runs** - 5-15 min vs 20-30 min manual testing every iteration
+5. **Precise assertions** - "Button should be disabled when X is empty" vs "seemed to work"
+6. **CI/CD ready** - Can run on every commit automatically
+7. **Coverage proof** - Test suite documents exactly what's tested vs manual black box
+
+**Why this catches bugs manual testing missed:**
+- Manual: Murat clicks around hoping to find issues → happy paths only
+- Automated: Every requirement from PRD → explicit test → fails if behavior wrong
+- NoteLite example: Manual testing said "works" but missed empty input validation, error states, edge cases
 
 #### Step 2: Remediation (via correct-course)
 
 **Consolidated remediation path: ALL bugs route through John's correct-course workflow.**
 
 ```
-1. Wait for BOTH Murat reports to complete:
-   - E2E Functional Report: test-artifacts/e2e-functional-report.md
-   - NFR Assessment Report: test-artifacts/nfr-assessment-report.md
+1. Wait for BOTH reports to complete:
+   - Test Execution Report: _bmad-output/test-artifacts/test-execution-report.md
+   - NFR Assessment Report: _bmad-output/test-artifacts/nfr-assessment-report.md
 
 2. Spawn John: correct-course workflow
-   → Input: Both Murat bug reports
-   → Task: "Analyze Quality Gate failures. Read test-artifacts/e2e-functional-report.md 
-           and test-artifacts/nfr-assessment-report.md. Create Sprint Change Proposal 
+   → Input: Both Murat reports
+   → Task: "Analyze Quality Gate failures. Read _bmad-output/test-artifacts/test-execution-report.md 
+           and _bmad-output/test-artifacts/nfr-assessment-report.md. Create Sprint Change Proposal 
            with recommended approach for each issue."
    
    John categorizes issues:
@@ -273,13 +334,16 @@ Wait for BOTH reports before proceeding to Step 2.
 ```
 
 **Timeline estimate:**
-- Build + Tests: 5-7 min
-- E2E + NFR (parallel): 15-20 min
+- Gate 1 (trace): 15-25 min
+- Gate 2 (automate test generation): 15-30 min
+- Gates 3-4 (build + test execution) + NFR (parallel): 25-35 min
 - John correct-course: 10-15 min (analysis + Sprint Change Proposal)
 - Minor fixes: 10-30 min (dependency-driven)
 - Major replanning: 30-60 min (depends on scope)
-- Quality Gate re-run: 20-27 min
-- **Total first pass: 30-42 min | With Minor fixes: 75-109 min | With Major replanning: 105-159 min**
+- Quality Gate re-run: 7-20 min (Gates 3-4 only — tests already exist)
+- **Total first pass: 62-110 min | With Minor fixes: 82-155 min | With Major replanning: 112-215 min**
+
+**Note:** First pass is longer (test generation), but re-runs are MUCH faster (7-20 min vs 30-42 min). Automated tests catch regressions that manual testing missed. Investment pays off in reliability.
 
 **Remediation uses identical dependency-driven spawning as Phase 2 implementation.** No artificial batching. Each fix story spawns as soon as its specific dependencies complete.
 
