@@ -557,10 +557,45 @@ stories:
   "3.7":
     epic: 3
     title: "Implement Channel Rename Functionality"
-    status: in_progress
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["3.5"]
     started_at: "2026-02-19T14:57:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T15:01:30-06:00"
+    notes: |
+      ✅ Channel rename functionality complete - all acceptance criteria met
+      ✅ Implemented ChannelHeader with gear menu and "Rename Channel" option
+      ✅ Permission gating: only channel creator or workspace owner can rename
+      ✅ Created RenameChannelModal component:
+         - Pre-filled with current channel name
+         - Same validation as CreateChannelModal (lowercase, hyphens, 1-50 chars, unique)
+         - Cannot rename #general (validation error shown)
+      ✅ Created renameChannel utility function:
+         - Checks for duplicate channel names in workspace
+         - Updates Firestore: updateDoc(channelRef, { name: newName })
+         - Proper error handling
+      ✅ Real-time updates via existing Firestore listeners
+      ✅ Tests added:
+         - tests/unit/lib/channels.test.ts (rename function tests)
+         - tests/unit/components/channels/ChannelHeader.test.tsx (header UI tests)
+         - tests/unit/components/channels/RenameChannelModal.test.tsx (modal tests)
+         - tests/unit/app/ChannelPage.test.tsx (integration tests)
+         - All 20 tests passing
+      
+      Files Changed:
+      - components/features/channels/ChannelHeader.tsx (gear menu + rename option)
+      - components/features/channels/RenameChannelModal.tsx (new, 122 lines)
+      - lib/utils/channels.ts (added renameChannel function)
+      - lib/hooks/useWorkspaceOwnerId.ts (used for permissions)
+      - app/app/channels/[channelId]/page.tsx (integrated rename flow)
+      - tests/unit/lib/channels.test.ts (updated with rename tests)
+      - tests/unit/components/channels/ChannelHeader.test.tsx (new)
+      - tests/unit/components/channels/RenameChannelModal.test.tsx (new)
+      - tests/unit/app/ChannelPage.test.tsx (updated for header)
+      - _bmad-output/implementation-artifacts/stories/story-3.7.md (all criteria marked complete)
+      
+      Commit: d7c2c62 (feat(3.7): Implement channel rename functionality)
   
   "3.8":
     epic: 3
