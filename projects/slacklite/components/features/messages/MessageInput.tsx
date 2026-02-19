@@ -89,7 +89,7 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
     if (textareaRef.current) {
       resetTextareaHeight(textareaRef.current, isMobile);
     }
-  }, [channelId, isMobile]);
+  }, [channelId]);
 
   const handleSend = useCallback(() => {
     if (isSendDisabled) {

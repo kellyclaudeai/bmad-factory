@@ -6,13 +6,13 @@
 Adjust message input for mobile: Larger textarea, optimized for virtual keyboard, send button always visible with proper touch targets.
 
 **Acceptance Criteria:**
-- [ ] Mobile (<768px): Textarea min height 60px (larger than desktop)
-- [ ] Virtual keyboard triggers on tap (autofocus disabled on mobile to prevent auto-open)
-- [ ] Textarea expands to 60% of screen height when focused (keyboard visible)
-- [ ] Send button: Always visible on mobile (not hidden when empty)
-- [ ] Send button: 44x44px tap target (touch-friendly)
-- [ ] No keyboard shortcuts on mobile (Enter always sends, no Shift+Enter for new line)
-- [ ] Character counter: Visible above textarea (not below, to stay visible with keyboard)
+- [x] Mobile (<768px): Textarea min height 60px (larger than desktop)
+- [x] Virtual keyboard triggers on tap (autofocus disabled on mobile to prevent auto-open)
+- [x] Textarea expands to 60% of screen height when focused (keyboard visible)
+- [x] Send button: Always visible on mobile (not hidden when empty)
+- [x] Send button: 44x44px tap target (touch-friendly)
+- [x] No keyboard shortcuts on mobile (Enter always sends, no Shift+Enter for new line)
+- [x] Character counter: Visible above textarea (not below, to stay visible with keyboard)
 
 **Dependencies:**
 dependsOn: ["4.2"]
