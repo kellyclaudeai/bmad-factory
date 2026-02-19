@@ -52,7 +52,8 @@ export function SubagentCard({
     storyTitle ||
     story ||
     formatTask(task) ||
-    (persona && role ? `${persona} (${role})` : 'Unnamed Subagent')
+    persona ||
+    (role ? role : 'Unnamed Subagent')
   
   const taskDisplay = formatTask(task)
   

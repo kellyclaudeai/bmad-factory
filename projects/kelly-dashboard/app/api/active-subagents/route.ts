@@ -1,21 +1,10 @@
 import { NextResponse } from "next/server";
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
-type Session = {
-  sessionKey: string;
-  label?: string;
-  agentType?: string;
-  projectId?: string;
-  status?: string;
-  lastActivity?: string;
-  model?: string;
-  channel?: string;
-  messages?: Array<{ role: string; timestamp?: number }>;
-};
 
 type ActiveSubagent = {
   sessionKey: string;
@@ -61,6 +50,74 @@ function extractPersonaFromLabel(label: string): string | undefined {
   return undefined;
 }
 
+async function findActiveSubagents(projectId: string): Promise<ActiveSubagent[]> {
+  const homeDir = os.homedir();
+  const agentsDir = path.join(homeDir, '.openclaw', 'agents');
+  const subagents: ActiveSubagent[] = [];
+  
+  try {
+    const agents = await fs.readdir(agentsDir);
+    
+    for (const agentName of agents) {
+      const sessionsJsonPath = path.join(agentsDir, agentName, 'sessions', 'sessions.json');
+      
+      try {
+        const sessionsData = await fs.readFile(sessionsJsonPath, 'utf-8');
+        const sessions = JSON.parse(sessionsData);
+        
+        // Find subagents for this project
+        for (const [sessionKey, sessionData] of Object.entries(sessions)) {
+          // Must be a subagent session
+          if (!sessionKey.includes(':subagent:')) continue;
+          
+          const data = sessionData as any;
+          const label = data.label || '';
+          
+          // Check if this subagent belongs to our project
+          // Match by label containing projectId
+          if (!label.toLowerCase().includes(projectId.toLowerCase())) continue;
+          
+          // Check if session is truly active (has a lock file)
+          const sessionId = data.sessionId;
+          if (sessionId) {
+            const lockPath = path.join(agentsDir, agentName, 'sessions', `${sessionId}.jsonl.lock`);
+            const transcriptPath = path.join(agentsDir, agentName, 'sessions', `${sessionId}.jsonl`);
+            
+            try {
+              // Check for lock file (indicates active session)
+              await fs.access(lockPath);
+              
+              // Get transcript stats for timestamps
+              const stats = await fs.stat(transcriptPath);
+              
+              subagents.push({
+                sessionKey,
+                agentType: agentName,
+                story: extractStoryFromLabel(label),
+                persona: extractPersonaFromLabel(label),
+                status: 'active',
+                startedAt: new Date(stats.birthtimeMs).toISOString(),
+                lastActivity: new Date(stats.mtimeMs).toISOString(),
+                model: data.model,
+                label,
+              });
+            } catch {
+              // No lock file = session completed or not started
+            }
+          }
+        }
+      } catch (err) {
+        // No sessions.json for this agent or can't read it - skip
+        continue;
+      }
+    }
+  } catch (err) {
+    console.error('Error scanning agent directories:', err);
+  }
+  
+  return subagents;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const projectId = searchParams.get("projectId")?.trim();
@@ -70,50 +127,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Fetch all active sessions from OpenClaw
-    const sessionsRes = await fetch(`${BASE_URL}/api/sessions`, { cache: "no-store" });
-
-    if (!sessionsRes.ok) {
-      throw new Error(`Sessions API returned ${sessionsRes.status}`);
-    }
-
-    const sessions: Session[] = await sessionsRes.json();
-
-    // Filter for subagents related to this project
-    // Subagents have sessionKeys like "agent:bmad-bmm-amelia:subagent:uuid"
-    // and their labels often contain the projectId
-    const projectSubagents = sessions.filter((s) => {
-      const key = s.sessionKey || "";
-      const label = s.label || "";
-      
-      // Must be a subagent session
-      if (!key.includes(":subagent:")) return false;
-
-      // Check if projectId appears in label or if explicit projectId match
-      if (s.projectId === projectId) return true;
-      if (label.toLowerCase().includes(projectId.toLowerCase())) return true;
-
-      return false;
-    });
-
-    // Map to our ActiveSubagent format
-    const activeSubagents: ActiveSubagent[] = projectSubagents.map((s) => {
-      const label = s.label || s.sessionKey;
-      
-      return {
-        sessionKey: s.sessionKey,
-        agentType: s.agentType || "subagent",
-        story: extractStoryFromLabel(label),
-        persona: extractPersonaFromLabel(label),
-        status: s.status || "active",
-        startedAt: s.messages && s.messages.length > 0 
-          ? new Date(s.messages[0].timestamp || Date.now()).toISOString()
-          : undefined,
-        lastActivity: s.lastActivity || new Date().toISOString(),
-        model: s.model,
-        label: label,
-      };
-    });
+    const activeSubagents = await findActiveSubagents(projectId);
 
     return NextResponse.json({
       projectId,

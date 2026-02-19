@@ -1,0 +1,29 @@
+{
+  "rules": {
+    "messages": {
+      "$workspaceId": {
+        "$channelId": {
+          ".read": "auth != null",
+          ".write": "auth != null",
+          "$messageId": {
+            ".validate": "newData.hasChildren(['userId', 'userName', 'text', 'timestamp']) && newData.child('text').val().length > 0 && newData.child('text').val().length <= 4000"
+          }
+        }
+      }
+    },
+    "presence": {
+      "$userId": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $userId"
+      }
+    },
+    "typing": {
+      "$channelId": {
+        ".read": "auth != null",
+        "$userId": {
+          ".write": "auth != null && auth.uid == $userId"
+        }
+      }
+    }
+  }
+}

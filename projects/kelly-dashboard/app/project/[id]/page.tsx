@@ -178,22 +178,13 @@ async function getStoriesData(projectId: string, storiesPath?: string): Promise<
         const contents = await fs.readFile(fullPath, 'utf8')
         return JSON.parse(contents)
       } catch {
-        // Fall through to try other locations
+        // Fall through to canonical location
       }
     }
 
-    // Try _bmad-output/implementation-artifacts/stories-parallelization.json
-    const bmadPath = path.join(projectRoot, '_bmad-output/implementation-artifacts/stories-parallelization.json')
-    try {
-      const contents = await fs.readFile(bmadPath, 'utf8')
-      return JSON.parse(contents)
-    } catch {
-      // Fall through to try root
-    }
-
-    // Try root stories-parallelization.json
-    const rootPath = path.join(projectRoot, 'stories-parallelization.json')
-    const contents = await fs.readFile(rootPath, 'utf8')
+    // Canonical: dependency-graph.json (Bob creates this in Phase 1)
+    const dgPath = path.join(projectRoot, '_bmad-output/implementation-artifacts/dependency-graph.json')
+    const contents = await fs.readFile(dgPath, 'utf8')
     return JSON.parse(contents)
   } catch (error) {
     console.error('Failed to read stories data:', error)

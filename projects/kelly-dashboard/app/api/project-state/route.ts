@@ -206,13 +206,15 @@ export async function GET(request: Request) {
       subagents: syntheticSubagents,
       
       // Story status from BMAD (Phase 2+)
-      stories: sprintStatus?.stories.map(s => ({
-        id: s.id,
-        status: s.status
-      })) || [],
+      stories: (sprintStatus && Array.isArray(sprintStatus.stories)) 
+        ? sprintStatus.stories.map(s => ({
+            id: s.id,
+            status: s.status
+          }))
+        : [],
       
       // Computed stats
-      stats: sprintStatus ? {
+      stats: (sprintStatus && Array.isArray(sprintStatus.stories)) ? {
         total: sprintStatus.stories.length,
         done: sprintStatus.stories.filter(s => s.status === "done").length,
         inProgress: sprintStatus.stories.filter(s => s.status === "in-progress").length,

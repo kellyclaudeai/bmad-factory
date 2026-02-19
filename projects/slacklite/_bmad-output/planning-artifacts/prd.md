@@ -174,11 +174,13 @@ SlackLite delivers lightweight real-time team messaging for small dev teams, sta
 - User list shows all workspace members with online/offline status
 
 **6. Team Management (Basic):**
-- Invite users to workspace via email address
-- Accept workspace invite (email link redirects to sign-up/sign-in)
+- **Generate workspace invite link** for sharing (no automatic email sending in MVP)
+- Users manually share invite link via email, Slack, or other channels
+- Accept workspace invite (invite link redirects to sign-up/sign-in)
 - View list of workspace members
 - Remove users from workspace (workspace owner only)
 - Workspace owner designation (creator of workspace)
+- **Note:** Automatic email invites are deferred to Phase 2 (via Firebase Extensions or Cloud Functions)
 
 **7. Message History & Persistence:**
 - All messages persist in Firestore
@@ -218,6 +220,11 @@ SlackLite delivers lightweight real-time team messaging for small dev teams, sta
 ### Growth Features (Post-MVP)
 
 **Phase 2: Enhanced Communication (Post-Launch, 3-6 Months)**
+
+**Workspace & Team Management:**
+- **Automatic email invites** (send invite emails directly from app using Firebase Extensions or Cloud Functions)
+- Email templates for workspace invitations
+- Bulk invite functionality (invite multiple users at once)
 
 **Rich Messaging:**
 - Message formatting: bold, italic, code blocks, hyperlinks

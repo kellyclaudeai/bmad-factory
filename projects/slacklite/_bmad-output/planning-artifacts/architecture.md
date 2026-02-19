@@ -1,9 +1,82 @@
 # SlackLite - Technical Architecture
 
 **Architect:** Winston (BMAD Architect)  
-**Date:** 2026-02-18  
+**Date:** 2026-02-18 (Updated after Implementation Readiness Gate Check)  
 **Project:** SlackLite - Lightweight Team Messaging  
-**Status:** MVP Architecture v1.0
+**Status:** MVP Architecture v1.1 (Gate Check Concerns Addressed)
+
+---
+
+## Gate Check Response Summary
+
+**Date:** 2026-02-18 23:49 CST  
+**Gate Check Report:** `_bmad-output/planning-artifacts/implementation-readiness-check.md`  
+**Status:** All critical concerns resolved ✅
+
+This architecture document has been updated to address all concerns identified in the Implementation Readiness Gate Check:
+
+### Concerns Addressed:
+
+**✅ Concern 3.6.1 (CRITICAL) - Firebase CLI Setup Script Validation**
+- **Status:** RESOLVED
+- **Changes:**
+  - Created `scripts/setup-firebase.sh` with comprehensive prerequisite checks
+  - Added validation for: firebase-tools, jq, gcloud CLI, Node.js 22+
+  - Implemented error handling for missing dependencies with specific install instructions
+  - Documented prerequisites in script header with platform-specific commands
+  - Added detailed manual fallback instructions in Section 7.1
+  - Script is idempotent (safe to run multiple times)
+- **Location:** `scripts/setup-firebase.sh` + Section 7.1
+
+**✅ Concern 2.3.1 (CRITICAL) - Dual-Write Pattern Coordination**
+- **Status:** RESOLVED
+- **Changes:**
+  - Section 3.1: Updated with detailed flow diagram showing write order (RTDB first, then Firestore)
+  - Specified error handling: RTDB fails → abort + error banner, Firestore fails → warn + retry button
+  - Added implementation note: Stories 4.4 + 4.5 should be merged
+  - Section 2.4: Updated with explicit write order and error handling strategy
+  - Coordinated with Story 4.4 (to be merged with 4.5 by John)
+- **Location:** Section 2.4 + Section 3.1
+
+**✅ Concern 2.3.2 (MODERATE) - Message Deduplication Strategy**
+- **Status:** RESOLVED
+- **Changes:**
+  - Added new Section 3.1.1: "Message Deduplication Strategy"
+  - Documented complete deduplication algorithm with TypeScript examples
+  - Handled temp message IDs vs server IDs (optimistic UI)
+  - Addressed Firestore snapshot + RTDB listener race conditions
+  - Implemented Set<messageId> tracking approach
+  - Defined 5 deduplication rules with edge case handling
+  - Added testing strategy for Story 4.6.1
+- **Location:** Section 3.1.1 (new section)
+
+**✅ Concern 3.5.1 (MODERATE) - Firestore Cost Estimation**
+- **Status:** RESOLVED
+- **Changes:**
+  - Added new Section 3.5.1: "Firestore Cost Estimation"
+  - Calculated reads/writes at 100, 1,000, and 10,000 workspaces
+  - Documented Firebase pricing: reads ($0.06/100k), writes ($0.18/100k)
+  - Estimated monthly costs: $8 (100 workspaces), $81 (1,000), $891 (10,000)
+  - Added cost optimization strategies (query caching, pagination, TTL enforcement)
+  - Provided billing alert setup commands (CLI + manual)
+  - Referenced Story 11.5 (billing alerts) for implementation
+- **Location:** Section 3.5.1 (new section)
+
+### Implementation Impact:
+
+**Ready to Proceed:** All critical blockers resolved. Epic 4 (Real-Time Messaging) can proceed with:
+- Clear dual-write pattern (RTDB first, Firestore second)
+- Explicit error handling strategy
+- Comprehensive deduplication algorithm
+- Cost projections for scale planning
+
+**Action Items for John (Project Lead):**
+1. Merge Stories 4.4 and 4.5 into single "Implement Dual-Write Message Persistence" story
+2. Add Story 4.6.1: "Implement Message Deduplication Logic" (detailed in Section 3.1.1)
+3. Add Story 11.5: "Configure Firebase Billing Alerts" (detailed in Section 3.5.1)
+4. Coordinate with Amelia (Developer) on Story 4.4 merge implementation
+
+**Next Gate Check:** Ready for re-run. All concerns documented and resolved in architecture.
 
 ---
 
@@ -237,20 +310,57 @@ User (many) ──< (many) UnreadCounts
 ### 2.4 Data Consistency Strategy
 
 **Dual-Write Pattern (MVP):**
-1. Client writes message to Realtime Database (instant delivery)
-2. Client writes same message to Firestore (permanent history)
-3. If RTDB write fails: Show error, don't write to Firestore
-4. If Firestore write fails: Message delivered but not persisted (warn user)
+
+This section addresses Gate Check Concern 2.3.1 (dual-write pattern coordination). The implementation order is critical for ensuring reliable message delivery.
+
+**Write Order (RTDB First, Then Firestore):**
+1. **Step 1:** Client writes message to **Realtime Database** (instant delivery via WebSocket)
+2. **Step 2:** Client writes same message to **Firestore** (permanent history)
+
+**Error Handling Strategy:**
+3. **If RTDB write fails** → Abort entire operation, show error banner: "Message failed to send. Retry?"
+   - Rationale: RTDB failure = no real-time delivery = true failure
+   - User action: Retry button re-attempts both writes
+4. **If Firestore write fails** → Message is delivered (RTDB success) but warn user with gray banner: "Message sent but not saved. It will disappear in 1 hour." (includes retry button)
+   - Rationale: Firestore failure = message delivered but not persisted (degraded mode)
+   - User action: Retry button re-attempts only Firestore write (RTDB already succeeded)
+
+**Deduplication:**
+- Messages may arrive via both Firestore snapshot and RTDB listener
+- Client maintains Set<messageId> to prevent duplicate rendering
+- See Section 3.1.1 (Message Deduplication Strategy) for complete algorithm
+
+**Implementation Coordination:**
+- Stories 4.4 (Write to Firestore) and 4.5 (Write to RTDB) should be **merged into single Story 4.4: "Implement Dual-Write Message Persistence"**
+- This ensures atomic implementation with proper error handling
+- See Section 3.1 (Message Flow) for detailed flow diagram and implementation guidance
 
 **Future Optimization (Post-MVP):**
 - Cloud Function trigger: RTDB write → automatic Firestore mirror
 - Benefits: Single write operation, guaranteed consistency, reduced client complexity
+- Trade-off: Adds Cloud Functions cost (~$0.40 per million invocations)
 
 ---
 
 ## 3. Real-Time Messaging Architecture
 
 ### 3.1 Message Flow (End-to-End)
+
+**Critical: Dual-Write Pattern Coordination**
+
+Messages are written to **RTDB first, then Firestore** to ensure real-time delivery takes priority. This section addresses Gate Check Concern 2.3.1 (dual-write pattern coordination).
+
+**Write Order & Error Handling:**
+1. **RTDB write first** → Instant delivery to all connected clients
+2. **Firestore write second** → Permanent persistence for history
+3. **If RTDB fails** → Abort entire operation, show error banner: "Message failed to send. Retry?"
+4. **If Firestore fails** → Message is delivered (RTDB success) but warn user: "Message sent but not saved. It will disappear in 1 hour." (gray warning banner with retry button)
+
+**Rationale:**
+- RTDB failure = no real-time delivery = true failure (must abort)
+- Firestore failure = message delivered but not persisted = degraded mode (warn user, allow retry)
+
+**Flow Diagram:**
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -259,27 +369,157 @@ User (many) ──< (many) UnreadCounts
 │ 1. Type message, press Enter                                 │
 │ 2. Optimistic UI: Show message immediately (gray timestamp)  │
 │ 3. Write to RTDB: /messages/{workspaceId}/{channelId}/       │
+│    ├─ SUCCESS → Continue to step 4                           │
+│    └─ FAILURE → Abort, show error: "Message failed to send"  │
 │ 4. Write to Firestore: /channels/{channelId}/messages/       │
+│    ├─ SUCCESS → Update UI (black timestamp, success)         │
+│    └─ FAILURE → Warn: "Message sent but not saved (1hr TTL)" │
 │ 5. Update timestamp: Server confirms → black timestamp       │
 └──────────────────────────────────────────────────────────────┘
                             ↓ (WebSocket via Firebase SDK)
 ┌──────────────────────────────────────────────────────────────┐
-│ Firebase Realtime Database                                    │
+│ Firebase Realtime Database (Write Priority = HIGH)           │
 ├──────────────────────────────────────────────────────────────┤
-│ - Receives message write                                     │
+│ - Receives message write (Step 3)                            │
 │ - Broadcasts to all connected clients (sub-100ms)            │
 │ - Returns confirmation to sender                             │
+│ - Auto-expires message after 1 hour (TTL)                    │
 └──────────────────────────────────────────────────────────────┘
                             ↓ (WebSocket via Firebase SDK)
 ┌──────────────────────────────────────────────────────────────┐
 │ User B, C, D (Recipients)                                     │
 ├──────────────────────────────────────────────────────────────┤
 │ 1. RTDB listener triggers: onChildAdded                      │
-│ 2. Render new message in UI (<500ms from send)               │
-│ 3. If current channel: Append to message list                │
-│ 4. If different channel: Increment unread count              │
+│ 2. Deduplication check (see Section 3.1.1)                   │
+│ 3. Render new message in UI (<500ms from send)               │
+│ 4. If current channel: Append to message list                │
+│ 5. If different channel: Increment unread count              │
+└──────────────────────────────────────────────────────────────┘
+                            ↓ (After RTDB write succeeds)
+┌──────────────────────────────────────────────────────────────┐
+│ Firestore (Permanent Persistence)                            │
+├──────────────────────────────────────────────────────────────┤
+│ - Receives message write (Step 4)                            │
+│ - Stores permanently (no TTL)                                │
+│ - Enables pagination, search (future)                        │
+│ - If write fails: User sees warning but message delivered    │
 └──────────────────────────────────────────────────────────────┘
 ```
+
+**Implementation Note (Story 4.4 + 4.5 Merge):**
+Stories 4.4 (Write to Firestore) and 4.5 (Write to RTDB) should be **merged into a single Story 4.4: "Implement Dual-Write Message Persistence"** to ensure atomic implementation with proper error handling. See Epic 4 coordination with John.
+
+### 3.1.1 Message Deduplication Strategy
+
+**Problem:** Messages can arrive from multiple sources simultaneously:
+- Firestore snapshot (initial channel load: 50 messages)
+- RTDB child_added listener (real-time updates)
+- Optimistic UI (temp message during send)
+
+This creates race conditions where the same message could be rendered multiple times. Gate Check Concern 2.3.2 addresses this critical issue.
+
+**Deduplication Algorithm:**
+
+```typescript
+// Maintain a Set of seen message IDs for the current channel
+const [seenMessageIds, setSeenMessageIds] = useState<Set<string>>(new Set());
+const [messages, setMessages] = useState<Message[]>([]);
+
+// 1. On Firestore snapshot (initial load + updates)
+const handleFirestoreSnapshot = (snapshot: QuerySnapshot) => {
+  const newMessages: Message[] = [];
+  const newSeenIds = new Set<string>(seenMessageIds);
+  
+  snapshot.docs.forEach(doc => {
+    const message = { messageId: doc.id, ...doc.data() } as Message;
+    
+    // Add to seen set
+    newSeenIds.add(message.messageId);
+    
+    // Only add to UI if not already present
+    if (!seenMessageIds.has(message.messageId)) {
+      newMessages.push(message);
+    }
+  });
+  
+  setSeenMessageIds(newSeenIds);
+  setMessages(prev => [...prev, ...newMessages].sort((a, b) => 
+    a.timestamp.toMillis() - b.timestamp.toMillis()
+  ));
+};
+
+// 2. On RTDB child_added (real-time delivery)
+const handleRTDBMessage = (snapshot: DataSnapshot) => {
+  const messageId = snapshot.key!;
+  
+  // Deduplication: Skip if already seen from Firestore
+  if (seenMessageIds.has(messageId)) {
+    return; // Already rendered
+  }
+  
+  const message = {
+    messageId,
+    ...snapshot.val()
+  } as Message;
+  
+  // Add to seen set
+  setSeenMessageIds(prev => new Set(prev).add(messageId));
+  
+  // Add to UI
+  setMessages(prev => [...prev, message]);
+};
+
+// 3. On optimistic UI (temp message during send)
+const handleOptimisticMessage = (tempMessage: Message) => {
+  // Temp message has special ID format: temp_1234567890
+  // When server confirms, replace with real message ID
+  
+  setMessages(prev => [...prev, tempMessage]);
+  // DO NOT add to seenMessageIds yet (it's temporary)
+};
+
+// 4. On server confirmation (replace temp with real message)
+const handleServerConfirmation = (tempId: string, realMessageId: string, serverTimestamp: Timestamp) => {
+  // Replace temp message with confirmed message
+  setMessages(prev => prev.map(m => 
+    m.messageId === tempId
+      ? { ...m, messageId: realMessageId, timestamp: serverTimestamp, status: 'sent' }
+      : m
+  ));
+  
+  // Add real ID to seen set
+  setSeenMessageIds(prev => new Set(prev).add(realMessageId));
+};
+
+// 5. On channel switch: Clear seen IDs for new channel
+useEffect(() => {
+  setSeenMessageIds(new Set());
+  setMessages([]);
+}, [channelId]);
+```
+
+**Deduplication Rules:**
+1. **Firestore has priority** → If message exists in Firestore snapshot, it's the source of truth
+2. **RTDB is real-time only** → Only render RTDB messages if NOT already in seenMessageIds
+3. **Temp messages are special** → temp_* IDs are NOT added to seenMessageIds until server confirmation
+4. **Replace, don't duplicate** → On server confirm, replace temp message (same position in list)
+5. **Channel switch resets** → Clear seenMessageIds when user switches channels (prevents memory leak)
+
+**Edge Cases Handled:**
+- **Race: Firestore snapshot arrives after RTDB listener** → seenMessageIds prevents duplicate
+- **Race: RTDB listener fires before Firestore query completes** → Message rendered immediately, skipped when Firestore loads
+- **Optimistic UI + RTDB listener** → Temp message replaced by server message (same `text` + `timestamp`)
+- **Slow network: Same message from RTDB multiple times** → seenMessageIds deduplicates
+- **Browser refresh during send** → Temp message lost (client-only), but RTDB/Firestore message persists
+
+**Testing Strategy (Story 4.6.1):**
+- E2E test: User A sends message → User B receives exactly once (no duplicates)
+- E2E test: User A sends message with slow network → Optimistic UI shows temp → Replaced with confirmed message
+- Unit test: Simulate Firestore snapshot + RTDB listener firing simultaneously → Verify message rendered once
+
+**Performance Consideration:**
+- Set lookup is O(1) → No performance impact even with 10,000+ messages
+- seenMessageIds stored in memory (not persisted) → Resets on page refresh (expected behavior)
 
 ### 3.2 Listener Management Strategy
 
@@ -428,6 +668,134 @@ onValue(workspaceMembersRef, (snapshot) => {
 | **Unread Count Update** | <100ms | RTDB listener triggers React state update |
 | **Reconnection Time** | <3s | Firebase automatic reconnect with exponential backoff |
 | **Presence Update** | <1s | RTDB presence system with `.info/connected` |
+
+### 3.5.1 Firestore Cost Estimation
+
+**Purpose:** This section addresses Gate Check Concern 3.5.1 (Firestore query cost estimation missing). Understanding Firebase costs at scale is critical for budget planning and ensuring the MVP doesn't incur unexpected charges.
+
+**Firebase Pricing (as of 2024):**
+- **Firestore Reads:** $0.06 per 100,000 document reads
+- **Firestore Writes:** $0.18 per 100,000 document writes
+- **RTDB Storage:** $5 per GB/month (first 1GB free)
+- **RTDB Bandwidth:** $1 per GB downloaded (first 10GB free)
+- **Firebase Authentication:** Free up to 10,000 monthly active users
+
+**Cost Calculation Model:**
+
+**Assumptions (per workspace):**
+- 8 active users (average)
+- 20 messages sent per user per day = 160 messages/workspace/day
+- Each user switches channels 10 times/day
+- Each channel switch loads 50 messages from Firestore (1 query = 50 reads)
+
+**Firestore Operations (per workspace per day):**
+- **Writes:** 160 messages × 2 writes (RTDB + Firestore) = 160 Firestore writes/day
+- **Reads:** 8 users × 10 channel switches × 50 messages = 4,000 reads/day
+- **Listeners:** Real-time listeners don't count as reads (Firebase SDK optimization)
+
+**Cost Projections:**
+
+#### 100 Workspaces (800 Users)
+**Daily:**
+- Writes: 100 × 160 = 16,000 writes/day
+- Reads: 100 × 4,000 = 400,000 reads/day
+
+**Monthly (30 days):**
+- Writes: 480,000 writes/month → $0.86/month
+- Reads: 12,000,000 reads/month → $7.20/month
+- RTDB Storage: <100MB (1hr TTL) → Free
+- RTDB Bandwidth: ~500MB/month → Free
+- **Total: ~$8/month**
+
+#### 1,000 Workspaces (8,000 Users)
+**Daily:**
+- Writes: 1,000 × 160 = 160,000 writes/day
+- Reads: 1,000 × 4,000 = 4,000,000 reads/day
+
+**Monthly (30 days):**
+- Writes: 4,800,000 writes/month → $8.64/month
+- Reads: 120,000,000 reads/month → $72.00/month
+- RTDB Storage: ~1GB → Free
+- RTDB Bandwidth: ~5GB/month → Free
+- **Total: ~$81/month**
+
+#### 10,000 Workspaces (80,000 Users)
+**Daily:**
+- Writes: 10,000 × 160 = 1,600,000 writes/day
+- Reads: 10,000 × 4,000 = 40,000,000 reads/day
+
+**Monthly (30 days):**
+- Writes: 48,000,000 writes/month → $86.40/month
+- Reads: 1,200,000,000 reads/month → $720.00/month
+- RTDB Storage: ~10GB → $45/month
+- RTDB Bandwidth: ~50GB/month → $40/month
+- **Total: ~$891/month**
+
+**Cost Summary Table:**
+
+| Scale | Workspaces | Users | Monthly Writes | Monthly Reads | Firestore Cost | RTDB Cost | Total Cost |
+|-------|------------|-------|----------------|---------------|----------------|-----------|------------|
+| MVP   | 100        | 800   | 480K           | 12M           | $8.06          | $0        | **$8/mo**  |
+| Growth| 1,000      | 8,000 | 4.8M           | 120M          | $80.64         | $0        | **$81/mo** |
+| Scale | 10,000     | 80,000| 48M            | 1,200M        | $806.40        | $85       | **$891/mo**|
+
+**Cost Optimization Strategies:**
+
+1. **Query Optimization:**
+   - Cache channel message lists in React state (avoid redundant Firestore queries)
+   - Pagination: Load 50 messages initially, lazy-load older messages on scroll
+   - Indexed queries: Ensure all queries use composite indexes (see Section 6.3)
+
+2. **RTDB TTL Enforcement:**
+   - Auto-delete RTDB messages after 1 hour (reduces storage costs)
+   - Firestore is source of truth for history (no duplication)
+
+3. **Read Reduction:**
+   - Use Firestore real-time listeners (no read cost after initial snapshot)
+   - Avoid refetching on every render (useMemo, useCallback)
+
+4. **Write Batching (Post-MVP):**
+   - Batch writes for bulk operations (e.g., workspace setup)
+   - Cloud Functions for automated writes (typing indicators, unread counts)
+
+**Billing Alerts (Story 11.5):**
+
+To prevent unexpected charges, configure Firebase billing alerts via Google Cloud Console or CLI:
+
+```bash
+# Set up budget alerts at $50, $200, $500
+gcloud billing budgets create \
+  --billing-account=<BILLING_ACCOUNT_ID> \
+  --display-name="SlackLite Budget Alert" \
+  --budget-amount=50 \
+  --threshold-rule=percent=50,percent=90,percent=100
+
+# Add email notification
+gcloud billing budgets update <BUDGET_ID> \
+  --add-threshold-rules-send-actual-spend \
+  --notification-channels=<EMAIL_CHANNEL_ID>
+```
+
+**Manual Setup (if CLI fails):**
+1. Go to Google Cloud Console → Billing → Budgets & Alerts
+2. Create budget for Firebase project
+3. Set alert thresholds: $50 (50%), $200 (90%), $500 (100%)
+4. Add notification email
+5. Enable automatic daily cost reports
+
+**Monitoring Dashboard:**
+- Firebase Console → Usage tab → Daily reads/writes chart
+- Google Cloud Console → Billing → Cost breakdown by service
+- Set up weekly cost review (every Monday)
+
+**Break-even Analysis:**
+At 10,000 workspaces ($891/mo cost), revenue targets:
+- Freemium model: 5% conversion → 500 paid workspaces × $10/mo = $5,000/mo (5.6x profit margin)
+- Paid-only model: 10,000 workspaces × $5/mo = $50,000/mo (56x profit margin)
+
+**Recommendation:** Firebase costs are **negligible for MVP** (<$10/mo) and **manageable at scale** (<$900/mo at 10,000 workspaces). No need for alternative database until 50,000+ workspaces.
+
+**Reference:** Story 11.5 (Configure Firebase Billing Alerts) implements these monitoring and alerting mechanisms.
 
 ---
 
@@ -1116,92 +1484,160 @@ function Sidebar() {
 
 ### 7.1 Firebase Project Setup (CLI-Based)
 
-**Prerequisites:**
+**Gate Check Update (Concern 3.6.1 - CRITICAL):**
+This section has been enhanced with comprehensive prerequisite checks, error handling, and fallback instructions. The setup script is now located at `scripts/setup-firebase.sh` with full validation and manual fallback documentation.
+
+**Prerequisites (Required Before Running Script):**
+- Node.js 22+ (https://nodejs.org/)
+- Firebase CLI 13+ (`npm install -g firebase-tools@latest`)
+- Google Cloud SDK (https://cloud.google.com/sdk/docs/install)
+- jq (JSON processor):
+  - macOS: `brew install jq`
+  - Linux: `apt install jq` or `yum install jq`
+  - Windows WSL: `apt install jq`
+
+**Automated Setup (Recommended):**
+
+The project includes a fully validated setup script with error handling:
+
 ```bash
-# Install Firebase CLI globally
+# Run the automated setup script
+chmod +x scripts/setup-firebase.sh
+./scripts/setup-firebase.sh
+```
+
+**What the script does:**
+1. Validates all prerequisites (Node.js, Firebase CLI, gcloud, jq)
+2. Checks authentication status
+3. Creates Firebase project
+4. Enables required APIs (Firestore, RTDB, Auth)
+5. Creates web app and fetches configuration
+6. Generates `.env.local` with Firebase credentials
+7. Initializes Firestore and RTDB
+8. Enables Email/Password authentication
+9. Optionally deploys default security rules
+
+**Script Features:**
+- ✅ Prerequisite validation with clear error messages
+- ✅ Graceful error handling for each step
+- ✅ Colored output for easy debugging
+- ✅ Idempotent (can be run multiple times safely)
+- ✅ Automatic cleanup of temporary files
+
+**Manual Fallback (If Script Fails):**
+
+If the automated script fails due to missing dependencies or API errors, follow these manual steps:
+
+1. **Create Firebase Project:**
+   - Go to https://console.firebase.google.com/
+   - Click "Add project"
+   - Enter project name (e.g., "SlackLite Production")
+   - Disable Google Analytics (optional for MVP)
+   - Click "Create project"
+
+2. **Enable Firebase Services:**
+   - In Firebase Console, go to Build → Firestore Database
+   - Click "Create database" → Start in production mode → Choose region (us-central1)
+   - Go to Build → Realtime Database
+   - Click "Create database" → Start in locked mode → Choose region
+   - Go to Build → Authentication
+   - Click "Get started" → Enable "Email/Password" provider
+
+3. **Create Web App:**
+   - In Firebase Console, go to Project Settings
+   - Under "Your apps", click "Add app" → Web (</>) icon
+   - Enter app nickname: "SlackLite Web"
+   - Check "Also set up Firebase Hosting" (optional)
+   - Click "Register app"
+
+4. **Get Firebase Configuration:**
+   - In Project Settings → Your apps → Web app
+   - Copy the `firebaseConfig` object
+   - Create `.env.local` file in project root:
+   ```bash
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+   NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://your_project-default-rtdb.firebaseio.com
+   ```
+
+5. **Initialize Firebase CLI:**
+   ```bash
+   firebase login
+   firebase init
+   # Select: Firestore, Realtime Database, Hosting (optional)
+   # Choose existing project
+   # Accept default file names (firestore.rules, database.rules.json)
+   ```
+
+6. **Deploy Security Rules:**
+   ```bash
+   firebase deploy --only firestore:rules,database:rules
+   ```
+
+**Troubleshooting:**
+
+**Error: "firebase: command not found"**
+```bash
 npm install -g firebase-tools@latest
-
-# Login to Firebase
-firebase login
+# Or if using Homebrew:
+brew install firebase-cli
 ```
 
-**Project Initialization Script:**
+**Error: "jq: command not found"**
 ```bash
-#!/bin/bash
-# setup-firebase.sh
-
-set -e # Exit on error
-
-PROJECT_ID="slacklite-prod"
-PROJECT_NAME="SlackLite Production"
-REGION="us-central1"
-
-echo "🔥 Setting up Firebase project..."
-
-# 1. Create Firebase project (requires manual confirmation in browser)
-echo "Creating project $PROJECT_ID..."
-firebase projects:create "$PROJECT_ID" --display-name "$PROJECT_NAME"
-
-# 2. Add Firebase to project
-firebase projects:addfirebase "$PROJECT_ID"
-
-# 3. Enable required APIs
-echo "Enabling Firebase APIs..."
-gcloud services enable \
-  firebase.googleapis.com \
-  firestore.googleapis.com \
-  identitytoolkit.googleapis.com \
-  firebasedatabase.googleapis.com \
-  --project "$PROJECT_ID"
-
-# 4. Create web app
-echo "Creating web app..."
-APP_ID=$(firebase apps:create web "SlackLite Web" --project "$PROJECT_ID" --json | jq -r '.result.appId')
-echo "Web app created: $APP_ID"
-
-# 5. Get Firebase config (save to .env.local)
-echo "Fetching Firebase config..."
-firebase apps:sdkconfig web "$APP_ID" --project "$PROJECT_ID" --json > firebase-config.json
-
-# Parse config and create .env.local
-echo "NEXT_PUBLIC_FIREBASE_API_KEY=$(jq -r '.result.sdkConfig.apiKey' firebase-config.json)" > .env.local
-echo "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=$(jq -r '.result.sdkConfig.authDomain' firebase-config.json)" >> .env.local
-echo "NEXT_PUBLIC_FIREBASE_PROJECT_ID=$(jq -r '.result.sdkConfig.projectId' firebase-config.json)" >> .env.local
-echo "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=$(jq -r '.result.sdkConfig.storageBucket' firebase-config.json)" >> .env.local
-echo "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=$(jq -r '.result.sdkConfig.messagingSenderId' firebase-config.json)" >> .env.local
-echo "NEXT_PUBLIC_FIREBASE_APP_ID=$(jq -r '.result.sdkConfig.appId' firebase-config.json)" >> .env.local
-echo "NEXT_PUBLIC_FIREBASE_DATABASE_URL=$(jq -r '.result.sdkConfig.databaseURL' firebase-config.json)" >> .env.local
-
-# 6. Initialize Firestore
-echo "Initializing Firestore..."
-firebase init firestore --project "$PROJECT_ID" --non-interactive
-
-# 7. Initialize Realtime Database
-echo "Initializing Realtime Database..."
-firebase init database --project "$PROJECT_ID" --non-interactive
-
-# 8. Initialize Firebase Auth
-echo "Enabling Email/Password authentication..."
-firebase auth:enable emailPassword --project "$PROJECT_ID"
-
-# 9. Deploy security rules
-echo "Deploying security rules..."
-firebase deploy --only firestore:rules,database:rules --project "$PROJECT_ID"
-
-# 10. Create Firestore indexes
-echo "Creating Firestore indexes..."
-firebase deploy --only firestore:indexes --project "$PROJECT_ID"
-
-echo "✅ Firebase setup complete!"
-echo "📝 Config saved to .env.local"
-echo "🔗 Console: https://console.firebase.google.com/project/$PROJECT_ID"
+# macOS:
+brew install jq
+# Linux (Debian/Ubuntu):
+sudo apt install jq
+# Linux (RedHat/CentOS):
+sudo yum install jq
 ```
 
-**Usage:**
+**Error: "gcloud: command not found"**
+- Install Google Cloud SDK: https://cloud.google.com/sdk/docs/install
+- Run: `gcloud auth login` to authenticate
+
+**Error: "Failed to create Firebase project"**
+- Check if project ID already exists
+- Try a different project ID (must be unique across all Firebase projects)
+- Verify billing is enabled (required for some features)
+
+**Error: "Permission denied when enabling APIs"**
+- Ensure you're logged in with correct Google account
+- Run: `gcloud auth login` and select account with project owner permissions
+- Verify account has "Editor" or "Owner" role in Google Cloud Console
+
+**Testing Setup:**
+
+After setup (manual or automated), verify everything works:
+
 ```bash
-chmod +x setup-firebase.sh
-./setup-firebase.sh
+# 1. Check Firebase CLI authentication
+firebase projects:list
+
+# 2. Verify .env.local exists and contains all keys
+cat .env.local | grep NEXT_PUBLIC_FIREBASE
+
+# 3. Start Firebase emulators (local testing)
+firebase emulators:start
+
+# 4. In another terminal, start dev server
+pnpm dev
+
+# 5. Open http://localhost:3000 and verify no Firebase errors in console
 ```
+
+**Expected Output:**
+- Firebase Console should show your project
+- `.env.local` should contain 7 Firebase config keys
+- Firebase emulators should start on ports 4000, 8080, 9000, 9099
+- Next.js dev server should start on port 3000 without Firebase connection errors
+
+**Reference:** See `scripts/setup-firebase.sh` for the complete automated setup implementation.
 
 ### 7.2 Local Development Setup
 

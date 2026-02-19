@@ -671,51 +671,48 @@ Show message immediately in UI before server confirmation (optimistic rendering)
 
 ---
 
-### Story 4.4: Write Messages to Firestore
+### Story 4.4: Implement Dual-Write Message Persistence
 
 **Epic:** Epic 4 - Real-Time Messaging Core
 
 **Description:**
-Persist messages to Firestore for permanent storage and history. Use serverTimestamp for accurate ordering.
+Implement coordinated dual-write pattern: Write messages to RTDB first (instant delivery), then Firestore (permanent storage). Handle errors appropriately for each write to maintain data consistency.
 
 **Acceptance Criteria:**
-- [ ] Create `lib/firebase/firestore.ts` helper: `sendMessage(channelId, text)`
-- [ ] Function writes to `/workspaces/{workspaceId}/channels/{channelId}/messages/`:
-  - [ ] messageId: auto-generated (use `addDoc`)
-  - [ ] channelId, workspaceId, userId, userName (from auth context)
-  - [ ] text: user input (1-4000 chars)
-  - [ ] timestamp: serverTimestamp()
-  - [ ] createdAt: serverTimestamp()
-- [ ] Error handling: Catch Firestore errors, throw with descriptive message
-- [ ] Return: Promise<string> (messageId)
-- [ ] Test: Send message → verify document created in Firestore console
+- [ ] Create `lib/firebase/messages.ts` helper: `sendMessage(channelId, text)`
+- [ ] **Step 1: Write to Realtime Database (RTDB) first:**
+  - [ ] Path: `/messages/{workspaceId}/{channelId}/{messageId}`
+  - [ ] Generate messageId: `push(ref(...)).key` (auto-generated)
+  - [ ] Write data: `{ userId, userName, text, timestamp: Date.now(), ttl: Date.now() + 3600000 }`
+  - [ ] TTL: 1 hour expiry (RTDB auto-deletes after 1 hour)
+  - [ ] Use `set(ref(...), { ... })` for write
+  - [ ] **Error handling: If RTDB write fails → Abort entire operation**
+    - [ ] Show error banner: "Message failed to send. Retry?" (red banner with retry button)
+    - [ ] Do NOT proceed to Firestore write
+    - [ ] Return error to caller for optimistic UI rollback
+- [ ] **Step 2: Write to Firestore (after RTDB succeeds):**
+  - [ ] Path: `/workspaces/{workspaceId}/channels/{channelId}/messages/{messageId}`
+  - [ ] Use SAME messageId from RTDB (consistency)
+  - [ ] Write data: `{ messageId, channelId, workspaceId, userId, userName, text, timestamp: serverTimestamp(), createdAt: serverTimestamp() }`
+  - [ ] Use `setDoc(doc(...), { ... })` for write (explicit ID)
+  - [ ] **Error handling: If Firestore write fails → Warning (message delivered but not persisted)**
+    - [ ] Show warning banner: "Message sent but not saved. It will disappear in 1 hour." (gray/yellow banner)
+    - [ ] Log error to Sentry for investigation
+    - [ ] Add retry mechanism: Store failed Firestore writes in local queue, retry in background
+    - [ ] Retry button: User can manually retry Firestore write with same messageId
+- [ ] **Return:** Promise<string> (messageId) on success, throw error on RTDB failure
+- [ ] **Testing:**
+  - [ ] Send message → Verify appears in RTDB console
+  - [ ] Verify same message appears in Firestore console with same messageId
+  - [ ] Simulate RTDB failure → Verify error banner, no Firestore write
+  - [ ] Simulate Firestore failure (after RTDB success) → Verify warning banner, message still delivered via RTDB
+  - [ ] Verify TTL: Message auto-deletes from RTDB after 1 hour
 
-**Estimated Effort:** 1-2 hours
+**Estimated Effort:** 3 hours
 
 ---
 
-### Story 4.5: Write Messages to Realtime Database
-
-**Epic:** Epic 4 - Real-Time Messaging Core
-
-**Description:**
-Simultaneously write messages to RTDB for instant delivery to all connected clients. Set 1-hour TTL for auto-deletion.
-
-**Acceptance Criteria:**
-- [ ] Create `lib/firebase/realtime.ts` helper: `sendMessageRTDB(channelId, message)`
-- [ ] Function writes to `/messages/{workspaceId}/{channelId}/{messageId}`:
-  - [ ] Use same messageId as Firestore (consistency)
-  - [ ] Store: userId, userName, text, timestamp, ttl (1 hour from now)
-- [ ] Use `set(ref(...), { ... })` for write
-- [ ] TTL: `ttl: Date.now() + 3600000` (1 hour expiry, RTDB auto-deletes)
-- [ ] Error handling: If RTDB write fails, abort Firestore write (prevent inconsistency)
-- [ ] Test: Send message → verify appears in RTDB console, auto-deletes after 1 hour
-
-**Estimated Effort:** 1-2 hours
-
----
-
-### Story 4.6: Subscribe to Real-Time Message Updates
+### Story 4.5: Subscribe to Real-Time Message Updates
 
 **Epic:** Epic 4 - Real-Time Messaging Core
 
@@ -736,7 +733,7 @@ Listen to RTDB for new messages in current channel. Update UI instantly when oth
 
 ---
 
-### Story 4.7: Fetch Message History from Firestore
+### Story 4.6: Fetch Message History from Firestore
 
 **Epic:** Epic 4 - Real-Time Messaging Core
 
@@ -757,7 +754,7 @@ Load last 50 messages from Firestore when user switches to a channel. Display in
 
 ---
 
-### Story 4.8: Display Messages in Message List
+### Story 4.7: Display Messages in Message List
 
 **Epic:** Epic 4 - Real-Time Messaging Core
 
@@ -781,7 +778,7 @@ Render messages in main view with author name, timestamp, and text. Use flat Sla
 
 ---
 
-### Story 4.9: Implement Auto-Scroll to Bottom
+### Story 4.8: Implement Auto-Scroll to Bottom
 
 **Epic:** Epic 4 - Real-Time Messaging Core
 
@@ -802,7 +799,7 @@ Automatically scroll to bottom when new messages arrive (if user is already at b
 
 ---
 
-### Story 4.10: Add Message Character Limit Validation
+### Story 4.9: Add Message Character Limit Validation
 
 **Epic:** Epic 4 - Real-Time Messaging Core
 
@@ -1014,21 +1011,77 @@ Highlight currently selected channel/DM in sidebar with background color and lef
 **Epic:** Epic 6 - User Presence & Indicators
 
 **Description:**
-Track unread messages per channel/DM, display badge in sidebar, clear count when user views channel.
+Track unread messages per channel/DM with client-side increment strategy. Display badge in sidebar, clear count when user views channel.
 
 **Acceptance Criteria:**
-- [ ] Create `/unreadCounts/{userId}_{targetId}` collection:
+- [ ] **Data Structure:** Create `/unreadCounts/{userId}_{targetId}` collection:
   - [ ] userId, targetId (channelId or dmId), targetType ('channel' | 'dm')
   - [ ] count: number
   - [ ] lastReadAt: Timestamp
   - [ ] updatedAt: Timestamp
-- [ ] Increment count: When new message received AND target not currently active
-- [ ] Clear count: When user switches to channel/DM (`updateDoc(unreadRef, { count: 0, lastReadAt: serverTimestamp() })`)
-- [ ] Display badge: Right-aligned in channel/DM list item, Primary Brand background, white text
-- [ ] Badge shows number (e.g., "[3]"), hidden if count = 0
-- [ ] Real-time updates: Subscribe to unread counts for current user
+- [ ] **Increment Strategy (Client-Side):**
+  - [ ] Each user's client subscribes to RTDB `/messages/{workspaceId}/{channelId}` for ALL channels they're a member of
+  - [ ] On `child_added` event (new message received):
+    - [ ] Check: Is this channel/DM the currently active view? (`channelId !== currentChannelId`)
+    - [ ] If NOT current channel: Increment unread count in Firestore
+    - [ ] Call: `updateDoc(unreadCountRef, { count: increment(1), updatedAt: serverTimestamp() })`
+  - [ ] If IS current channel: Do NOT increment (user is viewing it)
+- [ ] **Clear Strategy:**
+  - [ ] On channel/DM switch: Write `updateDoc(unreadCountRef, { count: 0, lastReadAt: serverTimestamp() })`
+  - [ ] Clear happens when channel becomes active (not on every message view)
+- [ ] **Security:**
+  - [ ] Firestore security rules: User can only read/write their own unread counts
+  - [ ] Rule: `allow read, write: if request.auth.uid == resource.data.userId;`
+- [ ] **Display:**
+  - [ ] Badge: Right-aligned in channel/DM list item, Primary Brand background, white text
+  - [ ] Badge shows number (e.g., "[3]"), hidden if count = 0
+  - [ ] Real-time updates: Subscribe to `/unreadCounts/{userId}_*` for current user
+- [ ] **Edge Cases:**
+  - [ ] If user opens multiple tabs: Each tab increments independently (acceptable, count may be slightly inflated)
+  - [ ] If user is offline: Counts don't update until reconnect (expected behavior)
 
 **Estimated Effort:** 3 hours
+
+---
+
+### Story 6.4.1: Test Unread Count Accuracy (E2E)
+
+**Epic:** Epic 6 - User Presence & Indicators
+
+**Description:**
+End-to-end test to verify unread count accuracy with multi-user simulation. Ensure counts increment correctly when user is in different channels.
+
+**Acceptance Criteria:**
+- [ ] **Test Scenario 1: Basic unread count increment**
+  - [ ] User A is in #general channel
+  - [ ] User B sends message in #dev-team channel
+  - [ ] Verify: User A's sidebar shows [1] unread badge on #dev-team
+  - [ ] User A switches to #dev-team
+  - [ ] Verify: Badge clears, count = 0
+- [ ] **Test Scenario 2: Multiple unread messages**
+  - [ ] User A is in #general
+  - [ ] User B sends 3 messages in #dev-team
+  - [ ] Verify: User A's sidebar shows [3] unread badge on #dev-team
+- [ ] **Test Scenario 3: No increment when viewing channel**
+  - [ ] User A is in #dev-team (actively viewing)
+  - [ ] User B sends message in #dev-team
+  - [ ] Verify: No unread badge appears (User A is viewing the channel)
+- [ ] **Test Scenario 4: Direct message unread counts**
+  - [ ] User A is in #general
+  - [ ] User B sends DM to User A
+  - [ ] Verify: User A's sidebar shows [1] unread badge on User B's DM
+  - [ ] User A opens DM with User B
+  - [ ] Verify: Badge clears
+- [ ] **Test Setup:**
+  - [ ] Use Playwright with Firebase Emulators
+  - [ ] Simulate two browser contexts (User A and User B)
+  - [ ] Coordinate actions via test orchestration
+- [ ] **Assertions:**
+  - [ ] Badge count matches expected number
+  - [ ] Badge clears immediately on channel switch (<200ms)
+  - [ ] No phantom unread counts (badges don't appear when they shouldn't)
+
+**Estimated Effort:** 2 hours
 
 ---
 
@@ -1536,7 +1589,47 @@ Use Playwright to test end-to-end user flows: Sign up → Create workspace → S
 
 ---
 
-### Story 10.6: Performance Testing & Benchmarking
+### Story 10.6: Implement Performance Monitoring
+
+**Epic:** Epic 10 - Testing & Quality Assurance
+
+**Description:**
+Instrument the app with performance monitoring to measure and track message delivery latency, API route performance, and real-time listener health in production.
+
+**Acceptance Criteria:**
+- [ ] **Custom Metrics for Message Delivery Latency:**
+  - [ ] Capture send timestamp on client (message creation time)
+  - [ ] Capture receive timestamp when message appears via RTDB listener
+  - [ ] Calculate latency: `receiveTime - sendTime`
+  - [ ] Log to Vercel Analytics: `track('message_delivered', { latency: ms })`
+  - [ ] Track p95, p99 latency in dashboard
+- [ ] **Vercel Analytics Integration:**
+  - [ ] Track custom events: `message_sent`, `channel_switched`, `channel_created`
+  - [ ] Include metadata: `{ channelId, workspaceId, messageLength }`
+  - [ ] Monitor Core Web Vitals (LCP, FID, CLS) automatically
+- [ ] **Sentry Performance Monitoring:**
+  - [ ] Install: `@sentry/nextjs` with performance tracing enabled
+  - [ ] Trace API routes: Automatic transaction tracking for Next.js API routes
+  - [ ] Trace Firebase operations: Custom spans for Firestore queries and RTDB writes
+  - [ ] Track slow operations: Alert if Firestore query >1s
+- [ ] **Alert Thresholds:**
+  - [ ] p95 message delivery latency >1s → Send Slack/email alert
+  - [ ] Error rate >5% in 5-minute window → Send alert
+  - [ ] API route p95 latency >500ms → Send alert
+- [ ] **Dashboard:**
+  - [ ] Create Vercel Analytics dashboard with key metrics
+  - [ ] Sentry Performance dashboard showing transaction traces
+  - [ ] Document metrics in README: How to interpret and what's normal
+- [ ] **Testing:**
+  - [ ] Simulate slow network → Verify latency captured
+  - [ ] Send 100 messages → Verify all latencies logged
+  - [ ] Check Vercel/Sentry dashboards → Verify metrics appear
+
+**Estimated Effort:** 3 hours
+
+---
+
+### Story 10.7: Performance Testing & Benchmarking
 
 **Epic:** Epic 10 - Testing & Quality Assurance
 
@@ -1649,7 +1742,50 @@ Enable Vercel Analytics for Real User Monitoring (RUM), track Core Web Vitals, a
 
 ---
 
-### Story 11.5: Create CI/CD Pipeline (GitHub Actions)
+### Story 11.5: Configure Firebase Billing Alerts
+
+**Epic:** Epic 11 - Deployment & Monitoring
+
+**Description:**
+Set up Firebase billing budget alerts to monitor and control Firebase costs (Firestore reads/writes, RTDB bandwidth, Authentication). Document cost estimation in README.
+
+**Acceptance Criteria:**
+- [ ] **Set Up Budget Alerts (Google Cloud Console or CLI):**
+  - [ ] Create budget alert at $50/month (75% threshold warning)
+  - [ ] Create budget alert at $200/month (90% threshold warning)
+  - [ ] Create budget alert at $500/month (100% threshold critical alert)
+  - [ ] Email alerts sent to team email + Slack webhook (if configured)
+- [ ] **Cost Estimation Documentation:**
+  - [ ] Document in `README.md` or `docs/firebase-costs.md`:
+    - [ ] **Firestore Reads:** Each channel switch = 50 document reads
+    - [ ] **Firestore Writes:** Each message = 2 writes (Firestore + RTDB)
+    - [ ] **Estimated costs at scale:**
+      - [ ] 100 workspaces × 8 users × 20 messages/day = 16,000 messages/day
+      - [ ] = 32,000 Firestore writes/day = 960,000 writes/month
+      - [ ] Cost: ~$1.70/month for writes (at $0.18 per 100K)
+      - [ ] Reads: ~100,000/day = 3M reads/month = ~$1.80/month (at $0.06 per 100K)
+      - [ ] **Total estimated cost: $3.50/month for 100 workspaces**
+    - [ ] **Scaling estimates:**
+      - [ ] 1,000 workspaces: ~$35/month
+      - [ ] 10,000 workspaces: ~$350/month
+- [ ] **Cost Monitoring Dashboard:**
+  - [ ] Link to Firebase Console → Usage tab
+  - [ ] Document how to check daily Firestore reads/writes
+  - [ ] Document how to identify expensive queries (Firestore Query Profiler)
+- [ ] **Optimization Tips (for future reference):**
+  - [ ] Use Firestore pagination (limit queries to 50 documents)
+  - [ ] Cache Firestore queries client-side (Firebase SDK caches automatically)
+  - [ ] Use RTDB for ephemeral data (1-hour TTL reduces Firestore writes)
+  - [ ] Avoid fetching all workspace members on every page load (cache in context)
+- [ ] **Testing:**
+  - [ ] Verify budget alerts send email when threshold crossed (test in dev project with low budget)
+  - [ ] Document where to view current month's Firebase bill (Google Cloud Console → Billing)
+
+**Estimated Effort:** 1-2 hours
+
+---
+
+### Story 11.6: Create CI/CD Pipeline (GitHub Actions)
 
 **Epic:** Epic 11 - Deployment & Monitoring
 
@@ -1675,7 +1811,7 @@ Automate testing and deployment with GitHub Actions. Run tests on every PR, depl
 
 ---
 
-### Story 11.6: Write Production Runbooks
+### Story 11.7: Write Production Runbooks
 
 **Epic:** Epic 11 - Deployment & Monitoring
 
@@ -1698,7 +1834,7 @@ Document operational procedures: deployment process, rollback, incident response
 
 ---
 
-### Story 11.7: Production Launch Checklist
+### Story 11.8: Production Launch Checklist
 
 **Epic:** Epic 11 - Deployment & Monitoring
 
