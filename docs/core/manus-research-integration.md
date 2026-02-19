@@ -188,31 +188,48 @@ Add Manus MCP server to OpenClaw config:
 
 ## Configuration Schema
 
-### Config Object (Passed to Manus)
+### Config Object (Manus idea-factory Skill)
 
-```javascript
-{
-  platform: "mobile-app" | "web-app" | "browser-extension" | "desktop-app",
-  businessModel: "B2C" | "B2B" | "prosumer",
-  stack: "Swift/SwiftUI/Firebase" | "Next.js/React/TypeScript/Firebase" | "...",
-  scope: "simple" | "standard" | "complex",
-  count: 10-15, // Number of ideas to generate
-  previouslyResearched: ["domain-1", "domain-2", ...], // Avoid duplicates
-  constraints: {
-    maxStories: number, // e.g., 30 for simple
-    minStories: number, // e.g., 20 for simple
-    avoidIndustries: ["medical", "financial-regulated"], // Optional
-    preferIndustries: ["productivity", "lifestyle"], // Optional
-  }
-}
+**Manus has a custom `idea-factory` skill with the following config options:**
+
+```yaml
+platform: "iOS" | "web" | "Android"
+complexity: "very_simple" | "simple" | "moderate" | "complex"
+pricing_model: "freemium" | "paid" | "subscription"
+avoid_pain_points: ["domain-1", "domain-2", ...] # Previously researched problems
 ```
 
-### Prompt Template (Kelly → Manus)
+**Mapping to Research Lead v3.3 constraints:**
+- `complexity: "very_simple"` → 15-25 stories
+- `complexity: "simple"` → 20-30 stories
+- `complexity: "moderate"` → 40-60 stories
+- `complexity: "complex"` → 60+ stories
+
+### Prompt Template (Kelly → Manus idea-factory Skill)
+
+**Kelly constructs a natural language prompt that invokes the Manus skill:**
+
+```
+Run idea-factory skill with platform={platform}, complexity={complexity}, pricing_model={pricing_model}, avoid=[{avoid_pain_points}]
+```
+
+**Example:**
+```
+Run idea-factory skill with platform=iOS, complexity=simple, pricing_model=freemium, avoid=[fasting tracking, water intake tracking, caffeine intake tracking, parking location tracking]
+```
+
+**The idea-factory skill handles all discovery logic internally.** No need to send the full discovery workflow prompt - Manus maintains that workflow.
+
+---
+
+### Legacy: Full Prompt Template (For Reference)
+
+**If NOT using idea-factory skill, Kelly would send this full prompt:**
 
 ```markdown
 # Product Idea Discovery Task
 
-Generate {count} viable product ideas matching the following constraints:
+Generate 10-15 viable product ideas matching the following constraints:
 
 **Platform:** {platform}
 **Business Model:** {businessModel}
@@ -408,22 +425,34 @@ projects/ideas-queue/
 
 **Phase 1: Request Handling**
 
-User says: "Kelly, generate 10 iOS B2C simple app ideas"
+User says: "Kelly, generate iOS simple app ideas" or "Idea factory: iOS, freemium, simple"
 
 Kelly:
-1. Parses config from message (platform, business model, scope)
-2. Loads previously researched domains from project-registry.json
-3. Constructs prompt for Manus
-4. Checks Manus credits via MCP
-5. Triggers manus.execute_text_task(prompt, config)
+1. Parses config from message:
+   - platform: iOS | web | Android
+   - complexity: very_simple | simple | moderate | complex
+   - pricing_model: freemium | paid | subscription
+2. Loads previously researched domains from project-registry.json → avoid_pain_points list
+3. Constructs skill invocation prompt:
+   ```
+   Run idea-factory skill with platform=iOS, complexity=simple, pricing_model=freemium, avoid=[fasting tracking, water intake tracking, ...]
+   ```
+4. Triggers Manus via REST API:
+   ```bash
+   /Users/austenallred/clawd/skills/manus-api/bin/create-task --prompt "{skill invocation}" --profile manus-1.6
+   ```
 
 **Phase 2: Monitoring**
 
 Kelly:
-1. Receives task ID from Manus
-2. Announces: "Manus discovery task started (task-abc123). ETA: 5-10 min"
-3. Polls manus.get_task_status(task_id) every 30 seconds
-   - OR: Uses webhook (if configured) for push notification
+1. Receives task ID from Manus create-task
+2. Announces: "🚀 Manus idea-factory task started (task_abc123). ETA: 2-3 hours (deep research workflow)"
+3. Polls task status periodically:
+   ```bash
+   /Users/austenallred/clawd/skills/manus-api/bin/get-task --id task_abc123
+   ```
+   - Poll every 5 minutes (not 30 seconds - workflow is long)
+   - OR: Uses webhook (if configured) for push notification when complete
 
 **Phase 3: Processing Results**
 
@@ -474,8 +503,10 @@ User: "Generate full PRD for 'Plant Watering Tracker'"
 
 ### Hybrid Workflow
 
-**Manus = High-volume discovery** (10-15 ideas in 5-10 min)  
-**Research Lead = Deep validation + PRD** (1 idea in 35-50 min)
+**Manus idea-factory = Deep discovery + validation** (1 fully-researched idea in 2-3 hours)  
+**Research Lead = CIS solution generation + PRD** (1 idea → PRD in 35-50 min)
+
+**Note:** Manus idea-factory skill produces ONE deeply-researched Product Brief per run. For multiple ideas, run the skill multiple times (can be parallelized).
 
 **Combined flow:**
 1. Manus generates 10-15 problem candidates

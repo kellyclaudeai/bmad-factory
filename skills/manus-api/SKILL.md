@@ -143,12 +143,40 @@ fs.writeFileSync(`${outputDir}/manus-discovery-ios-b2c-simple.md`, output);
 
 ## Prompt Template for Discovery
 
-**For product idea discovery, use this template:**
+**Manus has a custom `idea-factory` skill. Invoke it with natural language:**
+
+### Skill Invocation Format
+
+```
+Run idea-factory skill with platform={platform}, complexity={complexity}, pricing_model={pricing_model}, avoid=[{avoid_list}]
+```
+
+**Config Options:**
+- `platform`: `"iOS"` | `"web"` | `"Android"`
+- `complexity`: `"very_simple"` | `"simple"` | `"moderate"` | `"complex"`
+- `pricing_model`: `"freemium"` | `"paid"` | `"subscription"`
+- `avoid`: Array of pain points to avoid (previously researched domains)
+
+**Example:**
+```bash
+/Users/austenallred/clawd/skills/manus-api/bin/create-task \
+  --prompt "Run idea-factory skill with platform=iOS, complexity=simple, pricing_model=freemium, avoid=[fasting tracking, water intake tracking, caffeine intake tracking]" \
+  --profile manus-1.6
+```
+
+**Timeline:** ~2-3 hours per idea (deep research workflow)  
+**Output:** One Product Brief with full competitive analysis, user research, and PRD outline
+
+---
+
+### Legacy: Manual Discovery Prompt (For Reference)
+
+**If NOT using idea-factory skill, use this manual template:**
 
 ```markdown
 # Product Idea Discovery Task
 
-Generate 10 viable product ideas matching these constraints:
+Generate 10-15 viable product ideas matching these constraints:
 
 **Platform:** iOS mobile app
 **Business Model:** B2C
