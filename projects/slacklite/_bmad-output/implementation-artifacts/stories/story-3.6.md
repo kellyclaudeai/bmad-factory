@@ -6,12 +6,12 @@
 Automatically create #general channel when workspace is created. Ensure every workspace has at least one channel on initialization with protection against deletion.
 
 **Acceptance Criteria:**
-- [ ] During workspace creation (Story 2.7), after workspace document created:
-  - [ ] Create #general channel in `/workspaces/{workspaceId}/channels/`
-  - [ ] Set name: "general", createdBy: workspace owner, createdAt: serverTimestamp()
-- [ ] User lands in #general after workspace creation
-- [ ] #general cannot be deleted (add validation in delete flow)
-- [ ] If workspace has no channels (edge case), auto-create #general on first app load
+- [x] During workspace creation (Story 2.7), after workspace document created:
+  - [x] Create #general channel in `/workspaces/{workspaceId}/channels/`
+  - [x] Set name: "general", createdBy: workspace owner, createdAt: serverTimestamp()
+- [x] User lands in #general after workspace creation
+- [x] #general cannot be deleted (add validation in delete flow)
+- [x] If workspace has no channels (edge case), auto-create #general on first app load
 
 **Dependencies:**
 dependsOn: ["2.7", "3.5"]

@@ -545,9 +545,10 @@ stories:
   "3.10":
     epic: 3
     title: "Implement Workspace Invite System"
-    status: todo
+    status: in_progress
     estimated_effort: "3 hours"
     dependencies: ["3.9"]
+    started_at: "2026-02-19T14:33:00-06:00"
   
   # Epic 4: Real-Time Messaging Core
   "4.1":
@@ -604,9 +605,10 @@ stories:
   "4.3":
     epic: 4
     title: "Implement Optimistic UI Message Sending"
-    status: todo
+    status: in_progress
     estimated_effort: "2 hours"
     dependencies: ["4.2"]
+    started_at: "2026-02-19T14:33:00-06:00"
   
   "4.4":
     epic: 4

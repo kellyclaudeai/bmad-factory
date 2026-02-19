@@ -6,14 +6,14 @@
 Convert sidebar to overlay menu on mobile. Add hamburger menu icon in top bar, sidebar slides in from left on tap with smooth animations.
 
 **Acceptance Criteria:**
-- [ ] Desktop (≥1024px): Sidebar always visible (250px fixed width)
-- [ ] Tablet (768-1023px): Sidebar collapsible, hamburger menu in top-left
-- [ ] Mobile (<768px): Sidebar hidden by default, hamburger menu in top-left
-- [ ] Hamburger icon: 3 horizontal lines (☰), 44x44px tap target
-- [ ] Tap hamburger → Sidebar slides in from left (280px width, covers main view)
-- [ ] Overlay: Semi-transparent backdrop (rgba(0,0,0,0.5))
-- [ ] Close: Tap outside sidebar or tap channel/DM (auto-close after selection)
-- [ ] Animation: 200ms slide transition (transform: translateX(-280px) → translateX(0))
+- [x] Desktop (≥1024px): Sidebar always visible (250px fixed width)
+- [x] Tablet (768-1023px): Sidebar collapsible, hamburger menu in top-left
+- [x] Mobile (<768px): Sidebar hidden by default, hamburger menu in top-left
+- [x] Hamburger icon: 3 horizontal lines (☰), 44x44px tap target
+- [x] Tap hamburger → Sidebar slides in from left (280px width, covers main view)
+- [x] Overlay: Semi-transparent backdrop (rgba(0,0,0,0.5))
+- [x] Close: Tap outside sidebar or tap channel/DM (auto-close after selection)
+- [x] Animation: 200ms slide transition (transform: translateX(-280px) → translateX(0))
 
 **Dependencies:**
 dependsOn: ["3.1"]

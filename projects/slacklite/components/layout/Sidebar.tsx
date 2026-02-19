@@ -67,8 +67,8 @@ export function Sidebar({
   return (
     <>
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-60 flex-none border-r border-gray-300 bg-white transition-transform duration-300 ease-in-out md:static md:z-auto md:translate-x-0 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-50 w-[280px] flex-none border-r border-gray-300 bg-white transform transition-transform duration-200 ease-in-out lg:static lg:z-auto lg:w-[250px] lg:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-[280px]"
         }`}
         aria-label="Workspace sidebar"
       >
@@ -82,7 +82,7 @@ export function Sidebar({
               type="button"
               size="sm"
               variant="secondary"
-              className="h-8 px-2 text-xs md:hidden"
+              className="h-8 px-2 text-xs lg:hidden"
               onClick={onClose}
               aria-label="Close sidebar"
             >

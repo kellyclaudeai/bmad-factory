@@ -24,30 +24,28 @@ export function AppShell({
 
   return (
     <div className="relative flex h-screen overflow-hidden bg-gray-100 text-gray-900">
-      <div
-        aria-hidden="true"
-        className={`fixed inset-0 z-40 bg-gray-900/40 transition-opacity duration-300 md:hidden ${
-          isSidebarOpen ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        onClick={closeSidebar}
-      />
+      <Button
+        type="button"
+        size="sm"
+        variant="secondary"
+        className="fixed left-3 top-3 z-30 h-11 w-11 p-0 text-2xl leading-none lg:hidden"
+        onClick={openSidebar}
+        aria-label="Open sidebar menu"
+      >
+        ☰
+      </Button>
+
+      {isSidebarOpen ? (
+        <div
+          aria-hidden="true"
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={closeSidebar}
+        />
+      ) : null}
 
       <Sidebar workspaceName={workspaceName} isOpen={isSidebarOpen} onClose={closeSidebar} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex h-12 items-center border-b border-gray-300 bg-white px-4 md:hidden">
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            className="h-8 px-3 text-xs"
-            onClick={openSidebar}
-            aria-label="Open sidebar menu"
-          >
-            Menu
-          </Button>
-        </div>
-
         <Header />
 
         <div className="flex min-h-0 flex-1">

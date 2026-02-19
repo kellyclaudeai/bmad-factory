@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -79,7 +80,9 @@ export function SubagentCard({
     return `${minutes}m`
   }
   
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on the logs toggle
+    if ((e.target as HTMLElement).closest('[data-logs-toggle]')) return
     if (isClickable) {
       router.push(`/subagent/${encodeURIComponent(sessionKey)}`)
     }
@@ -88,7 +91,7 @@ export function SubagentCard({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault()
-      handleClick()
+      router.push(`/subagent/${encodeURIComponent(sessionKey!)}`)
     }
   }
   
@@ -202,7 +205,143 @@ export function SubagentCard({
             </div>
           )}
         </div>
+
+        {/* Expandable Session Logs */}
+        {sessionKey && (
+          <SessionLogs sessionKey={sessionKey} />
+        )}
       </CardContent>
     </Card>
+  )
+}
+
+type LogMessage = {
+  role: string
+  text: string
+  toolName?: string
+  timestamp?: string
+}
+
+function SessionLogs({ sessionKey }: { sessionKey: string }) {
+  const [expanded, setExpanded] = useState(false)
+  const [messages, setMessages] = useState<LogMessage[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!expanded) return
+
+    let cancelled = false
+    setLoading(true)
+
+    async function fetchLogs() {
+      try {
+        const res = await fetch(`/api/session-logs?sessionKey=${encodeURIComponent(sessionKey)}&limit=30`)
+        if (!res.ok) throw new Error('Failed to fetch logs')
+        const data = await res.json()
+        if (!cancelled) {
+          setMessages(data.messages || [])
+          setError(data.error || null)
+          setLoading(false)
+        }
+      } catch (err: any) {
+        if (!cancelled) {
+          setError(err.message)
+          setLoading(false)
+        }
+      }
+    }
+
+    fetchLogs()
+
+    // Auto-refresh every 10s when expanded
+    const interval = setInterval(fetchLogs, 10000)
+    return () => { cancelled = true; clearInterval(interval) }
+  }, [expanded, sessionKey])
+
+  // Scroll to bottom when messages update
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [messages])
+
+  const roleIcon = (role: string) => {
+    switch (role) {
+      case 'user': return '👤'
+      case 'assistant': return '🤖'
+      case 'tool': return '🔧'
+      case 'system': return '📋'
+      default: return '❓'
+    }
+  }
+
+  const roleColor = (role: string) => {
+    switch (role) {
+      case 'assistant': return 'text-terminal-green'
+      case 'user': return 'text-blue-400'
+      case 'tool': return 'text-terminal-amber'
+      case 'system': return 'text-terminal-dim'
+      default: return 'text-terminal-text'
+    }
+  }
+
+  return (
+    <div className="mt-3 pt-3 border-t border-terminal-border" data-logs-toggle>
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          setExpanded(!expanded)
+        }}
+        className="flex items-center gap-1.5 text-xs font-mono text-terminal-dim hover:text-terminal-green transition-colors w-full"
+      >
+        <span className="transform transition-transform duration-200" style={{ display: 'inline-block', transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+          ▶
+        </span>
+        <span>Session Logs</span>
+        {messages.length > 0 && (
+          <span className="text-terminal-dim/50">({messages.length})</span>
+        )}
+      </button>
+
+      {expanded && (
+        <div className="mt-2">
+          {loading && messages.length === 0 ? (
+            <div className="text-xs font-mono text-terminal-dim p-2 bg-black rounded border border-terminal-border">
+              Loading logs...
+            </div>
+          ) : error && messages.length === 0 ? (
+            <div className="text-xs font-mono text-terminal-dim p-2 bg-black rounded border border-terminal-border">
+              ⚠️ {error}
+            </div>
+          ) : (
+            <div
+              ref={scrollRef}
+              className="max-h-64 overflow-y-auto bg-black rounded border border-terminal-border p-2 space-y-1"
+            >
+              {messages.map((msg, idx) => (
+                <div key={idx} className="flex gap-1.5 text-xs font-mono">
+                  <span className="shrink-0">{roleIcon(msg.role)}</span>
+                  <span className={`${roleColor(msg.role)} break-words min-w-0`}>
+                    {msg.toolName ? (
+                      <span>
+                        <span className="text-terminal-amber font-bold">{msg.toolName}</span>
+                        <span className="text-terminal-dim"> {msg.text.replace(`${msg.toolName}(`, '(')}</span>
+                      </span>
+                    ) : (
+                      msg.text.length > 200 ? msg.text.slice(0, 200) + '...' : msg.text
+                    )}
+                  </span>
+                </div>
+              ))}
+              {messages.length === 0 && (
+                <div className="text-terminal-dim text-xs">No messages yet</div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   )
 }
