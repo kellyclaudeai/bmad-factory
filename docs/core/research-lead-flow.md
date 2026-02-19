@@ -341,6 +341,14 @@ Problem Candidate #2: No way to track home maintenance
 - **Data requirements:** Can we access the data needed? No proprietary datasets?
 - **No specialized tech:** No custom ML models, no real-time video, no hardware
 - **Legal/compliance:** Consumer tools = low barrier. Healthcare/finance = high barrier.
+- **Value Source Analysis (CRITICAL):** What is the primary data/content this product needs to deliver its core value? Score based on value source type:
+  - **10:** Self-contained — the software itself creates value (calculator, editor, converter). Works on day 1 with 0 users, no external dependencies.
+  - **8-9:** User's own data — user brings their own value (budget tracker, habit app, notes). No cold start problem, no data dependency.
+  - **6-7:** External data via reliable, established APIs — data exists and is accessible (weather APIs, public datasets, government data). Verify API actually exists and covers the need.
+  - **4-5:** External data via scraping or unreliable sources — data might exist but requires building/maintaining scrapers, or APIs are limited/expensive. High maintenance burden.
+  - **2-3:** User-generated content from OTHER users — marketplace, social network, review platform. Classic cold start: app is useless with 0 users. Requires solving chicken-and-egg problem.
+  - **1:** Requires data that provably doesn't exist in accessible form — no API, no scrapable source, depends entirely on people uploading content they have no incentive to upload.
+  - **If value source scores ≤ 3, cap overall Buildability at 4/10 max** regardless of other factors. A technically simple app with no data is still unbuildable.
 
 **5. Demand Validation (1-10):** ← QUANTITATIVE SIGNALS, NOT COMPETITOR FUNDING
 - Is there QUANTITATIVE evidence that enough people have this problem?
@@ -363,6 +371,7 @@ Problem Candidate #2: No way to track home maintenance
 - No monetization path (purely free/open-source space, zero willingness to pay)
 - Platform mismatch (mobile-only problem when config is web-app, unless web solution viable)
 - Zero demand validation (no search volume, no app downloads, no community — just one Reddit post)
+- **Uncontrollable value source** — core product value depends on data/content that doesn't exist in accessible form AND requires other users to generate (cold start with no bootstrap path). Ask: "On day 1 with 0 users and only public APIs/data, does this product deliver value?" If no → disqualify.
 
 ---
 
@@ -663,6 +672,13 @@ For each solution, search:
 - Does it fit our stack?
 - Complexity within solo dev scope (40-60 stories)?
 - Technical risks manageable?
+- **Value Source (CRITICAL):** What data/content powers the core value? Score harshly:
+  - Self-contained or user's own data (8-10) → user brings their own value, no dependencies
+  - Reliable external APIs (6-7) → verify the API actually exists and covers the need
+  - Scraping or unreliable sources (4-5) → high maintenance, fragile
+  - Other users' contributions (2-3) → cold start problem, app useless on day 1
+  - Data doesn't exist in accessible form (1) → disqualify
+  - **Ask: "On day 1 with 0 users, does this product deliver value?"** If no, cap Feasibility at 4/10.
 
 **Differentiation (1-10):**
 - How clearly does this stand apart from existing solutions?
