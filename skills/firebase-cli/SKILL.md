@@ -304,10 +304,58 @@ const result = await signInWithCredential(auth, credential);
 
 ### Factory Standard
 
-**Default to signInWithPopup for all Firebase Auth implementations.**
+**Always use reverse proxy approach (Option 3) for Firebase Auth in production web apps.**
 
-Only use `signInWithRedirect` if:
-- Mobile UX is a hard requirement, AND
-- You implement reverse proxy rewrites
+This is the ONLY solution that works reliably on Vercel/Netlify production with modern browsers.
 
-**Document this decision in project README and commit messages.**
+**Implementation checklist:**
+1. ✅ Add Next.js rewrites to proxy `/__/auth/*` and `/__/firebase/*`
+2. ✅ Set dynamic `authDomain` based on hostname (custom domain in prod, localhost in dev)
+3. ✅ Update CSP to include `'self'` in `frame-src`
+4. ✅ Add custom domain to Google OAuth redirect URIs
+5. ✅ Add custom domain to Authorized JavaScript origins
+6. ✅ Test auth flow end-to-end on production URL
+
+**Document this approach in project README and commit messages.**
+
+### Verified Working Setup (NoteLite Reference)
+
+```typescript
+// next.config.ts
+async rewrites() {
+  return [
+    {
+      source: '/__/auth/:path*',
+      destination: 'https://YOUR-PROJECT.firebaseapp.com/__/auth/:path*',
+    },
+    {
+      source: '/__/firebase/:path*',
+      destination: 'https://YOUR-PROJECT.firebaseapp.com/__/firebase/:path*',
+    }
+  ];
+}
+
+// CSP headers
+"frame-src 'self' https://accounts.google.com https://YOUR-PROJECT.firebaseapp.com"
+
+// lib/firebase/config.ts
+const getAuthDomain = (): string => {
+  if (typeof window === 'undefined') return process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!;
+  const hostname = window.location.hostname;
+  
+  // Production: use custom domain (leverages reverse proxy)
+  if (hostname.includes('vercel.app') || hostname.includes('yourdomain.')) {
+    return hostname;
+  }
+  
+  // Development
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'localhost';
+  }
+  
+  // Fallback
+  return process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!;
+};
+```
+
+This approach eliminates ALL cross-origin issues by making auth requests same-origin.
