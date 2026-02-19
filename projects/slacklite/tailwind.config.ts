@@ -12,11 +12,15 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        primary: "#4A154B",
         "primary-brand": "#4A154B",
         "primary-light": "#611F69",
         "primary-dark": "#350D36",
         success: "#2EB67D",
         error: "#E01E5A",
+        warning: "#ECB22E",
+        info: "#36C5F0",
+        white: "#FFFFFF",
         gray: {
           900: "#1D1C1D",
           800: "#2C2B2C",

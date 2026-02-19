@@ -44,3 +44,8 @@ dependsOn: []
   ```
 
 **Estimated Effort:** 1 hour
+
+## Review Follow-ups
+
+- **Cannot be proven from repository snapshot:** the exact scaffold command (`npx create-next-app@latest slacklite --typescript --tailwind --app --eslint --no-src-dir`) cannot be verified post-hoc without setup logs/commit metadata.
+- **Environment-specific runtime gap:** `pnpm dev` starts successfully but auto-switches to `http://localhost:3001` because port `3000` is already occupied by another process in this environment.

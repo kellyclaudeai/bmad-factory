@@ -292,30 +292,6 @@
       },
       "followup": [],
       "projectId": "slacklite"
-    },
-    {
-      "id": "personal-relationship-manager-2026-02-18-2358",
-      "name": "Personal Relationship Manager",
-      "state": "discovery",
-      "paused": false,
-      "pausedReason": null,
-      "surfacedForQA": false,
-      "researchDir": null,
-      "researchSession": "agent:research-lead:20260219-0003",
-      "researchPhase": "validation",
-      "discoveryStrategy": "direct-demand-signals + workaround-archaeology",
-      "timeline": {
-        "discoveredAt": "2026-02-19T06:03:59+0000",
-        "lastUpdated": "2026-02-19T06:09:57+0000"
-      },
-      "intake": {
-        "problem": "People want to maintain meaningful personal relationships but struggle to remember important details, birthdays, and when they last connected with friends and family. Calendars manage dates but don't help maintain the relationship itself. Users feel like 'bad friends' when they forget important life events or lose touch with people who matter to them.",
-        "solution": "Echo - A passive listening companion that captures relationship details from everyday conversations (texts, voice memos, Siri interactions) and builds a living memory graph automatically. Uses on-device ML + Firebase Cloud Functions for NLP extraction. Zero manual entry—you just talk about friends naturally, and Echo surfaces relevant memories contextually (e.g., before calling Sarah, see 'last talked 47 days ago, asked about board exam').",
-        "targetAudience": null,
-        "keyFeatures": []
-      },
-      "implementation": null,
-      "followup": []
     }
   ]
 }

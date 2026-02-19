@@ -22,8 +22,7 @@
 #
 ################################################################################
 
-set -e  # Exit immediately on error
-set -u  # Exit on undefined variable
+set -euo pipefail  # Exit on error/undefined vars and fail on pipeline errors
 
 # Colors for output
 RED='\033[0;31m'
@@ -49,6 +48,16 @@ log_error() {
     echo -e "${RED}❌ ${1}${NC}"
 }
 
+GCLOUD_CREATE_LOG="$(mktemp -t slacklite-gcloud-create.XXXXXX.log)"
+FIREBASE_ADD_LOG="$(mktemp -t slacklite-firebase-add.XXXXXX.log)"
+FIREBASE_CONFIG_FILE="firebase-config.json"
+
+cleanup() {
+    rm -f "$FIREBASE_CONFIG_FILE" "$GCLOUD_CREATE_LOG" "$FIREBASE_ADD_LOG"
+}
+
+trap cleanup EXIT
+
 ################################################################################
 # PREREQUISITE CHECKS
 ################################################################################
@@ -65,7 +74,8 @@ check_prerequisites() {
     else
         local node_version=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
         if [ "$node_version" -lt 22 ]; then
-            log_warning "Node.js version $node_version found. Recommended: 22+"
+            log_error "Node.js version $node_version found. Required: 22+"
+            all_met=false
         else
             log_success "Node.js $(node -v) found"
         fi
@@ -107,11 +117,13 @@ check_prerequisites() {
     fi
     
     # Check gcloud authentication
-    if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" &> /dev/null; then
-        log_warning "Google Cloud SDK not authenticated. Run: gcloud auth login"
-        log_warning "Script will attempt to continue, but may fail on gcloud commands"
+    local gcloud_account
+    gcloud_account="$(gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null | head -n1 || true)"
+    if [ -z "$gcloud_account" ]; then
+        log_error "Google Cloud SDK not authenticated. Run: gcloud auth login"
+        all_met=false
     else
-        log_success "Google Cloud SDK authenticated"
+        log_success "Google Cloud SDK authenticated ($gcloud_account)"
     fi
     
     if [ "$all_met" = false ]; then
@@ -132,6 +144,8 @@ check_prerequisites() {
 ################################################################################
 # CONFIGURATION
 ################################################################################
+
+check_prerequisites
 
 # Prompt for project details
 read -p "Enter Firebase Project ID (e.g., slacklite-prod): " PROJECT_ID
@@ -163,17 +177,17 @@ log_info "🔥 Starting Firebase project setup..."
 echo ""
 
 # Check if project already exists
-if firebase projects:list --json | jq -e ".[] | select(.projectId == \"$PROJECT_ID\")" &> /dev/null; then
+if firebase projects:list --json | jq -e --arg project_id "$PROJECT_ID" '.result[]? | select(.projectId == $project_id)' > /dev/null; then
     log_warning "Project $PROJECT_ID already exists. Skipping creation."
     log_info "Using existing project."
 else
     # Create Firebase project
     log_info "Creating Firebase project: $PROJECT_ID..."
     
-    if gcloud projects create "$PROJECT_ID" --name="$PROJECT_NAME" 2>&1 | tee /tmp/gcloud-create.log; then
+    if gcloud projects create "$PROJECT_ID" --name="$PROJECT_NAME" 2>&1 | tee "$GCLOUD_CREATE_LOG"; then
         log_success "Google Cloud project created"
     else
-        if grep -q "already exists" /tmp/gcloud-create.log; then
+        if grep -q "already exists" "$GCLOUD_CREATE_LOG"; then
             log_warning "Project already exists in Google Cloud. Continuing..."
         else
             log_error "Failed to create Google Cloud project. Check error above."
@@ -184,10 +198,10 @@ else
     
     # Add Firebase to project
     log_info "Adding Firebase to project..."
-    if firebase projects:addfirebase "$PROJECT_ID" 2>&1 | tee /tmp/firebase-add.log; then
+    if firebase projects:addfirebase "$PROJECT_ID" 2>&1 | tee "$FIREBASE_ADD_LOG"; then
         log_success "Firebase added to project"
     else
-        if grep -q "already" /tmp/firebase-add.log; then
+        if grep -q "already" "$FIREBASE_ADD_LOG"; then
             log_warning "Firebase already added. Continuing..."
         else
             log_error "Failed to add Firebase to project"
@@ -214,30 +228,26 @@ for api in "${apis_to_enable[@]}"; do
     fi
 done
 
-# Create web app
-log_info "Creating web app..."
-APP_ID=$(firebase apps:create web "SlackLite Web" --project="$PROJECT_ID" --json 2>/dev/null | jq -r '.result.appId // empty')
+# Create or re-use web app
+log_info "Ensuring web app exists..."
+APP_ID="$(firebase apps:list web --project="$PROJECT_ID" --json 2>/dev/null | jq -r '.result[]? | select(.displayName == "SlackLite Web") | .appId' | head -n1)"
 
-if [ -z "$APP_ID" ]; then
-    # App might already exist, try to get existing app ID
-    log_warning "Could not create new app (may already exist). Fetching existing apps..."
-    APP_ID=$(firebase apps:list web --project="$PROJECT_ID" --json 2>/dev/null | jq -r '.[0].appId // empty')
-    
+if [ -n "$APP_ID" ]; then
+    log_success "Using existing web app: $APP_ID"
+else
+    APP_ID="$(firebase apps:create web "SlackLite Web" --project="$PROJECT_ID" --json 2>/dev/null | jq -r '.result.appId // empty')"
     if [ -z "$APP_ID" ]; then
-        log_error "Could not create or find web app"
+        log_error "Could not create web app"
         log_info "MANUAL FALLBACK: Add a web app manually in Firebase Console"
         exit 1
-    else
-        log_success "Using existing web app: $APP_ID"
     fi
-else
     log_success "Web app created: $APP_ID"
 fi
 
 # Get Firebase config
 log_info "Fetching Firebase configuration..."
-if firebase apps:sdkconfig web "$APP_ID" --project="$PROJECT_ID" --json > firebase-config.json 2>/dev/null; then
-    log_success "Firebase config saved to firebase-config.json"
+if firebase apps:sdkconfig web "$APP_ID" --project="$PROJECT_ID" --json > "$FIREBASE_CONFIG_FILE" 2>/dev/null; then
+    log_success "Firebase config saved to $FIREBASE_CONFIG_FILE"
 else
     log_error "Failed to fetch Firebase config"
     log_info "MANUAL FALLBACK: Get config from Firebase Console → Project Settings → Your Apps"
@@ -246,15 +256,33 @@ fi
 
 # Parse config and create .env.local
 log_info "Creating .env.local file..."
+API_KEY="$(jq -r '.result.sdkConfig.apiKey // empty' "$FIREBASE_CONFIG_FILE")"
+AUTH_DOMAIN="$(jq -r '.result.sdkConfig.authDomain // empty' "$FIREBASE_CONFIG_FILE")"
+PROJECT_ID_FROM_CONFIG="$(jq -r '.result.sdkConfig.projectId // empty' "$FIREBASE_CONFIG_FILE")"
+STORAGE_BUCKET="$(jq -r '.result.sdkConfig.storageBucket // empty' "$FIREBASE_CONFIG_FILE")"
+MESSAGING_SENDER_ID="$(jq -r '.result.sdkConfig.messagingSenderId // empty' "$FIREBASE_CONFIG_FILE")"
+APP_ID_FROM_CONFIG="$(jq -r '.result.sdkConfig.appId // empty' "$FIREBASE_CONFIG_FILE")"
+DATABASE_URL="$(jq -r '.result.sdkConfig.databaseURL // empty' "$FIREBASE_CONFIG_FILE")"
+
+if [ -z "$DATABASE_URL" ]; then
+    DATABASE_URL="https://${PROJECT_ID}-default-rtdb.firebaseio.com"
+fi
+
+if [ -z "$API_KEY" ] || [ -z "$AUTH_DOMAIN" ] || [ -z "$PROJECT_ID_FROM_CONFIG" ] || [ -z "$STORAGE_BUCKET" ] || [ -z "$MESSAGING_SENDER_ID" ] || [ -z "$APP_ID_FROM_CONFIG" ]; then
+    log_error "Firebase SDK config is incomplete. Cannot generate .env.local safely."
+    log_info "MANUAL FALLBACK: Copy firebaseConfig manually from Firebase Console"
+    exit 1
+fi
+
 cat > .env.local <<EOF
 # Firebase Configuration (Auto-generated by setup-firebase.sh)
-NEXT_PUBLIC_FIREBASE_API_KEY=$(jq -r '.result.sdkConfig.apiKey // empty' firebase-config.json)
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=$(jq -r '.result.sdkConfig.authDomain // empty' firebase-config.json)
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=$(jq -r '.result.sdkConfig.projectId // empty' firebase-config.json)
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=$(jq -r '.result.sdkConfig.storageBucket // empty' firebase-config.json)
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=$(jq -r '.result.sdkConfig.messagingSenderId // empty' firebase-config.json)
-NEXT_PUBLIC_FIREBASE_APP_ID=$(jq -r '.result.sdkConfig.appId // empty' firebase-config.json)
-NEXT_PUBLIC_FIREBASE_DATABASE_URL=$(jq -r '.result.sdkConfig.databaseURL // "https://$PROJECT_ID-default-rtdb.firebaseio.com"' firebase-config.json)
+NEXT_PUBLIC_FIREBASE_API_KEY=$API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=$AUTH_DOMAIN
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=$PROJECT_ID_FROM_CONFIG
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=$STORAGE_BUCKET
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=$MESSAGING_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID=$APP_ID_FROM_CONFIG
+NEXT_PUBLIC_FIREBASE_DATABASE_URL=$DATABASE_URL
 EOF
 
 log_success ".env.local created"
@@ -280,7 +308,7 @@ if [ ! -f "firestore.indexes.json" ]; then
     echo '{"indexes":[],"fieldOverrides":[]}' > firestore.indexes.json
 fi
 
-firebase use "$PROJECT_ID" --add 2>/dev/null || firebase use "$PROJECT_ID"
+firebase use "$PROJECT_ID"
 log_success "Firestore initialized"
 
 # Initialize Realtime Database
@@ -319,9 +347,6 @@ if [[ "$deploy_rules" =~ ^[Yy]$ ]]; then
 else
     log_info "Skipping security rules deployment. Deploy manually with: firebase deploy --only firestore:rules,database:rules"
 fi
-
-# Cleanup
-rm -f firebase-config.json /tmp/gcloud-create.log /tmp/firebase-add.log
 
 ################################################################################
 # SUCCESS SUMMARY

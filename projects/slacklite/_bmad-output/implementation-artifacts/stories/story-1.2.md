@@ -161,3 +161,22 @@ If the automated script fails due to authentication or permission issues:
 - Email/Password authentication enablement via CLI (`gcloud identity-platform`) may require manual setup in Firebase Console if the command fails
 - Script requires authentication with both Firebase CLI and Google Cloud SDK
 - Some operations may require billing enabled on the GCP project
+
+## Review Follow-ups
+
+### MAJOR (Needs Rework)
+
+1. **Firestore users collection is not workspace-scoped**  
+   Current rule allows any authenticated user to read all `/users/*` documents, which violates workspace isolation requirements.
+
+2. **Firestore DM message writes are not participant-scoped**  
+   Under `/workspaces/{workspaceId}/directMessages/{dmId}/messages/{messageId}`, message `create` does not require the writer to be in the DM participant list.
+
+3. **Realtime Database messages access is not workspace-scoped**  
+   `/messages/{workspaceId}/{channelId}` currently allows any authenticated user to read/write all workspaces.
+
+4. **Unread count writes rely on `resource.data` for create paths**  
+   Rule `allow read, write` on `/unreadCounts/{countId}` references `resource.data.userId`, which is undefined for creates and blocks valid creation flows.
+
+5. **Setup script does not fully implement claimed service provisioning**  
+   `scripts/setup-firebase.sh` creates local rules files and enables APIs, but does not reliably create Firestore/RTDB instances or guarantee Email/Password provider enablement through a validated CLI path.
