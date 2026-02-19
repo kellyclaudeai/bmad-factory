@@ -853,10 +853,39 @@ stories:
   "4.8":
     epic: 4
     title: "Implement Auto-Scroll to Bottom"
-    status: in_progress
+    status: review
     estimated_effort: "1-2 hours"
     started_at: "2026-02-19T14:45:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:46:30-06:00"
     dependencies: ["4.7"]
+    notes: |
+      ✅ Auto-scroll to bottom implementation complete - all acceptance criteria met
+      ✅ Bottom detection with 100px threshold (BOTTOM_THRESHOLD_PX constant)
+      ✅ Scroll behavior:
+         - Initial load: Instant scroll (behavior: "auto")
+         - New messages when at bottom: Smooth scroll (behavior: "smooth")
+         - New messages when scrolled up: Show "New messages ↓" badge
+      ✅ Badge features:
+         - Primary brand background, bottom-right positioning
+         - Click scrolls to bottom and hides badge
+         - Auto-hides when user manually scrolls to bottom
+      ✅ State management:
+         - wasAtBottomRef tracks scroll position
+         - previousMessageCountRef detects new messages
+         - hasInitializedScrollRef ensures instant scroll on first load
+      ✅ Tests added:
+         - tests/unit/app/ChannelPage.test.tsx: Badge visibility, click behavior, manual scroll hide
+         - All 6 tests passing (6/6)
+      ✅ ESLint validation passed
+      ✅ Implementation validated by Codex CLI
+      
+      Files Changed:
+      - app/app/channels/[channelId]/page.tsx (added auto-scroll logic and badge UI)
+      - tests/unit/app/ChannelPage.test.tsx (added 3 new tests for scroll behavior)
+      - _bmad-output/implementation-artifacts/stories/story-4.8.md (criteria marked complete)
+      
+      Commit: ed64e04 (feat(4.8): Implement auto-scroll to bottom)
   
   "4.9":
     epic: 4
