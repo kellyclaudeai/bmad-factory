@@ -5,6 +5,7 @@
 **Audience:** Used as reference when building/updating Project Lead AGENTS.md.
 
 **Recent Updates:**
+- v4.1 (2026-02-19): **STATELESS PL + CONTEXT DISCIPLINE.** PL must keep replies to 1-2 lines, never narrate history, rotate session every 25 stories. Prevents 200k token overflow on large projects. See Context Discipline section.
 - v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. (Proposed, not yet implemented)
 - v3.3 (2026-02-19): **CODE REVIEW DISABLED.** Stories now go dev → done directly (skipping code-review Amelia). Rationale: 80%+ reviews pass, adds 5-10 min overhead per story, Phase 3 TEA testing more thorough. Can re-enable once factory proven.
 - v3.2 (2026-02-19): Restructured Phase 3 into Pre-Deploy Gates → Deploy → Post-Deploy Verification. Full TEA suite (TD, TF, TA, RV, TR, NR) runs against deployed app. Failures batched → Amelia remediates → redeploy → re-run. Removed correct-course routing for QA failures (direct to Amelia).
@@ -628,3 +629,35 @@ jq '.projects |= map(
 6. **Detect dead subagents** — no completion = likely dead, respawn
 7. **BMAD tracks story status** — sprint-status.yaml is source of truth
 8. **All work on `dev` branch** — merge to `main` only at Ship
+9. **Stay stateless** — terse replies only, all state in files, rotate session every 25 stories
+
+## Context Discipline (v4.1 - 2026-02-19)
+
+**PL is a stateless orchestrator. Session context must stay small.**
+
+A 74-story project accumulates 280k+ tokens if PL narrates everything. This causes silent death at the 200k limit. The fix is behavioral — PL must externalize all state and keep replies minimal.
+
+### Rules
+- **Terse replies:** Max 1-2 lines per heartbeat (`✓ Spawned 10.7, 11.5` or `HEARTBEAT_OK`)
+- **Never narrate history:** Don't summarize past waves. sprint-status.yaml has this.
+- **Never quote sprint-status back:** Read → act → reply tersely. Don't copy file contents into context.
+- **Subagent completions:** Update sprint-status.yaml status only. No elaboration.
+
+### Voluntary Session Rotation (every 25 stories done)
+At 25 stories complete, PL proactively archives its own session before hitting the 200k limit:
+
+```bash
+# Archive current session transcript
+SESSION=$(ls ~/.openclaw/agents/project-lead/sessions/*.jsonl | grep -v ".lock\|.deleted\|.overflow" | head -1)
+cp "$SESSION" "${SESSION}.overflow-archived-$(date +%Y%m%d-%H%M%S)"
+echo '[]' > "$SESSION"
+```
+
+Then notify Kelly: `"PL session rotated at 25 stories. Resuming from sprint-status.yaml."`
+
+**Why 25 stories:** At ~3k tokens/story spawn cycle, 25 stories = ~75k tokens. Well under the 200k limit even with heartbeat overhead. Fresh session picks up state from sprint-status.yaml instantly.
+
+### Target Session Size
+- Per-session token budget: **< 75k tokens**
+- Trigger rotation at: **25 stories completed** (regardless of project size)
+- Safety net: Kelly's "PL Context Overflow Guard" cron (every 30 min) catches any drift
