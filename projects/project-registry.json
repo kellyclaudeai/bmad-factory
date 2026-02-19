@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "projects": [
     {
       "id": "smart-receipt-budgeting-tracker-2026-02-18-1656",
@@ -28,7 +28,71 @@
         ]
       },
       "implementation": null,
+      "followup": [],
+      "researchDir": "ideas/smart-receipt-budgeting-tracker-2026-02-18-1656"
+    },
+    {
+      "id": "warranty-receipt-tracker-2026-02-18-1733",
+      "name": "ClaimDone",
+      "state": "discovery",
+      "paused": false,
+      "pausedReason": null,
+      "researchDir": "ideas/warranty-receipt-tracker-2026-02-18-1733",
+      "researchSession": "agent:research-lead:main",
+      "researchPhase": "complete",
+      "discoveryStrategy": "workaround-archaeology",
+      "timeline": {
+        "discoveredAt": "2026-02-18T17:33:00-06:00",
+        "lastUpdated": "2026-02-18T17:43:00-06:00"
+      },
+      "intake": {
+        "problem": "Consumers have no effective way to organize and track warranties, receipts, and service documents across their household purchases. Critical purchase documents arrive scattered across multiple channels (email receipts, WhatsApp photos from family members, physical receipts, warranty PDFs) and never consolidate into one searchable place. This leads to missed warranty claims, lost money on expired extended warranties/service contracts, and inability to provide proof of purchase when needed for repairs or returns.",
+        "solution": "Warranty claim concierge service. Users upload receipts (AI-assisted), ClaimDone tracks warranties and sends expiry reminders. When product breaks, user submits claim via app. ClaimDone concierge team contacts manufacturer on user's behalf, handles entire claim process (forms, proof of purchase, follow-ups), and resolves claim. $10/mo subscription for unlimited claim filings. Competes on outcome (successful claims) not features (tracking).",
+        "targetAudience": "Homeowners and consumers (25-55) who make significant purchases with warranties - appliances, electronics, furniture, tools. Episodic but high-stakes pain (when repair needed, warranty expires unused). Currently use scattered workarounds (cloud photos, spreadsheets, email search) or DIY tracker apps (Warranty Keeper, SlipCrate). Proven willingness to pay (documented financial losses $100s-$1000s from missed claims).",
+        "keyFeatures": [
+          "AI-powered receipt upload (OCR extraction)",
+          "Smart warranty dashboard (visual timeline)",
+          "Proactive expiry reminders (60/30/7 days)",
+          "One-click claim submission (description + photos)",
+          "Concierge claim filing (we contact manufacturer, handle forms, follow-ups)",
+          "Real-time claim status tracking",
+          "Multi-warranty support per product",
+          "Family account sharing",
+          "Manufacturer contact database"
+        ]
+      },
+      "implementation": null,
       "followup": []
+    },
+    {
+      "id": "hyper-local-event-discovery-2026-02-18-1824",
+      "name": "Ripple",
+      "state": "discovery",
+      "paused": false,
+      "pausedReason": null,
+      "researchSession": "agent:research-lead:main",
+      "researchPhase": "complete",
+      "discoveryStrategy": "why-doesnt-this-exist",
+      "timeline": {
+        "discoveredAt": "2026-02-19T00:25:03+0000",
+        "lastUpdated": "2026-02-19T00:40:57+0000"
+      },
+      "intake": {
+        "problem": "People are missing out on valuable local experiences (food popups, open mics, niche workshops, pop-up markets, community gatherings) because: 1) They discover them too late (via Instagram stories after events end), 2) Eventbrite focuses on mainstream/paid events not low-key local happenings, 3) No centralized proactive discovery tool for hyper-local hidden gems. Core pain: FOMO (finding out about great local events after they've happened), disconnection from local community, information scattered across Instagram/Facebook groups/local websites.",
+        "solution": "Radar-style map interface showing ONLY events happening in the next 4 hours within configurable radius (0.5-2 miles). No calendars, no planning—pure spontaneity. Push notifications fire at optimal decision moments (e.g., 'Taco popup starting in 30 mins, 0.3mi away'). Users subscribe to event types (food, music, art) and get real-time pings when interests activate nearby. Anti-calendar design—deliberately ephemeral. Events disappear from radar as they end, creating urgency. Novel approach: Radar metaphor for ephemeral local events (never been done), NOW-only view eliminates decision paralysis, visual pulse rings show real-time activity.",
+        "targetAudience": "Urban dwellers (20-40), socially curious, want to explore their neighborhood, interested in food/music/arts/culture. Currently rely on Instagram/word-of-mouth (broken experience). Weekly pain (every weekend, some weeknights). Proven willingness to pay .99/mo for lifestyle apps.",
+        "keyFeatures": [
+          "Radar Map View (animated radar rings pulsing from user location)",
+          "Event Cards (name, venue, time, distance, photos)",
+          "Push Notifications (time + location-based triggers)",
+          "Interest Filters (food, music, art, workshops, etc.)",
+          "Radius Control (0.5-2 miles)",
+          "Event Submission (gamified scout points)"
+        ]
+      },
+      "implementation": null,
+      "followup": [],
+      "researchDir": "ideas/hyper-local-event-discovery-2026-02-18-1824"
     }
   ]
 }

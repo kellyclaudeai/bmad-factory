@@ -1,7 +1,7 @@
 {
-  "lastCheck": 1771455561,
+  "lastCheck": 1771460158,
   "lastSubagentCount": 18,
-  "checksToday": 1089,
+  "checksToday": 1090,
   "restarts": [
     {
       "timestamp": 1771376553,
@@ -38,6 +38,12 @@
       "subagent": "john-epics-notelite",
       "reason": "Stopped to ask confirmation (33s) instead of proceeding autonomously",
       "outcome": "restarted as retry #2"
+    },
+    {
+      "timestamp": "2026-02-19T01:22:00-06:00",
+      "subagent": "amelia-review-2.3-notelite",
+      "reason": "Session dead after 1h+ runtime (expected 15min), not in active sessions list",
+      "outcome": "respawned as retry"
     }
   ],
   "escalations": [

@@ -1,83 +1,89 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-18T16:55:00-06:00",
+  "lastUpdated": "2026-02-18T18:50:00-06:00",
   
   "heartbeat": {
-    "lastProjectScan": 1771456440,
+    "lastProjectScan": 1771461720,
     "projectChecks": {},
-    "surfacedQA": []
+    "surfacedQA": [],
+    "notes": "Kelly heartbeat session lost in 14:53 gateway restart. Not yet restarted. Lower priority now - Project Lead has own heartbeat (60s)."
   },
   
   "pendingActions": [
     {
-      "what": "Implement fail recovery for Research Lead (heartbeat + auto-restart like Project Lead)",
+      "what": "Close completed research-lead sessions and remove from dashboard 'Active Research'",
       "priority": "high",
-      "addedAt": "2026-02-18T16:51:00-06:00",
-      "notes": "RL sessions can fail mid-workflow (billing errors, timeouts, etc). Need heartbeat monitoring + auto-recovery like PL has. Current: manual CLI restart required."
+      "addedAt": "2026-02-18T17:25:00-06:00",
+      "notes": "Sessions: agent:research-lead:1 (completed Prepwise, ID: 5acc58cc-17eb-4bde-ab9d-4918d7a3bca6) and agent:research-lead:20260218-1635 (failed, ID: de4702ef-99ca-4513-ba45-ff3d975f7db3). Then start fresh research session."
     },
     {
-      "what": "Update downstream agent configs for research-lead-flow v3.0 (Mary AGENTS.md, Research Lead AGENTS.md, CIS personas)",
+      "what": "Fix Research Lead spawn allowlist - add Mary + CIS personas",
       "priority": "high",
-      "addedAt": "2026-02-18T16:30:00-06:00"
+      "addedAt": "2026-02-18T17:25:00-06:00",
+      "notes": "Research Lead config only allows spawning 'research-lead' (itself). Need to add: bmad-bmm-mary, bmad-cis-carson, bmad-cis-victor, bmad-cis-maya, bmad-cis-quinn to spawn allowlist in ~/.openclaw/agents/research-lead/config.json. PARTIALLY RESOLVED: Agents now registered globally at 18:48, but Research Lead spawn config still needs update."
     },
     {
-      "what": "Commit projects/ flattening (files staged, need to also stage deleted old paths)",
+      "what": "Restart Kelly heartbeat session (lost in gateway restart at 14:53 CST)",
       "priority": "medium",
-      "addedAt": "2026-02-18T16:08:00-06:00"
+      "addedAt": "2026-02-18T17:20:00-06:00",
+      "notes": "Main Kelly heartbeat (agent:main:main) not restarted after gateway restart. Factory monitoring currently inactive. Lower priority now that manual checks are happening."
+    },
+    {
+      "what": "Update factory-state.md with post-restart state (frozen at 14:01 CST, pre-restart)",
+      "priority": "low",
+      "addedAt": "2026-02-18T17:20:00-06:00"
+    },
+    {
+      "what": "Commit projects/ flattening + ideas/ restructure (files staged)",
+      "priority": "low",
+      "addedAt": "2026-02-18T17:20:00-06:00",
+      "notes": "Updated docs: project-registry-workflow, research-lead-flow, project-lead-flow, kelly-router-flow. Created projects/ideas/ directory. Moved Prepwise research artifacts. COMPLETED - ready to commit."
+    },
+    {
+      "what": "Update downstream agent configs for research-lead-flow v3.0",
+      "priority": "low",
+      "addedAt": "2026-02-18T17:25:00-06:00",
+      "notes": "Mary AGENTS.md, Research Lead AGENTS.md, CIS personas need updates to reflect ideas/ directory structure and v3.0 flow."
     },
     {
       "what": "Remove old state files after validation (factory-state.md, heartbeat-state.json, implementation-state.md, per-project project-state.json)",
-      "priority": "medium",
-      "addedAt": "2026-02-18T14:46:00-06:00"
-    },
-    {
-      "what": "Validate dashboard with new API routes in browser (http://localhost:3000)",
       "priority": "low",
-      "addedAt": "2026-02-18T14:40:00-06:00"
+      "addedAt": "2026-02-18T14:46:00-06:00",
+      "notes": "Deferred pending state file audit. May keep factory-state.md for human-readable status."
     }
   ],
   
   "waitingOn": [
     {
-      "what": "Research Lead session #1 — Product idea generation (web-app, B2C). Testing Mary search post-Brave API removal.",
-      "who": "agent:research-lead:1",
-      "sessionKey": "agent:research-lead:1",
-      "spawnedAt": "2026-02-18T16:55:00-06:00",
-      "notes": "Retry after Brave API billing error. web-search skill deleted, Mary will fallback to web_search (but it's still out of credits). Expect failure unless Brave API credits restored."
+      "what": "Operator decision: Start Prepwise, ClaimDone, or Ripple implementation?",
+      "who": "operator",
+      "addedAt": "2026-02-18T18:50:00-06:00",
+      "notes": "Three research ideas complete: Prepwise (46/50 shopping list budget), ClaimDone (43/50 warranty concierge), Ripple (46/50 iOS event app). Awaiting go/no-go decision."
     },
     {
-      "what": "NoteLite project — Phase 2 implementation active (stories 1.2, 1.3, 1.4 complete with code review). Parallel story execution ongoing via PL dependency graph.",
+      "what": "NoteLite - 10 code reviews completing",
       "who": "agent:project-lead:project-notelite",
-      "sessionKey": "agent:project-lead:project-notelite",
-      "spawnedAt": "2026-02-18T14:48:00-06:00",
-      "notes": "Story 1.2 complete (Firebase setup - hybrid CLI/browser). Operator flagged browser overuse, root cause identified: BMAD planning artifacts written for humans not agents. Fixed upstream with workspace wrappers."
+      "addedAt": "2026-02-18T18:47:00-06:00",
+      "notes": "10 parallel code reviews running after BMAD agent registration fix. ETA: 18:50-18:52 CST. System running autonomously."
     }
   ],
   
   "notes": [
     {
-      "timestamp": "2026-02-18T16:55:00-06:00",
-      "text": "Pre-compaction #10. Spawned new Research Lead session (agent:research-lead:1) via openclaw gateway call agent. Operator wanted to retry Mary after billing fix. Note: web_search still out of credits, so expect same error unless fixed."
+      "timestamp": "2026-02-18T18:50:00-06:00",
+      "text": "Pre-compaction #17 state flush. CRITICAL FIX COMPLETE: Root cause of ALL session deaths = BMAD agents not registered in openclaw.json agents.list. Added 17 agents (5 core, 7 BMM, 4 CIS, 1 TEA). Gateway restarted 18:46/18:48. NoteLite immediately spawned 10 successful code reviews at 18:47. System now autonomous. This single config issue caused 6+ hours of troubleshooting (spawn field confusion, gateway restart hunting, heartbeat debugging - all red herrings). Actual fix: 2 lines of JSON."
     },
     {
-      "timestamp": "2026-02-18T16:51:00-06:00",
-      "text": "Pre-compaction #9 (updated). Fixed Research Lead Mary billing errors — she was using web_search tool (Brave API, out of credits). Operator decided to delete web-search skill entirely. Removed tools.deny policy on research-lead. Mary will use web_search (Brave API) but it's out of credits, so RL currently blocked pending API credit refill or alternative search solution."
+      "timestamp": "2026-02-18T18:42:00-06:00",
+      "text": "Pre-compaction #16 state flush. Research Lead 2 completed (Ripple iOS app, 18:41 CST, 46/50 score). Dashboard death loop continues (18:30, 18:39, 18:42 restarts) - suspected cause: Research Details page bug throwing unhandled errors when clicking active RL sessions. Bug reports filed for kelly-dashboard: Bug 1 (Research Details active session detection) + Bug 2 (event handlers - already fixed). Project Lead kelly-dashboard exists but times out on messages. Three research ideas ready: Prepwise (46/50), ClaimDone (43/50), Ripple (46/50). Awaiting operator implementation decision."
     },
     {
-      "timestamp": "2026-02-18T16:36:00-06:00",
-      "text": "Pre-compaction #8. CLI-first policy enforcement — operator flagged NoteLite story 1.2 using too much browser automation. Root cause: BMAD workflows designed for human collaboration, but Winston/Bob output is executed by agents. Fixed upstream: created factory-principles.md (CLI-first is principle #1), added Factory Automation Context to Winston/Bob workspace wrappers, updated Amelia TOOLS.md. Did NOT touch BMAD templates — only workspace configs. Commits: eb94fb1 (factory-principles), 2cce900 (Winston/Bob context), 0008d77 (changelog). Story 1.2 accepted as-is (working, 80% CLI)."
+      "timestamp": "2026-02-18T18:40:00-06:00",
+      "text": "Pre-compaction #15 state flush. NoteLite heartbeat bug discovered: only checks ready-for-dev, misses ready-for-review → 8min idle periods. Manual kick at 18:35 spawned 10 code reviews. Project Lead will fix heartbeat logic post-wave. Dashboard rehosted at 18:39 (localhost:3000). ClaimDone intake copied to Sync folder. Multiple session death/recovery cycles throughout afternoon (subagents keep dying, heartbeat auto-recovers)."
     },
     {
-      "timestamp": "2026-02-18T16:30:00-06:00",
-      "text": "Pre-compaction #7. Research Lead flow v3.0 committed (2c7d94e) — problem-first discovery rewrite. Brainstormed with operator: 4 discovery strategies, inverted scoring (Solution Gap replaces Market Size, penalizes crowdedness). Next: update downstream agent configs (Mary, RL, CIS)."
-    },
-    {
-      "timestamp": "2026-02-18T16:24:00-06:00",
-      "text": "Pre-compaction #6. Git commit for flat projects/ still pending (staged files ready). NoteLite gate check active. RL v2.0 test overdue — needs status check."
-    },
-    {
-      "timestamp": "2026-02-18T16:08:00-06:00",
-      "text": "Pre-compaction #5. Flattened projects/ dir (removed active/archived subdirs). Fixed BMAD template paths in 5 agent configs. All core docs + agent configs verified — zero stale path refs remain."
+      "timestamp": "2026-02-18T18:15:00-06:00",
+      "text": "Pre-compaction #14 state flush. Fixed NoteLite blocker: Added Project Lead spawn allowlist (7 BMAD agents) + 60s heartbeat for auto-recovery. Gateway restarted 2x (17:47, 17:52). NoteLite PL resumed at 17:53, spawned story 2.3 code review. ClaimDone research completed (17:43) - second product idea. Two strong ideas ready: Prepwise (46/50 shopping list budget), ClaimDone (43/50 warranty claim concierge)."
     }
   ]
 }

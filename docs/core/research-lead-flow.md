@@ -488,7 +488,7 @@ If YES_DUPLICATE, specify which existing entry matches and explain why.
 ```
 
 **Decision:**
-- **If `YES_DUPLICATE`:** Abort session, clean up registry, announce to Kelly
+- **If `YES_DUPLICATE`:** Abort session, clean up registry, announce to Kelly, **self-close session** (Phase 6 step 6)
 - **If `NO_DUPLICATE`:** Proceed to registry registration
 
 ---
@@ -719,7 +719,7 @@ For each solution, search:
 **Research Lead checks solution against registry:**
 - Compare selected solution's concept + description against existing entries
 - 3+ significant keyword overlap in name + intake.solution = potential duplicate
-- **If duplicate:** Abort, announce to Kelly
+- **If duplicate:** Abort, announce to Kelly, **self-close session** (Phase 6 step 6)
 - **If unique:** Update registry phase to "validation", proceed to Phase 5
 
 **Registry update:**
@@ -817,7 +817,7 @@ confirm that and flesh out the business case, not re-validate market size.
 
 **GO / NO-GO decision:**
 - **GO:** Proceed to Phase 6
-- **NO-GO:** Abort session, clean registry, announce to Kelly with reasoning
+- **NO-GO:** Abort session, clean registry, announce to Kelly with reasoning, **self-close session** (Phase 6 step 6)
 
 ---
 
@@ -1083,6 +1083,32 @@ Update existing project-registry.json entry with final name, research directory,
 
 ✅ Ready for Project Lead intake.
 ```
+
+---
+
+**6. Self-Close Session (10 sec)**
+
+Research Lead closes its own session as the FINAL action. This removes it from the dashboard's "Active Research" list.
+
+```bash
+# Research Lead runs the session-closer on itself
+SKILL_DIR="/Users/austenallred/clawd/skills/factory/session-closer"
+SESSION_KEY="<this session's key, e.g. agent:research-lead:2>"
+
+# Extract the session suffix from the key (everything after "agent:research-lead:")
+SESSION_SUFFIX="${SESSION_KEY#agent:research-lead:}"
+
+"${SKILL_DIR}/bin/close-project" --agent research-lead "${SESSION_SUFFIX}"
+```
+
+**What this does:**
+1. Removes session entry from `~/.openclaw/agents/research-lead/sessions/sessions.json`
+2. Archives transcript as `*.deleted.<timestamp>`
+3. Restarts gateway so dashboard reflects the change immediately
+
+**This must be the LAST action** — after self-close, the session can no longer execute.
+
+**On early abort (duplicate, NO-GO):** Also self-close. Any exit path from the workflow should end with self-close.
 
 **Research Lead session ends.**
 

@@ -81,8 +81,8 @@ async function fetchResearchSessions(): Promise<ResearchSession[]> {
       body: JSON.stringify({
         tool: "sessions_list",
         action: "json",
-        // Last 7 days = 10080 minutes
-        args: { activeMinutes: 10080, limit: 200, messageLimit: 0 },
+        // Last 2 hours for active research
+        args: { activeMinutes: 120, limit: 200, messageLimit: 0 },
       }),
       cache: "no-store",
     });

@@ -122,9 +122,8 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
       body: JSON.stringify({
         tool: "sessions_list",
         action: "json",
-        // Return recent sessions for audit + cleanup.
-        // We intentionally keep a long window so stale project-lead sessions stay visible until you close them.
-        args: { activeMinutes: 10080, limit: 200, messageLimit: 0 },
+        // Return truly active sessions (last 60 minutes)
+        args: { activeMinutes: 60, limit: 200, messageLimit: 0 },
       }),
       cache: "no-store",
     });
