@@ -1,0 +1,86 @@
+#!/bin/bash
+set -euo pipefail
+
+# Manus API - Get Task Status & Results
+# Usage: get-task --id <task_id>
+
+TASK_ID=""
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --id)
+      TASK_ID="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$TASK_ID" ]]; then
+  echo "Error: --id required"
+  exit 1
+fi
+
+if [[ -z "${MANUS_API_KEY:-}" ]]; then
+  echo "Error: MANUS_API_KEY environment variable not set"
+  exit 1
+fi
+
+# Get task info
+RESPONSE=$(curl -s -X GET \
+  "https://api.manus.ai/v1/tasks/$TASK_ID" \
+  -H "API_KEY: $MANUS_API_KEY")
+
+# Check for errors
+if echo "$RESPONSE" | jq -e '.error' > /dev/null 2>&1; then
+  echo "Error getting task:"
+  echo "$RESPONSE" | jq '.error'
+  exit 1
+fi
+
+# Check if task exists
+if echo "$RESPONSE" | jq -e '.id' > /dev/null 2>&1; then
+  TASK_DATA="$RESPONSE"
+else
+  echo "Error: Task not found"
+  exit 1
+fi
+
+STATUS=$(echo "$TASK_DATA" | jq -r '.status')
+TASK_TITLE=$(echo "$TASK_DATA" | jq -r '.metadata.task_title // "Untitled"')
+TASK_URL=$(echo "$TASK_DATA" | jq -r '.metadata.task_url // ""')
+CREDITS=$(echo "$TASK_DATA" | jq -r '.credit_usage // 0')
+
+echo "Task ID: $TASK_ID"
+echo "Title: $TASK_TITLE"
+echo "Status: $STATUS"
+echo "Credits Used: $CREDITS"
+
+if [[ -n "$TASK_URL" ]]; then
+  echo "URL: $TASK_URL"
+fi
+
+# If completed, show output
+if [[ "$STATUS" == "completed" ]]; then
+  echo ""
+  echo "=== Output ==="
+  echo "$TASK_DATA" | jq -r '.output[] | select(.role=="assistant") | .content[] | select(.type=="output_text") | .text'
+  
+  # Save output to file if requested
+  OUTPUT_FILE="manus-task-${TASK_ID}-output.txt"
+  echo "$TASK_DATA" | jq -r '.output[] | select(.role=="assistant") | .content[] | select(.type=="output_text") | .text' > "$OUTPUT_FILE"
+  echo ""
+  echo "Output saved to: $OUTPUT_FILE"
+elif [[ "$STATUS" == "pending" || "$STATUS" == "in_progress" ]]; then
+  echo ""
+  echo "Task is still running. Check again in 30-60 seconds."
+elif [[ "$STATUS" == "failed" ]]; then
+  echo ""
+  echo "❌ Task failed"
+  ERROR=$(echo "$TASK_DATA" | jq -r '.error // "Unknown error"')
+  echo "Error: $ERROR"
+  exit 1
+fi

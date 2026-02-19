@@ -1,0 +1,86 @@
+#!/bin/bash
+set -euo pipefail
+
+# Manus API - Create Task
+# Usage: create-task --prompt "..." [--profile manus-1.6]
+
+PROMPT=""
+PROFILE="manus-1.6"
+PROJECT_ID=""
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --prompt)
+      PROMPT="$2"
+      shift 2
+      ;;
+    --profile)
+      PROFILE="$2"
+      shift 2
+      ;;
+    --project)
+      PROJECT_ID="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$PROMPT" ]]; then
+  echo "Error: --prompt required"
+  exit 1
+fi
+
+if [[ -z "${MANUS_API_KEY:-}" ]]; then
+  echo "Error: MANUS_API_KEY environment variable not set"
+  exit 1
+fi
+
+# Build JSON payload
+JSON_PAYLOAD=$(jq -n \
+  --arg prompt "$PROMPT" \
+  --arg profile "$PROFILE" \
+  '{
+    prompt: $prompt,
+    agentProfile: $profile,
+    taskMode: "agent",
+    hideInTaskList: false
+  }')
+
+# Add projectId if provided
+if [[ -n "$PROJECT_ID" ]]; then
+  JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --arg pid "$PROJECT_ID" '. + {projectId: $pid}')
+fi
+
+# Create task
+RESPONSE=$(curl -s -X POST \
+  "https://api.manus.ai/v1/tasks" \
+  -H "API_KEY: $MANUS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "$JSON_PAYLOAD")
+
+# Check for errors
+if echo "$RESPONSE" | jq -e '.error' > /dev/null 2>&1; then
+  echo "Error creating task:"
+  echo "$RESPONSE" | jq '.error'
+  exit 1
+fi
+
+# Extract task_id
+TASK_ID=$(echo "$RESPONSE" | jq -r '.task_id')
+
+if [[ -z "$TASK_ID" || "$TASK_ID" == "null" ]]; then
+  echo "Error: No task_id in response"
+  echo "$RESPONSE"
+  exit 1
+fi
+
+# Output task info
+echo "✅ Task created:"
+echo "Task ID: $TASK_ID"
+echo "Task URL: $(echo "$RESPONSE" | jq -r '.task_url')"
+echo ""
+echo "Check status: /Users/austenallred/clawd/skills/manus-api/bin/get-task --id $TASK_ID"
