@@ -11,6 +11,7 @@ import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
 
 const RULES_PATH = resolve(process.cwd(), "firestore.rules");
 const TEST_PROJECT_ID = "slacklite-firestore-rules";
+const hasFirestoreEmulator = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
 
 let testEnv: RulesTestEnvironment;
 
@@ -46,7 +47,9 @@ async function seedChannel(workspaceId: string, channelId: string, createdBy: st
   });
 }
 
-describe.sequential("Firestore security rules", () => {
+(hasFirestoreEmulator ? describe.sequential : describe.skip)(
+  "Firestore security rules",
+  () => {
   beforeAll(async () => {
     testEnv = await initializeTestEnvironment({
       projectId: TEST_PROJECT_ID,
@@ -136,6 +139,85 @@ describe.sequential("Firestore security rules", () => {
           userId: "user-1",
           userName: "User One",
           text: "hello",
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+  });
+
+  it("enforces message text length between 1 and 4000 characters", async () => {
+    await seedWorkspaceMembership("user-1", "workspace-1");
+    await seedChannel("workspace-1", "general", "user-1");
+
+    const userDb = testEnv.authenticatedContext("user-1").firestore();
+
+    await assertSucceeds(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "general",
+          "messages",
+          "message-max",
+        ),
+        {
+          messageId: "message-max",
+          channelId: "general",
+          workspaceId: "workspace-1",
+          userId: "user-1",
+          userName: "User One",
+          text: "a".repeat(4000),
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+
+    await assertFails(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "general",
+          "messages",
+          "message-too-long",
+        ),
+        {
+          messageId: "message-too-long",
+          channelId: "general",
+          workspaceId: "workspace-1",
+          userId: "user-1",
+          userName: "User One",
+          text: "a".repeat(4001),
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+
+    await assertFails(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "general",
+          "messages",
+          "message-empty",
+        ),
+        {
+          messageId: "message-empty",
+          channelId: "general",
+          workspaceId: "workspace-1",
+          userId: "user-1",
+          userName: "User One",
+          text: "",
           timestamp: new Date(),
           createdAt: new Date(),
         },

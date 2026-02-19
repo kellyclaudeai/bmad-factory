@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import ChannelHeader from "@/components/features/channels/ChannelHeader";
+import DeleteChannelModal from "@/components/features/channels/DeleteChannelModal";
 import RenameChannelModal from "@/components/features/channels/RenameChannelModal";
 import { MessageInput } from "@/components/features/messages/MessageInput";
 import { useAuth } from "@/lib/contexts/AuthContext";
@@ -12,7 +13,8 @@ import { useChannels } from "@/lib/hooks/useChannels";
 import type { Message } from "@/lib/types/models";
 import { useWorkspaceOwnerId } from "@/lib/hooks/useWorkspaceOwnerId";
 import { useRealtimeMessages } from "@/lib/hooks/useRealtimeMessages";
-import { renameChannel } from "@/lib/utils/channels";
+import { deleteChannel, renameChannel } from "@/lib/utils/channels";
+import { isGeneralChannelName } from "@/lib/utils/workspace";
 
 const BOTTOM_THRESHOLD_PX = 100;
 
@@ -28,6 +30,7 @@ function formatMessageTimestamp(timestamp: Message["timestamp"]): string {
 
 export default function ChannelPage() {
   const params = useParams<{ channelId: string }>();
+  const router = useRouter();
   const channelId =
     typeof params?.channelId === "string" ? params.channelId.trim() : "";
   const { user } = useAuth();
@@ -40,11 +43,16 @@ export default function ChannelPage() {
     [channelId, channels],
   );
   const channelName = currentChannel?.name ?? channelId;
-  const canRenameChannel = Boolean(
+  const canManageChannel = Boolean(
     user?.uid &&
       currentChannel &&
       (currentChannel.createdBy === user.uid || workspaceOwnerId === user.uid),
   );
+  const generalChannelId = useMemo(() => {
+    const generalChannel = channels.find((channel) => isGeneralChannelName(channel.name));
+
+    return generalChannel?.channelId ?? "";
+  }, [channels]);
   const userName =
     typeof user?.displayName === "string" && user.displayName.trim().length > 0
       ? user.displayName.trim()
@@ -74,6 +82,8 @@ export default function ChannelPage() {
   const [isChannelSwitching, setIsChannelSwitching] = useState(false);
   const [showNewMessagesBadge, setShowNewMessagesBadge] = useState(false);
   const [isRenameChannelModalOpen, setIsRenameChannelModalOpen] = useState(false);
+  const [isDeleteChannelModalOpen, setIsDeleteChannelModalOpen] = useState(false);
+  const [channelActionError, setChannelActionError] = useState<string | null>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
   const previousMessageCountRef = useRef(0);
   const wasAtBottomRef = useRef(true);
@@ -124,11 +134,27 @@ export default function ChannelPage() {
 
   // Track channel switches for loading indicator
   useEffect(() => {
+    if (!channelActionError) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setChannelActionError(null);
+    }, 4000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [channelActionError]);
+
+  useEffect(() => {
     setShowNewMessagesBadge(false);
     previousMessageCountRef.current = 0;
     wasAtBottomRef.current = true;
     hasInitializedScrollRef.current = false;
     setIsRenameChannelModalOpen(false);
+    setIsDeleteChannelModalOpen(false);
+    setChannelActionError(null);
 
     setIsChannelSwitching(true);
     const timer = setTimeout(() => {
@@ -186,6 +212,54 @@ export default function ChannelPage() {
     [currentChannel, user?.uid, workspaceId, workspaceOwnerId],
   );
 
+  const handleOpenDeleteModal = useCallback(() => {
+    if (!currentChannel) {
+      return;
+    }
+
+    if (isGeneralChannelName(currentChannel.name)) {
+      setChannelActionError("Cannot delete #general channel");
+      return;
+    }
+
+    setChannelActionError(null);
+    setIsDeleteChannelModalOpen(true);
+  }, [currentChannel]);
+
+  const handleDeleteChannel = useCallback(async (): Promise<void> => {
+    if (!user?.uid || workspaceId.length === 0 || !currentChannel) {
+      throw new Error("Unable to delete channel. Please try again.");
+    }
+
+    await deleteChannel({
+      firestore,
+      workspaceId,
+      channelId: currentChannel.channelId,
+      channelName: currentChannel.name,
+      userId: user.uid,
+      channelCreatedBy: currentChannel.createdBy,
+      workspaceOwnerId,
+    });
+
+    setIsDeleteChannelModalOpen(false);
+
+    if (channelId === currentChannel.channelId) {
+      if (generalChannelId.length > 0 && generalChannelId !== currentChannel.channelId) {
+        router.replace(`/app/channels/${generalChannelId}`);
+      } else {
+        router.replace("/app");
+      }
+    }
+  }, [
+    channelId,
+    currentChannel,
+    generalChannelId,
+    router,
+    user?.uid,
+    workspaceId,
+    workspaceOwnerId,
+  ]);
+
   if (!user) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -196,12 +270,23 @@ export default function ChannelPage() {
 
   return (
     <div className="flex h-full flex-col">
+      {channelActionError ? (
+        <div
+          role="alert"
+          className="fixed right-4 top-4 z-50 rounded-md border border-error/30 bg-error px-4 py-3 text-sm text-white shadow-lg"
+        >
+          {channelActionError}
+        </div>
+      ) : null}
+
       <ChannelHeader
         channelName={channelName}
-        canRenameChannel={canRenameChannel}
+        canRenameChannel={canManageChannel}
         onRenameChannel={() => {
           setIsRenameChannelModalOpen(true);
         }}
+        canDeleteChannel={canManageChannel}
+        onDeleteChannel={handleOpenDeleteModal}
       />
 
       {/* Message List */}
@@ -358,6 +443,15 @@ export default function ChannelPage() {
           setIsRenameChannelModalOpen(false);
         }}
         onRename={handleRenameChannel}
+      />
+
+      <DeleteChannelModal
+        channel={currentChannel}
+        isOpen={isDeleteChannelModalOpen}
+        onClose={() => {
+          setIsDeleteChannelModalOpen(false);
+        }}
+        onDelete={handleDeleteChannel}
       />
     </div>
   );

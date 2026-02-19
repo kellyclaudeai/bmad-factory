@@ -1,6 +1,7 @@
 import {
   collection,
   collectionGroup,
+  deleteDoc,
   doc,
   getDocs,
   limit,
@@ -8,12 +9,13 @@ import {
   serverTimestamp,
   setDoc,
   updateDoc,
+  writeBatch,
   where,
   type Firestore,
 } from "firebase/firestore";
 
 import { getChannelNameValidationError } from "@/lib/utils/channelName";
-import { isGeneralChannelName } from "@/lib/utils/workspace";
+import { canDeleteChannel, isGeneralChannelName } from "@/lib/utils/workspace";
 
 function normalizeRequiredString(value: string, fieldName: string): string {
   const normalized = value.trim();
@@ -149,4 +151,77 @@ export async function renameChannel({
 
   const channelRef = doc(channelsCollectionRef, normalizedChannelId);
   await updateDoc(channelRef, { name: normalizedNewName });
+}
+
+interface DeleteChannelInput {
+  firestore: Firestore;
+  workspaceId: string;
+  channelId: string;
+  channelName: string;
+  userId: string;
+  channelCreatedBy: string;
+  workspaceOwnerId?: string;
+}
+
+const DELETE_BATCH_SIZE = 500;
+
+export async function deleteChannel({
+  firestore,
+  workspaceId,
+  channelId,
+  channelName,
+  userId,
+  channelCreatedBy,
+  workspaceOwnerId,
+}: DeleteChannelInput): Promise<void> {
+  const normalizedWorkspaceId = normalizeRequiredString(workspaceId, "workspaceId");
+  const normalizedChannelId = normalizeRequiredString(channelId, "channelId");
+  const normalizedChannelName = normalizeRequiredString(channelName, "channelName");
+  const normalizedUserId = normalizeRequiredString(userId, "userId");
+  const normalizedChannelCreatedBy = normalizeRequiredString(
+    channelCreatedBy,
+    "channelCreatedBy",
+  );
+  const normalizedWorkspaceOwnerId =
+    typeof workspaceOwnerId === "string" ? workspaceOwnerId.trim() : "";
+
+  canDeleteChannel({ name: normalizedChannelName });
+
+  const canDelete =
+    normalizedUserId === normalizedChannelCreatedBy ||
+    (normalizedWorkspaceOwnerId.length > 0 &&
+      normalizedUserId === normalizedWorkspaceOwnerId);
+
+  if (!canDelete) {
+    throw new Error("You do not have permission to delete this channel");
+  }
+
+  const channelRef = doc(
+    firestore,
+    "workspaces",
+    normalizedWorkspaceId,
+    "channels",
+    normalizedChannelId,
+  );
+  const messagesCollectionRef = collection(channelRef, "messages");
+
+  while (true) {
+    const messageSnapshot = await getDocs(
+      query(messagesCollectionRef, limit(DELETE_BATCH_SIZE)),
+    );
+
+    if (messageSnapshot.empty) {
+      break;
+    }
+
+    const batch = writeBatch(firestore);
+
+    messageSnapshot.docs.forEach((documentSnapshot) => {
+      batch.delete(documentSnapshot.ref);
+    });
+
+    await batch.commit();
+  }
+
+  await deleteDoc(channelRef);
 }

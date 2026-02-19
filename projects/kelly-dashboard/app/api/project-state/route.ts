@@ -205,10 +205,10 @@ export async function GET(request: Request) {
       // Subagents: synthesized from planning artifacts + completed stories from sprint-status
       subagents: [
         ...syntheticSubagents,
-        // Generate completed subagent entries from sprint-status done/review/dev-complete stories
+        // Generate completed subagent entries from sprint-status done stories only
         ...(sprintStatus?.stories
           ? Object.entries(sprintStatus.stories)
-              .filter(([, s]: [string, any]) => s?.status === "done" || s?.status === "review" || s?.status === "dev-complete")
+              .filter(([, s]: [string, any]) => s?.status === "done")
               .map(([id, s]: [string, any]) => ({
                 id: `story-${id}`,
                 story: id,
@@ -238,8 +238,10 @@ export async function GET(request: Request) {
         const entries = Object.values(sprintStatus.stories) as any[];
         return {
           total: entries.length,
-          done: entries.filter(s => s?.status === "done" || s?.status === "review" || s?.status === "dev-complete").length,
+          done: entries.filter(s => s?.status === "done").length,
           inProgress: entries.filter(s => s?.status === "in_progress" || s?.status === "in-progress").length,
+          inReview: entries.filter(s => s?.status === "review").length,
+          devComplete: entries.filter(s => s?.status === "dev-complete").length,
           todo: entries.filter(s => s?.status === "todo").length,
         };
       })() : null

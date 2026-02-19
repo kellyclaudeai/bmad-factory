@@ -51,6 +51,8 @@ export interface UseRealtimeMessagesResult {
 const RTDB_SEND_ERROR_BANNER = "Message failed to send. Retry?";
 const FIRESTORE_PERSISTENCE_WARNING_BANNER =
   "Message sent but not saved. It will disappear in 1 hour.";
+const MESSAGE_TOO_LONG_ERROR = "Message too long. Maximum 4,000 characters.";
+const MAX_MESSAGE_LENGTH = 4000;
 const RTDB_MESSAGE_TTL_MS = 60 * 60 * 1000;
 const FIRESTORE_RETRY_INTERVAL_MS = 15_000;
 
@@ -333,6 +335,10 @@ export function useRealtimeMessages(
 
   const sendMessage = useCallback(
     async (text: string): Promise<string> => {
+      if (text.length > MAX_MESSAGE_LENGTH) {
+        throw new Error(MESSAGE_TOO_LONG_ERROR);
+      }
+
       const trimmedText = text.trim();
 
       if (trimmedText.length === 0) {

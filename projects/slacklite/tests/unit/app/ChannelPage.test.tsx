@@ -6,8 +6,10 @@ import type { Message } from "@/lib/types/models";
 
 const mocks = vi.hoisted(() => ({
   useAuthMock: vi.fn(),
+  useChannelsMock: vi.fn(),
   useParamsMock: vi.fn(),
   useRealtimeMessagesMock: vi.fn(),
+  useWorkspaceOwnerIdMock: vi.fn(),
   retryFirestoreWriteMock: vi.fn(),
   retryLastSendMock: vi.fn(),
   retryMessageMock: vi.fn(),
@@ -23,8 +25,20 @@ vi.mock("@/lib/contexts/AuthContext", () => ({
   useAuth: mocks.useAuthMock,
 }));
 
+vi.mock("@/lib/hooks/useChannels", () => ({
+  useChannels: mocks.useChannelsMock,
+}));
+
+vi.mock("@/lib/hooks/useWorkspaceOwnerId", () => ({
+  useWorkspaceOwnerId: mocks.useWorkspaceOwnerIdMock,
+}));
+
 vi.mock("@/lib/hooks/useRealtimeMessages", () => ({
   useRealtimeMessages: mocks.useRealtimeMessagesMock,
+}));
+
+vi.mock("@/lib/firebase/client", () => ({
+  firestore: {},
 }));
 
 import ChannelPage from "@/app/app/channels/[channelId]/page";
@@ -123,6 +137,24 @@ describe("ChannelPage", () => {
         email: "austen@example.com",
       },
     });
+    mocks.useChannelsMock.mockReturnValue({
+      channels: [
+        {
+          channelId: "general",
+          workspaceId: "workspace-1",
+          name: "general",
+          createdBy: "user-1",
+          createdAt: Timestamp.now(),
+        },
+      ],
+      loading: false,
+      error: null,
+    });
+    mocks.useWorkspaceOwnerIdMock.mockReturnValue({
+      ownerId: "user-1",
+      loading: false,
+      error: null,
+    });
     mocks.useRealtimeMessagesMock.mockReturnValue(createRealtimeHookState());
 
     Object.defineProperty(HTMLElement.prototype, "scrollTo", {
@@ -169,6 +201,38 @@ describe("ChannelPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Retry Save" }));
 
     expect(mocks.retryFirestoreWriteMock).toHaveBeenCalledWith("server-1");
+  });
+
+  it("renders the channel header using the live channel name", () => {
+    render(<ChannelPage />);
+
+    expect(screen.getByRole("heading", { name: "# general" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Channel settings" })).toBeInTheDocument();
+  });
+
+  it("hides channel settings when the user cannot rename the channel", () => {
+    mocks.useChannelsMock.mockReturnValue({
+      channels: [
+        {
+          channelId: "general",
+          workspaceId: "workspace-1",
+          name: "general",
+          createdBy: "user-2",
+          createdAt: Timestamp.now(),
+        },
+      ],
+      loading: false,
+      error: null,
+    });
+    mocks.useWorkspaceOwnerIdMock.mockReturnValue({
+      ownerId: "user-3",
+      loading: false,
+      error: null,
+    });
+
+    render(<ChannelPage />);
+
+    expect(screen.queryByRole("button", { name: "Channel settings" })).not.toBeInTheDocument();
   });
 
   it("scrolls to bottom when messages are added", async () => {

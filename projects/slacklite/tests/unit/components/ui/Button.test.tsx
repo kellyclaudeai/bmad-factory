@@ -1,55 +1,70 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { Button } from "@/components/ui/Button";
 
 describe("Button", () => {
-  it("renders the default primary variant and medium size", () => {
-    render(<Button>Click me</Button>);
-    const button = screen.getByRole("button", { name: "Click me" });
+  it("uses the primary variant by default", () => {
+    render(<Button>Send</Button>);
 
-    expect(button).toHaveClass("bg-primary-brand");
-    expect(button).toHaveClass("text-white");
-    expect(button).toHaveClass("px-4");
-    expect(button).toHaveClass("py-2");
+    expect(screen.getByRole("button", { name: "Send" })).toHaveClass(
+      "bg-primary-brand",
+      "text-white",
+    );
   });
 
-  it("renders secondary and destructive variants", () => {
-    const { rerender } = render(<Button variant="secondary">Secondary</Button>);
-    const secondaryButton = screen.getByRole("button", { name: "Secondary" });
+  it.each([
+    { expectedClass: "border-gray-600", variant: "secondary" as const },
+    { expectedClass: "bg-error", variant: "destructive" as const },
+  ])("applies the $variant variant styles", ({ expectedClass, variant }) => {
+    render(<Button variant={variant}>Action</Button>);
 
-    expect(secondaryButton).toHaveClass("border");
-    expect(secondaryButton).toHaveClass("text-gray-700");
-
-    rerender(<Button variant="destructive">Delete</Button>);
-    const destructiveButton = screen.getByRole("button", { name: "Delete" });
-
-    expect(destructiveButton).toHaveClass("bg-error");
-    expect(destructiveButton).toHaveClass("text-white");
+    expect(screen.getByRole("button", { name: "Action" })).toHaveClass(
+      expectedClass,
+    );
   });
 
-  it("supports size variants", () => {
-    render(<Button size="lg">Large</Button>);
-    const button = screen.getByRole("button", { name: "Large" });
+  it.each([
+    { expectedClass: "px-3", size: "sm" as const },
+    { expectedClass: "px-4", size: "md" as const },
+    { expectedClass: "px-6", size: "lg" as const },
+  ])("applies the $size size styles", ({ expectedClass, size }) => {
+    render(<Button size={size}>Sized</Button>);
 
-    expect(button).toHaveClass("px-6");
-    expect(button).toHaveClass("py-3");
-    expect(button).toHaveClass("text-lg");
+    expect(screen.getByRole("button", { name: "Sized" })).toHaveClass(
+      expectedClass,
+    );
   });
 
   it("calls onClick when clicked", () => {
     const onClick = vi.fn();
-    render(<Button onClick={onClick}>Send</Button>);
 
-    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    render(<Button onClick={onClick}>Click me</Button>);
+    fireEvent.click(screen.getByRole("button", { name: "Click me" }));
 
-    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onClick).toHaveBeenCalledOnce();
   });
 
-  it("is disabled when disabled prop is true", () => {
-    render(<Button disabled>Disabled</Button>);
-    const button = screen.getByRole("button", { name: "Disabled" });
+  it("respects the disabled state", () => {
+    const onClick = vi.fn();
 
-    expect(button).toBeDisabled();
+    render(
+      <Button disabled onClick={onClick}>
+        Disabled
+      </Button>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Disabled" }));
+
+    expect(screen.getByRole("button", { name: "Disabled" })).toBeDisabled();
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it("forwards refs to the button element", () => {
+    const ref = createRef<HTMLButtonElement>();
+
+    render(<Button ref={ref}>Ref button</Button>);
+
+    expect(ref.current).toBe(screen.getByRole("button", { name: "Ref button" }));
   });
 });

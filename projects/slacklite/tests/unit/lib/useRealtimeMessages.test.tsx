@@ -118,6 +118,30 @@ describe("useRealtimeMessages", () => {
     });
   });
 
+  it("rejects messages over 4000 characters before attempting RTDB/Firestore writes", async () => {
+    const { result } = renderHook(() =>
+      useRealtimeMessages("workspace-1", "channel-1", {
+        userId: "user-1",
+        userName: "Austen",
+      }),
+    );
+
+    let thrownError: Error | null = null;
+    await act(async () => {
+      try {
+        await result.current.sendMessage("a".repeat(4001));
+      } catch (error) {
+        thrownError = error instanceof Error ? error : new Error(String(error));
+      }
+    });
+
+    expect(thrownError?.message).toBe("Message too long. Maximum 4,000 characters.");
+    expect(result.current.messages).toEqual([]);
+    expect(databaseMocks.pushMock).not.toHaveBeenCalled();
+    expect(databaseMocks.setMock).not.toHaveBeenCalled();
+    expect(firestoreMocks.setDocMock).not.toHaveBeenCalled();
+  });
+
   it("writes RTDB first, then Firestore, with shared messageId and 1-hour RTDB ttl", async () => {
     databaseMocks.pushMock.mockImplementation((messagePathRef: { path: string }) => ({
       key: "server-message-2",

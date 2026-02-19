@@ -964,9 +964,10 @@ stories:
   "5.2":
     epic: 5
     title: "Implement Start DM Functionality"
-    status: todo
+    status: in_progress
     estimated_effort: "2 hours"
     dependencies: ["5.1"]
+    started_at: "2026-02-19T15:07:00-06:00"
   
   "5.3":
     epic: 5

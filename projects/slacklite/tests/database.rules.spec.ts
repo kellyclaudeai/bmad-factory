@@ -14,6 +14,7 @@ const USER_ID = "user-1";
 const WORKSPACE_ID = "workspace-1";
 const OTHER_WORKSPACE_ID = "workspace-2";
 const CHANNEL_ID = "channel-1";
+const hasDatabaseEmulator = Boolean(process.env.FIREBASE_DATABASE_EMULATOR_HOST);
 
 const rules = readFileSync("database.rules.json", "utf8");
 
@@ -47,7 +48,9 @@ async function seedMessage(
   });
 }
 
-describe("Realtime Database security rules", () => {
+(hasDatabaseEmulator ? describe : describe.skip)(
+  "Realtime Database security rules",
+  () => {
   beforeAll(async () => {
     testEnv = await initializeTestEnvironment({
       projectId: "slacklite-rtdb-security-rules",

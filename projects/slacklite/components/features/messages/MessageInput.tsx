@@ -18,6 +18,7 @@ const MAX_TEXTAREA_HEIGHT = 200;
 const MOBILE_FOCUSED_TEXTAREA_HEIGHT = "60vh";
 const MAX_MESSAGE_LENGTH = 4000;
 const COUNTER_THRESHOLD = 3900;
+const MESSAGE_TOO_LONG_ERROR = "Message too long. Maximum 4,000 characters.";
 
 export interface MessageInputProps {
   channelId: string;
@@ -133,12 +134,6 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
 
   return (
     <div className="border-t-2 border-gray-300 p-4" data-channel-id={channelId}>
-      {showCounter && (
-        <p className={`mb-2 text-sm ${isOverLimit ? "text-error" : "text-gray-700"}`}>
-          {text.length} / {MAX_MESSAGE_LENGTH}
-        </p>
-      )}
-
       <div className="flex items-end gap-3">
         <textarea
           ref={textareaRef}
@@ -168,6 +163,18 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
           {isMobile ? "→" : "Send"}
         </Button>
       </div>
+
+      {showCounter && (
+        <p className={`mt-2 text-sm ${isOverLimit ? "text-error" : "text-gray-700"}`}>
+          {text.length} / {MAX_MESSAGE_LENGTH}
+        </p>
+      )}
+
+      {isOverLimit && (
+        <p className="mt-1 text-sm text-error" role="alert">
+          {MESSAGE_TOO_LONG_ERROR}
+        </p>
+      )}
     </div>
   );
 }

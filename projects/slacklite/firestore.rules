@@ -68,6 +68,12 @@ service cloud.firestore {
              data.lastReadAt is timestamp &&
              data.updatedAt is timestamp;
     }
+
+    function hasValidMessageText(data) {
+      return data.text is string &&
+             data.text.size() > 0 &&
+             data.text.size() <= 4000;
+    }
     
     // Workspaces: Users can read/update their own workspace
     match /workspaces/{workspaceId} {
@@ -91,7 +97,8 @@ service cloud.firestore {
           allow read: if isWorkspaceMember(workspaceId);
           allow create: if isWorkspaceMember(workspaceId) && 
                           request.resource.data.userId == request.auth.uid &&
-                          request.resource.data.workspaceId == workspaceId;
+                          request.resource.data.workspaceId == workspaceId &&
+                          hasValidMessageText(request.resource.data);
           allow update, delete: if resource.data.userId == request.auth.uid;
         }
       }
@@ -106,7 +113,8 @@ service cloud.firestore {
         match /messages/{messageId} {
           allow read: if isDmParticipant(workspaceId, dmId);
           allow create: if isDmParticipant(workspaceId, dmId) && 
-                          request.resource.data.userId == request.auth.uid;
+                          request.resource.data.userId == request.auth.uid &&
+                          hasValidMessageText(request.resource.data);
         }
       }
     }

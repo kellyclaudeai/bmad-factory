@@ -6,12 +6,12 @@
 Enforce 4,000 character limit in message input. Show character count when approaching limit, prevent send if exceeded with client and server-side validation.
 
 **Acceptance Criteria:**
-- [ ] Character counter: Displayed below textarea when >3900 characters
-- [ ] Counter text: "{count} / 4000" (Gray 700 if under, Error red if over)
-- [ ] Send button disabled if >4000 characters
-- [ ] Error message: "Message too long. Maximum 4,000 characters."
-- [ ] Validation before Firestore/RTDB write (client-side and server-side)
-- [ ] Firestore security rule enforces limit: `request.resource.data.text.size() <= 4000`
+- [x] Character counter: Displayed below textarea when >3900 characters
+- [x] Counter text: "{count} / 4000" (Gray 700 if under, Error red if over)
+- [x] Send button disabled if >4000 characters
+- [x] Error message: "Message too long. Maximum 4,000 characters."
+- [x] Validation before Firestore/RTDB write (client-side and server-side)
+- [x] Firestore security rule enforces limit: `request.resource.data.text.size() <= 4000`
 
 **Dependencies:**
 dependsOn: ["4.2"]

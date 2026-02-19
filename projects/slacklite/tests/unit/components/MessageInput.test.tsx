@@ -107,7 +107,7 @@ describe("MessageInput mobile optimization", () => {
     expect(onSendMock).not.toHaveBeenCalled();
   });
 
-  it("renders the character counter above the textarea", () => {
+  it("renders the character counter below the textarea in gray when under limit", () => {
     setViewportWidth(390);
 
     render(<MessageInput channelId="channel-1" onSend={onSendMock} />);
@@ -116,8 +116,25 @@ describe("MessageInput mobile optimization", () => {
     fireEvent.change(textarea, { target: { value: "a".repeat(3901) } });
 
     const counter = screen.getByText("3901 / 4000");
+    expect(counter).toHaveClass("text-gray-700");
     expect(
-      counter.compareDocumentPosition(textarea) & Node.DOCUMENT_POSITION_FOLLOWING,
+      textarea.compareDocumentPosition(counter) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+    expect(screen.queryByText("Message too long. Maximum 4,000 characters.")).not.toBeInTheDocument();
+  });
+
+  it("shows over-limit error state and disables send", async () => {
+    setViewportWidth(390);
+
+    render(<MessageInput channelId="channel-1" onSend={onSendMock} />);
+
+    const textarea = screen.getByPlaceholderText("Type a message...");
+    const button = await screen.findByRole("button", { name: "Send message" });
+
+    fireEvent.change(textarea, { target: { value: "a".repeat(4001) } });
+
+    expect(screen.getByText("4001 / 4000")).toHaveClass("text-error");
+    expect(screen.getByText("Message too long. Maximum 4,000 characters.")).toBeInTheDocument();
+    expect(button).toBeDisabled();
   });
 });

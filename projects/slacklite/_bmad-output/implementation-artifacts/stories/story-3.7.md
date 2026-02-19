@@ -6,14 +6,14 @@
 Allow channel creator or workspace owner to rename channels. Show rename modal with validation, update Firestore, and reflect changes in sidebar with real-time updates.
 
 **Acceptance Criteria:**
-- [ ] Add "Rename Channel" option (accessible from channel context menu or header)
-- [ ] Only visible to: Channel creator (`createdBy`) or workspace owner
-- [ ] Rename modal: Similar to Create Channel modal, pre-filled with current name
-- [ ] Validation: Same as create (lowercase, hyphens, 1-50 chars, unique)
-- [ ] Update Firestore: `updateDoc(channelRef, { name: newName })`
-- [ ] Sidebar updates immediately (real-time listener)
-- [ ] Message view header updates (show new name)
-- [ ] Cannot rename #general (validation check)
+- [x] Add "Rename Channel" option (accessible from channel context menu or header)
+- [x] Only visible to: Channel creator (`createdBy`) or workspace owner
+- [x] Rename modal: Similar to Create Channel modal, pre-filled with current name
+- [x] Validation: Same as create (lowercase, hyphens, 1-50 chars, unique)
+- [x] Update Firestore: `updateDoc(channelRef, { name: newName })`
+- [x] Sidebar updates immediately (real-time listener)
+- [x] Message view header updates (show new name)
+- [x] Cannot rename #general (validation check)
 
 **Dependencies:**
 dependsOn: ["3.2", "3.5"]

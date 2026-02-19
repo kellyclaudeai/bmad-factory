@@ -9,6 +9,7 @@ const firestoreMocks = vi.hoisted(() => ({
   queryMock: vi.fn(),
   serverTimestampMock: vi.fn(() => "SERVER_TIMESTAMP"),
   setDocMock: vi.fn(),
+  updateDocMock: vi.fn(),
   whereMock: vi.fn(),
 }));
 
@@ -21,10 +22,11 @@ vi.mock("firebase/firestore", () => ({
   query: firestoreMocks.queryMock,
   serverTimestamp: firestoreMocks.serverTimestampMock,
   setDoc: firestoreMocks.setDocMock,
+  updateDoc: firestoreMocks.updateDocMock,
   where: firestoreMocks.whereMock,
 }));
 
-import { createChannel } from "@/lib/utils/channels";
+import { createChannel, renameChannel } from "@/lib/utils/channels";
 
 describe("channel utilities", () => {
   beforeEach(() => {
@@ -104,6 +106,122 @@ describe("channel utilities", () => {
       createdAt: "SERVER_TIMESTAMP",
       lastMessageAt: null,
       messageCount: 0,
+    });
+  });
+
+  it("blocks renaming #general channels", async () => {
+    const firestore = {} as never;
+
+    await expect(
+      renameChannel({
+        firestore,
+        workspaceId: "workspace-123",
+        channelId: "channel-general",
+        currentName: "general",
+        newName: "engineering",
+        userId: "user-1",
+        channelCreatedBy: "user-1",
+        workspaceOwnerId: "user-1",
+      }),
+    ).rejects.toThrow("Cannot rename #general channel");
+
+    expect(firestoreMocks.getDocsMock).not.toHaveBeenCalled();
+    expect(firestoreMocks.updateDocMock).not.toHaveBeenCalled();
+  });
+
+  it("blocks renaming when the user is not the channel creator or workspace owner", async () => {
+    const firestore = {} as never;
+
+    await expect(
+      renameChannel({
+        firestore,
+        workspaceId: "workspace-123",
+        channelId: "channel-123",
+        currentName: "engineering",
+        newName: "eng-platform",
+        userId: "user-1",
+        channelCreatedBy: "user-2",
+        workspaceOwnerId: "user-3",
+      }),
+    ).rejects.toThrow("You do not have permission to rename this channel");
+
+    expect(firestoreMocks.getDocsMock).not.toHaveBeenCalled();
+    expect(firestoreMocks.updateDocMock).not.toHaveBeenCalled();
+  });
+
+  it("blocks renaming when the new channel name already exists", async () => {
+    const firestore = {} as never;
+    const channelsCollectionRef = { path: "workspaces/workspace-123/channels" };
+
+    firestoreMocks.collectionMock.mockReturnValue(channelsCollectionRef);
+    firestoreMocks.whereMock.mockReturnValue("NAME_FILTER");
+    firestoreMocks.limitMock.mockReturnValue("LIMIT_1");
+    firestoreMocks.queryMock.mockReturnValue("EXISTING_CHANNEL_QUERY");
+    firestoreMocks.getDocsMock.mockResolvedValue({
+      empty: false,
+      docs: [{ id: "channel-999" }],
+    });
+
+    await expect(
+      renameChannel({
+        firestore,
+        workspaceId: "workspace-123",
+        channelId: "channel-123",
+        currentName: "engineering",
+        newName: "eng-platform",
+        userId: "user-1",
+        channelCreatedBy: "user-1",
+        workspaceOwnerId: "user-9",
+      }),
+    ).rejects.toThrow("Channel name already exists");
+
+    expect(firestoreMocks.updateDocMock).not.toHaveBeenCalled();
+  });
+
+  it("updates the channel name when rename validation passes", async () => {
+    const firestore = {} as never;
+    const channelsCollectionRef = { path: "workspaces/workspace-123/channels" };
+    const channelRef = { id: "channel-123" };
+
+    firestoreMocks.collectionMock.mockReturnValue(channelsCollectionRef);
+    firestoreMocks.whereMock.mockReturnValue("NAME_FILTER");
+    firestoreMocks.limitMock.mockReturnValue("LIMIT_1");
+    firestoreMocks.queryMock.mockReturnValue("EXISTING_CHANNEL_QUERY");
+    firestoreMocks.getDocsMock.mockResolvedValue({
+      empty: true,
+      docs: [],
+    });
+    firestoreMocks.docMock.mockReturnValue(channelRef);
+    firestoreMocks.updateDocMock.mockResolvedValue(undefined);
+
+    await renameChannel({
+      firestore,
+      workspaceId: "  workspace-123  ",
+      channelId: "  channel-123  ",
+      currentName: "  engineering  ",
+      newName: "  eng-platform  ",
+      userId: "  user-1  ",
+      channelCreatedBy: "  user-1  ",
+      workspaceOwnerId: "  user-9  ",
+    });
+
+    expect(firestoreMocks.collectionMock).toHaveBeenCalledWith(
+      firestore,
+      "workspaces",
+      "workspace-123",
+      "channels",
+    );
+    expect(firestoreMocks.whereMock).toHaveBeenCalledWith(
+      "name",
+      "==",
+      "eng-platform",
+    );
+    expect(firestoreMocks.docMock).toHaveBeenCalledWith(
+      channelsCollectionRef,
+      "channel-123",
+    );
+    expect(firestoreMocks.updateDocMock).toHaveBeenCalledWith(channelRef, {
+      name: "eng-platform",
     });
   });
 });
