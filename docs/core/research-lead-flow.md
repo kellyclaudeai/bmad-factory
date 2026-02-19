@@ -826,9 +826,9 @@ Copy working files from Research Lead workspace:
 
 ---
 
-**3. Compile intake.md (2-3 min)**
+**3. Compile Product Research Document (2-3 min)**
 
-Research Lead compiles all outputs into final brief at `projects/ideas/${PROJECT_ID}/intake.md` following the intake template:
+Research Lead compiles all outputs into final brief at `projects/ideas/${PROJECT_ID}/{idea-name}-prd.md` (e.g., `bounce-prd.md`) following the PRD template:
 
 ```markdown
 # [PRIMARY NAME from Carson]
@@ -842,20 +842,13 @@ Research Lead compiles all outputs into final brief at `projects/ideas/${PROJECT
 
 ## Executive Summary
 
-**Problem:**  
-[2-3 sentence problem description - who experiences this, what the pain is, why it matters]
+**Title:** [PRIMARY NAME from Carson]
 
-**Solution:**  
-[2-3 sentence solution description - what we're building, how it solves the problem, what makes it different]
+**Description:**  
+[2-3 sentence description - what we're building, how it works, what makes it different]
 
-**Opportunity:**  
-[1-2 sentences on why this is underserved - solution gap classification, current landscape, why now]
-
-**Key Metrics:**
-- **Score:** [X]/50 (Pain: X/10, Evidence: X/10, Gap: X/10, Buildable: X/10, Demand: X/10)
-- **Development:** [N] stories (~[X] weeks)
-- **Platform:** [from config]
-- **Business Model:** [from config] - $[X]/mo
+**Pain Point:**  
+[2-3 sentence problem description - who experiences this, what the pain is, why current solutions fail]
 
 ---
 
@@ -1075,7 +1068,7 @@ projects/
 ├── project-registry.json                          # Summary registry (all projects)
 ├── ideas/                                          # Research Lead outputs (idea stage)
 │   ├── <project-id>/                               # One directory per researched idea
-│   │   ├── intake.md                              # Comprehensive research document
+│   │   ├── <idea-name>-prd.md                     # Product research document (e.g., bounce-prd.md)
 │   │   ├── solution-scoring.md                    # Detailed scoring for all 15 solutions
 │   │   ├── competitive-deepdive.md                # Full competitive analysis
 │   │   └── creative-naming.md                     # Naming options and rationale
@@ -1106,7 +1099,7 @@ projects/
 
 | File | Purpose | Created By | Phase |
 |------|---------|------------|-------|
-| **intake.md** | Comprehensive research brief with all phases compiled | Research Lead | Phase 6 |
+| **{idea-name}-prd.md** | Product research document with executive summary and all research phases | Research Lead | Phase 6 |
 | **solution-scoring.md** | Full scoring matrix for all 15 CIS solutions with rationale | Research Lead | Phase 4 |
 | **competitive-deepdive.md** | Detailed competitive analysis, novelty assessment, feasibility | Research Lead or Mary | Phase 5 |
 | **creative-naming.md** | Primary name + alternatives with rationale | Carson | Phase 6 |

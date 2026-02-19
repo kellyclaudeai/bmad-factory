@@ -154,24 +154,31 @@
     },
     {
       "id": "social-conversation-coach-2026-02-18-2113",
-      "name": "Social Conversation Coach",
+      "name": "Bounce",
       "state": "discovery",
       "paused": false,
       "pausedReason": null,
       "surfacedForQA": false,
-      "researchDir": null,
+      "researchDir": "ideas/social-conversation-coach-2026-02-18-2113",
       "researchSession": "agent:research-lead:20260218-2113",
-      "researchPhase": "validation",
+      "researchPhase": "complete",
       "discoveryStrategy": "direct-demand-signals",
       "timeline": {
         "discoveredAt": "2026-02-19T03:20:06+0000",
-        "lastUpdated": "2026-02-19T03:26:12+0000"
+        "lastUpdated": "2026-02-19T03:35:20+0000"
       },
       "intake": {
         "problem": "Young adults and socially anxious individuals struggle with initiating and maintaining conversations in everyday situations (networking events, dates, casual encounters). They freeze up, resort to generic questions, or avoid social situations entirely due to lack of conversation skills and fear of awkward silence. Current solutions are clinical tools for autism or therapy apps, not practical icebreaker coaches for everyday consumers.",
         "solution": "Social failure journal that logs awkward moments, detects personal anxiety trigger patterns (time/place/topic), and generates personalized recovery prompts for next time user encounters that scenario. Gamifies social courage by rewarding attempts. Celebrates failure as learning data rather than preventing awkwardness.",
-        "targetAudience": null,
-        "keyFeatures": []
+        "targetAudience": "Gen Z and Millennials (18-35), socially anxious individuals, introverts, people re-entering social situations post-pandemic, young professionals attending networking events. Weekly to daily pain (every social situation). Proven willingness to pay -15/mo for self-improvement apps.",
+        "keyFeatures": [
+          "Quick awkward moment logger (tags: time/place/topic/feeling)",
+          "Personal pattern detection engine (ML-powered trigger analysis)",
+          "Personalized recovery prompts based on YOUR failures",
+          "Gamified courage rewards (badges, streaks, confidence score)",
+          "Awkward moment archive (see past survived moments)",
+          "Community stats (anonymous normalization)"
+        ]
       },
       "implementation": null,
       "followup": []
