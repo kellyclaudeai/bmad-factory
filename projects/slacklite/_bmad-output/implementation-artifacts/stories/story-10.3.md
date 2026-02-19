@@ -6,22 +6,22 @@
 Test UI components (Button, Input, Modal, MessageItem, ChannelList) for rendering, interactions, and accessibility.
 
 **Acceptance Criteria:**
-- [ ] Test `Button`:
-  - [ ] Renders with correct variant (Primary, Secondary, Destructive)
-  - [ ] Disabled state works
-  - [ ] onClick handler called
-- [ ] Test `Modal`:
-  - [ ] Renders with overlay
-  - [ ] ESC key closes
-  - [ ] Focus trap works (Tab cycles through elements)
-- [ ] Test `MessageItem`:
-  - [ ] Renders author, timestamp, text
-  - [ ] Formats timestamp correctly
-  - [ ] Handles long messages
-- [ ] Test `ChannelList`:
-  - [ ] Renders channels
-  - [ ] Highlights active channel
-  - [ ] Shows unread badges
-- [ ] Accessibility: Run axe-core tests on all components
+- [x] Test `Button`:
+  - [x] Renders with correct variant (Primary, Secondary, Destructive)
+  - [x] Disabled state works
+  - [x] onClick handler called
+- [x] Test `Modal`:
+  - [x] Renders with overlay
+  - [x] ESC key closes
+  - [x] Focus trap works (Tab cycles through elements)
+- [x] Test `MessageItem`:
+  - [x] Renders author, timestamp, text
+  - [x] Formats timestamp correctly
+  - [x] Handles long messages
+- [x] Test `ChannelList`:
+  - [x] Renders channels
+  - [x] Highlights active channel
+  - [x] Shows unread badges
+- [x] Accessibility: Run axe-core tests on all components
 
 **Estimated Effort:** 4 hours

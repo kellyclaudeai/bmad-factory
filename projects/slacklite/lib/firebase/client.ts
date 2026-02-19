@@ -19,8 +19,92 @@ export const auth = getAuth(app);
 export const firestore = getFirestore(app);
 export const rtdb = getDatabase(app);
 
-if (process.env.NODE_ENV === "development") {
-  connectAuthEmulator(auth, "http://localhost:9099");
-  connectFirestoreEmulator(firestore, "localhost", 8080);
-  connectDatabaseEmulator(rtdb, "localhost", 9000);
+interface HostAndPort {
+  host: string;
+  port: number;
+}
+
+function parseHostAndPort(
+  hostWithPort: string | undefined,
+  fallback: HostAndPort,
+): HostAndPort {
+  if (!hostWithPort) {
+    return fallback;
+  }
+
+  const normalized = hostWithPort.trim();
+  const [host = "", port] = normalized.split(":");
+  const parsedPort = Number(port);
+
+  if (host.length === 0 || !Number.isInteger(parsedPort) || parsedPort <= 0) {
+    return fallback;
+  }
+
+  return {
+    host,
+    port: parsedPort,
+  };
+}
+
+function shouldUseFirebaseEmulators(): boolean {
+  if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true") {
+    return true;
+  }
+
+  return Boolean(
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST ||
+      process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_EMULATOR_HOST ||
+      process.env.NEXT_PUBLIC_FIREBASE_DATABASE_EMULATOR_HOST,
+  );
+}
+
+const globalEmulatorConnectionState = globalThis as typeof globalThis & {
+  __SLACKLITE_FIREBASE_EMULATORS_CONNECTED__?: boolean;
+};
+
+if (
+  shouldUseFirebaseEmulators() &&
+  !globalEmulatorConnectionState.__SLACKLITE_FIREBASE_EMULATORS_CONNECTED__
+) {
+  const authHostAndPort = parseHostAndPort(
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST,
+    {
+      host: "127.0.0.1",
+      port: 9099,
+    },
+  );
+  const firestoreHostAndPort = parseHostAndPort(
+    process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_EMULATOR_HOST,
+    {
+      host: "127.0.0.1",
+      port: 8080,
+    },
+  );
+  const databaseHostAndPort = parseHostAndPort(
+    process.env.NEXT_PUBLIC_FIREBASE_DATABASE_EMULATOR_HOST,
+    {
+      host: "127.0.0.1",
+      port: 9000,
+    },
+  );
+
+  connectAuthEmulator(
+    auth,
+    `http://${authHostAndPort.host}:${authHostAndPort.port}`,
+    {
+      disableWarnings: true,
+    },
+  );
+  connectFirestoreEmulator(
+    firestore,
+    firestoreHostAndPort.host,
+    firestoreHostAndPort.port,
+  );
+  connectDatabaseEmulator(
+    rtdb,
+    databaseHostAndPort.host,
+    databaseHostAndPort.port,
+  );
+
+  globalEmulatorConnectionState.__SLACKLITE_FIREBASE_EMULATORS_CONNECTED__ = true;
 }
