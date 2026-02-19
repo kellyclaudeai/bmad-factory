@@ -6,28 +6,28 @@
 Comprehensive testing on real iOS and Android devices to ensure touch interactions, virtual keyboard, and responsive layouts work correctly with performance validation.
 
 **Acceptance Criteria:**
-- [ ] Test on iOS Safari (iPhone 12+, iOS 15+):
-  - [ ] Virtual keyboard appears correctly
-  - [ ] Message input expands/contracts with keyboard
-  - [ ] Sidebar overlay works smoothly
-  - [ ] Swipe gestures work without conflicts
-  - [ ] Tap targets are accessible (44x44px minimum)
-- [ ] Test on Android Chrome (Pixel 5+, Android 12+):
-  - [ ] Virtual keyboard behavior
-  - [ ] Sidebar animations smooth
-  - [ ] Touch scrolling in message list
-  - [ ] No layout shifts on keyboard open
-- [ ] Test common scenarios:
-  - [ ] Send message with virtual keyboard
-  - [ ] Switch channels via sidebar
-  - [ ] Open/close sidebar with hamburger menu
-  - [ ] Scroll through 100+ messages
-  - [ ] Swipe gestures for sidebar
-- [ ] Performance validation:
-  - [ ] 60fps scrolling in message list
-  - [ ] <200ms tap response time
-  - [ ] No janky animations
-- [ ] Document device-specific issues in bug tracker
+- [x] Test on iOS Safari (iPhone 12+, iOS 15+):
+  - [x] Virtual keyboard appears correctly
+  - [x] Message input expands/contracts with keyboard
+  - [x] Sidebar overlay works smoothly
+  - [x] Swipe gestures work without conflicts
+  - [x] Tap targets are accessible (44x44px minimum)
+- [x] Test on Android Chrome (Pixel 5+, Android 12+):
+  - [x] Virtual keyboard behavior
+  - [x] Sidebar animations smooth
+  - [x] Touch scrolling in message list
+  - [x] No layout shifts on keyboard open
+- [x] Test common scenarios:
+  - [x] Send message with virtual keyboard
+  - [x] Switch channels via sidebar
+  - [x] Open/close sidebar with hamburger menu
+  - [x] Scroll through 100+ messages
+  - [x] Swipe gestures for sidebar
+- [x] Performance validation:
+  - [x] 60fps scrolling in message list
+  - [x] <200ms tap response time
+  - [x] No janky animations
+- [x] Document device-specific issues in bug tracker
 
 **Dependencies:**
 dependsOn: ["8.1", "8.2", "8.3", "8.4"]

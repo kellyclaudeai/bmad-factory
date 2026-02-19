@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { Timestamp } from "firebase/firestore";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import MessageItem from "@/components/features/messages/MessageItem";
 import type { Message } from "@/lib/types/models";
@@ -31,31 +31,36 @@ function normalizeTextContent(element: HTMLElement | null): string {
 }
 
 describe("MessageItem", () => {
-  beforeEach(() => {
+  it("renders author, timestamp, and message text", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-02-19T12:00:00.000Z"));
-  });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
+    try {
+      render(<MessageItem message={createMessage({ text: "Ship it." })} />);
 
-  it("renders author, timestamp, and message text", () => {
-    render(<MessageItem message={createMessage({ text: "Ship it." })} />);
-
-    expect(screen.getByText("Austen")).toBeInTheDocument();
-    expect(screen.getByText("1 min ago")).toBeInTheDocument();
-    expect(screen.getByText("Ship it.")).toBeInTheDocument();
+      expect(screen.getByText("Austen")).toBeInTheDocument();
+      expect(screen.getByText("1 min ago")).toBeInTheDocument();
+      expect(screen.getByText("Ship it.")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("formats timestamp correctly", () => {
-    const timestamp = Timestamp.fromDate(new Date("2026-02-19T11:55:00.000Z"));
-    render(<MessageItem message={createMessage({ timestamp })} />);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-02-19T12:00:00.000Z"));
 
-    expect(screen.getByText("5 min ago")).toBeInTheDocument();
-    expect(
-      screen.getByLabelText("Message from Austen at 5 min ago"),
-    ).toBeInTheDocument();
+    try {
+      const timestamp = Timestamp.fromDate(new Date("2026-02-19T11:55:00.000Z"));
+      render(<MessageItem message={createMessage({ timestamp })} />);
+
+      expect(screen.getByText("5 min ago")).toBeInTheDocument();
+      expect(
+        screen.getByLabelText("Message from Austen at 5 min ago"),
+      ).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("truncates long messages and toggles with Show more / Show less", () => {

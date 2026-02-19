@@ -1869,7 +1869,8 @@ stories:
   '10.5':
     epic: 10
     title: Write E2E Tests for Critical Flows
-    status: todo
+    status: in_progress
+    started_at: "2026-02-19T16:13:00-06:00"
     estimated_effort: 4 hours
     dependencies:
     - '10.1'

@@ -1,126 +1,27 @@
-# Story 10.3: Write Integration Tests for Firebase Rules
+# Story 10.3: Write Unit Tests for UI Components
 
 **Epic:** Epic 10 - Testing & Quality Assurance
 
 **Description:**
-Write integration tests for Firestore and RTDB security rules using Firebase Emulator with comprehensive coverage of all security scenarios.
+Test UI components (Button, Input, Modal, MessageItem, ChannelList) for rendering, interactions, and accessibility.
 
 **Acceptance Criteria:**
+- [ ] Test `Button`:
+  - [ ] Renders with correct variant (Primary, Secondary, Destructive)
+  - [ ] Disabled state works
+  - [ ] onClick handler called
+- [ ] Test `Modal`:
+  - [ ] Renders with overlay
+  - [ ] ESC key closes
+  - [ ] Focus trap works (Tab cycles through elements)
+- [ ] Test `MessageItem`:
+  - [ ] Renders author, timestamp, text
+  - [ ] Formats timestamp correctly
+  - [ ] Handles long messages
+- [ ] Test `ChannelList`:
+  - [ ] Renders channels
+  - [ ] Highlights active channel
+  - [ ] Shows unread badges
+- [ ] Accessibility: Run axe-core tests on all components
 
-- [x] Test Firestore security rules (Story 9.1 tests expanded):
-  - [x] Workspace isolation tests
-  - [x] Channel access control tests
-  - [x] Message write permissions tests
-  - [x] User data access tests
-- [x] Test RTDB security rules (Story 9.2 tests expanded):
-  - [x] Message delivery permissions
-  - [x] Workspace isolation in RTDB
-  - [x] Message structure validation
-- [x] All security rules tested with emulator
-- [x] Tests run in CI/CD pipeline
-- [x] 100% coverage of security rules
-
-**Dependencies:**
-dependsOn: ["10.1", "9.1", "9.2"]
-
-**Technical Notes:**
-
-- Integration test suite (tests/integration/firebase-rules.spec.ts):
-
-  ```typescript
-  import {
-    initializeTestEnvironment,
-    assertSucceeds,
-    assertFails,
-  } from "@firebase/rules-unit-testing";
-  import { readFileSync } from "fs";
-
-  describe("Firebase Security Rules Integration", () => {
-    let testEnv;
-
-    beforeAll(async () => {
-      testEnv = await initializeTestEnvironment({
-        projectId: "slacklite-test",
-        firestore: {
-          rules: readFileSync("firestore.rules", "utf8"),
-        },
-        database: {
-          rules: readFileSync("database.rules.json", "utf8"),
-        },
-      });
-    });
-
-    afterAll(async () => {
-      await testEnv.cleanup();
-    });
-
-    describe("Workspace Isolation", () => {
-      it("prevents cross-workspace channel access", async () => {
-        // User 1 in workspace A
-        const db1 = testEnv
-          .authenticatedContext("user1", { workspaceId: "workspaceA" })
-          .firestore();
-
-        // Attempt to access workspace B's channels
-        await assertFails(db1.collection("workspaces/workspaceB/channels").get());
-      });
-
-      it("allows workspace member to access their channels", async () => {
-        const db = testEnv.authenticatedContext("user1", { workspaceId: "workspaceA" }).firestore();
-
-        await assertSucceeds(db.collection("workspaces/workspaceA/channels").get());
-      });
-    });
-
-    describe("Message Permissions", () => {
-      it("allows workspace member to write messages", async () => {
-        const db = testEnv.authenticatedContext("user1", { workspaceId: "workspaceA" }).firestore();
-
-        await assertSucceeds(
-          db.collection("workspaces/workspaceA/channels/channel1/messages").add({
-            userId: "user1",
-            userName: "User One",
-            text: "Test message",
-            workspaceId: "workspaceA",
-            channelId: "channel1",
-            timestamp: new Date(),
-          })
-        );
-      });
-
-      it("prevents non-member from writing messages", async () => {
-        const db = testEnv.authenticatedContext("user2", { workspaceId: "workspaceB" }).firestore();
-
-        await assertFails(
-          db.collection("workspaces/workspaceA/channels/channel1/messages").add({
-            userId: "user2",
-            userName: "User Two",
-            text: "Test message",
-          })
-        );
-      });
-    });
-
-    describe("RTDB Message Delivery", () => {
-      it("allows workspace member to write to RTDB", async () => {
-        const db = testEnv.authenticatedContext("user1", { workspaceId: "workspaceA" }).database();
-
-        await assertSucceeds(
-          db.ref("messages/workspaceA/channel1/msg1").set({
-            userId: "user1",
-            userName: "User One",
-            text: "Test",
-            timestamp: Date.now(),
-          })
-        );
-      });
-    });
-  });
-  ```
-
-- Run with Firebase Emulator:
-  ```bash
-  firebase emulators:exec --only firestore,database "npm test -- tests/integration"
-  ```
-
-**Estimated Effort:** 2 hours
+**Estimated Effort:** 4 hours
