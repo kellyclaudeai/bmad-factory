@@ -1,8 +1,10 @@
 # State Architecture Migration - Complete
 
+**⚠️ SUPERSEDED:** This migration is obsolete. See `docs/core/state-management.md` for current unified state architecture.
+
 **Date:** 2026-02-18  
 **Duration:** 14:28-14:40 CST  
-**Status:** ✅ Complete
+**Status:** ✅ Complete (but superseded by later changes - kelly.json eliminated 21:06 CST)
 
 ---
 

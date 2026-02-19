@@ -1,6 +1,9 @@
 # Minimal State Files - Complete List
 
+**⚠️ SUPERSEDED:** This proposal is obsolete. See `docs/core/state-management.md` for current unified state architecture.
+
 **Created:** 2026-02-18  
+**Superseded:** 2026-02-18 21:06 CST (eliminated kelly.json, unified state structure)  
 **Purpose:** Define the minimal set of state files needed after cleanup
 
 ---

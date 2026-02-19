@@ -1,6 +1,9 @@
 # State Schema Design Proposal
 
+**⚠️ SUPERSEDED:** This proposal is obsolete. See `docs/core/state-management.md` for current unified state architecture.
+
 **Created:** 2026-02-18  
+**Superseded:** 2026-02-18 21:06 CST (eliminated kelly.json, unified state structure)  
 **Purpose:** Define canonical state schemas for Kelly Router and Project Lead
 
 ---

@@ -1,6 +1,9 @@
 # Compaction State Refresh Proposal
 
+**⚠️ SUPERSEDED:** This proposal is obsolete. See `docs/core/state-management.md` for current unified state architecture.
+
 **Created:** 2026-02-18  
+**Superseded:** 2026-02-18 21:06 CST (eliminated kelly.json, unified state structure)  
 **Issue:** Compaction prompt references outdated state file names that don't exist
 
 ---
