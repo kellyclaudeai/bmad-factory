@@ -5,40 +5,22 @@ import { useRouter } from "next/navigation";
 
 import ChannelList from "@/components/features/channels/ChannelList";
 import CreateChannelModal from "@/components/features/channels/CreateChannelModal";
+import DMList from "@/components/features/channels/DMList";
 import WorkspaceMembersSection from "@/components/features/sidebar/WorkspaceMembersSection";
 import InviteTeamModal from "@/components/features/workspace/InviteTeamModal";
 import { Avatar } from "@/components/ui/Avatar";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { firestore } from "@/lib/firebase/client";
 import { createChannel } from "@/lib/utils/channels";
 
-interface DirectMessageItem {
-  id: string;
-  label: string;
-  unreadCount?: number;
-}
-
-const DEFAULT_DIRECT_MESSAGES: DirectMessageItem[] = [
-  { id: "alex", label: "Alex", unreadCount: 2 },
-  { id: "sarah", label: "Sarah" },
-  { id: "michael", label: "Michael" },
-];
-
 export interface SidebarProps {
   workspaceName: string;
   isOpen: boolean;
   onClose: () => void;
-  directMessages?: DirectMessageItem[];
 }
 
-export function Sidebar({
-  workspaceName,
-  isOpen,
-  onClose,
-  directMessages = DEFAULT_DIRECT_MESSAGES,
-}: SidebarProps) {
+export function Sidebar({ workspaceName, isOpen, onClose }: SidebarProps) {
   const { user } = useAuth();
   const router = useRouter();
   const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false);
@@ -151,23 +133,7 @@ export function Sidebar({
                   + New DM
                 </Button>
               </div>
-
-              <ul className="space-y-1">
-                {directMessages.map((directMessage) => (
-                  <li key={directMessage.id}>
-                    <button
-                      type="button"
-                      className="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-sm text-gray-800 transition-colors hover:bg-gray-200"
-                      onClick={onClose}
-                    >
-                      <span className="truncate">{directMessage.label}</span>
-                      {directMessage.unreadCount ? (
-                        <Badge size="sm">{directMessage.unreadCount}</Badge>
-                      ) : null}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <DMList onDirectMessageSelect={onClose} />
             </section>
 
             <WorkspaceMembersSection />

@@ -62,6 +62,7 @@ export async function startDM({
 
     return (
       Array.isArray(directMessageUserIds) &&
+      directMessageUserIds.length === 2 &&
       directMessageUserIds.includes(normalizedCurrentUserId) &&
       directMessageUserIds.includes(normalizedOtherUserId)
     );
