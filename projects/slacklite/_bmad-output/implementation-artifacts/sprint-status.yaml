@@ -129,7 +129,7 @@ stories:
   "2.1":
     epic: 2
     title: "Create Landing Page"
-    status: review
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["1.1", "1.6"]
     completed_by: "Amelia"
@@ -154,7 +154,7 @@ stories:
   "2.2":
     epic: 2
     title: "Build Sign Up Form UI"
-    status: review
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["1.6"]
     completed_by: "Amelia"
@@ -179,7 +179,7 @@ stories:
   "2.3":
     epic: 2
     title: "Implement Firebase Auth Sign Up"
-    status: review
+    status: done
     estimated_effort: "2-3 hours"
     dependencies: ["1.4", "2.2"]
     completed_by: "Amelia"
@@ -204,7 +204,7 @@ stories:
   "2.4":
     epic: 2
     title: "Build Sign In Form with Firebase Auth"
-    status: review
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["1.4", "1.6"]
     completed_by: "Amelia"
@@ -249,7 +249,7 @@ stories:
   "2.6":
     epic: 2
     title: "Implement Sign Out Functionality"
-    status: review
+    status: done
     estimated_effort: "1 hour"
     dependencies: ["2.5"]
     completed_by: "Amelia"
@@ -289,7 +289,7 @@ stories:
   "2.8":
     epic: 2
     title: "Implement Protected Route Middleware"
-    status: review
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["2.5"]
     completed_by: "Amelia"
@@ -386,7 +386,7 @@ stories:
   "4.1":
     epic: 4
     title: "Create Message Data Models"
-    status: review
+    status: done
     estimated_effort: "1 hour"
     dependencies: ["1.4"]
     completed_by: "Amelia"
@@ -427,7 +427,7 @@ stories:
   "4.5":
     epic: 4
     title: "Subscribe to Real-Time Message Updates"
-    status: review
+    status: done
     estimated_effort: "2-3 hours"
     dependencies: ["4.1"]
     completed_by: "Amelia"
@@ -517,7 +517,7 @@ stories:
   "6.1":
     epic: 6
     title: "Implement Firebase Presence System"
-    status: review
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["1.4", "2.5"]
     completed_by: "Amelia"
@@ -693,7 +693,7 @@ stories:
   "10.1":
     epic: 10
     title: "Set Up Testing Infrastructure"
-    status: review
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["1.1"]
     completed_by: "Amelia"
