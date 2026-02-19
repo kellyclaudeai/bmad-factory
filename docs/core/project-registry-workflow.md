@@ -49,6 +49,7 @@ discovery → in-progress → shipped → followup → shipped
       "state": "shipped",
       "paused": false,
       "pausedReason": null,
+      "surfacedForQA": true,
       "researchDir": null,
       
       "timeline": {
@@ -84,6 +85,7 @@ discovery → in-progress → shipped → followup → shipped
       "state": "in-progress",
       "paused": false,
       "pausedReason": null,
+      "surfacedForQA": false,
       "researchDir": null,
       
       "timeline": {
@@ -118,6 +120,7 @@ discovery → in-progress → shipped → followup → shipped
       "state": "discovery",
       "paused": false,
       "pausedReason": null,
+      "surfacedForQA": false,
       "researchDir": "ideas/benchmarkiq-2026-02-17-1802",
       
       "timeline": {
@@ -151,6 +154,7 @@ discovery → in-progress → shipped → followup → shipped
 - **state** - Current lifecycle state (discovery|in-progress|shipped|followup|paused)
 - **paused** - Boolean flag (paused state OR any state with pause)
 - **pausedReason** - Why paused (optional, for operator context)
+- **surfacedForQA** - Boolean flag: has Kelly already announced this project's QA URL to operator? Prevents duplicate announcements during heartbeats. Reset to false when project changes state or qaUrl changes.
 - **researchDir** - Path to Research Lead output directory, relative to `projects/` (e.g., `ideas/my-project-2026-02-18-1656`). Set by Research Lead in Phase 6. Null for legacy projects without research artifacts.
 
 ### timeline
@@ -209,6 +213,7 @@ Array of post-ship work items:
   "state": "discovery",
   "paused": false,
   "pausedReason": null,
+  "surfacedForQA": false,
   "researchDir": "ideas/new-project-2026-02-18-1400",
   "timeline": {
     "discoveredAt": "2026-02-18T14:00:00Z",
@@ -311,10 +316,11 @@ Array of post-ship work items:
 - When operator picks discovery project: `sessions_send(sessionKey="agent:project-lead:project-{id}", message="Start project: {id}")`
 - PL reads registry, updates to in-progress, begins work
 
-#### Heartbeat monitoring (shipped projects)
-- Check registry for `state: "shipped"` with new `qaUrl` (not yet surfaced)
+#### Heartbeat monitoring (projects ready for QA)
+- Check registry for `state: "in-progress"` AND `implementation.qaUrl` present AND `surfacedForQA: false`
 - Surface to operator: "🧪 **{name}** ready for user QA: {qaUrl}"
-- Track surfaced projects in `state/kelly.json` to avoid duplicates
+- Update registry: set `surfacedForQA: true` to prevent duplicate announcements
+- If project becomes `paused: true`, stop surfacing
 
 #### Stall detection
 - Check `state: "in-progress"` projects with `lastUpdated > 60 min ago`
@@ -405,7 +411,7 @@ projects/
 | `projects/project-registry.json` | Single source of truth for all project lifecycle state |
 | `projects/ideas/<project-id>/` | Research Lead artifacts (intake, scoring, competitive analysis) |
 | `projects/<project-name>/` | Project workspace (code, BMAD artifacts) — created by PL |
-| `/Users/austenallred/clawd/state/kelly.json` | Kelly's operational state (heartbeat, surfacing, pending actions) |
+| `memory/YYYY-MM-DD.md` | Daily logs for all agents (Kelly, PL, RL) — operational notes, decisions, events |
 
 ---
 

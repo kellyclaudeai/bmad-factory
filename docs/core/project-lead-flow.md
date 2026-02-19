@@ -336,14 +336,13 @@ Project Lead's own heartbeat (every 5-10 min):
 **Every 30-60 minutes**, Kelly scans for projects ready for QA:
 
 1. Read `projects/project-registry.json`
-2. Filter: `state="in-progress"` AND `implementation.qaUrl` present
-3. Check `state/kelly.json` → if NOT in `heartbeat.surfacedQA[]`:
-   - Alert operator: `🧪 **{name}** ready for user QA: {implementation.qaUrl}`
-   - Add `projectId` to `heartbeat.surfacedQA[]` in `state/kelly.json`
+2. Filter: `state="in-progress"` AND `implementation.qaUrl` present AND `surfacedForQA: false`
+3. Alert operator: `🧪 **{name}** ready for user QA: {implementation.qaUrl}`
+4. Update registry: set `surfacedForQA: true` for that project
 
 **What NOT to surface:**
 - Projects with `paused: true` (explicitly paused)
-- Projects already in `heartbeat.surfacedQA[]` list
+- Projects with `surfacedForQA: true` (already announced)
 - Projects without `implementation.qaUrl` (not ready yet)
 
 #### Stage 4.7: Operator Testing
@@ -397,10 +396,8 @@ Operator: "pause {project}"
 **project-registry.json (your project entry):**
 - `state`: "in-progress"
 - `implementation.qaUrl`: testable URL
+- `surfacedForQA`: boolean flag (Kelly sets to true after announcing)
 - `timeline.lastUpdated`: ISO timestamp (updated when qaUrl set)
-
-**state/kelly.json (Kelly maintains):**
-- `heartbeat.surfacedQA[]`: projects already announced to operator
 
 ---
 

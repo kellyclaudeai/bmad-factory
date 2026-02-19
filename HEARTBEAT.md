@@ -4,19 +4,22 @@
 
 ### 1. Check for Projects Ready for User QA
 
-**Task:** Surface projects that Project Lead has moved to userQA.
+**Task:** Surface projects that Project Lead has moved to QA.
 
 **Process:**
 1. Read `projects/project-registry.json`
-2. Filter for projects with `state: "in-progress"` AND `implementation.qaUrl` present
-3. Check `state/kelly.json` → if project NOT in `heartbeat.surfacedQA[]` list:
+2. Filter for projects with:
+   - `state: "in-progress"` 
+   - `implementation.qaUrl` present
+   - `surfacedForQA: false`
+3. For each match:
    - Alert operator: "🧪 **{name}** ready for user QA: {implementation.qaUrl}"
-   - Add projectId to `heartbeat.surfacedQA[]` in `state/kelly.json`
+   - Update registry: set `surfacedForQA: true` for that project
 4. If project `paused: true`, stop surfacing
 
 **What NOT to surface:**
 - Projects with `paused: true` (user explicitly paused QA)
-- Projects already in `heartbeat.surfacedQA[]` list
+- Projects with `surfacedForQA: true` (already announced)
 - Projects without `implementation.qaUrl` (not ready yet)
 
 ### 2. Active Project Stall Check
@@ -31,31 +34,15 @@
    - Use registry's `timeline.lastUpdated` as source of truth
 4. If a project has been in same state **>60 minutes** with no registry updates:
    - Send message to Project Lead: "Status check - any blockers? (Kelly safety net ping)"
-   - If Project Lead responds "all good", mark in `state/kelly.json` → `heartbeat.projectChecks.{id}.lastPing` and skip for 45 min
+   - If Project Lead responds "all good", note in daily memory file and skip for 45 min
    - If Project Lead confirms blocker OR doesn't respond in 5 min, escalate to operator
-5. Update `state/kelly.json` → `heartbeat.lastProjectScan` with check timestamp
 
 **When to escalate to operator:**
 - Project Lead confirms they're blocked after retry attempts
 - Project Lead session doesn't respond to ping (session may be dead)
 - Project has been stalled **>2 hours** even with "all good" responses (sanity check)
 
-**State tracking (Kelly's responsibility):**
-```json
-{
-  "heartbeat": {
-    "lastProjectScan": 1708128000,
-    "projectChecks": {
-      "fleai-market-v5": {
-        "lastCheck": 1708128000,
-        "lastPingSent": null,
-        "consecutiveStalls": 0
-      }
-    },
-    "surfacedQA": ["calculator-app"]
-  }
-}
-```
+**Tracking:** Keep ephemeral notes in session memory (which project checked when). No persistent state needed—if Kelly restarts, it's fine to re-check projects. Document significant checks/escalations in `memory/YYYY-MM-DD.md`.
 
 ---
 

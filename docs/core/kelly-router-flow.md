@@ -31,13 +31,13 @@
 - Send status pings to Project Lead if stalled (safety net, not primary monitoring)
 
 **State Tracking**
-- Maintain `state/kelly.json` with operational metadata
-- Track pending actions and waiting-on-operator items
-- Update heartbeat timestamps and surfacing state
+- Track operational notes in daily memory files (`memory/YYYY-MM-DD.md`)
+- Pending actions and waiting-on items documented in daily logs
+- No persistent operational state file needed (ephemeral session memory is fine)
 
 **QA Surfacing Rules**
-- Surface project when `state: "in-progress"` AND `implementation.qaUrl` present
-- Only surface once (track in `state/kelly.json` → `heartbeat.surfacedQA[]`)
+- Surface project when `state: "in-progress"` AND `implementation.qaUrl` present AND `surfacedForQA: false`
+- After surfacing: update registry, set `surfacedForQA: true` to prevent duplicate announcements
 - If project `paused: true`, stop surfacing
 
 ### 3. Session Management
@@ -137,52 +137,45 @@ sessions_spawn({ agentId: "project-lead", task: "..." })
 
 ## State File Responsibilities
 
-### state/kelly.json (Kelly maintains)
-**Operational metadata only:**
-```json
-{
-  "heartbeat": {
-    "lastProjectScan": 1739900520,
-    "projectChecks": {
-      "fleai-market-v5": {
-        "lastCheck": 1739900520,
-        "lastPingSent": null,
-        "consecutiveStalls": 0
-      }
-    },
-    "surfacedQA": ["calculator-app"]
-  },
-  "pendingActions": [],
-  "waitingOn": [],
-  "notes": []
-}
+### memory/YYYY-MM-DD.md (All agents write here)
+**Daily operational logs:**
+- Significant events, decisions, and actions
+- Pending items and waiting-on notes
+- Project check results, escalations, announcements
+- Operational notes for context across session restarts
+
+**Examples:**
+```markdown
+## 2026-02-18
+
+### 14:30 - Surfaced NoteLite for QA
+Set registry `surfacedForQA: true` to prevent re-announcement.
+
+### 15:15 - Project stall check
+Pinged PL (project-calculator-app) - no registry updates in 75 min.
+PL responded "all good, testing edge cases". Will re-check in 45 min.
+
+### 16:00 - Waiting on operator decision
+3 research ideas complete (Prepwise, ClaimDone, Ripple). Awaiting selection.
 ```
 
-**What Kelly tracks:**
-- Heartbeat timestamps (when did I last check?)
-- SurfacedQA list (which projects already announced?)
-- Pending actions (my to-do list)
-- Waiting-on items (blocked on what/who?)
-- Operational notes (timeline of events)
+**Ephemeral tracking:** Heartbeat timestamps and recent check data can be kept in session memory (no file persistence needed). If Kelly restarts, re-checking projects is fine—no harm in redundant checks.
 
-**What Kelly does NOT track:**
-- Project lifecycle state (lives in registry)
-- Story-level details (lives in BMAD artifacts)
-- Subagent spawn history (not needed for state)
-
-### projects/project-registry.json (Research Lead creates, Project Lead updates, Kelly reads)
+### projects/project-registry.json (Research Lead creates, Project Lead updates, Kelly reads/writes)
 **Project lifecycle source of truth:**
 - All projects (discovery → in-progress → shipped → followup)
 - Timeline (discoveredAt, startedAt, shippedAt, lastUpdated)
 - Intake (problem, solution, features)
 - Implementation metadata (projectDir, qaUrl, deployedUrl)
 
-**Kelly reads this for:**
-- QA surfacing (check for implementation.qaUrl)
-- Stall detection (check timeline.lastUpdated)
-- Project filtering (skip paused projects)
+**Kelly reads/writes for:**
+- QA surfacing: check for `implementation.qaUrl` + `surfacedForQA: false`, then update `surfacedForQA: true` after announcing
+- Stall detection: check `timeline.lastUpdated`
+- Project filtering: skip `paused: true` projects
 
-**Kelly does NOT write to registry** — read-only for Kelly
+**Kelly writes only:**
+- `surfacedForQA` field (QA announcement tracking)
+- All other registry fields managed by Research Lead and Project Lead
 
 ---
 

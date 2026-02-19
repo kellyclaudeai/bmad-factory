@@ -62,7 +62,7 @@ Mechanics:
 - Identify/confirm `projectId`
 - Ensure project directory exists under `/Users/austenallred/clawd/projects/{projectId}`
 - `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message=... )`
-- Kelly tracks operational state only in `state/kelly.json` (heartbeat, surfacing, pending actions)
+- Kelly tracks operational notes in daily memory files (`memory/YYYY-MM-DD.md`)
 
 ## Orchestrator Sessions
 
@@ -175,7 +175,7 @@ wait
 ### Monitoring Orchestrator Sub-Agents
 
 Kelly's role after spawning orchestrator sub-agents:
-1. **Track in state/kelly.json** (session key, waiting-on items, notes)
+1. **Track in daily memory** (`memory/YYYY-MM-DD.md`) — session key, waiting-on items, notes
 2. **Monitor registry + BMAD artifacts** (heartbeat checks for QA surfacing, stall detection)
 3. **Announce completion** when orchestrator finishes
 4. **DO NOT micromanage** — orchestrators handle their own workflows
