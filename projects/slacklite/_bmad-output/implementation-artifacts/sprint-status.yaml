@@ -813,11 +813,42 @@ stories:
   
   "4.7":
     epic: 4
-    title: "Display Messages in Message List"
-    status: in_progress
+    title: "Display Message Timestamps"
+    status: review
     estimated_effort: "2 hours"
-    dependencies: ["4.6"]
+    dependencies: ["4.2"]
     started_at: "2026-02-19T14:41:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:47:00-06:00"
+    notes: |
+      ✅ Message timestamps display implementation complete - all acceptance criteria met
+      ✅ Created components/features/messages/MessageItem.tsx:
+         - Article element with aria-label for accessibility
+         - Line 1: Author name (14px semibold gray-900) + timestamp (13px gray-700, 8px left margin)
+         - Line 2: Message text (16px gray-900, 4px top margin)
+         - Border bottom (1px gray-300), padding (12px vertical, 16px horizontal)
+         - Hover state (gray-200 background)
+         - Word wrap with break-words
+      ✅ Created components/features/messages/MessageList.tsx:
+         - Loading state with spinner and role="status"
+         - Error state with "Failed to load messages"
+         - Empty state: "No messages yet" + "Start the conversation!"
+         - Maps messages array to MessageItem components
+      ✅ Created lib/utils/formatting.ts with formatRelativeTime():
+         - Today: "X min ago" (using date-fns formatDistanceToNow)
+         - Yesterday: "Yesterday at 2:34 PM"
+         - This year: "Jan 15"
+         - Other years: "Jan 15, 2023"
+      ✅ date-fns already installed (no additional dependencies needed)
+      ✅ ESLint validation passed
+      ✅ All acceptance criteria marked complete in story file
+      
+      Files Created:
+      - components/features/messages/MessageItem.tsx (23 lines)
+      - components/features/messages/MessageList.tsx (52 lines)
+      - lib/utils/formatting.ts (21 lines)
+      
+      Commit: b2fd722 (feat(4.7): Display message timestamps)
   
   "4.8":
     epic: 4
@@ -920,8 +951,9 @@ stories:
   "6.2":
     epic: 6
     title: "Display Online/Offline Indicators"
-    status: todo
+    status: in_progress
     estimated_effort: "1 hour"
+    started_at: "2026-02-19T14:45:00-06:00"
     dependencies: ["6.1", "5.1"]
   
   "6.3":
