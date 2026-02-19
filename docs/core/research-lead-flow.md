@@ -1,7 +1,7 @@
 # Research Lead - Product Idea Generation Agent
 
-**Version:** 3.1  
-**Last Updated:** 2026-02-18 19:59 CST  
+**Version:** 3.2  
+**Last Updated:** 2026-02-18 22:50 CST  
 **Status:** In Development
 
 ---
@@ -608,43 +608,71 @@ For each solution, search:
 
 **Minimum threshold: 70/100 to proceed**
 
-#### 3. Select Top Solution (1 min)
+#### 3. Rank All Qualifying Solutions (1-2 min)
 
-- Pick highest scoring solution (must score ≥70/100)
+- Rank all 15 solutions by score descending
+- **Report every solution that scores ≥70/100** — these are the qualified candidates
 - If tied, prefer higher **Novelty** score (novel > incremental)
-- Document reasoning — specifically WHY this approach is different from existing solutions
+- Document reasoning for the #1 pick — specifically WHY this approach is different from existing solutions
 
-**Mary must also write the revenue thesis paragraph as part of her output.**
+**Why all qualifying?** If Quinn kills #1 in Phase 5, we fall through to #2, then #3, etc. — working down the ranked list until one survives or none do. If zero solutions clear 70/100, abort before Phase 5.
+
+**Mary must write a revenue thesis paragraph for every qualifying solution.**
 
 **Mary's Output:**
 
 ```markdown
-# SELECTED SOLUTION
+# QUALIFIED SOLUTIONS (scored ≥70/100)
 
-## Concept: [Name from CIS]
+**[N] of 15 solutions qualified. [15-N] eliminated (below 70/100 threshold).**
+
+---
+
+## Rank #1: [Name from CIS] — [X]/100
+
 [2-3 sentence description from CIS]
 
-## Score: [X]/100 (minimum 70 required)
+### Score Breakdown
 - **Novelty:** X/25 - [What's genuinely new about this approach]
 - **Problem-Solution Fit:** X/25 - [How well it addresses the discovered problem]
 - **Feasibility:** X/25 - [Technical fit assessment, value source check]
 - **Revenue Thesis:** X/25 - [Can we write a compelling revenue story?]
 
-## Revenue Thesis
-[One paragraph following the format: "People currently [pay $X for / spend Y hours on] [inferior solution]. We charge $Z/mo. At realistic users × conversion, Year 1 ARR = $W." Include justification for pricing, conversion assumptions, and why this is defensible.]
+### Revenue Thesis
+[One paragraph: "People currently [pay $X for / spend Y hours on] [inferior solution]. We charge $Z/mo. At realistic users × conversion, Year 1 ARR = $W." Include justification for pricing, conversion assumptions, and why this is defensible.]
 
-## Why This Solution Won
+### Why #1
 [What made this stand out — specifically the novel angle]
 
-## How It's Different From What Exists
+### How It's Different From What Exists
 [If competitors exist: specific comparison showing our novel approach]
 [If no competitors: why this approach is the right first-mover strategy]
 
-## Platform/Stack Alignment
+### Platform/Stack Alignment
 - ✅/❌ [Platform fit]
 - ✅/❌ [Stack fit]
 - ✅/❌ [Business model fit]
 - ✅/❌ [Scope fit]
+
+---
+
+## Rank #2: [Name from CIS] — [X]/100
+
+[2-3 sentence description]
+
+### Score Breakdown
+- **Novelty:** X/25 - [Brief]
+- **Problem-Solution Fit:** X/25 - [Brief]
+- **Feasibility:** X/25 - [Brief]
+- **Revenue Thesis:** X/25 - [Brief]
+
+### Revenue Thesis
+[Same format as #1]
+
+---
+
+## Rank #3: [Name from CIS] — [X]/100
+[... same format, repeat for all qualifying solutions ...]
 ```
 
 ---
@@ -676,8 +704,9 @@ For each solution, search:
 
 **Research Lead spawns Quinn with:**
 - Mary's problem statement (Phase 1)
-- The selected solution (Phase 4)
-- Mary's revenue thesis (Phase 4)
+- The current candidate solution (starting with #1) from Phase 4
+- Mary's revenue thesis for that solution (Phase 4)
+- How many qualified fallbacks remain in the queue
 - All CIS solutions that were NOT selected (for context — what alternatives were considered?)
 
 **Quinn's Research (8-12 min):**
@@ -839,17 +868,45 @@ For each solution, search:
 
 ---
 
-**Research Lead Decision:**
+**Research Lead Decision (Fallback Queue):**
 
-**If Quinn recommends KILL:**
-- Remove registry entry
-- Announce to Kelly: "❌ Idea killed by Quinn: [concept name] — [1-sentence reason]"
-- **Self-close session** (Phase 6 step 6)
-- **Session ends**
+Research Lead works through Mary's ranked list of qualified solutions (all ≥70/100) from top to bottom:
 
-**If Quinn recommends PROCEED:**
-- Continue to Phase 6 (Compilation & Finalization)
-- Quinn's analysis will be included in the final PRD as a "Risk Assessment" section
+```
+QUEUE = [all solutions scoring ≥70/100, ranked by score descending]
+
+while QUEUE is not empty:
+    candidate = QUEUE.pop(0)          # take highest remaining
+    spawn Quinn on candidate
+    
+    if Quinn says PROCEED:
+        → continue to Phase 6 with this candidate
+        → include Quinn's analysis as "Risk Assessment" in PRD
+        → DONE
+    
+    if Quinn says KILL:
+        → log: "Quinn killed [name] ([score]/100) — [reason]"
+        → if QUEUE still has candidates:
+            → announce to Kelly: "⚠️ Quinn killed [name]. Trying next: [next name] ([score]/100). [N] candidates remain."
+            → continue loop
+        → if QUEUE is empty:
+            → abort pipeline
+            → remove registry entry
+            → announce to Kelly: "❌ Quinn killed all [N] qualified solutions. Pipeline aborted."
+            → self-close session (Phase 6 step 6)
+            → SESSION ENDS
+
+if QUEUE was empty from the start (zero solutions scored ≥70/100):
+    → abort before spawning Quinn
+    → announce to Kelly: "❌ No solutions scored ≥70/100. Pipeline aborted at Phase 4."
+    → self-close session
+```
+
+**Key behavior:**
+- Quinn sees each candidate fresh — no bias from killing previous ones
+- Each Quinn spawn gets the candidate's solution, revenue thesis, and problem statement
+- Research Lead logs every kill with reason (included in final artifacts if a later candidate survives)
+- No artificial cap on fallback depth — if 5 solutions qualified, Quinn can review up to 5
 
 ---
 
@@ -1347,7 +1404,8 @@ No active rotation logic—Mary chooses her approach based on the constraints an
 **Early abort scenarios:**
 - Duplicate caught at CHECK 1 (Phase 2): Saves 35-50 min
 - Duplicate caught at CHECK 2 (Phase 4): Saves 15-25 min
-- Mary recommends NO-GO (Phase 5): Saves 5-10 min
+- Zero solutions score ≥70/100 (Phase 4): Saves 10-20 min (skips Quinn entirely)
+- Quinn kills all qualified solutions (Phase 5): Full Quinn time spent but no wasted dev time
 
 ---
 
@@ -1433,6 +1491,7 @@ wait
 ---
 
 **Version History:**
+- **v3.2** (2026-02-18 22:50 CST): Added fallback queue logic. Phase 4 now ranks ALL solutions scoring ≥70/100 (not just top pick). If Quinn kills #1, Research Lead works down the ranked queue until one survives or all are exhausted. No artificial cap — but the 70/100 floor prevents weak ideas from ever entering the queue.
 - **v3.1** (2026-02-18 19:59 CST): Simplified discovery approach system. Removed rigid strategy rotation—Mary now chooses search approaches creatively based on constraints. `discoveryStrategy` field becomes passive tracking of approach used.
 - **v3.0** (2026-02-18 16:25 CST): Problem-first rewrite. Inverted discovery from market-first to problem-first. Rebalanced scoring to penalize crowded markets and reward underserved problems. Added registry awareness to Phase 1. Added solution gap check (Step 2). Updated CIS prompts to demand novelty.
 - **v2.0** (2026-02-18 12:08 CST): Config-driven system, LLM dedup, CIS naming via Carson.
