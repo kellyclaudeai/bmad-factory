@@ -47,6 +47,7 @@ export function Avatar({
       {...props}
     >
       {shouldShowImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={src}
           alt={alt}

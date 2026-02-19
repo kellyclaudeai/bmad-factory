@@ -350,7 +350,7 @@ export default function DesignSystemPage() {
               <h3 className="mb-2 text-lg font-medium text-gray-800">ARIA Labels</h3>
               <ul className="list-inside list-disc space-y-1">
                 <li>Inputs: Proper label associations and error states</li>
-                <li>Modals: role="dialog", aria-modal, aria-labelledby</li>
+                <li>Modals: role=&ldquo;dialog&rdquo;, aria-modal, aria-labelledby</li>
                 <li>Buttons: Descriptive labels for icon-only buttons</li>
               </ul>
             </div>
