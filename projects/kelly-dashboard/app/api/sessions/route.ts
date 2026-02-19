@@ -113,7 +113,9 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
 
   try {
     const port = getGatewayPort();
-    const response = await fetch(`http://127.0.0.1:${port}/tools/invoke`, {
+    
+    // Fetch recently active sessions (15 min window)
+    const activeResponse = await fetch(`http://127.0.0.1:${port}/tools/invoke`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -122,33 +124,78 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
       body: JSON.stringify({
         tool: "sessions_list",
         action: "json",
-        // Return only truly active sessions (last 15 minutes)
         args: { activeMinutes: 15, limit: 200, messageLimit: 0 },
       }),
       cache: "no-store",
     });
 
-    if (!response.ok) {
-      throw new Error(`Gateway API returned ${response.status}`);
+    if (!activeResponse.ok) {
+      throw new Error(`Gateway API returned ${activeResponse.status}`);
     }
 
-    const payload = (await response.json()) as { ok: boolean; result?: any; error?: any };
-    const result = payload?.result;
+    const activePayload = (await activeResponse.json()) as { ok: boolean; result?: any; error?: any };
+    const activeResult = activePayload?.result;
 
-    // tools/invoke returns { ok: true, result } where result shape can vary.
-    // Common shapes:
-    // - result = { sessions: [...] }
-    // - result = { details: { sessions: [...] } }
-    // - result = [ ...sessions ]
-    const rawSessions = Array.isArray(result)
-      ? result
-      : Array.isArray(result?.details?.sessions)
-        ? result.details.sessions
-        : Array.isArray(result?.sessions)
-          ? result.sessions
+    const activeRawSessions = Array.isArray(activeResult)
+      ? activeResult
+      : Array.isArray(activeResult?.details?.sessions)
+        ? activeResult.details.sessions
+        : Array.isArray(activeResult?.sessions)
+          ? activeResult.sessions
           : [];
 
-    const gatewaySessions = rawSessions as GatewaySession[];
+    // Fetch ALL project-lead sessions (no time filter)
+    const plResponse = await fetch(`http://127.0.0.1:${port}/tools/invoke`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tool: "sessions_list",
+        action: "json",
+        args: { activeMinutes: 10080, limit: 200, messageLimit: 0 }, // 7 days to catch all PL sessions
+      }),
+      cache: "no-store",
+    });
+
+    if (!plResponse.ok) {
+      throw new Error(`Gateway API returned ${plResponse.status}`);
+    }
+
+    const plPayload = (await plResponse.json()) as { ok: boolean; result?: any; error?: any };
+    const plResult = plPayload?.result;
+
+    const plRawSessions = Array.isArray(plResult)
+      ? plResult
+      : Array.isArray(plResult?.details?.sessions)
+        ? plResult.details.sessions
+        : Array.isArray(plResult?.sessions)
+          ? plResult.sessions
+          : [];
+
+    // Filter to only project-lead sessions
+    const projectLeadSessions = (plRawSessions as GatewaySession[]).filter((s) => {
+      const key = s.key || s.sessionKey || '';
+      return key.includes('agent:project-lead:project-');
+    });
+
+    // Merge and dedupe (active sessions + all PL sessions)
+    const sessionMap = new Map<string, GatewaySession>();
+    
+    // Add active sessions first
+    for (const s of activeRawSessions as GatewaySession[]) {
+      const key = s.key || s.sessionKey || s.sessionId;
+      sessionMap.set(key, s);
+    }
+    
+    // Add project-lead sessions (will overwrite if already in active)
+    for (const s of projectLeadSessions) {
+      const key = s.key || s.sessionKey || s.sessionId;
+      sessionMap.set(key, s);
+    }
+
+    const gatewaySessions = Array.from(sessionMap.values());
     
     // Transform to frontend format
     const sessions: FrontendSession[] = gatewaySessions
