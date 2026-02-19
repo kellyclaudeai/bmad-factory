@@ -605,10 +605,59 @@ stories:
   "3.10":
     epic: 3
     title: "Implement Workspace Invite System"
-    status: in_progress
+    status: review
     estimated_effort: "3 hours"
     dependencies: ["3.9"]
     started_at: "2026-02-19T14:33:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:50:00-06:00"
+    notes: |
+      ✅ Workspace invite system implementation complete - all acceptance criteria met
+      ✅ Created lib/utils/workspaceInvites.ts with full invite lifecycle:
+         - generateWorkspaceInviteToken() - 32-char hex token generation
+         - createWorkspaceInvite() - Creates /workspaceInvites/{inviteId} with 7-day expiration
+         - resolveWorkspaceInvite() - Validates token and checks expiration
+         - joinWorkspaceFromInvite() - Updates user.workspaceId
+         - buildWorkspaceInvitePath() and buildWorkspaceInviteUrl() - URL helpers
+      ✅ Updated components/features/workspace/InviteTeamModal.tsx:
+         - Real invite generation on modal open (calls createWorkspaceInvite)
+         - Dynamic invite link display with workspace-specific token
+         - Error handling for generation failures
+         - Loading states during invite creation
+      ✅ Created app/invite/[workspaceId]/[token]/page.tsx:
+         - Validates invite token and expiration
+         - Shows workspace name: "You have been invited to join {workspaceName}"
+         - CTAs: "Sign Up" (unauthenticated) or "Join Workspace" (authenticated)
+         - Join action updates user.workspaceId and redirects to /app
+         - Invalid/expired invite error states
+      ✅ Updated auth flows for redirect support:
+         - app/(auth)/signin/page.tsx: Added ?next= redirect parameter handling
+         - app/(auth)/signup/page.tsx: Added ?next= redirect parameter handling
+         - Safe redirect validation (must start with /, no // allowed)
+      ✅ Security updates:
+         - firestore.rules: Added /workspaceInvites/{inviteId} rules (read if not expired, create if workspace member)
+         - firestore.indexes.json: Added composite index (workspaceId + token)
+      ✅ Type system:
+         - lib/types/models.ts: Added WorkspaceInvite interface
+      ✅ Tests:
+         - tests/unit/lib/workspaceInvites.test.ts: Token generation, invite creation, resolution, expiration, join flow
+         - All tests passing (pnpm test)
+      ✅ Updated Sidebar.tsx to pass workspaceName prop to InviteTeamModal
+      ✅ All acceptance criteria marked complete in story file
+      
+      Files Changed:
+      - lib/utils/workspaceInvites.ts (new, 245 lines)
+      - lib/types/models.ts (added WorkspaceInvite interface)
+      - app/invite/[workspaceId]/[token]/page.tsx (new, 242 lines)
+      - app/(auth)/signin/page.tsx (added redirect support)
+      - app/(auth)/signup/page.tsx (added redirect support)
+      - components/features/workspace/InviteTeamModal.tsx (wired real invite generation)
+      - components/layout/Sidebar.tsx (added workspaceName prop)
+      - firestore.rules (added workspaceInvites rules)
+      - firestore.indexes.json (added workspaceId+token composite index)
+      - tests/unit/lib/workspaceInvites.test.ts (new, 232 lines)
+      
+      Commit: 57ac1f1 (feat(3.10): Implement workspace invite system)
   
   # Epic 4: Real-Time Messaging Core
   "4.1":
