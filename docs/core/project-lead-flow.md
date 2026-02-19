@@ -1,11 +1,12 @@
 # Project Lead Flow
 
-**Last Updated:** 2026-02-18  
+**Last Updated:** 2026-02-19  
 **Purpose:** Complete specification of Project Lead orchestration across all modes and phases.  
 **Audience:** Used as reference when building/updating Project Lead AGENTS.md.
 
 **Recent Updates:**
-- v3.1 (2026-02-18): Automated E2E test generation via Murat trace + automate workflows. Replaced manual smoke testing with systematic Playwright test suite generated from requirements matrix. First pass longer but re-runs 3x faster and catch regressions.
+- v3.2 (2026-02-19): Restructured Phase 3 into Pre-Deploy Gates → Deploy → Post-Deploy Verification. Full TEA suite (TD, TF, TA, RV, TR, NR) runs against deployed app. Failures batched → Amelia remediates → redeploy → re-run. Removed correct-course routing for QA failures (direct to Amelia).
+- v3.1 (2026-02-18): Automated E2E test generation via Murat trace + automate workflows.
 
 ---
 
@@ -172,234 +173,209 @@ Story COMPLETE when status = "done"
 - Log failed attempts in daily memory notes with failure reason
 - Increment version suffix on retry (e.g., `story-2.4-v1`, `story-2.4-v2`)
 
-### Phase 3: Quality Gate
+### Phase 3: Pre-Deploy Gates → Deploy → Post-Deploy Verification
 
-**Goal:** Catch functional bugs, security issues, and performance problems before user QA.
+**Goal:** Ship a working, tested deployment. Pre-deploy catches build/lint issues cheaply. Post-deploy runs the full TEA quality suite against the real deployed app.
 
-**Two classification dimensions:**
-- **SEVERITY** (Murat decides): How bad is it? BLOCKER / HIGH / MEDIUM / LOW
-- **SCOPE** (John decides via correct-course): How much work to fix? MINOR / MODERATE / MAJOR
+---
 
-A HIGH severity bug can be MINOR scope (simple code fix). A MEDIUM severity issue can be MAJOR scope (requires architectural redesign).
+#### Step 1: Pre-Deploy Gates
 
-#### Step 1: Quality Assessment (Sequential Gates + Parallel NFR)
-
-**Murat owns the entire quality gate.** Project Lead spawns, Murat executes.
-
-**Sequential test setup (Gates 1-2):**
+**Fast, cheap checks before deploying.** Failures batched → Amelia remediates → re-run gates.
 
 ```
-Gate 1: Requirements Traceability (Murat trace workflow)
-  → Input: PRD (_bmad-output/planning-artifacts/prd.md)
-  → Output: _bmad-output/test-artifacts/requirements-matrix.md
-  → What: Maps every functional requirement to test acceptance criteria
-  → Creates systematic checklist of what MUST be tested
-  → Duration: 15-25 min
-  
-  CLI:
-  /Users/austenallred/clawd/skills/factory/build/coding-cli/bin/code-with-fallback \
-    '@bmad-agent-tea-tea @bmad-tea-testarch-trace' --full-auto
+Gate 1: Build Verification
+  → npm run build (or equivalent)
+  → Must produce clean build with zero errors
 
-Gate 2: Automated Test Generation (Murat automate workflow)
-  → Input: Requirements matrix + implemented code
-  → Output: Comprehensive test suite in project
-    - Unit tests (components, utilities)
-    - Integration tests (API, database)
-    - E2E Playwright tests (user flows per requirement)
-  → What: Generates automated tests for EVERY requirement in matrix
-  → Playwright for E2E (browser automation)
+Gate 2: Lint & Type Checking
+  → npm run lint (ESLint/Biome)
+  → npx tsc --noEmit (TypeScript strict check)
+  → Zero errors required (warnings OK)
+
+Gate 3: Security Scanning (Phase 2 — skip for now)
+  → npm audit --audit-level=high
+  → Dependency vulnerability check
+  → Known CVE scanning
+```
+
+**On failure:**
+```
+1. Batch ALL failures from Gates 1-3 into single remediation ticket
+2. Spawn Amelia: fix-predeploy
+   → Input: Batched failure report (build errors, lint errors, type errors)
+   → Task: Fix all pre-deploy gate failures, commit, push to dev
+3. Re-run Pre-Deploy Gates
+4. Repeat until all gates pass (max 3 cycles, escalate to Kelly if stuck)
+```
+
+**Timeline:** 2-5 min per run. Remediation: 5-15 min per cycle.
+
+---
+
+#### Step 2: Deployment
+
+**Deploy after pre-deploy gates pass.**
+
+```
+1. Deploy to production/preview environment:
+   - Vercel: Push to dev triggers deploy, or `vercel --prod`
+   - Firebase Hosting: `firebase deploy --only hosting`
+   - Other: Project-specific deploy command
+
+2. Verify deployment accessible:
+   - Confirm live URL returns 200
+   - Set `implementation.qaUrl` in project-registry.json
+   - Set `implementation.deployedUrl` if production
+
+3. If deploy fails:
+   - Batch deployment errors → Amelia fix → redeploy
+```
+
+---
+
+#### Step 3: Post-Deploy Verification (Full TEA Suite)
+
+**Run the complete TEA quality suite against the DEPLOYED app.** Failures batched → Amelia remediates → redeploy → re-run.
+
+**Sequential test design + framework (one-time setup):**
+
+```
+TEA TD — Test Design (Murat test-design workflow)
+  → Input: PRD, architecture.md, story acceptance criteria
+  → Output: _bmad-output/test-artifacts/test-strategy.md
+  → What: Design test strategy/plan from requirements and codebase
+  → Duration: 10-20 min
+
+TEA TF — Test Framework (Murat framework workflow)
+  → Input: Test strategy, project tech stack
+  → Output: Playwright config, test helpers, fixtures scaffolded
+  → What: Scaffold E2E test framework (Playwright for web apps)
+  → Duration: 10-15 min
+```
+
+**Test generation + traceability (one-time, reusable):**
+
+```
+TEA TA — Test Automation (Murat automate workflow)
+  → Input: Codebase + planning artifacts + test strategy
+  → Output: Comprehensive E2E tests in project
+    - User flow tests (auth, CRUD, navigation)
+    - Integration tests (API calls, state management)
+    - Accessibility checks included in E2E tests
   → Duration: 15-30 min
+
+TEA RV — Test Review (Murat test-review workflow)
+  → Input: Generated test files + acceptance criteria
+  → Output: Quality report, gap analysis
+  → What: Review generated test quality, identify missing coverage
+  → Duration: 10-15 min
   
-  CLI:
-  /Users/austenallred/clawd/skills/factory/build/coding-cli/bin/code-with-fallback \
-    '@bmad-agent-tea-tea @bmad-tea-testarch-automate' --full-auto
+TEA TR — Traceability (Murat trace workflow)
+  → Input: PRD, tests, acceptance criteria
+  → Output: _bmad-output/test-artifacts/requirements-matrix.md
+  → What: Map every requirement to test(s), identify coverage gaps
+  → Duration: 15-25 min
 ```
 
-**After Gates 1-2 complete, run test execution + NFR in parallel:**
+**After tests generated, run execution + NFR in parallel:**
 
 ```
 Parallel spawn:
-  A. Test Execution (single subagent — sequential gates):
-     Gate 3: Build check (npm run build)
-       → If FAIL: Report build errors, skip remaining gates
-     
-     Gate 4: Run test suite (npm test)
-       → Runs unit + integration + E2E Playwright tests
-       → Reports pass/fail per requirement
-       → Screenshot evidence for E2E failures
-       → Duration: 5-15 min (depends on test count)
-       → Output: _bmad-output/test-artifacts/test-execution-report.md
-     
-  B. NFR Assessment (Murat nfr workflow — separate subagent):
-     → Security: Auth vulnerabilities, XSS/CSRF, API exposure, HIPAA/GDPR basics
+  A. E2E Test Execution (against deployed app):
+     → Run Playwright tests against live URL (implementation.qaUrl)
+     → Reports pass/fail per test
+     → Screenshot evidence for failures
+     → Includes accessibility checks (axe-core via Playwright)
+     → Duration: 5-15 min
+     → Output: _bmad-output/test-artifacts/test-execution-report.md
+
+  B. TEA NR — NFR Assessment (Murat nfr workflow):
+     → Security: Auth vulnerabilities, XSS/CSRF, API exposure
      → Performance: Load time, bundle size, database queries
-     → Compliance: HIPAA/GDPR basics (if applicable)
+     → Accessibility: WCAG compliance (supplementary to E2E checks)
      → Duration: 25-35 min
      → Output: _bmad-output/test-artifacts/nfr-assessment-report.md
-     
-     CLI:
-     /Users/austenallred/clawd/skills/factory/build/coding-cli/bin/code-with-fallback \
-       '@bmad-agent-tea-tea @bmad-tea-testarch-nfr' --full-auto
 
-Wait for BOTH A and B to complete before proceeding to Step 2.
+  C. Lighthouse / Performance Assessment (Phase 2 — skip for now):
+     → Run against deployed URL
+     → Performance, SEO, Best Practices scores
+     → Duration: 5 min
+
+Wait for ALL to complete before proceeding.
+```
+
+**Regression tests (brownfield only):**
+```
+If brownfield project (existing codebase):
+  → Run existing test suite to verify no regressions
+  → Any new failures are treated as blockers
+```
+
+---
+
+#### Step 4: Remediation (Batched)
+
+**ALL failures from Post-Deploy Verification batched → Amelia → redeploy → re-run.**
+
+```
+1. Collect ALL failures:
+   - E2E test failures (test-execution-report.md)
+   - NFR issues (nfr-assessment-report.md)
+   - Traceability gaps (requirements not covered by tests)
+
+2. Spawn Amelia: fix-postdeploy
+   → Input: Batched failure report from all TEA outputs
+   → Task: Fix all failures. For each:
+     - Test failures → Fix implementation code (not the tests)
+     - NFR issues → Fix security/performance/accessibility issues
+     - Traceability gaps → Implement missing functionality
+   → Commit + push to dev
+
+3. Redeploy (Step 2)
+
+4. Re-run Post-Deploy Verification (Step 3)
+   → Only re-run execution (tests already generated)
+   → Re-run NFR assessment
+   → Duration: 10-20 min (much faster — no test generation)
+
+5. Repeat until clean (max 3 cycles, escalate to Kelly if stuck)
 ```
 
 **Timeline:**
-- Gate 1 (trace): 15-25 min
-- Gate 2 (automate): 15-30 min
-- Gate 3 (build): 2-5 min
-- Gate 4 (test execution): 5-15 min  } parallel with NFR
-- NFR assessment: 25-35 min          }
-- **Total: 62-110 min (most time in test generation — one-time cost)**
+- Pre-Deploy Gates: 2-5 min
+- Deployment: 2-5 min
+- Post-Deploy First Pass:
+  - TEA TD (design): 10-20 min
+  - TEA TF (framework): 10-15 min
+  - TEA TA (automate): 15-30 min
+  - TEA RV (review): 10-15 min
+  - TEA TR (traceability): 15-25 min
+  - E2E execution + NFR (parallel): 25-35 min
+- **Total first pass: ~85-150 min**
+- **Re-runs (execution only): 10-20 min** (tests already generated)
+- Remediation per cycle: 15-30 min
 
-**Key improvements over manual testing:**
-
-1. **Systematic coverage** - Requirements matrix ensures every PRD requirement gets tested
-2. **Repeatable** - Same tests every time, no human variation
-3. **Regression protection** - Tests prevent bugs from coming back after fixes
-4. **Fast re-runs** - 5-15 min vs 20-30 min manual testing every iteration
-5. **Precise assertions** - "Button should be disabled when X is empty" vs "seemed to work"
-6. **CI/CD ready** - Can run on every commit automatically
-7. **Coverage proof** - Test suite documents exactly what's tested vs manual black box
-
-**Why this catches bugs manual testing missed:**
-- Manual: Murat clicks around hoping to find issues → happy paths only
-- Automated: Every requirement from PRD → explicit test → fails if behavior wrong
-- NoteLite example: Manual testing said "works" but missed empty input validation, error states, edge cases
-
-#### Step 2: Remediation (via correct-course)
-
-**Consolidated remediation path: ALL bugs route through John's correct-course workflow.**
-
-```
-1. Wait for BOTH reports to complete:
-   - Test Execution Report: _bmad-output/test-artifacts/test-execution-report.md
-   - NFR Assessment Report: _bmad-output/test-artifacts/nfr-assessment-report.md
-
-2. Spawn John: correct-course workflow
-   → Input: Both Murat reports
-   → Task: "Analyze Quality Gate failures. Read _bmad-output/test-artifacts/test-execution-report.md 
-           and _bmad-output/test-artifacts/nfr-assessment-report.md. Create Sprint Change Proposal 
-           with recommended approach for each issue."
-   
-   John categorizes issues:
-   
-   SIMPLE CODE BUGS → Recommendation: "Add fix stories" (Minor scope)
-   - Story 2.3: Auth validation allows empty passwords
-   - Story 4.1: Checkout crash on empty cart
-   
-   ARCHITECTURAL ISSUES → Recommendation: "Redesign + PRD update" (Major scope)
-   - Performance: Requires caching layer (Redis integration)
-   - Security: Session management insecure (JWT redesign needed)
-   
-   SCOPE ISSUES → Recommendation: "Descope feature or extend timeline" (Major scope)
-   - Feature X too complex for current sprint
-
-3. John outputs: Sprint Change Proposal document
-   → Sections:
-     - Issue Summary (what's broken)
-     - Impact Analysis (what needs to change: stories, PRD, architecture)
-     - Recommended Approach (Minor/Moderate/Major)
-     - Detailed Change Proposals (story edits, PRD edits, arch changes)
-     - Implementation Handoff (who does what)
-
-4. Project Lead implements based on scope classification:
-
-   MINOR (simple fix stories):
-   a. Bob creates fix story files from Sprint Change Proposal
-      → Stories like: 2.3-fix-1.md, 4.1-fix-1.md
-   b. Bob creates fix-dependency-graph.json
-      → Analyzes dependencies between fix stories
-   c. Dependency-driven fix implementation:
-      → Same spawning logic as Phase 2
-      → Each fix spawns when its dependsOn array satisfied
-      → Unlimited parallelism (independent fixes run simultaneously)
-      → Per-fix: Amelia dev-story → Amelia code-review → done
-   
-   MODERATE (backlog reorganization):
-   a. John updates epics.md with new stories or scope changes
-   b. Bob updates sprint-planning and dependency-graph
-   c. Dependency-driven implementation
-   
-   MAJOR (fundamental replanning):
-   a. Winston redesigns architecture (if arch issue)
-   b. John updates PRD (if scope issue)
-   c. Sally updates UX (if design issue)
-   d. Bob updates epics + stories
-   e. Dependency-driven implementation
-
-5. Re-run Quality Gate (Step 1):
-   → If new bugs found: Spawn John correct-course again, repeat Step 2-4
-   → If clean: Proceed to Phase 4
-```
-
-**Timeline estimate:**
-- Gate 1 (trace): 15-25 min
-- Gate 2 (automate test generation): 15-30 min
-- Gates 3-4 (build + test execution) + NFR (parallel): 25-35 min
-- John correct-course: 10-15 min (analysis + Sprint Change Proposal)
-- Minor fixes: 10-30 min (dependency-driven)
-- Major replanning: 30-60 min (depends on scope)
-- Quality Gate re-run: 7-20 min (Gates 3-4 only — tests already exist)
-- **Total first pass: 62-110 min | With Minor fixes: 82-155 min | With Major replanning: 112-215 min**
-
-**Note:** First pass is longer (test generation), but re-runs are MUCH faster (7-20 min vs 30-42 min). Automated tests catch regressions that manual testing missed. Investment pays off in reliability.
-
-**Remediation uses identical dependency-driven spawning as Phase 2 implementation.** No artificial batching. Each fix story spawns as soon as its specific dependencies complete.
+**Key principle:** First pass is expensive (test generation). Re-runs are cheap (just execution). Invest upfront, iterate fast.
 
 ### Phase 4: User QA
 
-**When TEA passes**, Project Lead prepares app for human testing. This phase has 4 stages:
+**When Post-Deploy Verification passes**, the app is already deployed (from Phase 3 Step 2). Notify the user for human testing.
 
-#### Stage 4.5: QA Preparation (Project Lead)
+#### Stage 4.1: Notify Kelly
 
-**1. Host or Deploy**
-
-Choose based on project type:
-- **Local (default):** `npm run dev` (or equivalent)
-  - Bind to `0.0.0.0` if Tailscale access needed
-  - Note exact URL (usually `http://localhost:3000`)
-- **Vercel (web apps):** Deploy preview or production
-  - Get live URL (e.g., `https://app-name.vercel.app`)
-
-**2. Update project-registry.json**
-Update your project entry in the registry:
-```bash
-# Set qaUrl and update timestamp
-jq '.projects |= map(
-  if .id == "your-project-id" then
-    .implementation.qaUrl = "http://localhost:3000" |
-    .timeline.lastUpdated = (now|todate)
-  else . end
-)' projects/project-registry.json > tmp && mv tmp projects/project-registry.json
-```
-
-**Required fields:**
-- `implementation.qaUrl` - Testable URL (localhost or deployed)
-- `timeline.lastUpdated` - ISO timestamp (updated automatically)
-
-**3. Notify Kelly (Push)**
 ```javascript
 sessions_send(
   sessionKey="agent:main",
-  message="🧪 Project {projectName} ready for user QA: {qaUrl}\n\n{brief instructions}"
+  message="🧪 Project {projectName} ready for user QA: {qaUrl}\n\nAll TEA tests passing. Deployed at: {deployedUrl}"
 )
 ```
 
-This is **push notification** (immediate). Kelly's heartbeat is **pull detection** (safety net).
+Update project-registry.json:
+- Set `surfacedForQA: false` (Kelly will set to true after announcing)
+- Ensure `implementation.qaUrl` is set (should be from Phase 3 deployment)
 
-**4. Self-Healing Check**
-
-Project Lead's own heartbeat (every 10 min — safety net, not primary loop):
-- **Stuck subagents:** Any running >20 min? Respawn.
-- **Orphaned stories:** "in-progress" but no active subagent? Respawn.
-- **Missed cascades:** "dev-complete" but no review spawned? Spawn now.
-- **Idle gap:** Zero subagents but work available? Spawn everything ready.
-- **If stage="userQA" but no qaUrl:** Complete Stage 4.5 NOW — host app, update state, notify Kelly.
-
-**Primary loop is event-driven:** When a subagent announces completion, PL immediately checks the dependency graph and spawns ALL newly-unblocked work in parallel. The heartbeat catches anything the announce loop missed.
-
-#### Stage 4.6: Surfacing (Kelly Heartbeat)
+#### Stage 4.2: Surfacing (Kelly Heartbeat)
 
 **Every 30-60 minutes**, Kelly scans for projects ready for QA:
 
@@ -408,12 +384,7 @@ Project Lead's own heartbeat (every 10 min — safety net, not primary loop):
 3. Alert operator: `🧪 **{name}** ready for user QA: {implementation.qaUrl}`
 4. Update registry: set `surfacedForQA: true` for that project
 
-**What NOT to surface:**
-- Projects with `paused: true` (explicitly paused)
-- Projects with `surfacedForQA: true` (already announced)
-- Projects without `implementation.qaUrl` (not ready yet)
-
-#### Stage 4.7: Operator Testing
+#### Stage 4.3: Operator Testing
 
 **SCENARIO A: User Accepts → SHIP**
 ```bash
@@ -426,46 +397,20 @@ git checkout main && git merge dev && git push origin main
 ```
 Operator: "pause {project}"
 # Kelly updates project-registry.json → paused: true with pausedReason
-# Kelly stops surfacing in heartbeats until resumed
 ```
 
-**SCENARIO C: User Rejects → FIX (via correct-course)**
+**SCENARIO C: User Rejects → FIX**
 ```
 1. Project Lead receives operator feedback
    → Example: "Checkout flow confusing, auth doesn't work on mobile"
 
-2. Spawn John: correct-course workflow
-   → Input: Operator feedback
-   → Task: "Analyze User QA feedback. Create Sprint Change Proposal with 
-           recommended approach for each issue."
-   
-   John categorizes:
-   - Simple bugs → "Add fix stories" (Minor)
-   - UX issues → "Update UX design, modify stories" (Moderate)
-   - Feature requests → "Add to backlog" or "Descope" (Major)
+2. Spawn Amelia: fix-qa-feedback
+   → Input: Operator feedback (specific issues)
+   → Task: Fix all reported issues, commit, push to dev
 
-3. John outputs: Sprint Change Proposal
-   → Recommendations: Minor/Moderate/Major scope classification
-   → Detailed change proposals: Story edits, PRD updates, etc.
-
-4. Project Lead implements based on scope (same as Phase 3 remediation):
-   - MINOR: Bob creates fix stories → dependency-driven Amelia implementation
-   - MODERATE: John updates epics → Bob updates sprint plan → implement
-   - MAJOR: Winston/Sally/John replanning → Bob updates → implement
-
-5. After fixes complete:
-   → Phase 3 (Quality Gate) → Phase 4 (User QA retry)
+3. After fixes: Re-run Phase 3 (Pre-Deploy → Deploy → Post-Deploy Verification)
+4. If clean: Back to Phase 4 (User QA retry)
 ```
-
-**User QA uses the same correct-course remediation path as Quality Gate bugs.** Consolidated feedback handling.
-
-#### State Files
-
-**project-registry.json (your project entry):**
-- `state`: "in-progress"
-- `implementation.qaUrl`: testable URL
-- `surfacedForQA`: boolean flag (Kelly sets to true after announcing)
-- `timeline.lastUpdated`: ISO timestamp (updated when qaUrl set)
 
 ---
 
@@ -553,16 +498,20 @@ FOR EACH story in tech-spec.md:
 
 ### Phase 3: Fast Quality Gate (Barry Projects)
 
-**Build check only.** User QA is the primary quality gate for Barry projects.
+**Pre-Deploy Gates only.** User QA is the primary quality gate for Barry projects.
 
 ```
-1. Spawn Murat (fast mode): Build check only
-   → npm run build
-   → If PASS: Phase 4 (User QA)
-   → If FAIL: Route through John correct-course
-```
+1. Pre-Deploy Gates (same as Normal Mode Step 1):
+   → Build verification (npm run build)
+   → Lint/type checking
+   → If FAIL: Barry remediates → re-run
 
-**No test suite, no E2E, no NFR.** Fast Mode prioritizes speed — User QA catches functional bugs.
+2. Deploy (same as Normal Mode Step 2)
+
+3. NO Post-Deploy Verification for Fast Mode
+   → No TEA suite, no E2E, no NFR
+   → Fast Mode prioritizes speed — User QA catches functional bugs
+```
 
 ### Phase 4: User QA
 
