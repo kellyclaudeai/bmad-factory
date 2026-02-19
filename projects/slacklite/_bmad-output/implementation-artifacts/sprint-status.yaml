@@ -1067,11 +1067,57 @@ stories:
   
   "6.4":
     epic: 6
-    title: "Implement Unread Message Counts"
-    status: in_progress
+    title: "Add Unread Message Counters"
+    status: review
     estimated_effort: "3 hours"
-    dependencies: ["4.5"]
+    dependencies: ["4.5", "3.2"]
     started_at: "2026-02-19T14:47:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:49:30-06:00"
+    notes: |
+      ✅ Unread message counters implementation complete - all acceptance criteria met
+      ✅ Created /unreadCounts/{userId}_{targetId} Firestore collection with proper schema
+      ✅ Client-side increment strategy implemented:
+         - Subscribe to RTDB for ALL channels
+         - Increment count when new message arrives in non-active channel
+         - Skip incrementing for user's own messages or active channel
+      ✅ Clear strategy implemented:
+         - Reset count to 0 when user switches to a channel
+      ✅ Firestore security rules added:
+         - Users can only access their own unread counts
+         - Validate data shape with hasValidUnreadCountShape helper
+      ✅ Display implementation:
+         - Badge component right-aligned in channel list
+         - Primary brand background, white text
+         - Hidden when count = 0
+      ✅ Real-time updates:
+         - Subscribe to /unreadCounts/{userId}_* for current user
+         - Firestore onSnapshot provides live updates
+      ✅ Created lib/hooks/useUnreadCounts.ts (308 lines):
+         - Manages unread count state for all channels
+         - RTDB listeners for real-time message detection
+         - Firestore increment/clear operations
+         - Cleanup on unmount
+      ✅ Updated components/features/channels/ChannelList.tsx:
+         - Integrated useUnreadCounts hook
+         - Display Badge component with count
+         - Extract activeChannelId from pathname
+      ✅ Updated lib/types/models.ts:
+         - Added UnreadTargetType type
+         - Added UnreadCount interface
+      ✅ Updated firestore.rules:
+         - Added isValidUnreadTargetType helper
+         - Added hasValidUnreadCountShape helper
+         - Added /unreadCounts/{countId} rules
+      ✅ Tests added:
+         - tests/unit/lib/useUnreadCounts.test.tsx (4 tests)
+         - tests/unit/components/channels/ChannelList.test.tsx (2 tests)
+         - tests/unit/firestoreRulesUnreadCounts.test.ts (1 test)
+      ✅ All acceptance criteria marked complete in story file
+      ✅ Build validation passed
+      ✅ ESLint validation passed
+      
+      Commit: f11856f (feat(6.4): Add unread message counters)
   
   "6.4.1":
     epic: 6
