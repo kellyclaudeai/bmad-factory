@@ -6,19 +6,19 @@
 Generate unique invite links per workspace, handle invite acceptance flow (sign up/in → join workspace), and store invite tokens in Firestore for validation. Email sending deferred to Phase 2.
 
 **Acceptance Criteria:**
-- [ ] Generate invite link: `/invite/{workspaceId}/{token}` (token = unique random string)
-- [ ] Store invites in Firestore `/workspaceInvites/{inviteId}`:
-  - [ ] inviteId: auto-generated
-  - [ ] workspaceId: target workspace
-  - [ ] token: unique random string
-  - [ ] createdBy: current user UID
-  - [ ] expiresAt: 7 days from now (or unlimited for MVP simplicity)
-- [ ] Invite link page: `/invite/[workspaceId]/[token]/page.tsx`
-  - [ ] Show workspace name: "You've been invited to join {workspaceName}"
-  - [ ] CTAs: "Sign Up" (if not authenticated) or "Join Workspace" (if authenticated)
-- [ ] Join flow: Update user document `workspaceId` = invited workspace ID
-- [ ] Redirect to `/app` after joining
-- [ ] Email invites: Optional (use Firebase Extensions or Cloud Functions post-MVP)
+- [x] Generate invite link: `/invite/{workspaceId}/{token}` (token = unique random string)
+- [x] Store invites in Firestore `/workspaceInvites/{inviteId}`:
+  - [x] inviteId: auto-generated
+  - [x] workspaceId: target workspace
+  - [x] token: unique random string
+  - [x] createdBy: current user UID
+  - [x] expiresAt: 7 days from now (or unlimited for MVP simplicity)
+- [x] Invite link page: `/invite/[workspaceId]/[token]/page.tsx`
+  - [x] Show workspace name: "You've been invited to join {workspaceName}"
+  - [x] CTAs: "Sign Up" (if not authenticated) or "Join Workspace" (if authenticated)
+- [x] Join flow: Update user document `workspaceId` = invited workspace ID
+- [x] Redirect to `/app` after joining
+- [x] Email invites: Optional (deferred to Phase 2 by story scope)
 
 **Dependencies:**
 dependsOn: ["3.9", "1.4"]

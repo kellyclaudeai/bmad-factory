@@ -71,6 +71,20 @@
       ]
     },
     {
+      "collectionGroup": "workspaceInvites",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "workspaceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "token",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "directMessages",
       "queryScope": "COLLECTION",
       "fields": [

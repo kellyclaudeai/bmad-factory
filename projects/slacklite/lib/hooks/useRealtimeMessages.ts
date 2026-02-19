@@ -128,17 +128,17 @@ export function useRealtimeMessages(
       pendingServerIdsByTempIdRef.current.set(optimisticMessage.messageId, serverMessageId);
       tempIdsByServerIdRef.current.set(serverMessageId, optimisticMessage.messageId);
 
-      const sentAtMs = Date.now();
-      const payload = createRTDBMessage(
-        {
-          userId: optimisticMessage.userId,
-          userName: optimisticMessage.userName,
-          text: optimisticMessage.text,
-        },
-        { timestamp: sentAtMs },
-      );
-
       try {
+        const sentAtMs = Date.now();
+        const payload = createRTDBMessage(
+          {
+            userId: optimisticMessage.userId,
+            userName: optimisticMessage.userName,
+            text: optimisticMessage.text,
+          },
+          { timestamp: sentAtMs },
+        );
+
         await set(nextMessageRef, payload);
 
         pendingServerIdsByTempIdRef.current.delete(optimisticMessage.messageId);

@@ -1121,9 +1121,10 @@ stories:
   "11.4":
     epic: 11
     title: "Configure Vercel Analytics & Monitoring"
-    status: todo
+    status: in_progress
     estimated_effort: "1 hour"
     dependencies: ["11.2"]
+    started_at: "2026-02-19T14:40:00-06:00"
   
   "11.5":
     epic: 11

@@ -38,6 +38,19 @@ service cloud.firestore {
              exists(/databases/$(database)/documents/workspaces/$(workspaceId)/directMessages/$(dmId)) &&
              request.auth.uid in get(/databases/$(database)/documents/workspaces/$(workspaceId)/directMessages/$(dmId)).data.userIds;
     }
+
+    function isValidWorkspaceInvitePayload(inviteId) {
+      return request.resource.data.inviteId is string &&
+             request.resource.data.inviteId == inviteId &&
+             request.resource.data.workspaceId is string &&
+             request.resource.data.workspaceId.size() > 0 &&
+             request.resource.data.token is string &&
+             request.resource.data.token.size() > 0 &&
+             request.resource.data.createdBy is string &&
+             request.resource.data.createdBy == request.auth.uid &&
+             request.resource.data.expiresAt is timestamp &&
+             request.resource.data.expiresAt > request.time;
+    }
     
     // Workspaces: Users can read/update their own workspace
     match /workspaces/{workspaceId} {
@@ -88,6 +101,19 @@ service cloud.firestore {
       allow create: if isAuthenticated() && userId == request.auth.uid;
       allow update: if userId == request.auth.uid;
       allow delete: if userId == request.auth.uid;
+    }
+
+    // Workspace invites: Allows invite generation + public validation for invite links.
+    match /workspaceInvites/{inviteId} {
+      allow read: if resource.data.expiresAt is timestamp &&
+                    resource.data.expiresAt > request.time;
+      allow create: if requesterUserDocExists() &&
+                      request.resource.data.workspaceId == requesterWorkspaceId() &&
+                      isValidWorkspaceInvitePayload(inviteId);
+      allow update, delete: if isAuthenticated() &&
+                              resource.data.workspaceId is string &&
+                              (resource.data.createdBy == request.auth.uid ||
+                                isWorkspaceOwner(resource.data.workspaceId));
     }
     
     // Unread counts: Users can only access their own

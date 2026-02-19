@@ -157,6 +157,29 @@ export default function WorkspaceInvitePage() {
     );
   }
 
+  if (validationState === "error") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-8">
+        <section className="w-full max-w-[480px] rounded-lg border border-gray-300 bg-white p-8 shadow-sm">
+          <h1 className="text-xl font-semibold text-gray-900">
+            Unable to validate invite
+          </h1>
+          <p
+            role="alert"
+            className="mt-3 rounded border border-error/30 bg-error/10 px-3 py-2 text-sm text-error"
+          >
+            {errorMessage}
+          </p>
+          <div className="mt-6">
+            <Button type="button" onClick={() => router.push("/")}>
+              Back to Home
+            </Button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   if (validationState === "invalid" || !invite) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-8">
@@ -184,7 +207,7 @@ export default function WorkspaceInvitePage() {
           You have been invited to join {invite.workspaceName ?? invite.workspaceId}
         </h1>
 
-        {validationState === "error" || errorMessage ? (
+        {errorMessage ? (
           <p
             role="alert"
             className="mt-4 rounded border border-error/30 bg-error/10 px-3 py-2 text-sm text-error"
