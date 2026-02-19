@@ -1,8 +1,50 @@
 # HEARTBEAT.md
 
-## Project Health Check (Every 30-60 minutes)
+## 1. Project Lead Session Heartbeat (Every 60 seconds)
 
-### 1. Check for Projects Ready for User QA
+**Task:** Distribute heartbeat messages to all active Project Lead sessions so they can poll their projects autonomously.
+
+**Process:**
+1. Read `~/.openclaw/agents/project-lead/sessions/sessions.json`
+2. Filter for sessions matching `agent:project-lead:project-*`
+3. Filter for recently active (updated in last 60 minutes)
+4. For each active PL session, send heartbeat via `sessions_send`
+
+**Implementation:**
+```javascript
+const fs = require('fs');
+const sessionsPath = '/Users/austenallred/.openclaw/agents/project-lead/sessions/sessions.json';
+
+try {
+    const store = JSON.parse(fs.readFileSync(sessionsPath, 'utf8'));
+    const now = Date.now();
+    const activeThreshold = 60 * 60 * 1000; // 60 minutes
+    
+    for (const [sessionKey, entry] of Object.entries(store)) {
+        // Filter: only project-lead project sessions
+        if (!sessionKey.startsWith('agent:project-lead:project-')) continue;
+        
+        // Filter: only recently active sessions
+        if (!entry?.updatedAt || (now - entry.updatedAt) > activeThreshold) continue;
+        
+        // Send heartbeat message
+        await sessions_send({
+            sessionKey: sessionKey,
+            message: "HEARTBEAT_POLL"
+        });
+    }
+} catch (err) {
+    // Sessions file doesn't exist or empty - skip silently
+}
+```
+
+**Why:** Gateway heartbeats only fire for `:main` sessions, not custom session keys like `project-slacklite`. This workaround makes Kelly distribute heartbeats to all active PL sessions every 60s, enabling their autonomous polling loops.
+
+---
+
+## 2. Project Health Check (Every 30-60 minutes)
+
+### 2.1. Check for Projects Ready for User QA
 
 **Task:** Surface projects that Project Lead has moved to QA.
 
@@ -22,7 +64,7 @@
 - Projects with `surfacedForQA: true` (already announced)
 - Projects without `implementation.qaUrl` (not ready yet)
 
-### 2. Active Project Stall Check with Auto-Recovery
+### 2.2. Active Project Stall Check with Auto-Recovery
 
 **Task:** Check if any active projects have stalled without Project Lead escalation. Auto-recover frozen sessions.
 
@@ -76,7 +118,7 @@ When operator says "pause {project}" or "pause QA for {project}":
 
 ---
 
-### 3. Dashboard Health Check
+### 2.3. Dashboard Health Check
 
 **Task:** Ensure kelly-dashboard is running on port 3000.
 
