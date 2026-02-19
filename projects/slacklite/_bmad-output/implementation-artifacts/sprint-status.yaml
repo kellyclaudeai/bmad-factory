@@ -60,7 +60,21 @@ stories:
     dependencies: ["1.1"]
     completed_by: "Amelia"
     completed_at: "2026-02-19T09:00:00-06:00"
-    notes: "Deployed to Vercel successfully. Production URL: https://slacklite-2rozi3fqx-kelly-1224s-projects.vercel.app. Custom domain slacklite.app aliased (SSL provisioning). App returns 401 - Firebase env vars need to be configured in Vercel settings once Firebase setup (Story 1.2) is complete."
+    notes: |
+      ✅ Firebase RTDB Created: https://slacklite-prod.firebaseio.com
+      ✅ Billing enabled (Blaze plan) - Lambda School Google Cloud Billing Account
+      ✅ Environment variables updated with RTDB URL
+      ✅ Firebase rules deployed successfully
+      ✅ Vercel redeployed successfully
+      
+      QA URL: https://slacklite.app (also: https://slacklite-r3vwdr5la-kelly-1224s-projects.vercel.app)
+      
+      ⚠️ BLOCKER: Vercel Deployment Protection (401 Unauthorized)
+      The deployment is working, but protected by Vercel SSO. To access:
+      - Option 1: Disable protection in Vercel Dashboard → slacklite → Settings → Deployment Protection
+      - Option 2: Log in to Vercel and access the URL directly
+      
+      All technical setup complete. Only manual dashboard step remaining.
   
   "1.6":
     epic: 1
