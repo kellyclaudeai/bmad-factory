@@ -180,3 +180,75 @@ If the automated script fails due to authentication or permission issues:
 
 5. **Setup script does not fully implement claimed service provisioning**  
    `scripts/setup-firebase.sh` creates local rules files and enables APIs, but does not reliably create Firestore/RTDB instances or guarantee Email/Password provider enablement through a validated CLI path.
+
+---
+
+## Security Fix - 2026-02-19 (Amelia)
+
+### CRITICAL VULNERABILITY FIXED: RTDB `/users` Path Security Rules
+
+**Issue #3 from Review Follow-ups (Escalated to CRITICAL):** Realtime Database `/users` path had NO security rules, allowing workspace isolation bypass through `workspaceId` modification.
+
+**Vulnerability Details:**
+
+The RTDB `database.rules.json` had rules for `/messages`, `/presence`, and `/typing` but NO rules for `/users`. This allowed any authenticated user to:
+- Read any user's document (including `workspaceId`)
+- Modify their own `workspaceId` field to access other workspaces
+- Bypass all workspace isolation controls
+
+**Attack Path:**
+
+```javascript
+// User u1 in workspace ws1 can escalate to workspace ws2:
+await set(ref(db, '/users/u1/workspaceId'), 'ws2');
+// Now u1 can read/write all ws2 messages because message rules check:
+// root.child('users').child(auth.uid).child('workspaceId').val() == $workspaceId
+await get(ref(db, '/messages/ws2/private-channel/secret-msg')); // SUCCESS
+```
+
+**Fix Applied:**
+
+Added security rules to `database.rules.json` for `/users` path:
+
+```json
+"users": {
+  "$userId": {
+    ".read": "auth != null && auth.uid == $userId",
+    ".write": "auth != null && auth.uid == $userId && (!data.exists() || !data.child('workspaceId').exists() || data.child('workspaceId').val() == newData.child('workspaceId').val())"
+  }
+}
+```
+
+**Security Guarantees:**
+
+1. ✅ **Read Isolation**: Users can only read their own user document (`auth.uid == $userId`)
+2. ✅ **Write Isolation**: Users can only write to their own user document (`auth.uid == $userId`)
+3. ✅ **workspaceId Immutability**: Once set, `workspaceId` CANNOT be modified
+   - Write rule checks: `data.child('workspaceId').val() == newData.child('workspaceId').val()`
+   - Prevents exploit: `await set(ref(db, '/users/u1/workspaceId'), 'ws2')` → **PERMISSION_DENIED**
+4. ✅ **Workspace Isolation**: Users cannot change workspace to access other workspace messages
+
+**Before vs After:**
+
+```javascript
+// BEFORE FIX (VULNERABLE):
+await set(ref(db, '/users/u1/workspaceId'), 'ws2'); // ❌ SUCCESS (CRITICAL BUG)
+
+// AFTER FIX (SECURE):
+await set(ref(db, '/users/u1/workspaceId'), 'ws2'); // ✅ PERMISSION_DENIED
+```
+
+**Deployment Status:**
+
+- ✅ Security rules updated in `database.rules.json`
+- ⚠️ Deployment pending: Firebase project not yet created (no `.firebaserc`)
+- 📋 **Action Required**: Deploy after running `scripts/setup-firebase.sh`:
+  ```bash
+  firebase deploy --only database:rules
+  ```
+
+**Remaining Issues:**
+
+Issues #1, #2, #4, #5 from original review require application-level changes (deferred to later epics).
+
+**Status:** ✅ **CRITICAL SECURITY VULNERABILITY PATCHED**

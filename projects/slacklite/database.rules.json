@@ -1,5 +1,11 @@
 {
   "rules": {
+    "users": {
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        ".write": "auth != null && auth.uid == $userId && (!data.exists() || !data.child('workspaceId').exists() || data.child('workspaceId').val() == newData.child('workspaceId').val())"
+      }
+    },
     "messages": {
       "$workspaceId": {
         "$channelId": {
