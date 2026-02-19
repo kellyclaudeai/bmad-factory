@@ -5,6 +5,7 @@
 **Audience:** Used as reference when building/updating Project Lead AGENTS.md.
 
 **Recent Updates:**
+- v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. (Proposed, not yet implemented)
 - v3.3 (2026-02-19): **CODE REVIEW DISABLED.** Stories now go dev → done directly (skipping code-review Amelia). Rationale: 80%+ reviews pass, adds 5-10 min overhead per story, Phase 3 TEA testing more thorough. Can re-enable once factory proven.
 - v3.2 (2026-02-19): Restructured Phase 3 into Pre-Deploy Gates → Deploy → Post-Deploy Verification. Full TEA suite (TD, TF, TA, RV, TR, NR) runs against deployed app. Failures batched → Amelia remediates → redeploy → re-run. Removed correct-course routing for QA failures (direct to Amelia).
 - v3.1 (2026-02-18): Automated E2E test generation via Murat trace + automate workflows.
@@ -62,6 +63,7 @@ All sequential — each step waits for the previous to complete.
 2. Sally: create-ux-design
    → Input: prd.md
    → Output: _bmad-output/planning-artifacts/ux-design.md
+   → Optional: _bmad-output/design-assets.json (Figma URLs, see [design-workflow.md](./design-workflow.md))
    → Task MUST include: "YOLO MODE — skip all confirmations, run fully autonomously."
 
 3. Winston: create-architecture
@@ -127,8 +129,9 @@ All sequential — each step waits for the previous to complete.
    → Output: _bmad-output/implementation-artifacts/dependency-graph.json
 
 8. Bob: create-story (LOOP for each story in epics.md)
-   → Input: epics.md, architecture.md, prd.md, ux-design.md
+   → Input: epics.md, architecture.md, prd.md, ux-design.md, design-assets.json (if exists)
    → Output: _bmad-output/implementation-artifacts/stories/story-{N.M}.md
+   → Stories include design_references field when design-assets.json exists (see [design-workflow.md](./design-workflow.md))
 ```
 
 ### Phase 2: Implement — Dependency-Driven Parallelization
@@ -168,7 +171,9 @@ Stories go directly from dev → done. Code review step is skipped to maximize f
 
 ```
 1. Spawn Amelia: dev-story
-   → Implements story
+   → Reads story + design_references (if design-assets.json exists)
+   → Uses Figma MCP to extract design specs (see [design-workflow.md](./design-workflow.md))
+   → Implements story with visual fidelity
    → git pull, implement, git commit, git push to dev
    → Status → "done" (skipping review)
 
