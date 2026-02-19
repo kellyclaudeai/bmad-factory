@@ -1386,10 +1386,37 @@ stories:
   "7.4":
     epic: 7
     title: "Add Timestamp Formatting Helpers"
-    status: in_progress
+    status: done
     started_at: "2026-02-19T15:15:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T15:17:00-06:00"
     estimated_effort: "1-2 hours"
     dependencies: ["4.7"]
+    notes: |
+      ✅ Timestamp formatting helpers complete - all acceptance criteria met
+      ✅ Updated lib/utils/formatting.ts with complete relative time logic:
+         - <1 hour: "X min ago" (e.g., "2 min ago")
+         - Today: "Today at h:mm a" (e.g., "Today at 2:45 PM")
+         - Yesterday: "Yesterday at h:mm a"
+         - <7 days: "EEEE at h:mm a" (e.g., "Monday at 2:45 PM")
+         - Same year: "MMM d" (e.g., "Jan 15")
+         - Different year: "MMM d, yyyy" (e.g., "Jan 15, 2026")
+      ✅ Added minute-based auto-refresh (useEffect + setInterval) to:
+         - components/features/messages/MessageItem.tsx
+         - components/features/channels/DMList.tsx
+         - components/features/channels/ChannelList.tsx
+      ✅ Wired formatRelativeTime to lastMessageAt in DM and channel lists
+      ✅ All acceptance criteria marked complete in story file
+      ✅ date-fns dependency already installed (no changes needed)
+      
+      Files Changed:
+      - lib/utils/formatting.ts (updated time formatting logic)
+      - components/features/messages/MessageItem.tsx (added interval refresh)
+      - components/features/channels/DMList.tsx (added timestamp display + interval)
+      - components/features/channels/ChannelList.tsx (added timestamp display + interval)
+      - _bmad-output/implementation-artifacts/stories/story-7.4.md (all criteria marked complete)
+      
+      Commit: 73d1afd (feat(7.4): Add timestamp formatting helpers)
   
   "7.5":
     epic: 7
@@ -1460,7 +1487,8 @@ stories:
   "8.3":
     epic: 8
     title: "Mobile-Friendly Top Bar"
-    status: todo
+    status: in_progress
+    started_at: "2026-02-19T15:20:00-06:00"
     estimated_effort: "1 hour"
     dependencies: ["3.1"]
   
