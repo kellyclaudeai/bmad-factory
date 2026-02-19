@@ -1,5 +1,8 @@
 "use client";
 
+import MemberList, {
+  type MemberListMember,
+} from "@/components/features/sidebar/MemberList";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -22,12 +25,25 @@ const DEFAULT_DIRECT_MESSAGES: SidebarItem[] = [
   { id: "michael", label: "Michael" },
 ];
 
+const DEFAULT_MEMBERS: MemberListMember[] = [
+  { userId: "alex", displayName: "Alex", isOnline: true },
+  {
+    userId: "sarah",
+    displayName: "Sarah",
+    isOnline: false,
+    lastSeenAt: Date.now() - 2 * 60 * 60 * 1000,
+  },
+  { userId: "michael", displayName: "Michael", isOnline: false },
+];
+
 export interface SidebarProps {
   workspaceName: string;
   isOpen: boolean;
   onClose: () => void;
   channels?: SidebarItem[];
   directMessages?: SidebarItem[];
+  members?: MemberListMember[];
+  currentUserId?: string;
 }
 
 export function Sidebar({
@@ -36,6 +52,8 @@ export function Sidebar({
   onClose,
   channels = DEFAULT_CHANNELS,
   directMessages = DEFAULT_DIRECT_MESSAGES,
+  members = DEFAULT_MEMBERS,
+  currentUserId,
 }: SidebarProps) {
   return (
     <aside
@@ -135,6 +153,18 @@ export function Sidebar({
                 </li>
               ))}
             </ul>
+          </section>
+
+          <section aria-labelledby="members-title">
+            <div className="mb-2 flex items-center justify-between gap-2 px-1">
+              <h2
+                id="members-title"
+                className="text-xs font-semibold uppercase tracking-wide text-gray-600"
+              >
+                Members
+              </h2>
+            </div>
+            <MemberList members={members} currentUserId={currentUserId} />
           </section>
         </div>
       </div>

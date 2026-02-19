@@ -282,9 +282,26 @@ stories:
   "2.7":
     epic: 2
     title: "Build Workspace Creation Screen"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["2.3"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:18:00-06:00"
+    notes: |
+      ✅ Workspace creation page implemented at /create-workspace
+      ✅ Form with workspace name input (1-50 chars validation)
+      ✅ Creates workspace document in /workspaces/{workspaceId}
+      ✅ Updates user document with workspaceId
+      ✅ Creates default #general channel
+      ✅ Redirects to /app on success
+      ✅ Only shown once (redirects if user already has workspace)
+      ✅ Loading states and error handling implemented
+      ✅ Centered card layout (480px max-width) with H3 title
+      ✅ All acceptance criteria completed
+      
+      Commit: 7939726 (bundled with Story 3.1 - feat(3.1): Create app layout with sidebar)
+      
+      Status: Ready for code review
   
   "2.8":
     epic: 2
