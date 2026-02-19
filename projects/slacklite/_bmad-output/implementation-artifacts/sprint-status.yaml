@@ -446,9 +446,10 @@ stories:
   "4.2":
     epic: 4
     title: "Build Message Input Component"
-    status: todo
+    status: in_progress
     estimated_effort: "2 hours"
     dependencies: ["1.6", "3.1"]
+    started_at: "2026-02-19T14:19:00-06:00"
   
   "4.3":
     epic: 4
@@ -617,9 +618,20 @@ stories:
   "6.5":
     epic: 6
     title: "Add Last Seen Timestamp"
-    status: todo
+    status: done
     estimated_effort: "1 hour"
     dependencies: ["6.1"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:15:00-06:00"
+    notes: |
+      ✅ Last seen timestamp implementation complete:
+      - Updated usePresence hook to write lastSeenAt on all presence changes
+      - Added lastSeenAt to RTDB presence payload (online/offline transitions)
+      - Created MemberList component with "Last seen X ago" tooltips using date-fns
+      - Handles missing lastSeenAt with "Last seen: Never" fallback
+      - Integrated with Sidebar component for member list display
+      - Firestore User model updated to support optional lastSeenAt field
+      Commit: c3a1106
   
   # Epic 7: Message History & Pagination
   "7.1":
