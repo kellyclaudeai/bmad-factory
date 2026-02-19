@@ -122,8 +122,8 @@ async function fetchFromGateway(): Promise<FrontendSession[]> {
       body: JSON.stringify({
         tool: "sessions_list",
         action: "json",
-        // Return truly active sessions (last 60 minutes)
-        args: { activeMinutes: 60, limit: 200, messageLimit: 0 },
+        // Return only truly active sessions (last 15 minutes)
+        args: { activeMinutes: 15, limit: 200, messageLimit: 0 },
       }),
       cache: "no-store",
     });
