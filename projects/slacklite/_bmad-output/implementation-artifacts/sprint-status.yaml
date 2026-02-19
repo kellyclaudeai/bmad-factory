@@ -1387,6 +1387,8 @@ stories:
     epic: 7
     title: "Add Timestamp Formatting Helpers"
     status: done
+    completed_at: "2026-02-19T15:21:00-06:00"
+    completed_by: "Amelia"
     started_at: "2026-02-19T15:15:00-06:00"
     completed_by: "Amelia"
     completed_at: "2026-02-19T15:17:00-06:00"
@@ -1421,10 +1423,35 @@ stories:
   "7.5":
     epic: 7
     title: "Handle Large Messages with Truncation"
-    status: in_progress
+    status: done
     started_at: "2026-02-19T15:16:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T15:25:00-06:00"
     estimated_effort: "1 hour"
     dependencies: ["4.7"]
+    notes: |
+      ✅ Message truncation implementation complete - all acceptance criteria met
+      ✅ Updated MessageItem component with 2000-char truncation:
+         - Added TRUNCATED_MESSAGE_LENGTH constant
+         - Added isExpanded state per message (useState<boolean>(false))
+         - Added isTruncated check (message.text.length > 2000)
+         - Display logic: show first 2000 chars when collapsed, full text when expanded
+         - Toggle button in primary brand color (text-primary-brand)
+         - Button text: "Show more" (collapsed) → "Show less" (expanded)
+         - Keyboard accessibility: onKeyDown handler for Enter key
+         - aria-expanded attribute for screen readers
+      ✅ Tests already existed from Story 7.4:
+         - tests/unit/components/MessageItem.test.tsx (4 tests)
+         - All tests passing
+      ✅ All acceptance criteria marked complete in story file
+      ✅ Base truncation logic was implemented in Story 7.4
+      ✅ This story added explicit Enter key handling for accessibility
+      
+      Files Changed:
+      - components/features/messages/MessageItem.tsx (added onKeyDown handler)
+      - _bmad-output/implementation-artifacts/stories/story-7.5.md (criteria marked complete)
+      
+      Commit: b1cc7bd (feat(7.5): Handle large messages with truncation)
   
   # Epic 8: Mobile Responsiveness
   "8.1":
@@ -1495,7 +1522,8 @@ stories:
   "8.4":
     epic: 8
     title: "Touch Gesture Support"
-    status: todo
+    status: in_progress
+    started_at: "2026-02-19T15:22:00-06:00"
     estimated_effort: "2 hours"
     dependencies: ["8.1"]
   
