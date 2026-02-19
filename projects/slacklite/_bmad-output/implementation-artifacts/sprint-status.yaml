@@ -1118,7 +1118,7 @@ stories:
   "5.3":
     epic: 5
     title: "Fetch and Display DM List"
-    status: review
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["5.2"]
     completed_at: "2026-02-19T15:17:00-06:00"
@@ -1395,15 +1395,15 @@ stories:
   "7.2":
     epic: 7
     title: "Add Infinite Scroll Trigger"
-    status: in_progress
-    started_at: "2026-02-19T15:29:00-06:00"
+    status: todo
+    
     estimated_effort: "2 hours"
     dependencies: ["7.1"]
   
   "7.3":
     epic: 7
     title: "Optimize Message List Rendering with Virtualization"
-    status: review
+    status: done
     started_at: "2026-02-19T15:15:00-06:00"
     completed_at: "2026-02-19T15:29:00-06:00"
     completed_by: "Amelia"
@@ -1682,24 +1682,24 @@ stories:
   "9.3":
     epic: 9
     title: "Add Input Validation (Client & Server)"
-    status: in_progress
-    started_at: "2026-02-19T15:25:00-06:00"
+    status: todo
+    
     estimated_effort: "2 hours"
     dependencies: ["3.5", "4.4"]
   
   "9.4":
     epic: 9
     title: "Implement Rate Limiting (Basic)"
-    status: in_progress
-    started_at: "2026-02-19T15:29:00-06:00"
+    status: todo
+    
     estimated_effort: "1-2 hours"
     dependencies: ["4.4"]
   
   "9.5":
     epic: 9
     title: "Add XSS Protection (Sanitize Inputs)"
-    status: in_progress
-    started_at: "2026-02-19T15:29:00-06:00"
+    status: todo
+    
     estimated_effort: "1 hour"
     dependencies: ["4.7"]
   
