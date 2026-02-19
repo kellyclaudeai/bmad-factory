@@ -526,18 +526,28 @@ Try to kill these solutions. Find the fatal flaws. Novelty claims must be defens
 
 ---
 
-### Phase 5: Create intake.md (3-5 min)
+### Phase 5: Create PRD (3-5 min)
 
 **Objective:** Compile comprehensive product brief ready for Project Lead
 
-**Research Lead writes intake.md:**
+**Research Lead writes {product-name}-PRD.md:**
 
 ```markdown
-# [Product Name] - Product Brief
+# [Product Name] - Product Requirements Document
 
 **Generated:** [timestamp]
 **Research Session:** agent:research-lead:{number}
 **Discovery Strategy:** [Mary's approach]
+
+---
+
+## Executive Summary
+
+**Title:** [Product Name]
+
+**Description:** [1-2 sentence description of what the product does]
+
+**Pain Point:** [1-2 sentence description of the core problem being solved]
 
 ---
 
@@ -597,13 +607,13 @@ Try to kill these solutions. Find the fatal flaws. Novelty claims must be defens
 
 Ready for Project Lead implementation:
 1. Create project directory: `projects/{project-name}/`
-2. Copy this intake.md
-3. Run BMAD Phase 1 (PRD generation)
+2. Copy this PRD
+3. Run BMAD Phase 1 (Epic Generation)
 ```
 
 ---
 
-#### Registry Write #3: Mark Complete (After intake.md Created)
+#### Registry Write #3: Mark Complete (After PRD Created)
 
 ```json
 {
@@ -616,7 +626,7 @@ Ready for Project Lead implementation:
 ```
 
 **Research Lead announces to Kelly:**
-"✅ Product idea complete: **{name}**. Intake ready at `projects/ideas/{project-id}/intake.md`. Quinn scored problem {X}/100, solution {Y}/100."
+"✅ Product idea complete: **{name}**. PRD ready at `projects/ideas/{project-id}/{product-name}-PRD.md`. Quinn scored problem {X}/100, solution {Y}/100."
 
 ---
 
