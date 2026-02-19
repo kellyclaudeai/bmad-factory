@@ -129,9 +129,27 @@ stories:
   "2.1":
     epic: 2
     title: "Create Landing Page"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["1.1", "1.6"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T11:12:00-06:00"
+    notes: |
+      ✅ Marketing landing page implemented at root route (/)
+      ✅ Created app/(marketing)/layout.tsx with fixed header and footer
+      ✅ Header: SlackLite logo + Sign In/Sign Up buttons using Button component
+      ✅ Landing page Server Component: app/(marketing)/page.tsx
+      ✅ Hero section: "Lightweight Team Messaging" + "Slack's simplicity. None of the bloat."
+      ✅ CTAs: "Get Started Free" → /signup, "Sign In" → /signin
+      ✅ Features section: 3-column grid (Real-Time Messages, Simple Setup, Free to Start)
+      ✅ Footer: About, Privacy, Terms links (placeholder pages created)
+      ✅ Fully responsive design (mobile + desktop breakpoints)
+      ✅ SEO metadata: title, description, Open Graph tags
+      ✅ All acceptance criteria completed
+      ✅ Build validated with temporary Firebase env vars
+      
+      Note: app/page.tsx removed (replaced by marketing route)
+      Files created: app/(marketing)/page.tsx, layout.tsx, about/page.tsx, privacy/page.tsx, terms/page.tsx
   
   "2.2":
     epic: 2
