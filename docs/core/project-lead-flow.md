@@ -5,6 +5,7 @@
 **Audience:** Used as reference when building/updating Project Lead AGENTS.md.
 
 **Recent Updates:**
+- v3.3 (2026-02-19): **CODE REVIEW DISABLED.** Stories now go dev → done directly (skipping code-review Amelia). Rationale: 80%+ reviews pass, adds 5-10 min overhead per story, Phase 3 TEA testing more thorough. Can re-enable once factory proven.
 - v3.2 (2026-02-19): Restructured Phase 3 into Pre-Deploy Gates → Deploy → Post-Deploy Verification. Full TEA suite (TD, TF, TA, RV, TR, NR) runs against deployed app. Failures batched → Amelia remediates → redeploy → re-run. Removed correct-course routing for QA failures (direct to Amelia).
 - v3.1 (2026-02-18): Automated E2E test generation via Murat trace + automate workflows.
 
@@ -151,21 +152,42 @@ UNLIMITED PARALLELISM:
   - No waiting for "batches" to complete
 ```
 
-**Per-Story Flow (two sequential subagents):**
+**Per-Story Flow:**
+
+**⚠️ CODE REVIEW CURRENTLY DISABLED (as of 2026-02-19)**
+
+Stories go directly from dev → done. Code review step is skipped to maximize factory throughput.
+
+**Rationale:**
+- Majority of reviews pass without changes (~80%+)
+- Doubles subagent count per story (5-10 min overhead each)
+- Phase 3 TEA testing suite catches issues more thoroughly
+- Can re-enable once factory is mature and proven
+
+**Current flow (single subagent per story):**
 
 ```
 1. Spawn Amelia: dev-story
    → Implements story
    → git pull, implement, git commit, git push to dev
+   → Status → "done" (skipping review)
+
+Story COMPLETE when dev work finishes
+```
+
+**When code review was enabled (historical):**
+
+```
+1. Spawn Amelia: dev-story
    → Status → "review"
 
 2. Spawn Amelia: code-review (SEPARATE subagent)
    → Adversarial review
    → Option A: Auto-fix → status = "done"
    → Option B: Create review follow-ups → status = "in-progress" → loop
-
-Story COMPLETE when status = "done"
 ```
+
+**To re-enable:** Update PL workflow to spawn code-review subagent after dev-story completion.
 
 **Subagent death handling:**
 - If an Amelia session dies, PL detects (no completion announcement) and respawns
@@ -596,7 +618,7 @@ jq '.projects |= map(
 1. **Dependency-graph.json is the authority** for story ordering — not artificial batches
 2. **Spawn immediately** when dependencies satisfy — don't wait for groups
 3. **Update registry at lifecycle transitions** — Kelly reads for monitoring
-4. **Two subagents per story** in Normal Mode: dev-story then code-review
+4. **One subagent per story** in Normal Mode: dev-story only (code-review disabled as of v3.3)
 5. **One subagent per story** in Fast Mode: quick-dev only
 6. **Detect dead subagents** — no completion = likely dead, respawn
 7. **BMAD tracks story status** — sprint-status.yaml is source of truth

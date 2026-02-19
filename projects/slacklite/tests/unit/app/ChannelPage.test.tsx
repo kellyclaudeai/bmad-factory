@@ -5,11 +5,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Message } from "@/lib/types/models";
 
 const mocks = vi.hoisted(() => ({
+  deleteChannelMock: vi.fn(),
+  renameChannelMock: vi.fn(),
   useAuthMock: vi.fn(),
   useChannelsMock: vi.fn(),
   useParamsMock: vi.fn(),
+  useRouterMock: vi.fn(),
   useRealtimeMessagesMock: vi.fn(),
   useWorkspaceOwnerIdMock: vi.fn(),
+  routerReplaceMock: vi.fn(),
   retryFirestoreWriteMock: vi.fn(),
   retryLastSendMock: vi.fn(),
   retryMessageMock: vi.fn(),
@@ -19,6 +23,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("next/navigation", () => ({
   useParams: mocks.useParamsMock,
+  useRouter: mocks.useRouterMock,
 }));
 
 vi.mock("@/lib/contexts/AuthContext", () => ({
@@ -35,6 +40,11 @@ vi.mock("@/lib/hooks/useWorkspaceOwnerId", () => ({
 
 vi.mock("@/lib/hooks/useRealtimeMessages", () => ({
   useRealtimeMessages: mocks.useRealtimeMessagesMock,
+}));
+
+vi.mock("@/lib/utils/channels", () => ({
+  deleteChannel: mocks.deleteChannelMock,
+  renameChannel: mocks.renameChannelMock,
 }));
 
 vi.mock("@/lib/firebase/client", () => ({
@@ -129,6 +139,9 @@ describe("ChannelPage", () => {
     });
 
     mocks.useParamsMock.mockReturnValue({ channelId: "general" });
+    mocks.useRouterMock.mockReturnValue({
+      replace: mocks.routerReplaceMock,
+    });
     mocks.useAuthMock.mockReturnValue({
       user: {
         uid: "user-1",
@@ -156,6 +169,8 @@ describe("ChannelPage", () => {
       error: null,
     });
     mocks.useRealtimeMessagesMock.mockReturnValue(createRealtimeHookState());
+    mocks.deleteChannelMock.mockResolvedValue(undefined);
+    mocks.renameChannelMock.mockResolvedValue(undefined);
 
     Object.defineProperty(HTMLElement.prototype, "scrollTo", {
       configurable: true,
@@ -233,6 +248,61 @@ describe("ChannelPage", () => {
     render(<ChannelPage />);
 
     expect(screen.queryByRole("button", { name: "Channel settings" })).not.toBeInTheDocument();
+  });
+
+  it("shows an error toast when deleting #general is attempted", async () => {
+    render(<ChannelPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Channel settings" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Delete Channel" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Cannot delete #general channel",
+    );
+    expect(screen.queryByRole("heading", { name: "Delete Channel" })).not.toBeInTheDocument();
+  });
+
+  it("deletes a non-general channel and redirects to #general", async () => {
+    mocks.useParamsMock.mockReturnValue({ channelId: "engineering" });
+    mocks.useChannelsMock.mockReturnValue({
+      channels: [
+        {
+          channelId: "general-channel",
+          workspaceId: "workspace-1",
+          name: "general",
+          createdBy: "user-1",
+          createdAt: Timestamp.now(),
+        },
+        {
+          channelId: "engineering",
+          workspaceId: "workspace-1",
+          name: "engineering",
+          createdBy: "user-1",
+          createdAt: Timestamp.now(),
+        },
+      ],
+      loading: false,
+      error: null,
+    });
+
+    render(<ChannelPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Channel settings" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Delete Channel" }));
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+
+    await waitFor(() => {
+      expect(mocks.deleteChannelMock).toHaveBeenCalledWith({
+        firestore: expect.anything(),
+        workspaceId: "workspace-1",
+        channelId: "engineering",
+        channelName: "engineering",
+        userId: "user-1",
+        channelCreatedBy: "user-1",
+        workspaceOwnerId: "user-1",
+      });
+      expect(mocks.routerReplaceMock).toHaveBeenCalledWith("/app/channels/general-channel");
+    });
   });
 
   it("scrolls to bottom when messages are added", async () => {

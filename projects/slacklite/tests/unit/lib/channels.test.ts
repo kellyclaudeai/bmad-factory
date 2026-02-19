@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const firestoreMocks = vi.hoisted(() => ({
   collectionMock: vi.fn(),
   collectionGroupMock: vi.fn(),
+  deleteDocMock: vi.fn(),
   docMock: vi.fn(),
   getDocsMock: vi.fn(),
   limitMock: vi.fn(),
@@ -10,12 +11,14 @@ const firestoreMocks = vi.hoisted(() => ({
   serverTimestampMock: vi.fn(() => "SERVER_TIMESTAMP"),
   setDocMock: vi.fn(),
   updateDocMock: vi.fn(),
+  writeBatchMock: vi.fn(),
   whereMock: vi.fn(),
 }));
 
 vi.mock("firebase/firestore", () => ({
   collection: firestoreMocks.collectionMock,
   collectionGroup: firestoreMocks.collectionGroupMock,
+  deleteDoc: firestoreMocks.deleteDocMock,
   doc: firestoreMocks.docMock,
   getDocs: firestoreMocks.getDocsMock,
   limit: firestoreMocks.limitMock,
@@ -23,10 +26,11 @@ vi.mock("firebase/firestore", () => ({
   serverTimestamp: firestoreMocks.serverTimestampMock,
   setDoc: firestoreMocks.setDocMock,
   updateDoc: firestoreMocks.updateDocMock,
+  writeBatch: firestoreMocks.writeBatchMock,
   where: firestoreMocks.whereMock,
 }));
 
-import { createChannel, renameChannel } from "@/lib/utils/channels";
+import { createChannel, deleteChannel, renameChannel } from "@/lib/utils/channels";
 
 describe("channel utilities", () => {
   beforeEach(() => {
@@ -223,5 +227,95 @@ describe("channel utilities", () => {
     expect(firestoreMocks.updateDocMock).toHaveBeenCalledWith(channelRef, {
       name: "eng-platform",
     });
+  });
+
+  it("blocks deleting #general channels", async () => {
+    const firestore = {} as never;
+
+    await expect(
+      deleteChannel({
+        firestore,
+        workspaceId: "workspace-123",
+        channelId: "channel-general",
+        channelName: "general",
+        userId: "user-1",
+        channelCreatedBy: "user-1",
+        workspaceOwnerId: "user-1",
+      }),
+    ).rejects.toThrow("Cannot delete #general channel");
+
+    expect(firestoreMocks.getDocsMock).not.toHaveBeenCalled();
+    expect(firestoreMocks.deleteDocMock).not.toHaveBeenCalled();
+  });
+
+  it("blocks deleting channels when the user lacks permissions", async () => {
+    const firestore = {} as never;
+
+    await expect(
+      deleteChannel({
+        firestore,
+        workspaceId: "workspace-123",
+        channelId: "channel-123",
+        channelName: "engineering",
+        userId: "user-1",
+        channelCreatedBy: "user-2",
+        workspaceOwnerId: "user-3",
+      }),
+    ).rejects.toThrow("You do not have permission to delete this channel");
+
+    expect(firestoreMocks.getDocsMock).not.toHaveBeenCalled();
+    expect(firestoreMocks.deleteDocMock).not.toHaveBeenCalled();
+  });
+
+  it("deletes messages in batches before deleting the channel document", async () => {
+    const firestore = {} as never;
+    const channelRef = { path: "workspaces/workspace-123/channels/channel-123" };
+    const messageCollectionRef = { path: "workspaces/workspace-123/channels/channel-123/messages" };
+    const messageOneRef = { path: "messages/message-1" };
+    const messageTwoRef = { path: "messages/message-2" };
+    const batchDeleteMock = vi.fn();
+    const batchCommitMock = vi.fn().mockResolvedValue(undefined);
+
+    firestoreMocks.docMock.mockReturnValue(channelRef);
+    firestoreMocks.collectionMock.mockReturnValue(messageCollectionRef);
+    firestoreMocks.limitMock.mockReturnValue("LIMIT_500");
+    firestoreMocks.queryMock.mockReturnValue("MESSAGES_QUERY");
+    firestoreMocks.writeBatchMock.mockReturnValue({
+      delete: batchDeleteMock,
+      commit: batchCommitMock,
+    });
+    firestoreMocks.getDocsMock
+      .mockResolvedValueOnce({
+        empty: false,
+        docs: [{ ref: messageOneRef }, { ref: messageTwoRef }],
+      })
+      .mockResolvedValueOnce({
+        empty: true,
+        docs: [],
+      });
+    firestoreMocks.deleteDocMock.mockResolvedValue(undefined);
+
+    await deleteChannel({
+      firestore,
+      workspaceId: " workspace-123 ",
+      channelId: " channel-123 ",
+      channelName: " engineering ",
+      userId: " user-1 ",
+      channelCreatedBy: " user-1 ",
+      workspaceOwnerId: " user-9 ",
+    });
+
+    expect(firestoreMocks.docMock).toHaveBeenCalledWith(
+      firestore,
+      "workspaces",
+      "workspace-123",
+      "channels",
+      "channel-123",
+    );
+    expect(firestoreMocks.collectionMock).toHaveBeenCalledWith(channelRef, "messages");
+    expect(batchDeleteMock).toHaveBeenCalledWith(messageOneRef);
+    expect(batchDeleteMock).toHaveBeenCalledWith(messageTwoRef);
+    expect(batchCommitMock).toHaveBeenCalledTimes(1);
+    expect(firestoreMocks.deleteDocMock).toHaveBeenCalledWith(channelRef);
   });
 });
