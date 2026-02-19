@@ -64,6 +64,12 @@ type ProjectState = {
       output?: number
     }
   }>
+  stats?: {
+    total: number
+    done: number
+    inProgress: number
+    todo: number
+  }
 }
 
 type Session = {
@@ -363,13 +369,18 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
     ? completedDurations.reduce((a, b) => a + b, 0) / completedDurations.length
     : 0
 
-  const totalPlannedStories = projectState?.phases
-    ? Object.values(projectState.phases).reduce((sum, p) => sum + (p.stories?.length || 0), 0)
-    : 0
+  // Use sprint-status stats (ground truth) when available, fall back to subagent counting
+  const totalPlannedStories = projectState?.stats?.total
+    || (projectState?.phases
+      ? Object.values(projectState.phases).reduce((sum, p) => sum + (p.stories?.length || 0), 0)
+      : 0)
 
-  const completedStories = projectState?.subagents
-    ? projectState.subagents.filter((s) => (s.status || '').toLowerCase() === 'complete' || (s.status || '').toLowerCase() === 'completed').length
-    : 0
+  const completedStories = projectState?.stats?.done
+    || (projectState?.subagents
+      ? projectState.subagents.filter((s) => (s.status || '').toLowerCase() === 'complete' || (s.status || '').toLowerCase() === 'completed').length
+      : 0)
+
+  const inProgressStories = projectState?.stats?.inProgress || liveSubagents.length
 
   const remainingStories = totalPlannedStories ? Math.max(0, totalPlannedStories - completedStories) : 0
   const etaSeconds = avgSeconds && remainingStories ? avgSeconds * remainingStories : 0

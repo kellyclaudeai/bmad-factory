@@ -6,16 +6,16 @@
 Create modal for inviting users via email addresses. Parse comma-separated emails, validate format, and display invite link for manual sharing with copy-to-clipboard functionality.
 
 **Acceptance Criteria:**
-- [ ] Create `components/features/workspace/InviteTeamModal.tsx`
-- [ ] Trigger: "Invite Team" button in sidebar
-- [ ] Modal content:
-  - [ ] Title: "Invite Team Members" (H3)
-  - [ ] Input: Textarea for emails (placeholder: "alex@example.com, jordan@example.com")
-  - [ ] Helper text: "Separate multiple emails with commas or spaces."
-  - [ ] Invite link section: "Or share this invite link:" + read-only input with link + Copy button
-  - [ ] Buttons: Cancel, Send Invites (Primary)
-- [ ] Email validation: Parse input, check each email format, show errors for invalid
-- [ ] Copy button: Copy invite link to clipboard, show "Copied!" feedback (2s)
+- [x] Create `components/features/workspace/InviteTeamModal.tsx`
+- [x] Trigger: "Invite Team" button in sidebar
+- [x] Modal content:
+  - [x] Title: "Invite Team Members" (H3)
+  - [x] Input: Textarea for emails (placeholder: "alex@example.com, jordan@example.com")
+  - [x] Helper text: "Separate multiple emails with commas or spaces."
+  - [x] Invite link section: "Or share this invite link:" + read-only input with link + Copy button
+  - [x] Buttons: Cancel, Send Invites (Primary)
+- [x] Email validation: Parse input, check each email format, show errors for invalid
+- [x] Copy button: Copy invite link to clipboard, show "Copied!" feedback (2s)
 
 **Dependencies:**
 dependsOn: ["3.1", "1.6"]

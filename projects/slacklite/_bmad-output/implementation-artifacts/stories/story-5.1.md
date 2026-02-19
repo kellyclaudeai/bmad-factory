@@ -6,15 +6,15 @@
 Fetch all users in current workspace, display in collapsible Members section in sidebar with online/offline indicators and proper sorting (online first).
 
 **Acceptance Criteria:**
-- [ ] Create `lib/hooks/useWorkspaceMembers.ts`
-- [ ] Query: `query(collection(db, 'users'), where('workspaceId', '==', currentWorkspaceId))`
-- [ ] Real-time listener: `onSnapshot` to detect new members, removed members
-- [ ] Sort: Online users first, then offline, alphabetically within each group
-- [ ] Create `components/features/sidebar/MemberList.tsx`
-- [ ] Render: 24px avatar + name + online indicator (10px dot)
-- [ ] Collapsible section: "Members (8) ▾" (click to expand/collapse)
-- [ ] Current user marked: "{name} (You)"
-- [ ] Empty state: "No other members yet. Invite your team!"
+- [x] Create `lib/hooks/useWorkspaceMembers.ts`
+- [x] Query: `query(collection(db, 'users'), where('workspaceId', '==', currentWorkspaceId))`
+- [x] Real-time listener: `onSnapshot` to detect new members, removed members
+- [x] Sort: Online users first, then offline, alphabetically within each group
+- [x] Create `components/features/sidebar/MemberList.tsx`
+- [x] Render: 24px avatar + name + online indicator (10px dot)
+- [x] Collapsible section: "Members (8) ▾" (click to expand/collapse)
+- [x] Current user marked: "{name} (You)"
+- [x] Empty state: "No other members yet. Invite your team!"
 
 **Dependencies:**
 dependsOn: ["3.1", "1.4"]

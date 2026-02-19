@@ -96,7 +96,7 @@ export async function GET(request: Request) {
         const sprintYaml = await fs.readFile(sprintStatusPath, "utf8");
         sprintStatus = yaml.parse(sprintYaml) as SprintStatus;
       } catch (error) {
-        // Sprint status doesn't exist yet (planning phase) - not an error
+        console.error('Sprint status read error:', error);
       }
 
       // Check for planning artifacts (Phase 1)
@@ -206,20 +206,26 @@ export async function GET(request: Request) {
       subagents: syntheticSubagents,
       
       // Story status from BMAD (Phase 2+)
-      stories: (sprintStatus && Array.isArray(sprintStatus.stories)) 
-        ? sprintStatus.stories.map(s => ({
-            id: s.id,
-            status: s.status
+      // sprint-status.yaml uses nested objects: stories: { "1.1": { status: "done", ... }, ... }
+      stories: sprintStatus?.stories
+        ? Object.entries(sprintStatus.stories).map(([id, s]: [string, any]) => ({
+            id,
+            status: s?.status || 'unknown',
+            title: s?.title || '',
+            epic: s?.epic,
           }))
         : [],
       
-      // Computed stats
-      stats: (sprintStatus && Array.isArray(sprintStatus.stories)) ? {
-        total: sprintStatus.stories.length,
-        done: sprintStatus.stories.filter(s => s.status === "done").length,
-        inProgress: sprintStatus.stories.filter(s => s.status === "in-progress").length,
-        todo: sprintStatus.stories.filter(s => s.status === "todo").length
-      } : null
+      // Computed stats from sprint-status stories (object format)
+      stats: sprintStatus?.stories ? (() => {
+        const entries = Object.values(sprintStatus.stories) as any[];
+        return {
+          total: entries.length,
+          done: entries.filter(s => s?.status === "done" || s?.status === "review").length,
+          inProgress: entries.filter(s => s?.status === "in_progress" || s?.status === "in-progress").length,
+          todo: entries.filter(s => s?.status === "todo").length,
+        };
+      })() : null
     };
 
     return NextResponse.json(response);

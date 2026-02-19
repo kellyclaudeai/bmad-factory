@@ -4,12 +4,12 @@ import { useState } from "react";
 
 import ChannelList from "@/components/features/channels/ChannelList";
 import CreateChannelModal from "@/components/features/channels/CreateChannelModal";
-import MemberList, {
-  type MemberListMember,
-} from "@/components/features/sidebar/MemberList";
+import WorkspaceMembersSection from "@/components/features/sidebar/WorkspaceMembersSection";
+import InviteTeamModal from "@/components/features/workspace/InviteTeamModal";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/lib/contexts/AuthContext";
 
 interface DirectMessageItem {
   id: string;
@@ -23,24 +23,11 @@ const DEFAULT_DIRECT_MESSAGES: DirectMessageItem[] = [
   { id: "michael", label: "Michael" },
 ];
 
-const DEFAULT_MEMBERS: MemberListMember[] = [
-  { userId: "alex", displayName: "Alex", isOnline: true },
-  {
-    userId: "sarah",
-    displayName: "Sarah",
-    isOnline: false,
-    lastSeenAt: Date.now() - 2 * 60 * 60 * 1000,
-  },
-  { userId: "michael", displayName: "Michael", isOnline: false },
-];
-
 export interface SidebarProps {
   workspaceName: string;
   isOpen: boolean;
   onClose: () => void;
   directMessages?: DirectMessageItem[];
-  members?: MemberListMember[];
-  currentUserId?: string;
 }
 
 export function Sidebar({
@@ -48,10 +35,12 @@ export function Sidebar({
   isOpen,
   onClose,
   directMessages = DEFAULT_DIRECT_MESSAGES,
-  members = DEFAULT_MEMBERS,
-  currentUserId,
 }: SidebarProps) {
+  const { user } = useAuth();
   const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false);
+  const [isInviteTeamModalOpen, setIsInviteTeamModalOpen] = useState(false);
+  const workspaceId =
+    typeof user?.workspaceId === "string" ? user.workspaceId.trim() : "";
 
   const handleOpenCreateChannelModal = () => {
     setIsCreateChannelModalOpen(true);
@@ -64,6 +53,15 @@ export function Sidebar({
 
   const handleCreateChannel = () => {
     setIsCreateChannelModalOpen(false);
+  };
+
+  const handleOpenInviteTeamModal = () => {
+    setIsInviteTeamModalOpen(true);
+    onClose();
+  };
+
+  const handleCloseInviteTeamModal = () => {
+    setIsInviteTeamModalOpen(false);
   };
 
   return (
@@ -101,15 +99,26 @@ export function Sidebar({
                 >
                   Channels
                 </h2>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  className="h-8 px-2 text-xs"
-                  onClick={handleOpenCreateChannelModal}
-                >
-                  + New Channel
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="h-8 px-2 text-xs"
+                    onClick={handleOpenInviteTeamModal}
+                  >
+                    Invite Team
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="h-8 px-2 text-xs"
+                    onClick={handleOpenCreateChannelModal}
+                  >
+                    + New Channel
+                  </Button>
+                </div>
               </div>
               <ChannelList onChannelSelect={onClose} />
             </section>
@@ -151,17 +160,7 @@ export function Sidebar({
               </ul>
             </section>
 
-            <section aria-labelledby="members-title">
-              <div className="mb-2 flex items-center justify-between gap-2 px-1">
-                <h2
-                  id="members-title"
-                  className="text-xs font-semibold uppercase tracking-wide text-gray-600"
-                >
-                  Members
-                </h2>
-              </div>
-              <MemberList members={members} currentUserId={currentUserId} />
-            </section>
+            <WorkspaceMembersSection />
           </div>
         </div>
       </aside>
@@ -170,6 +169,11 @@ export function Sidebar({
         isOpen={isCreateChannelModalOpen}
         onClose={handleCloseCreateChannelModal}
         onCreate={handleCreateChannel}
+      />
+      <InviteTeamModal
+        isOpen={isInviteTeamModalOpen}
+        onClose={handleCloseInviteTeamModal}
+        workspaceId={workspaceId}
       />
     </>
   );
