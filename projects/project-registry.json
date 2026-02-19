@@ -127,6 +127,54 @@
       "implementation": null,
       "followup": [],
       "researchDir": "ideas/screenshot-declutter-assistant-2026-02-18-1957"
+    },
+    {
+      "id": "gift-idea-tracker-2026-02-18-2114",
+      "name": "Gift Idea Tracker",
+      "state": "discovery",
+      "paused": false,
+      "pausedReason": null,
+      "surfacedForQA": false,
+      "researchDir": null,
+      "researchSession": "agent:research-lead:5",
+      "researchPhase": "validation",
+      "discoveryStrategy": "direct-demand-signals",
+      "timeline": {
+        "discoveredAt": "2026-02-19T03:19:50+0000",
+        "lastUpdated": "2026-02-19T03:25:37+0000"
+      },
+      "intake": {
+        "problem": "Thoughtful people struggle to remember gift ideas they hear throughout the year, leading to last-minute panic shopping and generic gifts. When someone casually mentions \"I wish I had X\" or \"Y is so annoying,\" those perfect gift ideas are lost. By the time birthdays/holidays arrive, people resort to panic buying whatever seems appropriate from Target, missing opportunities to give meaningful gifts that solve real problems or desires the recipient mentioned months ago.",
+        "solution": "Sift - Lock screen widget voice assistant for gift idea capture. Users tap the widget and speak for 15 seconds to capture gift ideas without unlocking their phone. AI transcribes and structures messy voice thoughts, extracting person names, items, and emotional context. Completely eliminates capture friction by placing gift logging at the point of highest visibility (lock screen seen 50-100x/day).",
+        "targetAudience": null,
+        "keyFeatures": []
+      },
+      "implementation": null,
+      "followup": []
+    },
+    {
+      "id": "social-conversation-coach-2026-02-18-2113",
+      "name": "Social Conversation Coach",
+      "state": "discovery",
+      "paused": false,
+      "pausedReason": null,
+      "surfacedForQA": false,
+      "researchDir": null,
+      "researchSession": "agent:research-lead:20260218-2113",
+      "researchPhase": "validation",
+      "discoveryStrategy": "direct-demand-signals",
+      "timeline": {
+        "discoveredAt": "2026-02-19T03:20:06+0000",
+        "lastUpdated": "2026-02-19T03:26:12+0000"
+      },
+      "intake": {
+        "problem": "Young adults and socially anxious individuals struggle with initiating and maintaining conversations in everyday situations (networking events, dates, casual encounters). They freeze up, resort to generic questions, or avoid social situations entirely due to lack of conversation skills and fear of awkward silence. Current solutions are clinical tools for autism or therapy apps, not practical icebreaker coaches for everyday consumers.",
+        "solution": "Social failure journal that logs awkward moments, detects personal anxiety trigger patterns (time/place/topic), and generates personalized recovery prompts for next time user encounters that scenario. Gamifies social courage by rewarding attempts. Celebrates failure as learning data rather than preventing awkwardness.",
+        "targetAudience": null,
+        "keyFeatures": []
+      },
+      "implementation": null,
+      "followup": []
     }
   ]
 }

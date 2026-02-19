@@ -76,7 +76,7 @@ PL responded "all good, testing edge cases". Will re-check in 45 min.
 
 ## 18:45 - Zombie subagent bug fixed
 Root cause: PL heartbeat on nested lane (concurrency 1) blocked announce-back.
-Fix: Disabled PL heartbeat. Testing with fresh PL-v2 session.
+Fix: PL heartbeat set to 10m interval (was firing every gateway cycle). Lean HEARTBEAT.md for health checks only.
 ```
 
 ---

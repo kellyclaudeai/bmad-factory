@@ -326,10 +326,14 @@ This is **push notification** (immediate). Kelly's heartbeat is **pull detection
 
 **4. Self-Healing Check**
 
-Project Lead's own heartbeat (every 5-10 min):
-- **If stage="userQA" but no qaUrl:**
-  - Caught gap! Complete Stage 4.5 NOW
-  - Host app, update state, notify Kelly
+Project Lead's own heartbeat (every 10 min — safety net, not primary loop):
+- **Stuck subagents:** Any running >20 min? Respawn.
+- **Orphaned stories:** "in-progress" but no active subagent? Respawn.
+- **Missed cascades:** "dev-complete" but no review spawned? Spawn now.
+- **Idle gap:** Zero subagents but work available? Spawn everything ready.
+- **If stage="userQA" but no qaUrl:** Complete Stage 4.5 NOW — host app, update state, notify Kelly.
+
+**Primary loop is event-driven:** When a subagent announces completion, PL immediately checks the dependency graph and spawns ALL newly-unblocked work in parallel. The heartbeat catches anything the announce loop missed.
 
 #### Stage 4.6: Surfacing (Kelly Heartbeat)
 

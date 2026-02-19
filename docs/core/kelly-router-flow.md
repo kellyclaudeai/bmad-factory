@@ -131,7 +131,7 @@ sessions_spawn({ agentId: "project-lead", task: "..." })
 2. For new projects: PL reads intake from `projects/{researchDir}/intake.md` (registry has `researchDir` field)
 3. PL creates project directory at `projects/<project-name>/` when starting implementation
 4. `sessions_send(sessionKey="agent:project-lead:project-{projectId}", message=...)`
-5. Kelly tracks operational state in `state/kelly.json` (no project lifecycle duplication)
+5. Kelly tracks operational notes in `memory/YYYY-MM-DD.md` (daily logs)
 
 ---
 
@@ -302,9 +302,8 @@ Think of it like reviewing your journal and updating your mental model.
 ## Key Files
 
 **Kelly maintains:**
-- `state/kelly.json` - Operational tracking (heartbeat, surfacing, pending, waiting-on)
+- `memory/YYYY-MM-DD.md` - Daily event logs + operational notes
 - `docs/changelog/CHANGELOG.md` - Kelly improvement timeline
-- `memory/YYYY-MM-DD.md` - Daily event logs
 
 **Kelly reads (does not write):**
 - `projects/project-registry.json` - Project lifecycle source of truth (PL maintains)
