@@ -1344,7 +1344,23 @@ stories:
     - '6.4'
     completed_by: Amelia
     completed_at: '2026-02-19T16:22:00-06:00'
-    notes: "✅ E2E tests for unread count accuracy complete - all acceptance criteria met\n✅ Created tests/e2e/unread-counts.spec.ts with 4 comprehensive test scenarios:\n   - Scenario 1: Basic unread count increment and clear on channel switch\n   - Scenario 2: Multiple unread messages (3 messages)\n   - Scenario 3: No increment when viewing channel\n   - Scenario 4: Direct message unread count increment and clear\n✅ Extended useUnreadCounts hook to support DM listener targets\n✅ Updated DMList component to integrate directMessageIds prop\n✅ Test setup helpers for emulator reset/seed:\n   - Seed users (usera@test.com, userb@test.com)\n   - Create workspace with #general and #dev-team channels\n   - Multi-user simulation via separate browser contexts\n✅ All 4 test scenarios validate:\n   - Badge count matches expected number\n   - Badge clears within 200ms on channel switch\n   - No phantom unread counts\n✅ All tests passing with Firebase Emulators\n✅ ESLint and TypeScript validation passed\n\nFiles Changed:\n- tests/e2e/unread-counts.spec.ts (new, 476 lines)\n- lib/hooks/useUnreadCounts.ts (added directMessageIds support)\n- components/features/channels/DMList.tsx (integrated directMessageIds)\n- _bmad-output/implementation-artifacts/stories/story-6.4.1.md (all criteria marked complete)\n\nNote: Codex CLI implementation (YOLO mode)"
+    notes: "✅ E2E tests for unread count accuracy complete - all acceptance criteria\
+      \ met\n✅ Created tests/e2e/unread-counts.spec.ts with 4 comprehensive test scenarios:\n\
+      \   - Scenario 1: Basic unread count increment and clear on channel switch\n\
+      \   - Scenario 2: Multiple unread messages (3 messages)\n   - Scenario 3: No\
+      \ increment when viewing channel\n   - Scenario 4: Direct message unread count\
+      \ increment and clear\n✅ Extended useUnreadCounts hook to support DM listener\
+      \ targets\n✅ Updated DMList component to integrate directMessageIds prop\n✅\
+      \ Test setup helpers for emulator reset/seed:\n   - Seed users (usera@test.com,\
+      \ userb@test.com)\n   - Create workspace with #general and #dev-team channels\n\
+      \   - Multi-user simulation via separate browser contexts\n✅ All 4 test scenarios\
+      \ validate:\n   - Badge count matches expected number\n   - Badge clears within\
+      \ 200ms on channel switch\n   - No phantom unread counts\n✅ All tests passing\
+      \ with Firebase Emulators\n✅ ESLint and TypeScript validation passed\n\nFiles\
+      \ Changed:\n- tests/e2e/unread-counts.spec.ts (new, 476 lines)\n- lib/hooks/useUnreadCounts.ts\
+      \ (added directMessageIds support)\n- components/features/channels/DMList.tsx\
+      \ (integrated directMessageIds)\n- _bmad-output/implementation-artifacts/stories/story-6.4.1.md\
+      \ (all criteria marked complete)\n\nNote: Codex CLI implementation (YOLO mode)"
   '6.5':
     epic: 6
     title: Add Last Seen Timestamp
@@ -1902,7 +1918,7 @@ stories:
     - '10.2'
     - '1.6'
     started_at: '2026-02-19T16:07:00-06:00'
-    verified_at: "2026-02-19T16:18:00-06:00"
+    verified_at: '2026-02-19T16:18:00-06:00'
     completed_at: '2026-02-19T16:18:00-06:00'
     completed_by: Amelia
     reviewed_by: Amelia
@@ -1937,7 +1953,29 @@ stories:
     - '10.1'
     - '4.4'
     - '4.5'
-    notes: "✅ E2E tests for real-time messaging complete - all acceptance criteria met\n✅ Created tests/e2e/messaging.spec.ts with 6 comprehensive test scenarios:\n   - User sends message, appears immediately (optimistic UI)\n   - Message delivered to other users in <500ms\n   - Channel switching loads messages correctly\n   - Unread counts update in real-time\n   - User can create channel and send first message\n   - Direct messages work end-to-end\n✅ All tests run against Firebase Emulator Suite:\n   - Auth: http://127.0.0.1:9099\n   - Firestore: http://127.0.0.1:8080\n   - RTDB: http://127.0.0.1:9000\n✅ Test setup:\n   - Firebase Admin SDK integration for seeding test data\n   - Real-time emulator reset between tests (clean slate)\n   - Two-browser context tests for multi-user scenarios\n   - Deterministic test data generation with unique runIds\n✅ Updated configuration files:\n   - playwright.config.ts: Emulator env vars, dev server, serialized workers\n   - package.json: E2E test scripts with Firebase Emulator wrapper\n   - lib/firebase/client.ts: Smart emulator detection and connection\n   - middleware.ts: E2E mode with SKIP_AUTH_MIDDLEWARE bypass\n   - .github/workflows/*.yml: firebase-tools installation\n✅ All 6 E2E tests passing (validated by Codex CLI)\n✅ Tests use proper accessibility selectors (getByRole, getByLabel)\n✅ Real-time latency validation (<500ms for message delivery)\n✅ Comprehensive error handling and loading states tested\n\nCommit: 794b8c6 (feat(10.4): Write E2E tests for real-time messaging)\n\nCode Review (2026-02-19 16:20): PASSED\n- All acceptance criteria verified ✅\n- Test coverage complete for real-time messaging flows\n- Proper emulator isolation and cleanup\n- Multi-user scenarios tested with browser contexts\n"
+    notes: "✅ E2E tests for real-time messaging complete - all acceptance criteria\
+      \ met\n✅ Created tests/e2e/messaging.spec.ts with 6 comprehensive test scenarios:\n\
+      \   - User sends message, appears immediately (optimistic UI)\n   - Message\
+      \ delivered to other users in <500ms\n   - Channel switching loads messages\
+      \ correctly\n   - Unread counts update in real-time\n   - User can create channel\
+      \ and send first message\n   - Direct messages work end-to-end\n✅ All tests\
+      \ run against Firebase Emulator Suite:\n   - Auth: http://127.0.0.1:9099\n \
+      \  - Firestore: http://127.0.0.1:8080\n   - RTDB: http://127.0.0.1:9000\n✅ Test\
+      \ setup:\n   - Firebase Admin SDK integration for seeding test data\n   - Real-time\
+      \ emulator reset between tests (clean slate)\n   - Two-browser context tests\
+      \ for multi-user scenarios\n   - Deterministic test data generation with unique\
+      \ runIds\n✅ Updated configuration files:\n   - playwright.config.ts: Emulator\
+      \ env vars, dev server, serialized workers\n   - package.json: E2E test scripts\
+      \ with Firebase Emulator wrapper\n   - lib/firebase/client.ts: Smart emulator\
+      \ detection and connection\n   - middleware.ts: E2E mode with SKIP_AUTH_MIDDLEWARE\
+      \ bypass\n   - .github/workflows/*.yml: firebase-tools installation\n✅ All 6\
+      \ E2E tests passing (validated by Codex CLI)\n✅ Tests use proper accessibility\
+      \ selectors (getByRole, getByLabel)\n✅ Real-time latency validation (<500ms\
+      \ for message delivery)\n✅ Comprehensive error handling and loading states tested\n\
+      \nCommit: 794b8c6 (feat(10.4): Write E2E tests for real-time messaging)\n\n\
+      Code Review (2026-02-19 16:20): PASSED\n- All acceptance criteria verified ✅\n\
+      - Test coverage complete for real-time messaging flows\n- Proper emulator isolation\
+      \ and cleanup\n- Multi-user scenarios tested with browser contexts\n"
   '10.5':
     epic: 10
     title: Write E2E Tests for Critical Flows
@@ -1949,7 +1987,25 @@ stories:
     dependencies:
     - '10.1'
     - '4.4'
-    notes: "✅ E2E tests for critical user flows complete - all acceptance criteria met\n✅ Created tests/e2e/critical-flows.spec.ts with 6 comprehensive test scenarios:\n   - New user signup flow (email/password → workspace creation → app redirect)\n   - Existing user login flow (email/password → app redirect)\n   - Channel creation (+ New Channel → enter name → channel created)\n   - Message sending (type → Enter → message appears)\n   - Sign out (click sign out → confirm → landing page redirect)\n   - Protected route enforcement (unauthenticated → signin redirect)\n✅ All tests use Firebase Emulator Suite (localhost:3000)\n✅ Test features:\n   - Unique test data generation (Date.now() + random suffix)\n   - Helper functions: signUpAndCreateWorkspace, signIn, signOut\n   - Clean test isolation with per-test accounts\n   - Proper Playwright best practices (getByRole, getByLabel)\n✅ Configuration:\n   - playwright.config.ts includes emulator env vars\n   - package.json test:e2e runs tests via Firebase emulator wrapper\n   - All 6 tests discovered via --list\n✅ Browser limitations in sandbox: Chromium launch blocked (Permission denied)\n✅ Tests validated with Playwright test --list (6 tests found)\n\nNote: Full test execution requires physical machine or CI environment.\nSandbox browser launch blocked, but test structure and selectors validated.\n\nCommit: [commit hash found in git log above]"
+    notes: "✅ E2E tests for critical user flows complete - all acceptance criteria\
+      \ met\n✅ Created tests/e2e/critical-flows.spec.ts with 6 comprehensive test\
+      \ scenarios:\n   - New user signup flow (email/password → workspace creation\
+      \ → app redirect)\n   - Existing user login flow (email/password → app redirect)\n\
+      \   - Channel creation (+ New Channel → enter name → channel created)\n   -\
+      \ Message sending (type → Enter → message appears)\n   - Sign out (click sign\
+      \ out → confirm → landing page redirect)\n   - Protected route enforcement (unauthenticated\
+      \ → signin redirect)\n✅ All tests use Firebase Emulator Suite (localhost:3000)\n\
+      ✅ Test features:\n   - Unique test data generation (Date.now() + random suffix)\n\
+      \   - Helper functions: signUpAndCreateWorkspace, signIn, signOut\n   - Clean\
+      \ test isolation with per-test accounts\n   - Proper Playwright best practices\
+      \ (getByRole, getByLabel)\n✅ Configuration:\n   - playwright.config.ts includes\
+      \ emulator env vars\n   - package.json test:e2e runs tests via Firebase emulator\
+      \ wrapper\n   - All 6 tests discovered via --list\n✅ Browser limitations in\
+      \ sandbox: Chromium launch blocked (Permission denied)\n✅ Tests validated with\
+      \ Playwright test --list (6 tests found)\n\nNote: Full test execution requires\
+      \ physical machine or CI environment.\nSandbox browser launch blocked, but test\
+      \ structure and selectors validated.\n\nCommit: [commit hash found in git log\
+      \ above]"
   '10.6':
     epic: 10
     title: Implement Performance Monitoring
@@ -1963,9 +2019,11 @@ stories:
     completed_at: '2026-02-19T16:28:00-06:00'
     notes: '✅ Performance monitoring implemented with web-vitals library
 
-      ✅ Core Web Vitals tracked: FCP (<1.8s), LCP (<2.5s), CLS (<0.1), INP (<200ms), TTFB (<800ms)
+      ✅ Core Web Vitals tracked: FCP (<1.8s), LCP (<2.5s), CLS (<0.1), INP (<200ms),
+      TTFB (<800ms)
 
-      ✅ Custom metrics: message latency (<500ms), channel switch (<200ms), auth time (<1s)
+      ✅ Custom metrics: message latency (<500ms), channel switch (<200ms), auth time
+      (<1s)
 
       ✅ Integrated with Vercel Analytics and Sentry
 
@@ -1974,7 +2032,8 @@ stories:
       ✅ Optional PerformanceDashboard component for dev debugging
 
 
-      Implementation was completed in commit 23195d9 (feat(10.4): Write E2E tests for real-time messaging)
+      Implementation was completed in commit 23195d9 (feat(10.4): Write E2E tests
+      for real-time messaging)
 
       All acceptance criteria marked complete in story file.
 
@@ -1982,7 +2041,7 @@ stories:
   '10.7':
     epic: 10
     title: Performance Testing & Benchmarking
-    status: todo
+    status: done
     started_at: '2026-02-19T17:07:00-06:00'
     estimated_effort: 3 hours
     dependencies:
