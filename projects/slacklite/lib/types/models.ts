@@ -62,6 +62,25 @@ export interface Channel {
 }
 
 /**
+ * Supported unread-count target types.
+ */
+export type UnreadTargetType = "channel" | "dm";
+
+/**
+ * Canonical Firestore unread-count document shape.
+ * Path: /unreadCounts/{userId}_{targetId}
+ */
+export interface UnreadCount {
+  id: string;
+  userId: string;
+  targetId: string;
+  targetType: UnreadTargetType;
+  count: number;
+  lastReadAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+/**
  * Supported lifecycle states for message sending.
  */
 export type MessageStatus = "sending" | "sent" | "failed";

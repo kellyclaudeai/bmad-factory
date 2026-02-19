@@ -51,6 +51,23 @@ service cloud.firestore {
              request.resource.data.expiresAt is timestamp &&
              request.resource.data.expiresAt > request.time;
     }
+
+    function isValidUnreadTargetType(targetType) {
+      return targetType == "channel" || targetType == "dm";
+    }
+
+    function hasValidUnreadCountShape(data, userId) {
+      return data.userId is string &&
+             data.userId == userId &&
+             data.targetId is string &&
+             data.targetId.size() > 0 &&
+             data.targetType is string &&
+             isValidUnreadTargetType(data.targetType) &&
+             (data.count is int || data.count is float) &&
+             data.count >= 0 &&
+             data.lastReadAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
     
     // Workspaces: Users can read/update their own workspace
     match /workspaces/{workspaceId} {
@@ -121,10 +138,14 @@ service cloud.firestore {
       allow read: if isAuthenticated() &&
                     resource.data.userId == request.auth.uid;
       allow create: if isAuthenticated() &&
-                      request.resource.data.userId == request.auth.uid;
+                      hasValidUnreadCountShape(request.resource.data, request.auth.uid) &&
+                      countId == request.auth.uid + "_" + request.resource.data.targetId;
       allow update: if isAuthenticated() &&
                       resource.data.userId == request.auth.uid &&
-                      request.resource.data.userId == request.auth.uid;
+                      hasValidUnreadCountShape(request.resource.data, request.auth.uid) &&
+                      request.resource.data.targetId == resource.data.targetId &&
+                      request.resource.data.targetType == resource.data.targetType &&
+                      countId == request.auth.uid + "_" + resource.data.targetId;
       allow delete: if isAuthenticated() &&
                       resource.data.userId == request.auth.uid;
     }

@@ -1196,16 +1196,18 @@ stories:
   "9.1":
     epic: 9
     title: "Write Firestore Security Rules"
-    status: todo
+    status: in_progress
     estimated_effort: "3 hours"
     dependencies: ["2.7", "3.5", "4.4"]
+    started_at: "2026-02-19T14:54:00-06:00"
   
   "9.2":
     epic: 9
     title: "Write Realtime Database Security Rules"
-    status: todo
+    status: in_progress
     estimated_effort: "2 hours"
     dependencies: ["4.4", "6.1"]
+    started_at: "2026-02-19T14:54:00-06:00"
   
   "9.3":
     epic: 9

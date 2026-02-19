@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useChannels } from "@/lib/hooks/useChannels";
+import { useUnreadCounts } from "@/lib/hooks/useUnreadCounts";
+import { Badge } from "@/components/ui/Badge";
 
 export interface ChannelListProps {
   onChannelSelect?: () => void;
@@ -13,6 +15,20 @@ export interface ChannelListProps {
 export function ChannelList({ onChannelSelect }: ChannelListProps) {
   const { channels, loading, error } = useChannels();
   const pathname = usePathname();
+  const activeChannelId = useMemo(() => {
+    const channelPathPrefix = "/app/channels/";
+
+    if (!pathname.startsWith(channelPathPrefix)) {
+      return "";
+    }
+
+    return pathname.slice(channelPathPrefix.length).split("/")[0]?.trim() ?? "";
+  }, [pathname]);
+  const { unreadCounts } = useUnreadCounts({
+    channels,
+    activeTargetId: activeChannelId,
+    activeTargetType: "channel",
+  });
 
   const sortedChannels = useMemo(() => {
     return [...channels].sort((firstChannel, secondChannel) =>
@@ -56,6 +72,7 @@ export function ChannelList({ onChannelSelect }: ChannelListProps) {
     <ul className="space-y-1">
       {sortedChannels.map((channel) => {
         const isActive = pathname === `/app/channels/${channel.channelId}`;
+        const unreadCount = unreadCounts[channel.channelId] ?? 0;
         
         return (
           <li key={channel.channelId}>
@@ -63,7 +80,7 @@ export function ChannelList({ onChannelSelect }: ChannelListProps) {
               href={`/app/channels/${channel.channelId}`}
               onClick={onChannelSelect}
               className={`
-                flex w-full items-center rounded px-2 py-1.5 text-left text-sm transition-colors
+                flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-sm transition-colors
                 ${isActive 
                   ? 'bg-gray-300 border-l-4 border-primary-brand font-semibold text-gray-900' 
                   : 'text-gray-800 hover:bg-gray-200'
@@ -71,6 +88,11 @@ export function ChannelList({ onChannelSelect }: ChannelListProps) {
               `}
             >
               <span className="truncate"># {channel.name}</span>
+              {unreadCount > 0 ? (
+                <Badge size="sm" className="ml-2 flex-shrink-0">
+                  {unreadCount}
+                </Badge>
+              ) : null}
             </Link>
           </li>
         );

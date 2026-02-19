@@ -87,7 +87,7 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
     setText("");
     setIsFocused(false);
     if (textareaRef.current) {
-      resetTextareaHeight(textareaRef.current, isMobile);
+      resetTextareaHeight(textareaRef.current, window.innerWidth < MOBILE_BREAKPOINT);
     }
   }, [channelId]);
 
