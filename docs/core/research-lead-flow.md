@@ -235,16 +235,16 @@ Problem Candidate #2: No way to track home maintenance
 
 ---
 
-**SCORING (4 dimensions, 1-10 each, total /40):**
+**SCORING (4 dimensions, 1-25 each, total /100):**
 
-**1. Pain Intensity (1-10):**
+**1. Pain Intensity (1-25):**
 - How severely does this affect people?
 - **Evidence:** Strong emotional language ("hate", "nightmare", "impossible", "waste"), financial cost, time waste, stress/anxiety
 - **Active solution-seeking:** People trying multiple tools, building DIY solutions, asking "why doesn't this exist?"
 - **Frequency vs. Stakes:** Daily annoyances can score high (8-10). BUT high-stakes infrequent pain (tax filing, weddings, moving, gift-giving) can score EQUALLY high if the impact is severe enough.
 - **Impact depth:** Does this cost real money? Waste hours? Cause emotional distress?
 
-**2. Willingness to Pay (1-10):** ← REPLACES "Evidence Breadth"
+**2. Willingness to Pay (1-25):** ← REPLACES "Evidence Breadth"
 - Are people ALREADY paying for solutions in this space (even bad ones)?
 - **10:** Multiple paid products exist, users paying $10-50+/mo, active discussions about pricing
 - **8-9:** Some paid solutions exist, or people paying for adjacent tools/workarounds
@@ -254,7 +254,7 @@ Problem Candidate #2: No way to track home maintenance
 - **1:** Zero evidence anyone would pay for this (fails kill gate #1)
 - **Note:** We care about SPENDING SIGNALS, not just "how many people mentioned it." One person paying $50/mo is stronger signal than 100 Reddit upvotes.
 
-**3. Competition Gap (1-10):** ← RENAMED, SAME INVERTED SCALE
+**3. Competition Gap (1-25):** ← RENAMED, SAME INVERTED SCALE
 - How poorly served is this currently?
 - **10:** No solutions exist at all — people use terrible manual workarounds
 - **8-9:** Solutions exist but ALL are bad (low ratings, major feature gaps, abandoned)
@@ -264,7 +264,7 @@ Problem Candidate #2: No way to track home maintenance
 - **1:** Excellent solutions already serve this need perfectly (fails kill gate #4)
 - **Note:** This is INVERTED. We want UNDERSERVED problems, not crowded markets.
 
-**4. Buildability (1-10):**
+**4. Buildability (1-25):**
 - Can this be built with our configured platform and stack?
 - **Platform match:** Config says web-app → can this be a web app?
 - **Technical complexity:** Solo developer scope (40-60 stories max)?
@@ -279,13 +279,13 @@ Problem Candidate #2: No way to track home maintenance
   - **1:** Requires data that provably doesn't exist in accessible form (fails kill gate #3)
   - **If value source scores ≤ 3, this fails kill gate #2 or #3** — eliminate before scoring.
 
-**Total Score: 4-40 points per problem**
+**Total Score: 4-100 points per problem**
 
-**Minimum threshold: 28/40 to proceed**
+**Minimum threshold: 70/100 to proceed**
 
 **Disqualifiers (covered by kill gates + threshold):**
 - Kill gate failures (no spending, cold start, can't build, incumbent fortress)
-- Score below 28/40 (insufficient opportunity even if no kill gates triggered)
+- Score below 70/100 (insufficient opportunity even if no kill gates triggered)
 
 ---
 
@@ -318,11 +318,11 @@ Problem Candidate #2: No way to track home maintenance
 - ✅ Buildable with our stack
 - ✅ No incumbent fortress
 
-## Score: [X]/40 (minimum 28 required)
-- **Pain Intensity:** X/10 - [Evidence summary]
-- **Willingness to Pay:** X/10 - [What people currently pay, spending signals]
-- **Competition Gap:** X/10 - [Current solution landscape - what exists, why it's bad/missing]
-- **Buildability:** X/10 - [Platform fit, stack alignment, complexity estimate, value source]
+## Score: [X]/100 (minimum 70 required)
+- **Pain Intensity:** X/25 - [Evidence summary]
+- **Willingness to Pay:** X/25 - [What people currently pay, spending signals]
+- **Competition Gap:** X/25 - [Current solution landscape - what exists, why it's bad/missing]
+- **Buildability:** X/25 - [Platform fit, stack alignment, complexity estimate, value source]
 
 ## Problem Description
 [2-3 sentence description of the unsolved problem]
@@ -566,21 +566,21 @@ For each solution, search:
 
 #### 2. Score Each Solution (2-3 min)
 
-**4 dimensions (1-10 each, total /40):**
+**4 dimensions (1-25 each, total /100):**
 
-**1. Novelty (1-10):**
+**1. Novelty (1-25):**
 - How genuinely unique is this approach?
 - Does a direct competitor already do this exact thing?
 - Is there a genuinely novel angle or insight?
 - Would someone say "huh, clever" — not "oh, another [category] app"?
 
-**2. Problem-Solution Fit (1-10):**
+**2. Problem-Solution Fit (1-25):**
 - Does this actually solve the discovered problem well?
 - Does it address the ROOT CAUSE or just symptoms?
 - Would target customers see immediate value?
 - Is the solution aligned with how customers experience the problem?
 
-**3. Feasibility (1-10):**
+**3. Feasibility (1-25):**
 - Can this be built as a [platform from config]?
 - Does it fit our stack?
 - Complexity within solo dev scope (40-60 stories)?
@@ -591,26 +591,26 @@ For each solution, search:
   - Scraping or unreliable sources (4-5) → high maintenance, fragile
   - Other users' contributions (2-3) → cold start problem, app useless on day 1
   - Data doesn't exist in accessible form (1) → disqualify
-  - **Ask: "On day 1 with 0 users, does this product deliver value?"** If no, cap Feasibility at 4/10.
+  - **Ask: "On day 1 with 0 users, does this product deliver value?"** If no, cap Feasibility at 10/25.
 
-**4. Revenue Thesis (1-10):**
+**4. Revenue Thesis (1-25):**
 - Can Mary write a compelling one-paragraph revenue thesis?
 - **Format:** "People currently [pay $X for / spend Y hours on] [inferior solution]. We charge $Z/mo. At realistic users × conversion, Year 1 ARR = $W."
-- **10:** Clear thesis with realistic assumptions, defensible math, proven willingness to pay
-- **8-9:** Solid thesis but some assumptions require mild optimism
-- **6-7:** Plausible but requires several optimistic assumptions
-- **4-5:** Weak thesis, relies on heroic conversion rates or unproven pricing
-- **2-3:** Very speculative, minimal evidence of willingness to pay
-- **1:** Cannot write a coherent revenue thesis with realistic assumptions
+- **22-25:** Clear thesis with realistic assumptions, defensible math, proven willingness to pay
+- **18-21:** Solid thesis but some assumptions require mild optimism
+- **13-17:** Plausible but requires several optimistic assumptions
+- **8-12:** Weak thesis, relies on heroic conversion rates or unproven pricing
+- **3-7:** Very speculative, minimal evidence of willingness to pay
+- **1-2:** Cannot write a coherent revenue thesis with realistic assumptions
 - **If the math requires heroic assumptions → score low**
 
-**Total: 4-40 points per solution**
+**Total: 4-100 points per solution**
 
-**Minimum threshold: 28/40 to proceed**
+**Minimum threshold: 70/100 to proceed**
 
 #### 3. Select Top Solution (1 min)
 
-- Pick highest scoring solution (must score ≥28/40)
+- Pick highest scoring solution (must score ≥70/100)
 - If tied, prefer higher **Novelty** score (novel > incremental)
 - Document reasoning — specifically WHY this approach is different from existing solutions
 
@@ -624,11 +624,11 @@ For each solution, search:
 ## Concept: [Name from CIS]
 [2-3 sentence description from CIS]
 
-## Score: [X]/40 (minimum 28 required)
-- **Novelty:** X/10 - [What's genuinely new about this approach]
-- **Problem-Solution Fit:** X/10 - [How well it addresses the discovered problem]
-- **Feasibility:** X/10 - [Technical fit assessment, value source check]
-- **Revenue Thesis:** X/10 - [Can we write a compelling revenue story?]
+## Score: [X]/100 (minimum 70 required)
+- **Novelty:** X/25 - [What's genuinely new about this approach]
+- **Problem-Solution Fit:** X/25 - [How well it addresses the discovered problem]
+- **Feasibility:** X/25 - [Technical fit assessment, value source check]
+- **Revenue Thesis:** X/25 - [Can we write a compelling revenue story?]
 
 ## Revenue Thesis
 [One paragraph following the format: "People currently [pay $X for / spend Y hours on] [inferior solution]. We charge $Z/mo. At realistic users × conversion, Year 1 ARR = $W." Include justification for pricing, conversion assumptions, and why this is defensible.]
@@ -1148,7 +1148,7 @@ Update existing project-registry.json entry with final name, research directory,
 **Why Underserved:** [1-sentence solution gap]
 **Solution:** [1-sentence solution description]
 **What's Novel:** [1-sentence novelty pitch]
-**Solution Score:** [X]/40
+**Solution Score:** [X]/100
 **Quinn's Verdict:** [PROCEED / concerns noted]
 **Development Estimate:** [stories] stories (~[weeks] weeks)
 **Platform:** [from config]
