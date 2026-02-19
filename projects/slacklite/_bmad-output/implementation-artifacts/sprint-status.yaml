@@ -245,9 +245,27 @@ stories:
   "2.8":
     epic: 2
     title: "Implement Protected Route Middleware"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["2.5"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T12:00:00-06:00"
+    notes: |
+      ✅ Protected route middleware implemented
+      ✅ Created middleware.ts in project root protecting /app/* routes
+      ✅ Created lib/firebase-admin.ts with Firebase Admin SDK setup
+      ✅ Token verification using verifyIdToken from Firebase Admin SDK
+      ✅ Redirects unauthenticated users to /signin
+      ✅ Attaches x-user-id header for authenticated requests
+      ✅ Updated .env.example with Firebase Admin SDK credentials
+      ✅ Added runtime='nodejs' for Next.js 15 compatibility
+      ✅ All acceptance criteria completed
+      ✅ ESLint passed (1 warning: unused error variable in catch block)
+      
+      Commit: 192f659 (feat(2.8): Implement protected route middleware)
+      
+      Note: Build fails due to existing Firebase client env issue (auth/invalid-api-key during prerender).
+      This is unrelated to middleware implementation.
   
   # Epic 3: Workspace & Channel Management
   "3.1":
