@@ -1,0 +1,72 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run linting
+        run: pnpm lint
+
+      - name: Run type-check
+        run: pnpm exec tsc --noEmit
+
+      - name: Run unit tests
+        run: pnpm test:coverage
+
+      - name: Run Firebase Emulator tests
+        if: ${{ hashFiles('tests/integration/**/*.test.*', 'tests/integration/**/*.spec.*') != '' }}
+        run: |
+          npm install -g firebase-tools
+          firebase emulators:exec --only firestore,database "pnpm exec vitest tests/integration --run"
+
+      - name: Run E2E tests
+        if: ${{ hashFiles('tests/e2e/**/*.spec.*') != '' }}
+        run: |
+          pnpm exec playwright install --with-deps
+          pnpm test:e2e
+
+      - name: Build Next.js app
+        run: pnpm build
+
+  deploy-preview:
+    name: Deploy Preview
+    needs: test
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel Preview
+        uses: amondnet/vercel-action@v25
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-comment: true
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          scope: ${{ secrets.VERCEL_ORG_ID }}

@@ -1,3 +1,8 @@
+# SlackLite
+
+[![CI/CD](https://github.com/kelly-1224s-projects/slacklite/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kelly-1224s-projects/slacklite/actions/workflows/ci.yml)
+[![Deployment](https://github.com/kelly-1224s-projects/slacklite/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/kelly-1224s-projects/slacklite/actions/workflows/deploy.yml)
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -44,6 +49,7 @@ pnpm run emulators
 ```
 
 This will start:
+
 - **Authentication Emulator**: http://127.0.0.1:9099
 - **Firestore Emulator**: http://127.0.0.1:8080
 - **Realtime Database Emulator**: http://127.0.0.1:9000

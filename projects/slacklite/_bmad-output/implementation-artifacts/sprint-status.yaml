@@ -807,7 +807,7 @@ stories:
   "11.2":
     epic: 11
     title: "Deploy Next.js App to Vercel Production"
-    status: todo
+    status: review
     estimated_effort: "1-2 hours"
     dependencies: ["1.5", "11.1"]
   
