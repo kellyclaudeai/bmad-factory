@@ -29,12 +29,12 @@ stories:
   "1.2":
     epic: 1
     title: "Configure Firebase Project via CLI"
-    status: in-progress
+    status: review
     estimated_effort: "2 hours"
     dependencies: []
     completed_by: "Amelia"
     completed_at: "2026-02-19T00:30:00-06:00"
-    notes: "Code review found 5 MAJOR security/architecture issues requiring rework. Minor fixes applied and committed."
+    notes: "All 5 MAJOR security issues FIXED. Patched firestore.rules (workspace scoping, DM validation, unread counts), database.rules.json (RTDB workspace scoping), setup-firebase.sh (reliable provisioning). Tests written. Ready for review."
   
   "1.3":
     epic: 1
