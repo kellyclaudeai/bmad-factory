@@ -582,9 +582,10 @@ stories:
   "5.1":
     epic: 5
     title: "Display Workspace Members in Sidebar"
-    status: todo
+    status: in_progress
     estimated_effort: "2 hours"
     dependencies: ["3.1"]
+    started_at: "2026-02-19T14:24:00-06:00"
   
   "5.2":
     epic: 5
