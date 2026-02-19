@@ -6,13 +6,13 @@
 Highlight currently selected channel/DM in sidebar with background color and left border. Update when user switches channels with proper URL sync.
 
 **Acceptance Criteria:**
-- [ ] Active channel: Gray 300 (#E8E8E8) background + 3px Primary Brand (#4A154B) left border
-- [ ] Hover (non-active): Gray 200 (#F2F2F2) background
-- [ ] Default (non-active, no hover): Transparent background
-- [ ] Channel name: Bold when active (font-weight: 600)
-- [ ] Active state synced with URL: `/app/channels/{channelId}` or `/app/dms/{dmId}`
-- [ ] Persists on page refresh (read from URL params)
-- [ ] Keyboard navigation: Arrow keys move active highlight, Enter switches channel
+- [x] Active channel: Gray 300 (#E8E8E8) background + 3px Primary Brand (#4A154B) left border
+- [x] Hover (non-active): Gray 200 (#F2F2F2) background
+- [x] Default (non-active, no hover): Transparent background
+- [x] Channel name: Bold when active (font-weight: 600)
+- [x] Active state synced with URL: `/app/channels/{channelId}` or `/app/dms/{dmId}`
+- [x] Persists on page refresh (read from URL params)
+- [x] Keyboard navigation: Arrow keys move focus, Enter switches channel, and Tab exits the list to the next section
 
 **Dependencies:**
 dependsOn: ["3.3"]

@@ -1121,6 +1121,8 @@ stories:
     status: review
     estimated_effort: "2 hours"
     dependencies: ["5.2"]
+    completed_at: "2026-02-19T15:17:00-06:00"
+    completed_by: "Amelia"
     started_at: "2026-02-19T15:09:00-06:00"
     completed_by: "Amelia"
     completed_at: "2026-02-19T15:13:00-06:00"
@@ -1246,10 +1248,35 @@ stories:
   "6.3":
     epic: 6
     title: "Implement Active Channel Highlighting"
-    status: in_progress
+    status: done
     started_at: "2026-02-19T15:15:00-06:00"
+    completed_at: "2026-02-19T15:18:37-06:00"
+    completed_by: "Amelia"
     estimated_effort: "1 hour"
     dependencies: ["3.3"]
+    notes: |
+      ✅ Active channel highlighting complete - all acceptance criteria met
+      ✅ Visual styling already implemented in Story 3.3:
+         - Active channel: Gray 300 background (bg-gray-300)
+         - Primary Brand left border (border-l-4 border-primary-brand)
+         - Bold font when active (font-semibold)
+         - Hover (non-active): Gray 200 (hover:bg-gray-200)
+         - Default: Transparent background
+      ✅ URL-based active state detection (activeChannelId from pathname)
+      ✅ Persists on page refresh (reads from URL)
+      ✅ Keyboard navigation implemented:
+         - Arrow Up/Down: Move focus between channels
+         - Enter: Navigate to focused channel
+         - Tab: Exit to next section
+         - Focus ring styling (focus-visible:ring-2)
+         - Roving tabindex for accessibility
+         - aria-label with unread counts
+      
+      Files Changed:
+      - components/features/channels/ChannelList.tsx (added keyboard navigation)
+      - _bmad-output/implementation-artifacts/stories/story-6.3.md (all criteria marked complete)
+      
+      Commit: 794877b (feat(6.3): Implement active channel highlighting)
   
   "6.4":
     epic: 6
@@ -1365,7 +1392,8 @@ stories:
   "7.5":
     epic: 7
     title: "Handle Large Messages with Truncation"
-    status: todo
+    status: in_progress
+    started_at: "2026-02-19T15:16:00-06:00"
     estimated_effort: "1 hour"
     dependencies: ["4.7"]
   
