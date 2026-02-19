@@ -125,17 +125,22 @@ async function scanSessionFiles(activeMinutes: number): Promise<FrontendSession[
           if (file.includes('deleted') || file.includes('closed') || file.includes('frozen')) continue;
           
           const filePath = path.join(sessionsDir, file);
-          const stats = await fs.stat(filePath);
+          const lockPath = filePath + '.lock';
           
-          // Project Lead sessions: show if in registry (ignore time filter)
-          // Other agents: respect time filter
-          const isProjectLead = agentName === 'project-lead';
-          if (isProjectLead) {
-            // For project-lead, only include if it matches a project in the registry
-            // We'll check this after reading session metadata
-          } else if (stats.mtimeMs < cutoff) {
+          // CRITICAL: Only show sessions with active lock files
+          // This prevents ghost sessions from appearing in the UI
+          let hasLock = false;
+          try {
+            await fs.access(lockPath);
+            hasLock = true;
+          } catch {
+            // No lock file = session not active
             continue;
           }
+          
+          if (!hasLock) continue;
+          
+          const stats = await fs.stat(filePath);
           
           console.log(`[DEBUG] Found active session in ${agentName}: ${file}`);
           const sessionId = file.replace('.jsonl', '');

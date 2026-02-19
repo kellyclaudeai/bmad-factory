@@ -6,17 +6,17 @@
 Allow users to click a member name to start a DM. Create DM document if doesn't exist, navigate to DM view with proper duplicate checking.
 
 **Acceptance Criteria:**
-- [ ] Click member name → call `startDM(otherUserId)`
-- [ ] Check if DM already exists: Query `/workspaces/{workspaceId}/directMessages` where `userIds` array contains both user IDs
-- [ ] If exists: Navigate to `/app/dms/{dmId}`
-- [ ] If doesn't exist: Create new DM document:
-  - [ ] dmId: auto-generated
-  - [ ] workspaceId: current workspace
-  - [ ] userIds: [currentUserId, otherUserId] (sorted alphabetically for consistency)
-  - [ ] createdAt: serverTimestamp()
-  - [ ] lastMessageAt: null
-- [ ] Navigate to `/app/dms/{dmId}` after creation
-- [ ] Loading state: Show spinner during check/create
+- [x] Click member name → call `startDM(otherUserId)`
+- [x] Check if DM already exists: Query `/workspaces/{workspaceId}/directMessages` where `userIds` array contains both user IDs
+- [x] If exists: Navigate to `/app/dms/{dmId}`
+- [x] If doesn't exist: Create new DM document:
+  - [x] dmId: auto-generated
+  - [x] workspaceId: current workspace
+  - [x] userIds: [currentUserId, otherUserId] (sorted alphabetically for consistency)
+  - [x] createdAt: serverTimestamp()
+  - [x] lastMessageAt: null
+- [x] Navigate to `/app/dms/{dmId}` after creation
+- [x] Loading state: Show spinner during check/create
 
 **Dependencies:**
 dependsOn: ["5.1"]
