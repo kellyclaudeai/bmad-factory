@@ -68,6 +68,7 @@ type ProjectState = {
 
 type Session = {
   sessionKey: string
+  sessionId?: string
   label: string
   agentType: string
   projectId?: string

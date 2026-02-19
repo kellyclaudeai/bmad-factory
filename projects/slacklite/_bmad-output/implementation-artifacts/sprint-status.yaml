@@ -427,9 +427,10 @@ stories:
   "3.6":
     epic: 3
     title: "Add Default #general Channel Creation"
-    status: todo
+    status: in_progress
     estimated_effort: "1 hour"
     dependencies: ["2.7"]
+    started_at: "2026-02-19T14:25:00-06:00"
   
   "3.7":
     epic: 3
@@ -448,9 +449,10 @@ stories:
   "3.9":
     epic: 3
     title: "Build Invite Team Modal UI"
-    status: todo
+    status: in_progress
     estimated_effort: "2 hours"
     dependencies: ["3.1"]
+    started_at: "2026-02-19T14:26:00-06:00"
   
   "3.10":
     epic: 3

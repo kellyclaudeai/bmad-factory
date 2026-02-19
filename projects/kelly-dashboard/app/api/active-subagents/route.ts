@@ -79,10 +79,8 @@ function extractPersonaFromAgentName(agentName: string): string | undefined {
   return personas[agentName] || agentName;
 }
 
-async function findActiveSubagentsForProject(projectId: string, activeMinutes: number): Promise<ActiveSubagent[]> {
+async function findActiveSubagentsForProject(projectId: string, _activeMinutes: number): Promise<ActiveSubagent[]> {
   const subagents: ActiveSubagent[] = [];
-  const now = Date.now();
-  const cutoff = now - (activeMinutes * 60 * 1000);
   
   // Load story titles from sprint-status.yaml
   const storyTitles = await loadStoryTitles(projectId);
@@ -98,52 +96,89 @@ async function findActiveSubagentsForProject(projectId: string, activeMinutes: n
     for (const dir of bmadAgents) {
       const agentName = dir.name;
       const sessionsDir = path.join(AGENTS_ROOT, agentName, 'sessions');
-      const indexPath = path.join(sessionsDir, 'sessions.json');
       
       try {
-        // Read sessions.json index for labels and timestamps
-        const indexContent = await fs.readFile(indexPath, 'utf8');
-        const sessionIndex = JSON.parse(indexContent);
+        // Find .lock files — ONLY sessions with active locks are truly running
+        const files = await fs.readdir(sessionsDir);
+        const lockFiles = files.filter(f => f.endsWith('.jsonl.lock'));
         
-        // Find sessions with matching projectId in label
-        for (const [sessionKey, sessionData] of Object.entries(sessionIndex)) {
-          const data = sessionData as any;
-          const label = data.label;
-          const updatedAt = data.updatedAt;
+        for (const lockFile of lockFiles) {
+          const jsonlFile = lockFile.replace('.lock', '');
+          const sessionId = jsonlFile.replace('.jsonl', '');
+          const jsonlPath = path.join(sessionsDir, jsonlFile);
           
-          if (!label || !label.toLowerCase().includes(projectId.toLowerCase())) {
-            continue;
-          }
+          // Get creation time of the jsonl file (when session started)
+          let startedAt: number | undefined;
+          try {
+            const stat = await fs.stat(jsonlPath);
+            startedAt = stat.birthtimeMs;
+          } catch { /* ignore */ }
           
-          // Check activity window using updatedAt from index
-          if (updatedAt && updatedAt < cutoff) {
-            continue;
-          }
+          // Read first few lines to find story assignment and project match
+          let story: string | undefined;
+          let label: string | undefined;
+          let matchesProject = false;
           
-          // Extract session ID from sessionKey (format: agent:bmad-...:subagent:UUID)
-          const sessionId = sessionKey.split(':').pop() || sessionKey;
+          try {
+            const fd = await fs.open(jsonlPath, 'r');
+            const buf = Buffer.alloc(4096);
+            await fd.read(buf, 0, 4096, 0);
+            await fd.close();
+            const head = buf.toString('utf8');
+            
+            // Check if this session is for our project
+            if (head.toLowerCase().includes(projectId.toLowerCase())) {
+              matchesProject = true;
+            }
+            
+            // Extract story number
+            const storyMatch = head.match(/Story (\d+\.\d+)/);
+            if (storyMatch) {
+              story = storyMatch[1];
+            }
+            
+            // Try to get label from session index
+            const indexPath = path.join(sessionsDir, 'sessions.json');
+            try {
+              const indexContent = await fs.readFile(indexPath, 'utf8');
+              const sessionIndex = JSON.parse(indexContent);
+              for (const [key, data] of Object.entries(sessionIndex)) {
+                if (key.includes(sessionId) || (data as any).sessionId === sessionId) {
+                  label = (data as any).label;
+                  if (label?.toLowerCase().includes(projectId.toLowerCase())) {
+                    matchesProject = true;
+                  }
+                  if (!story) {
+                    story = label ? extractStoryFromLabel(label) : undefined;
+                  }
+                  break;
+                }
+              }
+            } catch { /* no index */ }
+          } catch { /* can't read file */ }
           
-          const story = extractStoryFromLabel(label);
+          if (!matchesProject) continue;
+          
           const storyTitle = story ? storyTitles.get(story) : undefined;
           const persona = extractPersonaFromAgentName(agentName);
-          const runtime = updatedAt ? calculateRuntime(updatedAt) : undefined;
+          const runtime = startedAt ? calculateRuntime(startedAt) : undefined;
           
           subagents.push({
-            sessionKey,
+            sessionKey: `agent:${agentName}:${sessionId}`,
             sessionId,
             agentType: agentName,
             story,
             storyTitle,
             persona,
             status: 'active',
-            startedAt: updatedAt ? new Date(updatedAt).toISOString() : undefined,
-            lastActivity: updatedAt ? new Date(updatedAt).toISOString() : new Date().toISOString(),
+            startedAt: startedAt ? new Date(startedAt).toISOString() : undefined,
+            lastActivity: new Date().toISOString(),
             label,
             runtime,
           });
         }
       } catch (error) {
-        // Skip agents without sessions.json
+        // Skip agents without sessions dir
         continue;
       }
     }

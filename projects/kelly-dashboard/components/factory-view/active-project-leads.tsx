@@ -8,6 +8,7 @@ import Link from "next/link";
 
 type Session = {
   sessionKey: string;
+  sessionId?: string;
   label: string;
   agentType: string;
   projectId?: string;
@@ -102,7 +103,7 @@ function getPlatformLabel(session: Session): string {
 }
 
 function ProjectLeadCard({ session }: { session: Session }) {
-  const projectId = session.projectId || session.sessionId.slice(0, 8);
+  const projectId = session.projectId || session.sessionId?.slice(0, 8) || session.sessionKey?.split(':').pop()?.slice(0, 8) || 'unknown';
   const title = session.projectTitle || (session.projectId ? humanizeProjectId(session.projectId) : "Unknown Project");
   const oneLiner = session.projectDescription || (session.projectId ? inferProjectOneLiner(session.projectId) : "Project session (no registry entry)");
   const status = session.status || "active";

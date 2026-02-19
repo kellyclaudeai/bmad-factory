@@ -6,18 +6,18 @@
 Create modal for adding new channels with name validation (lowercase, hyphens only, no spaces). Accessible keyboard navigation, focus trap, and real-time input formatting.
 
 **Acceptance Criteria:**
-- [ ] Create `components/features/channels/CreateChannelModal.tsx`
-- [ ] Trigger: "+ New Channel" button in sidebar
-- [ ] Modal content:
-  - [ ] Title: "Create a Channel" (H3)
-  - [ ] Input: Text field with `#` prefix (non-editable), placeholder="channel-name"
-  - [ ] Helper text: "Lowercase, no spaces. Use - for multiple words."
-  - [ ] Buttons: Cancel (Secondary), Create (Primary, disabled if invalid)
-- [ ] Validation: Real-time, lowercase only, hyphens allowed, 1-50 chars
-- [ ] Auto-format: Convert spaces to hyphens, uppercase to lowercase
-- [ ] Error states: Show red border + error message if invalid
-- [ ] Focus trap: Tab cycles through input and buttons
-- [ ] ESC key closes modal
+- [x] Create `components/features/channels/CreateChannelModal.tsx`
+- [x] Trigger: "+ New Channel" button in sidebar
+- [x] Modal content:
+  - [x] Title: "Create a Channel" (H3)
+  - [x] Input: Text field with `#` prefix (non-editable), placeholder="channel-name"
+  - [x] Helper text: "Lowercase, no spaces. Use - for multiple words."
+  - [x] Buttons: Cancel (Secondary), Create (Primary, disabled if invalid)
+- [x] Validation: Real-time, lowercase only, hyphens allowed, 1-50 chars
+- [x] Auto-format: Convert spaces to hyphens, uppercase to lowercase
+- [x] Error states: Show red border + error message if invalid
+- [x] Focus trap: Tab cycles through input and buttons
+- [x] ESC key closes modal
 
 **Dependencies:**
 dependsOn: ["3.1", "1.6"]
