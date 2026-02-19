@@ -17,20 +17,24 @@ stories:
   "1.1":
     epic: 1
     title: "Initialize Next.js Project with TypeScript"
-    status: review
+    status: done
     estimated_effort: "1 hour"
     dependencies: []
     completed_by: "Amelia"
     completed_at: "2026-02-19T01:15:00-06:00"
+    reviewed_by: "Amelia"
+    reviewed_at: "2026-02-19T01:30:00-06:00"
+    notes: "Code review passed. All fixes committed in 21fdc7b (pinned dependencies, strengthened TypeScript, added missing design tokens, fixed app metadata, updated CSS variables, replaced starter page, migrated lint command)."
   
   "1.2":
     epic: 1
     title: "Configure Firebase Project via CLI"
-    status: review
+    status: in-progress
     estimated_effort: "2 hours"
     dependencies: []
     completed_by: "Amelia"
     completed_at: "2026-02-19T00:30:00-06:00"
+    notes: "Code review found 5 MAJOR security/architecture issues requiring rework. Minor fixes applied and committed."
   
   "1.3":
     epic: 1
