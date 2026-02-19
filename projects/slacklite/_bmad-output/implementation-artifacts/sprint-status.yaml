@@ -257,9 +257,22 @@ stories:
   "4.1":
     epic: 4
     title: "Create Message Data Models"
-    status: todo
+    status: review
     estimated_effort: "1 hour"
     dependencies: ["1.4"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T11:06:00-06:00"
+    notes: |
+      ✅ Message data models implemented in lib/types/models.ts
+      ✅ TypeScript interfaces: Message, RTDBMessage, MessageInput, MessageMetadata, MessageStatus
+      ✅ Helper functions: createMessage(), validateMessage(), createRTDBMessage()
+      ✅ Timestamp helpers: serverTimestamp(), toDate()
+      ✅ Firestore path documented: /workspaces/{workspaceId}/channels/{channelId}/messages/{messageId}
+      ✅ RTDB path documented: /messages/{workspaceId}/{channelId}/{messageId}
+      ✅ All acceptance criteria met and marked complete in story file
+      ✅ ESLint and TypeScript validation passed
+      
+      Commit: ed66d78 (feat(4.1): Create message data models)
   
   "4.2":
     epic: 4
