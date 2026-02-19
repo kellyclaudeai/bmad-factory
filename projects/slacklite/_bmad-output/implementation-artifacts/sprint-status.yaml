@@ -231,9 +231,35 @@ stories:
   "2.6":
     epic: 2
     title: "Implement Sign Out Functionality"
-    status: todo
+    status: review
     estimated_effort: "1 hour"
     dependencies: ["2.5"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T12:00:00-06:00"
+    notes: |
+      ✅ Sign-out functionality implemented with all acceptance criteria met
+      ✅ Updated AuthContext with signOut method:
+         - Calls Firebase signOut()
+         - Shows confirmation dialog (skippable via options)
+         - Clears auth state and redirects to landing page
+         - Handles errors gracefully with loading state
+         - Cleans up Firebase listeners (authListenerCleanupRef)
+         - Clears local storage and session storage
+      ✅ Created Header component with destructive sign-out button
+      ✅ Confirmation modal with H3 title, Cancel/Sign Out buttons
+      ✅ Created app header layout (app/app/layout.tsx)
+      ✅ Created app landing page (app/app/page.tsx)
+      ✅ Updated Modal component to support H3 titles
+      ✅ All acceptance criteria marked complete in story file
+      
+      Files Changed:
+      - lib/contexts/AuthContext.tsx (enhanced signOut + cleanup)
+      - components/ui/Modal.tsx (added titleTag prop)
+      - components/layout/Header.tsx (new)
+      - app/app/layout.tsx (new)
+      - app/app/page.tsx (new)
+      
+      Commit: 1449c09 (feat(2.6): Implement sign out functionality)
   
   "2.7":
     epic: 2
