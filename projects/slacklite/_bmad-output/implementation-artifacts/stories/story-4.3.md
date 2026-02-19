@@ -6,13 +6,13 @@
 Show message immediately in UI before server confirmation (optimistic rendering). Display gray "Sending..." timestamp, update to server time on confirmation with proper error handling.
 
 **Acceptance Criteria:**
-- [ ] On submit: Generate temp message ID (`temp_${Date.now()}`)
-- [ ] Immediately add message to local state with status: 'sending', gray timestamp text
-- [ ] Message appears at bottom of list instantly (<50ms)
-- [ ] No loading spinner (optimistic UI = instant feedback)
-- [ ] Scroll to bottom after adding
-- [ ] If send succeeds: Replace temp ID with server ID, update timestamp to server time, status: 'sent'
-- [ ] If send fails: Show red error text "Failed to send. Retry?" + retry button
+- [x] On submit: Generate temp message ID (`temp_${Date.now()}`)
+- [x] Immediately add message to local state with status: 'sending', gray timestamp text
+- [x] Message appears at bottom of list instantly (<50ms)
+- [x] No loading spinner (optimistic UI = instant feedback)
+- [x] Scroll to bottom after adding
+- [x] If send succeeds: Replace temp ID with server ID, update timestamp to server time, status: 'sent'
+- [x] If send fails: Show red error text "Failed to send. Retry?" + retry button
 
 **Dependencies:**
 dependsOn: ["4.2"]

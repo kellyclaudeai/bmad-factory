@@ -34,6 +34,20 @@ export interface User {
 }
 
 /**
+ * Canonical Firestore workspace invite document shape.
+ * Path: /workspaceInvites/{inviteId}
+ */
+export interface WorkspaceInvite {
+  inviteId: string;
+  workspaceId: string;
+  token: string;
+  createdBy: string;
+  expiresAt: Timestamp;
+  createdAt?: Timestamp;
+  workspaceName?: string;
+}
+
+/**
  * Canonical Firestore channel document shape.
  * Path: /workspaces/{workspaceId}/channels/{channelId}
  */

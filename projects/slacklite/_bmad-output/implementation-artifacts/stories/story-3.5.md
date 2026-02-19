@@ -6,18 +6,18 @@
 Connect Create Channel modal to Firestore. Write new channel document, update sidebar list via real-time listener, and auto-switch to new channel with duplicate name validation.
 
 **Acceptance Criteria:**
-- [ ] Submit creates document in `/workspaces/{workspaceId}/channels/{channelId}`:
-  - [ ] channelId: auto-generated
-  - [ ] workspaceId: current workspace
-  - [ ] name: user input (lowercase, hyphens)
-  - [ ] createdBy: current user UID
-  - [ ] createdAt: serverTimestamp()
-  - [ ] lastMessageAt: null
-  - [ ] messageCount: 0
-- [ ] Check for duplicate names: Query existing channels, show error if exists
-- [ ] On success: Modal closes, new channel appears in sidebar (real-time listener picks it up)
-- [ ] Auto-switch to new channel: Navigate to `/app/channels/{channelId}`
-- [ ] Error handling: Show error banner if creation fails
+- [x] Submit creates document in `/workspaces/{workspaceId}/channels/{channelId}`:
+  - [x] channelId: auto-generated
+  - [x] workspaceId: current workspace
+  - [x] name: user input (lowercase, hyphens)
+  - [x] createdBy: current user UID
+  - [x] createdAt: serverTimestamp()
+  - [x] lastMessageAt: null
+  - [x] messageCount: 0
+- [x] Check for duplicate names: Query existing channels, show error if exists
+- [x] On success: Modal closes, new channel appears in sidebar (real-time listener picks it up)
+- [x] Auto-switch to new channel: Navigate to `/app/channels/{channelId}`
+- [x] Error handling: Show error banner if creation fails
 
 **Dependencies:**
 dependsOn: ["3.4", "1.4"]

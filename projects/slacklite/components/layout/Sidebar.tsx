@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import ChannelList from "@/components/features/channels/ChannelList";
 import CreateChannelModal from "@/components/features/channels/CreateChannelModal";
@@ -10,6 +11,8 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/contexts/AuthContext";
+import { firestore } from "@/lib/firebase/client";
+import { createChannel } from "@/lib/utils/channels";
 
 interface DirectMessageItem {
   id: string;
@@ -37,6 +40,7 @@ export function Sidebar({
   directMessages = DEFAULT_DIRECT_MESSAGES,
 }: SidebarProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false);
   const [isInviteTeamModalOpen, setIsInviteTeamModalOpen] = useState(false);
   const workspaceId =
@@ -51,8 +55,14 @@ export function Sidebar({
     setIsCreateChannelModalOpen(false);
   };
 
-  const handleCreateChannel = () => {
+  const handleCreateChannel = async (name: string): Promise<void> => {
+    if (!user?.uid || !workspaceId) {
+      throw new Error("Unable to create channel. Please try again.");
+    }
+
+    const channelId = await createChannel(firestore, workspaceId, name, user.uid);
     setIsCreateChannelModalOpen(false);
+    router.push(`/app/channels/${channelId}`);
   };
 
   const handleOpenInviteTeamModal = () => {
@@ -174,6 +184,7 @@ export function Sidebar({
         isOpen={isInviteTeamModalOpen}
         onClose={handleCloseInviteTeamModal}
         workspaceId={workspaceId}
+        workspaceName={workspaceName}
       />
     </>
   );

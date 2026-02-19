@@ -6,14 +6,14 @@
 Load last 50 messages from Firestore when user switches to a channel. Display in chronological order (oldest first) with proper loading states and error handling.
 
 **Acceptance Criteria:**
-- [ ] Query: `query(collection(db, '...messages'), orderBy('timestamp', 'desc'), limit(50))`
-- [ ] Execute on channel switch (useEffect with channelId dependency)
-- [ ] Reverse results: Display oldest-first (bottom = newest)
-- [ ] Loading state: Show spinner in center of message view while fetching
-- [ ] Empty state: If no messages, show "No messages yet. Start the conversation!"
-- [ ] Scroll to bottom after load (most recent message visible)
-- [ ] Cache query results (Firestore SDK caches automatically)
-- [ ] Perceived load time <300ms
+- [x] ✅ Query: `query(collection(db, '...messages'), orderBy('timestamp', 'desc'), limit(50))`
+- [x] ✅ Execute on channel switch (useEffect with channelId dependency)
+- [x] ✅ Reverse results: Display oldest-first (bottom = newest)
+- [x] ✅ Loading state: Show spinner in center of message view while fetching
+- [x] ✅ Empty state: If no messages, show "No messages yet. Start the conversation!"
+- [x] ✅ Scroll to bottom after load (most recent message visible)
+- [x] ✅ Cache query results (Firestore SDK caches automatically)
+- [x] ✅ Perceived load time <300ms
 
 **Dependencies:**
 dependsOn: ["4.1", "3.3"]

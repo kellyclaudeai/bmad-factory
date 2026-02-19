@@ -70,6 +70,12 @@ type ProjectState = {
     inProgress: number
     todo: number
   }
+  stories?: Array<{
+    id: string
+    status: string
+    title?: string
+    epic?: string
+  }>
 }
 
 type Session = {
@@ -323,12 +329,21 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
     }
   }
 
-  // Extract completed and active story IDs
-  const completedStoryIds = projectState?.implementationArtifacts?.completedStories || []
-  const activeStoryIds = (projectState?.subagents || [])
-    .filter((s) => s.status?.toLowerCase() === 'active')
-    .map((s) => s.storyId || s.story)
-    .filter(Boolean) as string[]
+  // Extract completed and active story IDs from sprint-status (ground truth)
+  const completedStoryIds = projectState?.stories
+    ? projectState.stories
+        .filter((s: any) => s.status === 'done' || s.status === 'review')
+        .map((s: any) => s.id)
+    : (projectState?.implementationArtifacts?.completedStories || [])
+  
+  const activeStoryIds = projectState?.stories
+    ? projectState.stories
+        .filter((s: any) => s.status === 'in_progress' || s.status === 'in-progress')
+        .map((s: any) => s.id)
+    : (projectState?.subagents || [])
+        .filter((s) => s.status?.toLowerCase() === 'active')
+        .map((s) => s.storyId || s.story)
+        .filter(Boolean) as string[]
 
   const projectName = formatProjectName(id)
 
@@ -576,16 +591,7 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
               <SubagentGrid subagents={projectState.subagents} />
             </section>
 
-            <section>
-              <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
-                Next: Queued Stories
-              </h2>
-              <QueuedStories 
-                stories={storiesData?.stories || {}}
-                completedStoryIds={completedStoryIds}
-                activeStoryIds={activeStoryIds}
-              />
-            </section>
+{/* Queued Stories section removed */}
           </>
         )}
       </main>

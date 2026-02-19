@@ -1,9 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { useAuth } from "@/lib/contexts/AuthContext";
+import { firestore } from "@/lib/firebase/client";
+import {
+  buildWorkspaceInviteUrl,
+  createWorkspaceInvite,
+} from "@/lib/utils/workspaceInvites";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -11,6 +17,7 @@ export interface InviteTeamModalProps {
   isOpen: boolean;
   onClose: () => void;
   workspaceId: string;
+  workspaceName: string;
 }
 
 function parseEmails(input: string): string[] {
@@ -21,9 +28,14 @@ export default function InviteTeamModal({
   isOpen,
   onClose,
   workspaceId,
+  workspaceName,
 }: InviteTeamModalProps) {
+  const { user } = useAuth();
   const [emailInput, setEmailInput] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [inviteErrorMessage, setInviteErrorMessage] = useState("");
+  const [inviteLink, setInviteLink] = useState("");
+  const [isGeneratingInvite, setIsGeneratingInvite] = useState(false);
   const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<number | null>(null);
 
@@ -35,6 +47,9 @@ export default function InviteTeamModal({
       }
       setEmailInput("");
       setErrorMessage("");
+      setInviteErrorMessage("");
+      setInviteLink("");
+      setIsGeneratingInvite(false);
       setCopied(false);
     }
   }, [isOpen]);
@@ -48,15 +63,69 @@ export default function InviteTeamModal({
     [],
   );
 
-  const inviteLink = useMemo(() => {
-    const normalizedWorkspaceId = workspaceId.trim();
-
-    if (normalizedWorkspaceId.length === 0) {
-      return "https://slacklite.app/invite";
+  useEffect(() => {
+    if (!isOpen) {
+      return;
     }
 
-    return `https://slacklite.app/invite/${normalizedWorkspaceId}`;
-  }, [workspaceId]);
+    const normalizedWorkspaceId = workspaceId.trim();
+    const normalizedUserId = typeof user?.uid === "string" ? user.uid.trim() : "";
+
+    if (normalizedWorkspaceId.length === 0) {
+      setInviteLink("");
+      setInviteErrorMessage("Workspace is required to generate an invite.");
+      return;
+    }
+
+    if (normalizedUserId.length === 0) {
+      setInviteLink("");
+      setInviteErrorMessage("Please sign in again to generate an invite.");
+      return;
+    }
+
+    let isCancelled = false;
+    setIsGeneratingInvite(true);
+    setInviteErrorMessage("");
+
+    void createWorkspaceInvite({
+      firestore,
+      workspaceId: normalizedWorkspaceId,
+      createdBy: normalizedUserId,
+      workspaceName,
+    })
+      .then((invite) => {
+        if (isCancelled) {
+          return;
+        }
+
+        const baseUrl =
+          typeof window !== "undefined" ? window.location.origin : undefined;
+        setInviteLink(
+          buildWorkspaceInviteUrl(invite.workspaceId, invite.token, baseUrl),
+        );
+      })
+      .catch((error) => {
+        if (isCancelled) {
+          return;
+        }
+
+        if (error instanceof Error && error.message.trim().length > 0) {
+          setInviteErrorMessage(error.message);
+          return;
+        }
+
+        setInviteErrorMessage("Unable to generate an invite link right now.");
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsGeneratingInvite(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isOpen, user?.uid, workspaceId, workspaceName]);
 
   const validateEmails = (emails: string[]): boolean => {
     const invalid = emails.filter((email) => !EMAIL_REGEX.test(email));
@@ -76,6 +145,11 @@ export default function InviteTeamModal({
       return;
     }
 
+    if (!inviteLink) {
+      setInviteErrorMessage("Invite link is still generating. Please try again.");
+      return;
+    }
+
     if (!validateEmails(parsedEmails)) {
       return;
     }
@@ -84,6 +158,10 @@ export default function InviteTeamModal({
   };
 
   const handleCopy = async () => {
+    if (!inviteLink) {
+      return;
+    }
+
     await navigator.clipboard.writeText(inviteLink);
     setCopied(true);
 
@@ -143,14 +221,24 @@ export default function InviteTeamModal({
         <div className="flex gap-2">
           <input
             type="text"
-            value={inviteLink}
+            value={inviteLink || "Generating invite link..."}
             readOnly
             className="w-full rounded border border-gray-400 bg-gray-100 px-3 py-2 text-sm text-gray-800"
           />
-          <Button type="button" variant="secondary" onClick={handleCopy}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleCopy}
+            disabled={!inviteLink || isGeneratingInvite}
+          >
             {copied ? "Copied!" : "Copy"}
           </Button>
         </div>
+        {inviteErrorMessage ? (
+          <p className="mt-2 text-sm text-error" role="alert">
+            {inviteErrorMessage}
+          </p>
+        ) : null}
       </div>
 
       <div className="flex justify-end gap-3">

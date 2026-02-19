@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 import type { AuthError } from "firebase/auth";
 import {
@@ -19,6 +19,24 @@ const MIN_PASSWORD_LENGTH = 8;
 const EMAIL_ERROR_MESSAGE = "Please enter a valid email address";
 const PASSWORD_ERROR_MESSAGE = "Password must be at least 8 characters";
 const DEFAULT_SIGNUP_ERROR_MESSAGE = "Sign up failed. Please try again.";
+
+function getSafeRedirectPath(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim();
+
+  if (
+    normalized.length === 0 ||
+    !normalized.startsWith("/") ||
+    normalized.startsWith("//")
+  ) {
+    return null;
+  }
+
+  return normalized;
+}
 
 const validateEmail = (value: string): string => {
   if (!value) {
@@ -61,11 +79,13 @@ function deriveDisplayName(email: string): string {
 
 export default function SignUpPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const redirectPath = getSafeRedirectPath(searchParams.get("next"));
 
   const emailIsValid = EMAIL_REGEX.test(email);
   const passwordIsValid = password.length >= MIN_PASSWORD_LENGTH;
@@ -129,7 +149,7 @@ export default function SignUpPage() {
         isOnline: false,
       });
 
-      router.replace("/create-workspace");
+      router.replace(redirectPath ?? "/create-workspace");
     } catch (error) {
       setErrorMessage(getSignUpErrorMessage(error));
     } finally {
@@ -215,7 +235,11 @@ export default function SignUpPage() {
           <p className="mt-4 text-center text-base text-gray-700">
             Already have an account?{" "}
             <Link
-              href="/signin"
+              href={
+                redirectPath
+                  ? `/signin?next=${encodeURIComponent(redirectPath)}`
+                  : "/signin"
+              }
               className="font-medium text-primary-brand hover:text-primary-light focus:outline-none focus:underline"
             >
               Sign In

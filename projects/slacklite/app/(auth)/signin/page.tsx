@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import type { AuthError } from "firebase/auth";
 import {
@@ -13,6 +13,24 @@ import {
 
 import { Button, Input } from "@/components/ui";
 import { auth } from "@/lib/firebase/client";
+
+function getSafeRedirectPath(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim();
+
+  if (
+    normalized.length === 0 ||
+    !normalized.startsWith("/") ||
+    normalized.startsWith("//")
+  ) {
+    return null;
+  }
+
+  return normalized;
+}
 
 function getSignInErrorMessage(error: unknown): string {
   if (!error || typeof error !== "object" || !("code" in error)) {
@@ -37,16 +55,18 @@ function getSignInErrorMessage(error: unknown): string {
 
 export default function SignInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const redirectPath = getSafeRedirectPath(searchParams.get("next"));
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        router.replace("/app");
+        router.replace(redirectPath ?? "/app");
         return;
       }
 
@@ -54,7 +74,7 @@ export default function SignInPage() {
     });
 
     return unsubscribe;
-  }, [router]);
+  }, [redirectPath, router]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -68,7 +88,7 @@ export default function SignInPage() {
     try {
       await setPersistence(auth, browserLocalPersistence);
       await signInWithEmailAndPassword(auth, email.trim(), password);
-      router.replace("/app");
+      router.replace(redirectPath ?? "/app");
     } catch (error) {
       setErrorMessage(getSignInErrorMessage(error));
     } finally {
@@ -138,7 +158,11 @@ export default function SignInPage() {
         <p className="mt-4 text-center text-sm text-gray-700">
           Don&apos;t have an account?{" "}
           <Link
-            href="/signup"
+            href={
+              redirectPath
+                ? `/signup?next=${encodeURIComponent(redirectPath)}`
+                : "/signup"
+            }
             className="font-medium text-primary-brand transition-colors hover:text-primary-light"
           >
             Sign Up
