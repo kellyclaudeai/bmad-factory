@@ -481,10 +481,50 @@ stories:
   "3.5":
     epic: 3
     title: "Implement Channel Creation in Firestore"
-    status: in_progress
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["3.4"]
     started_at: "2026-02-19T14:31:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:41:00-06:00"
+    notes: |
+      ✅ Channel creation in Firestore complete - all acceptance criteria met
+      ✅ Created lib/utils/channels.ts with createChannel function:
+         - Auto-generates channelId
+         - Validates workspaceId, name, userId inputs
+         - Checks for duplicate channel names (collectionGroup query)
+         - Throws "Channel name already exists" on duplicate
+         - Creates channel doc at /workspaces/{workspaceId}/channels/{channelId}
+         - Fields: channelId, workspaceId, name, createdBy, createdAt (serverTimestamp), lastMessageAt (null), messageCount (0)
+         - Returns channelId
+      ✅ Updated components/layout/Sidebar.tsx:
+         - Imported useRouter, firestore, createChannel
+         - Made handleCreateChannel async
+         - Calls createChannel and navigates to /app/channels/{channelId} on success
+         - Error handling integrated with modal
+      ✅ Updated components/features/channels/CreateChannelModal.tsx:
+         - Changed onCreate to async: (name: string) => Promise<void>
+         - Added loading state (isCreating)
+         - Added errorMessage state with error banner display
+         - Disabled buttons during creation
+         - Clears error when name changes
+         - Shows "Creating..." in button during loading
+      ✅ Created tests/unit/lib/channels.test.ts:
+         - Tests duplicate channel rejection
+         - Tests successful channel creation with correct payload
+         - All tests passing (2/2)
+      ✅ Firestore index already exists in firestore.indexes.json (workspaceId ASC, name ASC)
+      ✅ ESLint validation passed
+      ✅ All acceptance criteria marked complete in story file
+      
+      Files Changed:
+      - lib/utils/channels.ts (new, 66 lines)
+      - tests/unit/lib/channels.test.ts (new, 109 lines)
+      - components/layout/Sidebar.tsx (updated imports, async handler with navigation)
+      - components/features/channels/CreateChannelModal.tsx (async onCreate, loading/error states, error banner)
+      - _bmad-output/implementation-artifacts/stories/story-3.5.md (all criteria marked complete)
+      
+      Commit: 3039b81 (feat(3.5): Implement channel creation in Firestore)
   
   "3.6":
     epic: 3
