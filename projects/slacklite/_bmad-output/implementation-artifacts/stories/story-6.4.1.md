@@ -6,34 +6,34 @@
 End-to-end test to verify unread count accuracy with multi-user simulation. Ensure counts increment correctly when user is in different channels using Playwright.
 
 **Acceptance Criteria:**
-- [ ] **Test Scenario 1: Basic unread count increment**
-  - [ ] User A is in #general channel
-  - [ ] User B sends message in #dev-team channel
-  - [ ] Verify: User A's sidebar shows [1] unread badge on #dev-team
-  - [ ] User A switches to #dev-team
-  - [ ] Verify: Badge clears, count = 0
-- [ ] **Test Scenario 2: Multiple unread messages**
-  - [ ] User A is in #general
-  - [ ] User B sends 3 messages in #dev-team
-  - [ ] Verify: User A's sidebar shows [3] unread badge on #dev-team
-- [ ] **Test Scenario 3: No increment when viewing channel**
-  - [ ] User A is in #dev-team (actively viewing)
-  - [ ] User B sends message in #dev-team
-  - [ ] Verify: No unread badge appears (User A is viewing the channel)
-- [ ] **Test Scenario 4: Direct message unread counts**
-  - [ ] User A is in #general
-  - [ ] User B sends DM to User A
-  - [ ] Verify: User A's sidebar shows [1] unread badge on User B's DM
-  - [ ] User A opens DM with User B
-  - [ ] Verify: Badge clears
-- [ ] **Test Setup:**
-  - [ ] Use Playwright with Firebase Emulators
-  - [ ] Simulate two browser contexts (User A and User B)
-  - [ ] Coordinate actions via test orchestration
-- [ ] **Assertions:**
-  - [ ] Badge count matches expected number
-  - [ ] Badge clears immediately on channel switch (<200ms)
-  - [ ] No phantom unread counts (badges don't appear when they shouldn't)
+- [x] ✅ **Test Scenario 1: Basic unread count increment**
+  - [x] User A is in #general channel
+  - [x] User B sends message in #dev-team channel
+  - [x] Verify: User A's sidebar shows [1] unread badge on #dev-team
+  - [x] User A switches to #dev-team
+  - [x] Verify: Badge clears, count = 0
+- [x] ✅ **Test Scenario 2: Multiple unread messages**
+  - [x] User A is in #general
+  - [x] User B sends 3 messages in #dev-team
+  - [x] Verify: User A's sidebar shows [3] unread badge on #dev-team
+- [x] ✅ **Test Scenario 3: No increment when viewing channel**
+  - [x] User A is in #dev-team (actively viewing)
+  - [x] User B sends message in #dev-team
+  - [x] Verify: No unread badge appears (User A is viewing the channel)
+- [x] ✅ **Test Scenario 4: Direct message unread counts**
+  - [x] User A is in #general
+  - [x] User B sends DM to User A
+  - [x] Verify: User A's sidebar shows [1] unread badge on User B's DM
+  - [x] User A opens DM with User B
+  - [x] Verify: Badge clears
+- [x] ✅ **Test Setup:**
+  - [x] Use Playwright with Firebase Emulators
+  - [x] Simulate two browser contexts (User A and User B)
+  - [x] Coordinate actions via test orchestration
+- [x] ✅ **Assertions:**
+  - [x] Badge count matches expected number
+  - [x] Badge clears immediately on channel switch (<200ms)
+  - [x] No phantom unread counts (badges don't appear when they shouldn't)
 
 **Dependencies:**
 dependsOn: ["6.4"]

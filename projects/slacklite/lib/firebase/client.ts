@@ -3,14 +3,24 @@ import { connectAuthEmulator, getAuth } from "firebase/auth";
 import { connectDatabaseEmulator, getDatabase } from "firebase/database";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 
+const DEFAULT_FIREBASE_PROJECT_ID = "demo-slacklite";
+
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+  apiKey:
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ??
+    "AIzaSyDUMMY_KEY_FOR_SLACKLITE_BUILD_123456",
+  authDomain:
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ??
+    `${DEFAULT_FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? DEFAULT_FIREBASE_PROJECT_ID,
+  storageBucket:
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ??
+    `${DEFAULT_FIREBASE_PROJECT_ID}.appspot.com`,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? "1234567890",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? "1:1234567890:web:slacklitebuild",
+  databaseURL:
+    process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL ??
+    `https://${DEFAULT_FIREBASE_PROJECT_ID}.firebaseio.com`,
 };
 
 const app = initializeApp(firebaseConfig);

@@ -44,7 +44,6 @@ jobs:
       - name: Run E2E tests
         if: ${{ hashFiles('tests/e2e/**/*.spec.*') != '' }}
         run: |
-          npm install -g firebase-tools
           pnpm exec playwright install --with-deps
           pnpm test:e2e
 
