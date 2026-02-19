@@ -1,19 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { MessageInput } from "@/components/features/messages/MessageInput";
 import { useRealtimeMessages } from "@/lib/hooks/useRealtimeMessages";
 import { useAuth } from "@/lib/contexts/AuthContext";
 
-interface ChannelPageProps {
-  params: { channelId: string };
-}
-
-export default function ChannelPage({ params }: ChannelPageProps) {
-  const { channelId } = params;
+export default function ChannelPage() {
+  const params = useParams<{ channelId: string }>();
+  const channelId =
+    typeof params?.channelId === "string" ? params.channelId.trim() : "";
   const { user } = useAuth();
-  const { messages, loading, error } = useRealtimeMessages(channelId);
+  const workspaceId =
+    typeof user?.workspaceId === "string" ? user.workspaceId.trim() : "";
+  const { messages, loading, error } = useRealtimeMessages(workspaceId, channelId);
   const [isChannelSwitching, setIsChannelSwitching] = useState(false);
+  const handleSendMessage = useCallback(async (text: string) => {
+    // Message send wiring lands in the Story 4 message pipeline work.
+    void text;
+  }, []);
 
   // Track channel switches for loading indicator
   useEffect(() => {
@@ -103,7 +108,7 @@ export default function ChannelPage({ params }: ChannelPageProps) {
       </div>
 
       {/* Message Input */}
-      <MessageInput channelId={channelId} />
+      <MessageInput channelId={channelId} onSend={handleSendMessage} />
     </div>
   );
 }

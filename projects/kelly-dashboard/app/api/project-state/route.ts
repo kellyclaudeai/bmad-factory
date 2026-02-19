@@ -202,8 +202,25 @@ export async function GET(request: Request) {
       // Planning artifacts (Phase 1)
       planningArtifacts,
       
-      // Subagents (synthesized from planning artifacts or real from sprint-status)
-      subagents: syntheticSubagents,
+      // Subagents: synthesized from planning artifacts + completed stories from sprint-status
+      subagents: [
+        ...syntheticSubagents,
+        // Generate completed subagent entries from sprint-status done/review stories
+        ...(sprintStatus?.stories
+          ? Object.entries(sprintStatus.stories)
+              .filter(([, s]: [string, any]) => s?.status === "done" || s?.status === "review")
+              .map(([id, s]: [string, any]) => ({
+                id: `story-${id}`,
+                story: id,
+                storyTitle: s?.title || `Story ${id}`,
+                persona: s?.completed_by ? `${s.completed_by} (Dev)` : "Amelia (Dev)",
+                task: `implement-story-${id}`,
+                status: "complete" as const,
+                startedAt: s?.started_at,
+                completedAt: s?.completed_at || s?.reviewed_at,
+              }))
+          : []),
+      ],
       
       // Story status from BMAD (Phase 2+)
       // sprint-status.yaml uses nested objects: stories: { "1.1": { status: "done", ... }, ... }
