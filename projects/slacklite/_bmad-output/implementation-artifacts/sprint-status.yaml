@@ -1338,10 +1338,13 @@ stories:
   6.4.1:
     epic: 6
     title: Test Unread Count Accuracy (E2E)
-    status: todo
+    status: done
     estimated_effort: 2 hours
     dependencies:
     - '6.4'
+    completed_by: Amelia
+    completed_at: '2026-02-19T16:22:00-06:00'
+    notes: "✅ E2E tests for unread count accuracy complete - all acceptance criteria met\n✅ Created tests/e2e/unread-counts.spec.ts with 4 comprehensive test scenarios:\n   - Scenario 1: Basic unread count increment and clear on channel switch\n   - Scenario 2: Multiple unread messages (3 messages)\n   - Scenario 3: No increment when viewing channel\n   - Scenario 4: Direct message unread count increment and clear\n✅ Extended useUnreadCounts hook to support DM listener targets\n✅ Updated DMList component to integrate directMessageIds prop\n✅ Test setup helpers for emulator reset/seed:\n   - Seed users (usera@test.com, userb@test.com)\n   - Create workspace with #general and #dev-team channels\n   - Multi-user simulation via separate browser contexts\n✅ All 4 test scenarios validate:\n   - Badge count matches expected number\n   - Badge clears within 200ms on channel switch\n   - No phantom unread counts\n✅ All tests passing with Firebase Emulators\n✅ ESLint and TypeScript validation passed\n\nFiles Changed:\n- tests/e2e/unread-counts.spec.ts (new, 476 lines)\n- lib/hooks/useUnreadCounts.ts (added directMessageIds support)\n- components/features/channels/DMList.tsx (integrated directMessageIds)\n- _bmad-output/implementation-artifacts/stories/story-6.4.1.md (all criteria marked complete)\n\nNote: Codex CLI implementation (YOLO mode)"
   '6.5':
     epic: 6
     title: Add Last Seen Timestamp
