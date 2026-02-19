@@ -440,7 +440,7 @@ stories:
   "3.4":
     epic: 3
     title: "Build Create Channel Modal UI"
-    status: dev-complete
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["1.6", "3.1"]
     started_at: "2026-02-19T14:21:00-06:00"
@@ -1521,7 +1521,7 @@ stories:
   "11.3":
     epic: 11
     title: "Set Up Error Tracking with Sentry"
-    status: dev-complete
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["11.2"]
     completed_by: "Amelia"
