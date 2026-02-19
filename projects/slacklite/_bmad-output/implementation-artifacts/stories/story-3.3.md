@@ -6,14 +6,14 @@
 Enable users to click a channel in sidebar and navigate to that channel's message view. Update URL, highlight active channel, and clear previous channel's messages with sub-200ms perceived latency.
 
 **Acceptance Criteria:**
-- [ ] Channel list items are clickable buttons/links
-- [ ] Click navigates to `/app/channels/{channelId}`
-- [ ] Active channel highlighted with Gray 300 background + 3px Primary Brand left border
-- [ ] URL updates to reflect current channel
-- [ ] Message view clears previous channel's messages
-- [ ] Loading indicator in message view during channel switch
-- [ ] Channel switch perceived latency <200ms (Firestore query cached)
-- [ ] Active state persists on page refresh (read from URL)
+- [x] Channel list items are clickable buttons/links
+- [x] Click navigates to `/app/channels/{channelId}`
+- [x] Active channel highlighted with Gray 300 background + 3px Primary Brand left border
+- [x] URL updates to reflect current channel
+- [x] Message view clears previous channel's messages
+- [x] Loading indicator in message view during channel switch
+- [x] Channel switch perceived latency <200ms (Firestore query cached)
+- [x] Active state persists on page refresh (read from URL)
 
 **Dependencies:**
 dependsOn: ["3.2"]
