@@ -77,7 +77,7 @@ export async function GET(request: Request) {
 
     // If project has a projectDir, try to read BMAD artifacts
     let sprintStatus = null;
-    let planningArtifacts: Record<string, { exists: boolean; size?: number; modified?: string }> = {};
+    let planningArtifacts: Record<string, { exists: boolean; size?: number; modified?: string; ageMinutes?: number; isRecent?: boolean }> = {};
     
     if (project.implementation?.projectDir) {
       // Handle both relative and absolute paths
@@ -116,10 +116,16 @@ export async function GET(request: Request) {
             artifactName
           );
           const stats = await fs.stat(artifactPath);
+          const now = Date.now();
+          const modifiedMs = stats.mtime.getTime();
+          const ageMinutes = Math.floor((now - modifiedMs) / 1000 / 60);
+          
           planningArtifacts[artifactName] = {
             exists: true,
             size: stats.size,
-            modified: stats.mtime.toISOString()
+            modified: stats.mtime.toISOString(),
+            ageMinutes,
+            isRecent: ageMinutes < 5 // Active if modified in last 5 minutes
           };
         } catch {
           planningArtifacts[artifactName] = { exists: false };
