@@ -600,10 +600,51 @@ stories:
   "3.8":
     epic: 3
     title: "Implement Channel Deletion"
-    status: in_progress
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["3.5"]
     started_at: "2026-02-19T15:04:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T15:15:00-06:00"
+    notes: |
+      ✅ Channel deletion functionality complete - all acceptance criteria met
+      ✅ Implementation found already complete in commit d7c2c62 (bundled with Story 3.7)
+      ✅ Delete option in ChannelHeader context menu (gear icon)
+      ✅ Permission gating: only channel creator or workspace owner can delete
+      ✅ DeleteChannelModal with confirmation:
+         - "Delete Channel" title (H3)
+         - Confirmation text: "Are you sure you want to delete #{channelName}? This cannot be undone."
+         - Cancel (secondary) and Delete (destructive red) buttons
+      ✅ Firestore delete with cascade:
+         - Batch deletes all messages in channel subcollection (500 per batch)
+         - Then deletes channel document
+         - lib/utils/channels.ts deleteChannel function
+      ✅ Redirect to #general when deleting active channel
+      ✅ #general deletion blocked with error toast
+      ✅ Real-time sidebar updates via existing Firestore listener
+      ✅ Firestore rules updated to allow workspace owner/channel creator to delete messages
+      ✅ Tests added:
+         - tests/unit/lib/channels.test.ts (delete function tests)
+         - tests/unit/components/channels/ChannelHeader.test.tsx (delete option display)
+         - tests/unit/components/channels/DeleteChannelModal.test.tsx (modal tests)
+         - tests/unit/app/ChannelPage.test.tsx (integration tests)
+         - tests/firestore.rules.spec.ts (permission tests)
+         - All tests passing (20 tests)
+      
+      Files Included in d7c2c62:
+      - components/features/channels/ChannelHeader.tsx (added canDeleteChannel prop + delete menu item)
+      - components/features/channels/DeleteChannelModal.tsx (new, 85 lines)
+      - lib/utils/channels.ts (added deleteChannel function with batch message deletion)
+      - app/app/channels/[channelId]/page.tsx (integrated delete flow + redirect logic)
+      - firestore.rules (added isChannelCreator helper, updated message delete permissions)
+      - tests/unit/lib/channels.test.ts (delete tests)
+      - tests/unit/components/channels/ChannelHeader.test.tsx (updated for delete)
+      - tests/unit/components/channels/DeleteChannelModal.test.tsx (new)
+      - tests/unit/app/ChannelPage.test.tsx (delete integration tests)
+      - tests/firestore.rules.spec.ts (permission tests)
+      - _bmad-output/implementation-artifacts/stories/story-3.8.md (all criteria marked complete)
+      
+      Commit: d7c2c62 (feat(3.7): Implement channel rename functionality)
   
   "3.9":
     epic: 3
@@ -1035,6 +1076,8 @@ stories:
     status: review
     estimated_effort: "2 hours"
     dependencies: ["5.1"]
+    completed_at: "2026-02-19T15:14:00-06:00"
+    completed_by: "Amelia"
     started_at: "2026-02-19T15:07:00-06:00"
     completed_by: "Amelia"
     completed_at: "2026-02-19T15:15:00-06:00"
