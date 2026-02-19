@@ -22,9 +22,9 @@
 - Projects with `surfacedForQA: true` (already announced)
 - Projects without `implementation.qaUrl` (not ready yet)
 
-### 2. Active Project Stall Check
+### 2. Active Project Stall Check with Auto-Recovery
 
-**Task:** Check if any active projects have stalled without Project Lead escalation.
+**Task:** Check if any active projects have stalled without Project Lead escalation. Auto-recover frozen sessions.
 
 **Process:**
 1. Read `projects/project-registry.json` to identify active projects (state: "in-progress")
@@ -34,15 +34,30 @@
    - Use registry's `timeline.lastUpdated` as source of truth
 4. If a project has been in same state **>60 minutes** with no registry updates:
    - Send message to Project Lead: "Status check - any blockers? (Kelly safety net ping)"
-   - If Project Lead responds "all good", note in daily memory file and skip for 45 min
-   - If Project Lead confirms blocker OR doesn't respond in 5 min, escalate to operator
+   - Wait 5 minutes for response
+5. **If Project Lead doesn't respond:**
+   - Check if PL session is frozen (via `sessions_history` - look for 400 errors)
+   - **If frozen (token overflow / 400 errors):**
+     - **AUTO-RECOVER:** Run session recovery skill
+     - Alert operator: "🔧 Auto-recovered frozen PL session for {projectName}"
+   - **If not frozen but unresponsive:** Escalate to operator with diagnosis
+6. If Project Lead responds "all good": note in daily memory, skip for 45 min
+7. If Project Lead confirms blocker: escalate to operator
 
-**When to escalate to operator:**
+**Session Recovery Command:**
+```bash
+/Users/austenallred/clawd/skills/factory/session-recovery/bin/recover-session \
+  --session-key "agent:project-lead:project-{projectId}" \
+  --reason "unresponsive-to-status-check" \
+  --context-refresh "Context refresh after recovery. Read sprint-status.yaml and project-registry.json. Continue from last checkpoint. Priority: {priorities from registry}."
+```
+
+**When to escalate to operator (without auto-recovery):**
 - Project Lead confirms they're blocked after retry attempts
-- Project Lead session doesn't respond to ping (session may be dead)
 - Project has been stalled **>2 hours** even with "all good" responses (sanity check)
+- PL session is unresponsive but NOT frozen (may be in long operation)
 
-**Tracking:** Keep ephemeral notes in session memory (which project checked when). No persistent state needed—if Kelly restarts, it's fine to re-check projects. Document significant checks/escalations in `memory/YYYY-MM-DD.md`.
+**Tracking:** Keep ephemeral notes in session memory (which project checked when). No persistent state needed—if Kelly restarts, it's fine to re-check projects. Document significant checks/escalations/recoveries in `memory/YYYY-MM-DD.md`.
 
 ---
 

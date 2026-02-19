@@ -1,0 +1,140 @@
+#!/bin/bash
+set -euo pipefail
+
+# Session Recovery Script
+# Detect and restart frozen orchestrator sessions
+
+# Parse arguments
+SESSION_KEY=""
+REASON=""
+CONTEXT_REFRESH=""
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --session-key)
+      SESSION_KEY="$2"
+      shift 2
+      ;;
+    --reason)
+      REASON="$2"
+      shift 2
+      ;;
+    --context-refresh)
+      CONTEXT_REFRESH="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
+
+# Validate required arguments
+if [[ -z "$SESSION_KEY" ]]; then
+  echo "Error: --session-key required"
+  exit 1
+fi
+
+if [[ -z "$REASON" ]]; then
+  echo "Error: --reason required"
+  exit 1
+fi
+
+if [[ -z "$CONTEXT_REFRESH" ]]; then
+  echo "Error: --context-refresh required"
+  exit 1
+fi
+
+# Extract agent ID from session key
+# Format: agent:{agentId}:{suffix}
+AGENT_ID=$(echo "$SESSION_KEY" | cut -d':' -f2)
+
+# Determine OpenClaw home
+OPENCLAW_HOME="${HOME}/.openclaw"
+AGENT_SESSIONS_DIR="${OPENCLAW_HOME}/agents/${AGENT_ID}/sessions"
+
+if [[ ! -d "$AGENT_SESSIONS_DIR" ]]; then
+  echo "Error: Agent sessions directory not found: $AGENT_SESSIONS_DIR"
+  exit 1
+fi
+
+# Find session ID from sessions.json
+SESSIONS_JSON="${AGENT_SESSIONS_DIR}/sessions.json"
+if [[ ! -f "$SESSIONS_JSON" ]]; then
+  echo "Error: sessions.json not found: $SESSIONS_JSON"
+  exit 1
+fi
+
+SESSION_ID=$(jq -r --arg key "$SESSION_KEY" '.sessions[] | select(.key==$key) | .sessionId' "$SESSIONS_JSON" 2>/dev/null || echo "")
+
+if [[ -z "$SESSION_ID" ]]; then
+  echo "Warning: Session not found in sessions.json (may already be cleared)"
+  echo "Proceeding with context refresh to create new session..."
+else
+  echo "Found session ID: $SESSION_ID"
+  
+  # Archive transcript if it exists
+  TRANSCRIPT_PATH="${AGENT_SESSIONS_DIR}/${SESSION_ID}.jsonl"
+  if [[ -f "$TRANSCRIPT_PATH" ]]; then
+    ARCHIVE_DIR="${AGENT_SESSIONS_DIR}/archive"
+    mkdir -p "$ARCHIVE_DIR"
+    
+    TIMESTAMP=$(date +%s)
+    ARCHIVE_PATH="${ARCHIVE_DIR}/${SESSION_ID}-${TIMESTAMP}.jsonl"
+    
+    echo "Archiving transcript: $TRANSCRIPT_PATH -> $ARCHIVE_PATH"
+    mv "$TRANSCRIPT_PATH" "$ARCHIVE_PATH"
+  else
+    echo "Warning: Transcript not found: $TRANSCRIPT_PATH"
+  fi
+  
+  # Remove session from sessions.json
+  echo "Clearing session state from sessions.json..."
+  TMP_JSON="${SESSIONS_JSON}.tmp"
+  jq --arg key "$SESSION_KEY" 'del(.sessions[] | select(.key==$key))' "$SESSIONS_JSON" > "$TMP_JSON"
+  mv "$TMP_JSON" "$SESSIONS_JSON"
+fi
+
+# Send context refresh to create new session
+echo ""
+echo "Sending context refresh message to create new session..."
+echo "Session key: $SESSION_KEY"
+echo "Message: $CONTEXT_REFRESH"
+echo ""
+
+# Use openclaw gateway call agent to send message
+openclaw gateway call agent \
+  --params "{\"message\":\"${CONTEXT_REFRESH}\",\"sessionKey\":\"${SESSION_KEY}\",\"idempotencyKey\":\"$(uuidgen)\"}" \
+  --expect-final --timeout 120000
+
+# Log recovery to daily memory
+MEMORY_DIR="${HOME}/clawd/memory"
+TODAY=$(date +%Y-%m-%d)
+MEMORY_FILE="${MEMORY_DIR}/${TODAY}.md"
+
+mkdir -p "$MEMORY_DIR"
+
+TIMESTAMP_LOG=$(date +"%H:%M %Z")
+RECOVERY_LOG="
+## ${TIMESTAMP_LOG} - Session Recovery: ${SESSION_KEY}
+
+**Reason:** ${REASON}
+**Action:** Archived frozen transcript, cleared session state, sent context refresh
+**Session ID (archived):** ${SESSION_ID:-N/A}
+**Context refresh:** ${CONTEXT_REFRESH}
+"
+
+# Append to memory file (create if doesn't exist)
+if [[ ! -f "$MEMORY_FILE" ]]; then
+  echo "# Memory Log — ${TODAY}" > "$MEMORY_FILE"
+fi
+
+echo "$RECOVERY_LOG" >> "$MEMORY_FILE"
+
+echo ""
+echo "✅ Session recovery complete"
+echo "   - Transcript archived to: ${AGENT_SESSIONS_DIR}/archive/"
+echo "   - Session state cleared"
+echo "   - Context refresh sent"
+echo "   - Recovery logged to: $MEMORY_FILE"

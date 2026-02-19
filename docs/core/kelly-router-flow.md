@@ -29,6 +29,7 @@
 - Surface projects ready for user QA (state: "in-progress", has `implementation.qaUrl`)
 - Detect stalled projects (>60 min no registry updates, not paused)
 - Send status pings to Project Lead if stalled (safety net, not primary monitoring)
+- **Auto-recover frozen PL sessions** (if unresponsive + 400 errors detected)
 
 **State Tracking**
 - Track operational notes in daily memory files (`memory/YYYY-MM-DD.md`)
@@ -284,6 +285,58 @@ Periodically (every few days):
 4. Remove outdated info from MEMORY.md
 
 Think of it like reviewing your journal and updating your mental model.
+
+---
+
+## Session Recovery (Auto-Healing)
+
+### The Problem
+Orchestrator sessions (Project Lead, Research Lead) can freeze when:
+- Token count exceeds model context window (>200k for Claude Sonnet)
+- Single tool result is massive (e.g., git operations listing hundreds of files)
+- Session hits 400 errors repeatedly and can't recover
+
+**Symptoms:**
+- Project `lastUpdated` stale (>60 min)
+- PL session doesn't respond to `sessions_send` messages
+- `sessions_history` shows repeated 400 errors
+- Session exists but won't accept new turns
+
+### Auto-Recovery Workflow
+**During heartbeat stall check:**
+1. Project has no updates for >60 min
+2. Send status ping to PL: "Status check - any blockers?"
+3. Wait 5 minutes for response
+4. **If no response:**
+   - Check `sessions_history` for 400 errors / token overflow
+   - **If frozen:** Run session recovery skill
+   - Alert operator: "🔧 Auto-recovered frozen PL session for {projectName}"
+5. **If not frozen but unresponsive:** Escalate to operator with diagnosis
+
+### Recovery Process
+**Skill:** `skills/factory/session-recovery`
+
+**Command:**
+```bash
+/Users/austenallred/clawd/skills/factory/session-recovery/bin/recover-session \
+  --session-key "agent:project-lead:project-{projectId}" \
+  --reason "unresponsive-to-status-check" \
+  --context-refresh "Context refresh after recovery. Read sprint-status.yaml and project-registry.json. Continue from last checkpoint."
+```
+
+**What it does:**
+1. Archives frozen transcript to `~/.openclaw/agents/{agent}/sessions/archive/`
+2. Clears session state from Gateway session store
+3. Sends context refresh message to create fresh session (same sessionKey)
+4. Logs recovery to `memory/YYYY-MM-DD.md`
+
+**Safety:**
+- ✅ Transcript archived (work history preserved)
+- ✅ Project state loaded from registry (no lost context)
+- ✅ Idempotent (safe to run multiple times)
+- ✅ Logged for audit trail
+
+**Future:** This skill is a workaround until OpenClaw core adds a proper `sessions_restart` tool. See `skills/factory/session-recovery/SKILL.md` for architecture details.
 
 ---
 

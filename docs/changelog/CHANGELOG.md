@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-02-19
+
+### 08:53 CST | Session Recovery (Auto-Healing for Frozen Sessions)
+**What:** Created session-recovery skill for autonomous detection and restart of frozen orchestrator sessions (Project Lead, Research Lead).
+**Why:** SlackLite PL session hit 215k tokens (git rm output too large), exceeded 200k model limit, and entered unrecoverable death loop. Every API call returned 400 error. Session was frozen for 7+ hours before manual intervention.
+**Root cause:** Default compaction only runs between turns. Single massive tool result (git rm listing hundreds of files) jumped over 35k safety buffer in one turn. Compaction never got a chance to trigger.
+**Solution:** Kelly can now autonomously detect and recover frozen sessions during heartbeat checks
+- **Detection:** Check `sessions_history` for 400 errors + token overflow when PL doesn't respond to status ping
+- **Recovery:** Archive transcript, clear session state, send context refresh message (creates new session with same key)
+- **Safety:** Transcripts preserved, project state loaded from registry, idempotent operation, logged to daily memory
+**Files created:**
+- `skills/factory/session-recovery/SKILL.md` — Architecture and usage documentation
+- `skills/factory/session-recovery/bin/recover-session` — Recovery script (archive, clear, refresh)
+**Files updated:**
+- `HEARTBEAT.md` — Auto-recovery workflow for stall check (step 5: detect frozen, run recovery)
+- `docs/core/kelly-router-flow.md` — Session Recovery section added
+- `memory/2026-02-19.md` — Recovery creation and architecture documented
+**Temporary solution:** This is a workaround skill until OpenClaw core adds proper `sessions_restart(sessionKey, reason)` tool. Proposal documented in SKILL.md.
+**Also fixed:** Enabled instinct8-compaction plugin (threshold 150k, earlier than default 165k). Should prevent future death loops by compacting during tool execution, not just between turns.
+**Commits:**
+- (pending) `feat: Add session-recovery skill for frozen orchestrator sessions`
+
+---
+
 ## 2026-02-18
 
 ### 16:45 CST | CLI-First Policy (Minimal Guidance)
