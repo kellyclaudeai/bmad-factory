@@ -55,4 +55,23 @@ When operator says "pause {project}" or "pause QA for {project}":
 
 ---
 
+### 3. Dashboard Health Check
+
+**Task:** Ensure kelly-dashboard is running on port 3000.
+
+**Process:**
+```bash
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
+```
+- If HTTP 200 → fine, skip
+- If anything else → restart via launchd:
+  ```bash
+  launchctl kickstart -k gui/$(id -u)/com.openclaw.kelly-dashboard
+  ```
+- If still down after kickstart → alert operator: "🚨 Dashboard down on :3000, launchd restart failed"
+
+**Persistence:** Dashboard runs as a launchd service (`com.openclaw.kelly-dashboard`). Auto-restarts on crash. This heartbeat check is a safety net in case launchd itself has issues.
+
+---
+
 **Note:** This is a **safety net**, not primary monitoring. Project Lead should notify proactively. This catches edge cases where Project Lead doesn't notify or report an issue.
