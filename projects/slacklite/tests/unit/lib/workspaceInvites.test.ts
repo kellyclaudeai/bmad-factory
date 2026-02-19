@@ -147,6 +147,7 @@ describe("workspace invite utilities", () => {
     firestoreMocks.whereMock
       .mockReturnValueOnce("where-workspace")
       .mockReturnValueOnce("where-token");
+    firestoreMocks.collectionMock.mockReturnValue("workspace-invites");
     firestoreMocks.limitMock.mockReturnValue("limit-1");
     firestoreMocks.queryMock.mockReturnValue("invite-query");
     firestoreMocks.getDocsMock.mockResolvedValue({
@@ -170,7 +171,7 @@ describe("workspace invite utilities", () => {
       workspaceName: "Acme",
     });
     expect(firestoreMocks.queryMock).toHaveBeenCalledWith(
-      expect.anything(),
+      "workspace-invites",
       "where-workspace",
       "where-token",
       "limit-1",
@@ -194,6 +195,7 @@ describe("workspace invite utilities", () => {
     firestoreMocks.whereMock
       .mockReturnValueOnce("where-workspace")
       .mockReturnValueOnce("where-token");
+    firestoreMocks.collectionMock.mockReturnValue("workspace-invites");
     firestoreMocks.limitMock.mockReturnValue("limit-1");
     firestoreMocks.queryMock.mockReturnValue("invite-query");
     firestoreMocks.getDocsMock.mockResolvedValue({

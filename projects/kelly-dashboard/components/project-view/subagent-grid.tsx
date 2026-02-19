@@ -63,13 +63,6 @@ export function SubagentGrid({ subagents }: SubagentGridProps) {
       emptyMessage: 'No subagents currently running',
     },
     {
-      title: 'Next: Queued Stories',
-      items: nextSubagents,
-      defaultExpanded: false,
-      titleColor: 'text-terminal-amber',
-      emptyMessage: 'No stories queued',
-    },
-    {
       title: 'History: Completed Subagents',
       items: historySubagents,
       defaultExpanded: false,
