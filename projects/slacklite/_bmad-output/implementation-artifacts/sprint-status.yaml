@@ -1180,10 +1180,26 @@ stories:
   '5.5':
     epic: 5
     title: Add Unread Counts to DM List (Placeholder)
-    status: todo
+    status: done
     estimated_effort: 1 hour
     dependencies:
     - '5.3'
+    completed_by: Amelia
+    completed_at: '2026-02-19T16:06:00-06:00'
+    notes: "✅ Unread badges added to DM list - all acceptance criteria met\n✅ Updated\
+      \ DMList component:\n   - Integrated useUnreadCounts hook with targetType: 'dm'\n\
+      \   - Extracted activeDmId from pathname (/app/dms/{dmId})\n   - Display Badge\
+      \ component when unreadCount > 0\n   - Badge hidden when count = 0\n   - Badge\
+      \ styling matches ChannelList (Primary Brand background, white text)\n✅ Implementation:\n\
+      \   - Uses existing unreadCounts Firestore collection (/unreadCounts/{userId}_{dmId})\n\
+      \   - Firestore subscription automatically includes DM unread counts\n   -\
+      \ Badge positioned right-aligned with timestamp\n   - Follows same pattern as\
+      \ ChannelList for consistency\n✅ Data structure already prepared by Story 6.4\n\
+      ✅ Full unread increment logic for DMs handled by existing infrastructure\n\n\
+      Files Changed:\n- components/features/channels/DMList.tsx (added useUnreadCounts\
+      \ integration + Badge display)\n- _bmad-output/implementation-artifacts/stories/story-5.5.md\
+      \ (all criteria marked complete)\n\nCommit: 3d7c549 (feat(5.5): Add unread counts\
+      \ to DM list (placeholder))\n"
   '6.1':
     epic: 6
     title: Implement Firebase Presence System
