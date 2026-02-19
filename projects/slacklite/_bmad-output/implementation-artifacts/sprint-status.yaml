@@ -1366,6 +1366,8 @@ stories:
     status: done
     completed_by: "Amelia"
     completed_at: "2026-02-19T15:30:00-06:00"
+    completed_at: "2026-02-19T15:28:00-06:00"
+    completed_by: "Amelia"
     started_at: "2026-02-19T15:15:00-06:00"
     estimated_effort: "2-3 hours"
     dependencies: ["4.6"]
@@ -1537,15 +1539,13 @@ stories:
   
   "8.3":
     epic: 8
-    title: "Mobile-Friendly Top Bar"
+    title: "Touch Gesture Support"
     status: done
-    completed_at: "2026-02-19T15:27:00-06:00"
+    completed_at: "2026-02-19T15:28:00-06:00"
     completed_by: "Amelia"
-    started_at: "2026-02-19T15:20:00-06:00"
-    completed_by: "Amelia"
-    completed_at: "2026-02-19T15:21:00-06:00"
-    estimated_effort: "1 hour"
-    dependencies: ["3.1"]
+    started_at: "2026-02-19T15:23:00-06:00"
+    estimated_effort: "2 hours"
+    dependencies: ["8.1"]
     notes: |
       ✅ Touch gesture functionality complete - all acceptance criteria met
       ✅ Implemented swipe gestures for sidebar navigation:
@@ -1555,7 +1555,18 @@ stories:
          - Animation follows finger during drag
          - Release logic: complete if >50% across, otherwise snap back
          - No conflict with vertical scroll (horizontal/vertical axis lock)
-         - Uses touchstart, touchmove, touchend, touchcancel events
+         - Uses touchstart, touchmove, touchend events
+      ✅ Fixed touch gesture release logic in AppShell.tsx:
+         - Mode-aware (open vs close) and axis-aware decision making
+         - Prevents accidental close on short or vertical swipes
+         - Maintains drag-follow animation during gesture
+      ✅ Added comprehensive unit tests:
+         - Short swipe guard (≤50px should not close)
+         - Snap-back test (< 50% threshold should return to original state)
+         - Vertical swipe guard (should not close sidebar)
+         - All 9 AppShell tests passing
+      
+      Commit: f23568b (feat(8.3): Touch gesture support for mobile sidebar navigation)
       ✅ Updated AppShell.tsx with comprehensive touch gesture state machine
       ✅ Updated Sidebar.tsx with drag-follow animation support (mobileTranslateX, isGestureDragging)
       ✅ Created comprehensive unit tests in tests/unit/components/layout/AppShell.test.tsx
