@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import type { AuthError } from "firebase/auth";
 import {
   browserLocalPersistence,
@@ -70,7 +70,7 @@ function getEmailValidationError(value: string, required = false): string {
   return result.error ?? "Enter a valid email address.";
 }
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -219,5 +219,23 @@ export default function SignInPage() {
         </p>
       </section>
     </main>
+  );
+}
+
+function SignInLoadingFallback() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-10">
+      <div className="w-full max-w-[400px] rounded-lg border border-gray-300 bg-white p-6 shadow-sm">
+        <p className="text-center text-sm text-gray-700">Loading sign-in...</p>
+      </div>
+    </main>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<SignInLoadingFallback />}>
+      <SignInContent />
+    </Suspense>
   );
 }

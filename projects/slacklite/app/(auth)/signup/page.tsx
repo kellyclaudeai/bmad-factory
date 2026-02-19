@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import type { AuthError } from "firebase/auth";
 import {
   browserLocalPersistence,
@@ -83,7 +83,7 @@ function deriveDisplayName(email: string): string {
   return email.split("@")[0] ?? "";
 }
 
-export default function SignUpPage() {
+function SignUpContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -261,5 +261,25 @@ export default function SignUpPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+function SignUpLoadingFallback() {
+  return (
+    <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6">
+      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full items-center justify-center">
+        <section className="w-full rounded-lg border border-gray-300 bg-white p-8 shadow-sm sm:max-w-[400px]">
+          <p className="text-center text-sm text-gray-700">Loading sign-up...</p>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={<SignUpLoadingFallback />}>
+      <SignUpContent />
+    </Suspense>
   );
 }
