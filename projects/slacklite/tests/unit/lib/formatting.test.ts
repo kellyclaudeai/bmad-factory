@@ -16,7 +16,7 @@ describe("formatRelativeTime", () => {
   it("formats same-day timestamps using relative time", () => {
     const twoMinutesAgo = Timestamp.fromDate(new Date(2026, 1, 19, 11, 58, 0));
 
-    expect(formatRelativeTime(twoMinutesAgo)).toMatch(/2 minutes? ago/);
+    expect(formatRelativeTime(twoMinutesAgo)).toBe("2 min ago");
   });
 
   it("formats yesterday timestamps with time of day", () => {

@@ -1900,11 +1900,32 @@ stories:
   '11.1':
     epic: 11
     title: Deploy Firebase to Production
-    status: todo
+    status: in-progress
     estimated_effort: 2 hours
     dependencies:
     - '9.1'
     - '9.2'
+    started_at: '2026-02-19T16:10:00-06:00'
+    completed_by: Amelia
+    notes: |
+      ✅ CLI Configuration Complete (80% done):
+      - Firebase project slacklite-prod verified (active)
+      - Firestore enabled (us-central1, production mode)
+      - Firestore security rules deployed successfully
+      - Billing enabled (Blaze plan)
+      - Web app created (SlackLite Web)
+      - Vercel env vars configured (client + Admin SDK credentials)
+      
+      ⚠️ Manual Steps Required (Firebase Console):
+      1. Create RTDB instance (us-central1, production mode)
+      2. Enable Email/Password authentication provider
+      
+      After manual steps:
+      - Deploy RTDB rules: firebase deploy --only database:rules
+      - Run E2E production test
+      - Mark story as 'done'
+      
+      📄 See: _bmad-output/implementation-artifacts/stories/story-11.1-completion-notes.md
   '11.2':
     epic: 11
     title: Set Up CI/CD Pipeline with GitHub Actions

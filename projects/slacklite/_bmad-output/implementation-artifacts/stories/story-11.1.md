@@ -6,18 +6,18 @@
 Create production Firebase project, configure all services (Firestore, RTDB, Auth), set up billing, and configure production environment variables with proper security.
 
 **Acceptance Criteria:**
-- [ ] Firebase CLI: Create production project: `firebase projects:create slacklite-prod`
-- [ ] Enable Firestore: Production mode, us-central region
-- [ ] Enable Realtime Database: Production mode, us-central1
-- [ ] Enable Authentication: Email/Password provider
-- [ ] Configure billing: Set up billing account, enable Blaze plan
-- [ ] Set billing alerts: $50, $200, $500 thresholds (Story 11.5)
-- [ ] Create production web app: `firebase apps:create web "SlackLite Production"`
-- [ ] Add production environment variables to Vercel:
-  - [ ] NEXT_PUBLIC_FIREBASE_* (production config)
-  - [ ] FIREBASE_ADMIN_* (server-side credentials)
-- [ ] Deploy security rules: `firebase deploy --only firestore:rules,database:rules`
-- [ ] Test production Firebase: Create test workspace, send test message
+- [x] Firebase CLI: Create production project: `firebase projects:create slacklite-prod` (project exists and verified)
+- [x] Enable Firestore: Production mode, us-central region (us-central1, FIRESTORE_NATIVE)
+- [⚠️] Enable Realtime Database: Production mode, us-central1 (REQUIRES FIREBASE CONSOLE - see completion notes)
+- [⚠️] Enable Authentication: Email/Password provider (REQUIRES FIREBASE CONSOLE - see completion notes)
+- [x] Configure billing: Set up billing account, enable Blaze plan (billing enabled via Lambda School account)
+- [📅] Set billing alerts: $50, $200, $500 thresholds (Story 11.5 - separate story)
+- [x] Create production web app: `firebase apps:create web "SlackLite Production"` (app exists: SlackLite Web)
+- [x] Add production environment variables to Vercel:
+  - [x] NEXT_PUBLIC_FIREBASE_* (production config) - All client vars set
+  - [x] FIREBASE_ADMIN_* (server-side credentials) - PROJECT_ID, CLIENT_EMAIL, PRIVATE_KEY added
+- [x] Deploy security rules: `firebase deploy --only firestore:rules,database:rules` (Firestore rules deployed; RTDB pending creation)
+- [⏳] Test production Firebase: Create test workspace, send test message (pending manual steps completion)
 
 **Dependencies:**
 dependsOn: ["1.2"]

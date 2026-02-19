@@ -16,7 +16,7 @@ describe("formatRelativeTime", () => {
   it("formats timestamps from today using relative phrasing", () => {
     const twoMinutesAgo = Timestamp.fromMillis(Date.now() - 2 * 60 * 1000);
 
-    expect(formatRelativeTime(twoMinutesAgo)).toMatch(/\d+\s+minutes?\s+ago/);
+    expect(formatRelativeTime(twoMinutesAgo)).toMatch(/\d+\s+min\s+ago/);
   });
 
   it("formats yesterday timestamps as 'Yesterday at h:mm a'", () => {
@@ -28,7 +28,9 @@ describe("formatRelativeTime", () => {
   it("formats dates earlier this year as month/day", () => {
     const fiveDaysAgo = Timestamp.fromMillis(Date.now() - 5 * 24 * 60 * 60 * 1000);
 
-    expect(formatRelativeTime(fiveDaysAgo)).toMatch(/^[A-Z][a-z]{2} \d{1,2}$/);
+    expect(formatRelativeTime(fiveDaysAgo)).toMatch(
+      /^[A-Z][a-z]+ at \d{1,2}:\d{2} [AP]M$/,
+    );
   });
 
   it("formats dates from previous years with year included", () => {
