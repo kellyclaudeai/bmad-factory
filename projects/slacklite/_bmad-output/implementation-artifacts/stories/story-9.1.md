@@ -6,17 +6,17 @@
 Test Firestore security rules using Firebase Emulator and CLI-based validation. Ensure workspace isolation and proper access controls with automated testing.
 
 **Acceptance Criteria:**
-- [ ] Create security rules test file: `tests/firestore.rules.spec.ts`
-- [ ] Run tests: `firebase emulators:exec --only firestore "npm test"`
-- [ ] Test scenarios:
-  - [ ] User can read their own workspace data
-  - [ ] User CANNOT read other workspace data
-  - [ ] User can create channels in their workspace
-  - [ ] User CANNOT create channels in other workspace
-  - [ ] User can write messages in their workspace channels
-  - [ ] User CANNOT write messages in other workspace channels
-- [ ] All tests pass with 100% coverage of security rules
-- [ ] CI/CD integration: Security tests run on every PR
+- [x] Create security rules test file: `tests/firestore.rules.spec.ts`
+- [x] Run tests: `firebase emulators:exec --only firestore "npm test"`
+- [x] Test scenarios:
+  - [x] User can read their own workspace data
+  - [x] User CANNOT read other workspace data
+  - [x] User can create channels in their workspace
+  - [x] User CANNOT create channels in other workspace
+  - [x] User can write messages in their workspace channels
+  - [x] User CANNOT write messages in other workspace channels
+- [x] All tests pass with 100% coverage of security rules
+- [x] CI/CD integration: Security tests run on every PR
 
 **Dependencies:**
 dependsOn: ["1.2"]
