@@ -94,6 +94,14 @@ else
   TMP_JSON="${SESSIONS_JSON}.tmp"
   jq --arg key "$SESSION_KEY" 'del(.sessions[] | select(.key==$key))' "$SESSIONS_JSON" > "$TMP_JSON"
   mv "$TMP_JSON" "$SESSIONS_JSON"
+  
+  # Also remove the session state file if it exists
+  # OpenClaw stores session state in individual files per session
+  SESSION_STATE_PATH="${AGENT_SESSIONS_DIR}/${SESSION_ID}.json"
+  if [[ -f "$SESSION_STATE_PATH" ]]; then
+    echo "Removing session state file: $SESSION_STATE_PATH"
+    rm "$SESSION_STATE_PATH"
+  fi
 fi
 
 # Send context refresh to create new session
