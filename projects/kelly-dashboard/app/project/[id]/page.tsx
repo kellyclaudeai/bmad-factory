@@ -482,6 +482,39 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
 
         {projectState && (
           <>
+            {projectState.currentPhase === 'planning' && projectState.planningArtifacts && (
+              <section>
+                <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
+                  Phase 1: Planning Artifacts
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {Object.entries({
+                    'PRD': 'prd',
+                    'UX Design': 'uxDesign',
+                    'Architecture': 'architecture',
+                    'Epics & Stories': 'epics'
+                  }).map(([label, key]) => {
+                    const status = (projectState.planningArtifacts as any)?.[key]
+                    const isComplete = status === 'complete'
+                    return (
+                      <Card key={key} className="bg-terminal-card border-terminal-border">
+                        <CardContent className="pt-6 pb-6">
+                          <div className="flex items-center justify-between">
+                            <div className="font-mono text-sm text-terminal-text">
+                              {label}
+                            </div>
+                            <div className={`font-mono text-xs ${isComplete ? 'text-terminal-green' : 'text-terminal-dim'}`}>
+                              {isComplete ? '✓ Complete' : '⏳ Pending'}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+                </div>
+              </section>
+            )}
+
             <section>
               <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
                 Project Metrics
