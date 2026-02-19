@@ -24,6 +24,10 @@ export default defineConfig({
       "tests/integration/**/*.test.tsx",
       "tests/integration/**/*.spec.ts",
       "tests/integration/**/*.spec.tsx",
+      "tests/security/**/*.test.ts",
+      "tests/security/**/*.test.tsx",
+      "tests/security/**/*.spec.ts",
+      "tests/security/**/*.spec.tsx",
     ],
     coverage: {
       provider: "v8",

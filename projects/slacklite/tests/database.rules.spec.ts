@@ -147,6 +147,20 @@ async function seedMessage(
         text: "<img src=x onerror=alert(1)>",
       }),
     );
+
+    await assertFails(
+      set(ref(db, messagePath(WORKSPACE_ID, CHANNEL_ID, "msg-encoded-script-tag")), {
+        ...baseMessage,
+        text: "&lt;script&gt;alert(1)&lt;/script&gt;",
+      }),
+    );
+
+    await assertFails(
+      set(ref(db, messagePath(WORKSPACE_ID, CHANNEL_ID, "msg-encoded-javascript-protocol")), {
+        ...baseMessage,
+        text: "javascript&#58;alert(1)",
+      }),
+    );
   });
 
   it("requires all message fields: userId, userName, text, and timestamp", async () => {

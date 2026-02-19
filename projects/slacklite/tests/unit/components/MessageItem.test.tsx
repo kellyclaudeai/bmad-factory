@@ -26,6 +26,15 @@ function normalizeTextContent(element: HTMLElement | null): string {
 }
 
 describe("MessageItem long message truncation", () => {
+  it("renders user-generated html-like content as text", () => {
+    const htmlLikeText = '<script>alert("xss")</script><b>hello</b>';
+    const { container } = render(<MessageItem message={createMessage(htmlLikeText)} />);
+
+    expect(screen.getByText(htmlLikeText)).toBeInTheDocument();
+    expect(container.querySelector("script")).toBeNull();
+    expect(container.querySelector("b")).toBeNull();
+  });
+
   it("does not truncate messages with 2000 characters or fewer", () => {
     const text = "a".repeat(2000);
 

@@ -24,6 +24,12 @@ describe("validation utilities", () => {
         "alert(1) safe text",
       );
     });
+
+    it("removes encoded script tags and decodes safe entities", () => {
+      expect(
+        sanitizeMessageText("Fish &amp; Chips &lt;script&gt;alert(1)&lt;/script&gt;"),
+      ).toBe("Fish & Chips");
+    });
   });
 
   describe("hasBlockedXssPattern", () => {
@@ -33,6 +39,10 @@ describe("validation utilities", () => {
       );
       expect(hasBlockedXssPattern("javascript:alert(1)")).toBe(true);
       expect(hasBlockedXssPattern("<script>alert(1)</script>")).toBe(true);
+      expect(hasBlockedXssPattern("&lt;script&gt;alert(1)&lt;/script&gt;")).toBe(
+        true,
+      );
+      expect(hasBlockedXssPattern("javascript&#58;alert(1)")).toBe(true);
     });
 
     it("allows safe text", () => {

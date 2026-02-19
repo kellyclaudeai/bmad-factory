@@ -3,6 +3,7 @@ import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { Button } from "@/components/ui/Button";
+import { runAxe } from "@/tests/utils/axe";
 
 describe("Button", () => {
   it("uses the primary variant by default", () => {
@@ -66,5 +67,12 @@ describe("Button", () => {
     render(<Button ref={ref}>Ref button</Button>);
 
     expect(ref.current).toBe(screen.getByRole("button", { name: "Ref button" }));
+  });
+
+  it("has no detectable accessibility violations", async () => {
+    const { container } = render(<Button>Accessible button</Button>);
+    const results = await runAxe(container);
+
+    expect(results.violations).toHaveLength(0);
   });
 });

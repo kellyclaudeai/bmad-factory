@@ -29,6 +29,11 @@ const sentryMocks = vi.hoisted(() => ({
   setUserMock: vi.fn(),
 }));
 
+const sessionMocks = vi.hoisted(() => ({
+  clearServerSessionMock: vi.fn(),
+  syncServerSessionMock: vi.fn(),
+}));
+
 vi.mock("firebase/auth", () => ({
   browserLocalPersistence: "LOCAL_PERSISTENCE",
   createUserWithEmailAndPassword: authMocks.createUserWithEmailAndPasswordMock,
@@ -59,6 +64,11 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@sentry/nextjs", () => ({
   setUser: sentryMocks.setUserMock,
+}));
+
+vi.mock("@/lib/utils/session", () => ({
+  clearServerSession: sessionMocks.clearServerSessionMock,
+  syncServerSession: sessionMocks.syncServerSessionMock,
 }));
 
 vi.mock("@/lib/firebase/client", () => ({
@@ -110,6 +120,8 @@ describe("AuthProvider/useAuth", () => {
       }
     });
     sentryMocks.setUserMock.mockReset();
+    sessionMocks.clearServerSessionMock.mockReset();
+    sessionMocks.syncServerSessionMock.mockReset();
     authStateChangedCallback = null;
 
     navigationMocks.useRouterMock.mockReturnValue({
@@ -122,6 +134,8 @@ describe("AuthProvider/useAuth", () => {
     authMocks.signInWithEmailAndPasswordMock.mockResolvedValue(undefined);
     authMocks.createUserWithEmailAndPasswordMock.mockResolvedValue(undefined);
     authMocks.signOutMock.mockResolvedValue(undefined);
+    sessionMocks.clearServerSessionMock.mockResolvedValue(undefined);
+    sessionMocks.syncServerSessionMock.mockResolvedValue(undefined);
     firestoreMocks.docMock.mockImplementation(
       (_firestore: unknown, ...pathSegments: string[]) => ({
         path: pathSegments.join("/"),

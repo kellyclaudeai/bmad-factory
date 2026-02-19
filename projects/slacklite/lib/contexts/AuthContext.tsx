@@ -23,6 +23,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { usePathname, useRouter } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { auth, firestore } from "@/lib/firebase/client";
+import { clearServerSession, syncServerSession } from "@/lib/utils/session";
 
 type FirestoreUserData = Record<string, unknown>;
 
@@ -96,9 +97,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (!firebaseUser) {
+        void clearServerSession().catch(() => undefined);
         setUser(null);
         setLoading(false);
         return;
+      }
+
+      try {
+        await syncServerSession(firebaseUser);
+      } catch (sessionError) {
+        console.error("Failed to synchronize server session.", sessionError);
       }
 
       try {
@@ -132,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
 
       try {
+        await clearServerSession().catch(() => undefined);
         await firebaseSignOut(auth);
         cleanupFirebaseListeners();
         clearLocalClientState();

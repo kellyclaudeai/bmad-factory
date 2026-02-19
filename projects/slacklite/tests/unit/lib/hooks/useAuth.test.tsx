@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   authMock: {},
   browserLocalPersistenceMock: { mode: "local" },
+  clearServerSessionMock: vi.fn(),
   createUserWithEmailAndPasswordMock: vi.fn(),
   docMock: vi.fn(),
   firebaseSignOutMock: vi.fn(),
@@ -15,6 +16,7 @@ const mocks = vi.hoisted(() => ({
   setPersistenceMock: vi.fn(),
   setUserMock: vi.fn(),
   signInWithEmailAndPasswordMock: vi.fn(),
+  syncServerSessionMock: vi.fn(),
   unsubscribeMock: vi.fn(),
   usePathnameMock: vi.fn(),
 }));
@@ -48,6 +50,11 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@sentry/nextjs", () => ({
   setUser: mocks.setUserMock,
+}));
+
+vi.mock("@/lib/utils/session", () => ({
+  clearServerSession: mocks.clearServerSessionMock,
+  syncServerSession: mocks.syncServerSessionMock,
 }));
 
 import { AuthProvider, useAuth } from "@/lib/hooks/useAuth";
@@ -91,6 +98,8 @@ describe("useAuth", () => {
     mocks.signInWithEmailAndPasswordMock.mockResolvedValue(undefined);
     mocks.createUserWithEmailAndPasswordMock.mockResolvedValue(undefined);
     mocks.firebaseSignOutMock.mockResolvedValue(undefined);
+    mocks.clearServerSessionMock.mockResolvedValue(undefined);
+    mocks.syncServerSessionMock.mockResolvedValue(undefined);
   });
 
   it("throws when used outside AuthProvider", () => {

@@ -159,6 +159,15 @@ async function seedChannelMessage(
         createdBy: "user-1",
       }),
     );
+
+    await assertFails(
+      setDoc(doc(userDb, "workspaces", "workspace-1", "channels", "channel-xss"), {
+        channelId: "channel-xss",
+        workspaceId: "workspace-1",
+        name: "<script>alert(1)</script>",
+        createdBy: "user-1",
+      }),
+    );
   });
 
   it("enforces workspace name characters to letters, numbers, and spaces", async () => {
@@ -185,6 +194,48 @@ async function seedChannelMessage(
         workspaceId: "workspace-invalid-empty",
         name: "   ",
         ownerId: "user-1",
+      }),
+    );
+  });
+
+  it("enforces email format validation on user documents", async () => {
+    const validUserDb = testEnv.authenticatedContext("user-valid-email").firestore();
+
+    await assertSucceeds(
+      setDoc(doc(validUserDb, "users", "user-valid-email"), {
+        userId: "user-valid-email",
+        email: "valid.user@example.com",
+        displayName: "Valid User",
+        workspaceId: null,
+        createdAt: new Date(),
+        lastSeenAt: new Date(),
+        isOnline: false,
+      }),
+    );
+
+    const invalidCreateUserDb = testEnv.authenticatedContext("user-invalid-email").firestore();
+
+    await assertFails(
+      setDoc(doc(invalidCreateUserDb, "users", "user-invalid-email"), {
+        userId: "user-invalid-email",
+        email: "not-an-email",
+        displayName: "Invalid User",
+        workspaceId: null,
+        createdAt: new Date(),
+        lastSeenAt: new Date(),
+        isOnline: false,
+      }),
+    );
+
+    await seedWorkspaceMember("user-update-email", "workspace-1");
+    const invalidUpdateUserDb = testEnv.authenticatedContext("user-update-email").firestore();
+
+    await assertFails(
+      setDoc(doc(invalidUpdateUserDb, "users", "user-update-email"), {
+        userId: "user-update-email",
+        email: "still-not-an-email",
+        displayName: "Updated User",
+        workspaceId: "workspace-1",
       }),
     );
   });
@@ -363,6 +414,54 @@ async function seedChannelMessage(
           userId: "user-1",
           userName: "User One",
           text: "javascript:alert(1)",
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+
+    await assertFails(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "general",
+          "messages",
+          "message-encoded-script-tag",
+        ),
+        {
+          messageId: "message-encoded-script-tag",
+          channelId: "general",
+          workspaceId: "workspace-1",
+          userId: "user-1",
+          userName: "User One",
+          text: "&lt;script&gt;alert(1)&lt;/script&gt;",
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+
+    await assertFails(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "general",
+          "messages",
+          "message-encoded-javascript-protocol",
+        ),
+        {
+          messageId: "message-encoded-javascript-protocol",
+          channelId: "general",
+          workspaceId: "workspace-1",
+          userId: "user-1",
+          userName: "User One",
+          text: "javascript&#58;alert(1)",
           timestamp: new Date(),
           createdAt: new Date(),
         },

@@ -4,13 +4,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { doc } from "firebase/firestore";
 
-import DMHeader from "@/components/features/messages/DMHeader";
 import { MessageInput } from "@/components/features/messages/MessageInput";
 import MessageList from "@/components/features/messages/MessageList";
+import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { firestore } from "@/lib/firebase/client";
 import { useDocument } from "@/lib/hooks/useDocument";
+import { useMessages } from "@/lib/hooks/useMessages";
 import { useRealtimeMessages } from "@/lib/hooks/useRealtimeMessages";
+import type { Message } from "@/lib/types/models";
 
 const BOTTOM_THRESHOLD_PX = 100;
 
@@ -21,6 +23,7 @@ interface DirectMessageDocument {
 interface UserDocument {
   displayName?: unknown;
   email?: unknown;
+  photoURL?: unknown;
   isOnline?: unknown;
 }
 
@@ -68,6 +71,10 @@ function getUserDisplayName(user: UserDocument | null): string {
   return "Unknown user";
 }
 
+function toTimestampMillis(timestamp: Message["timestamp"]): number {
+  return typeof timestamp === "number" ? timestamp : timestamp.toMillis();
+}
+
 export default function DirectMessagePage() {
   const params = useParams<{ dmId: string }>();
   const dmId = typeof params?.dmId === "string" ? params.dmId.trim() : "";
@@ -113,14 +120,15 @@ export default function DirectMessagePage() {
   }, [otherUserId]);
   const { data: otherUser } = useDocument<UserDocument>(otherUserRef);
   const otherUserName = getUserDisplayName(otherUser);
+  const otherUserPhotoUrl = toNonEmptyString(otherUser?.photoURL) ?? undefined;
   const isOtherUserOnline = otherUser?.isOnline === true;
   const canOpenConversation =
     !directMessageLoading && !directMessageError && directMessage !== null && isParticipant;
   const activeThreadId = canOpenConversation ? dmId : "";
   const {
-    messages,
-    loading,
-    error,
+    messages: realtimeMessages,
+    loading: realtimeMessagesLoading,
+    error: realtimeMessagesError,
     sendMessage,
     retryMessage,
     sendErrorBanner,
@@ -142,6 +150,30 @@ export default function DirectMessagePage() {
       rtdbThreadId: activeThreadId.length > 0 ? `dm-${activeThreadId}` : "",
     },
   );
+  const {
+    messages: persistedMessages,
+    loading: persistedMessagesLoading,
+    error: persistedMessagesError,
+  } = useMessages(activeThreadId, { targetType: "dm" });
+  const messages = useMemo(() => {
+    const mergedMessages = new Map<string, Message>();
+
+    persistedMessages.forEach((message) => {
+      mergedMessages.set(message.messageId, message);
+    });
+
+    realtimeMessages.forEach((message) => {
+      mergedMessages.set(message.messageId, message);
+    });
+
+    return [...mergedMessages.values()].sort(
+      (firstMessage, secondMessage) =>
+        toTimestampMillis(firstMessage.timestamp) -
+        toTimestampMillis(secondMessage.timestamp),
+    );
+  }, [persistedMessages, realtimeMessages]);
+  const loading = realtimeMessagesLoading || persistedMessagesLoading;
+  const error = realtimeMessagesError ?? persistedMessagesError;
   const [showNewMessagesBadge, setShowNewMessagesBadge] = useState(false);
   const messageListRef = useRef<HTMLDivElement>(null);
   const previousMessageCountRef = useRef(0);
@@ -289,8 +321,25 @@ export default function DirectMessagePage() {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex items-center justify-between border-b border-gray-300 bg-white px-4 py-3">
-        <DMHeader otherUserName={otherUserName} isOnline={isOtherUserOnline} />
+      <header className="border-b border-gray-300 bg-white px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Avatar
+              src={otherUserPhotoUrl}
+              alt={otherUserName}
+              fallbackText={otherUserName}
+              size="sm"
+            />
+            <span
+              className={`absolute bottom-0 right-0 inline-block h-2.5 w-2.5 rounded-full border-2 border-white ${
+                isOtherUserOnline ? "bg-success" : "bg-gray-600"
+              }`}
+              role="status"
+              aria-label={isOtherUserOnline ? "Online" : "Offline"}
+            />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900">{otherUserName}</h2>
+        </div>
       </header>
 
       <div className="relative flex-1">
@@ -391,7 +440,7 @@ export default function DirectMessagePage() {
         )}
       </div>
 
-      <MessageInput channelId={dmId} onSend={sendMessage} />
+      <MessageInput channelId={`dm-${dmId}`} onSend={sendMessage} />
     </div>
   );
 }

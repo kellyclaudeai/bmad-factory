@@ -35,17 +35,11 @@ jobs:
       - name: Run unit tests
         run: pnpm test:coverage
 
-      - name: Run Firebase Emulator tests
-        if: ${{ hashFiles('tests/integration/**/*.test.*', 'tests/integration/**/*.spec.*') != '' }}
+      - name: Run Firebase security rules integration tests
+        if: ${{ hashFiles('tests/integration/firebase-rules.spec.ts') != '' }}
         run: |
           npm install -g firebase-tools
-          firebase emulators:exec --only firestore,database "pnpm exec vitest tests/integration --run"
-
-      - name: Run RTDB security rules tests
-        if: ${{ hashFiles('tests/database.rules.spec.ts') != '' }}
-        run: |
-          npm install -g firebase-tools
-          firebase emulators:exec --only database "npm test -- tests/database.rules.spec.ts"
+          pnpm test:integration:firebase-rules
 
       - name: Run E2E tests
         if: ${{ hashFiles('tests/e2e/**/*.spec.*') != '' }}

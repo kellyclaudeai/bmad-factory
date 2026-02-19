@@ -13,6 +13,7 @@ import {
 
 import { Button, Input } from "@/components/ui";
 import { auth } from "@/lib/firebase/client";
+import { syncServerSession } from "@/lib/utils/session";
 import { validateEmail as validateEmailInput } from "@/lib/utils/validation";
 
 function getSafeRedirectPath(value: string | null): string | null {
@@ -87,7 +88,7 @@ export default function SignInPage() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
+      if (user && !isLoading) {
         router.replace(redirectPath ?? "/app");
         return;
       }
@@ -96,7 +97,7 @@ export default function SignInPage() {
     });
 
     return unsubscribe;
-  }, [redirectPath, router]);
+  }, [isLoading, redirectPath, router]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -117,7 +118,12 @@ export default function SignInPage() {
 
     try {
       await setPersistence(auth, browserLocalPersistence);
-      await signInWithEmailAndPassword(auth, normalizedEmail, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        normalizedEmail,
+        password,
+      );
+      await syncServerSession(userCredential.user);
       router.replace(redirectPath ?? "/app");
     } catch (error) {
       setErrorMessage(getSignInErrorMessage(error));
