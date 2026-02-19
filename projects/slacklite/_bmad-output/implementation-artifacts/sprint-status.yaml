@@ -136,9 +136,27 @@ stories:
   "2.2":
     epic: 2
     title: "Build Sign Up Form UI"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["1.6"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T11:10:00-06:00"
+    notes: |
+      ✅ Sign-up form UI complete with all acceptance criteria met
+      ✅ Created app/(auth)/signup/page.tsx as Client Component
+      ✅ Form fields: email (type="email"), password (type="password", minLength=8)
+      ✅ Real-time validation with email regex and password length checks
+      ✅ Error messages display below inputs (red border + text via Input component)
+      ✅ Submit button "Create Account" (disabled when invalid/loading)
+      ✅ Link to Sign In page (/signin)
+      ✅ Form state managed with useState (email, password, errors, loading)
+      ✅ Accessibility: ARIA labels, keyboard navigation, semantic form
+      ✅ Mobile responsive: full-width on mobile, max-width 400px card on desktop
+      ✅ ESLint passed
+      
+      Note: Created in bulk commit ed66d78 (labeled as feat(4.1))
+      
+      Status: Ready for code review
   
   "2.3":
     epic: 2
@@ -172,9 +190,25 @@ stories:
   "2.5":
     epic: 2
     title: "Create Auth Context Provider"
-    status: todo
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["1.4"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T11:06:00-06:00"
+    notes: |
+      ✅ Created lib/contexts/AuthContext.tsx with full Firebase Auth integration
+      ✅ AuthContext provides: { user, loading, signIn, signUp, signOut }
+      ✅ onAuthStateChanged listener syncs Firebase Auth state
+      ✅ Fetches user data from Firestore /users/{uid} and merges with Firebase Auth user
+      ✅ Error handling: Firestore fetch failures fall back to Firebase Auth user only
+      ✅ useAuth() custom hook for consuming auth state
+      ✅ Loading state management: true during initial auth check, false after resolved
+      ✅ AuthProvider wraps app in app/layout.tsx
+      ✅ Protected route logic: unauthenticated users redirected to /signin when accessing /app/*
+      ✅ All acceptance criteria completed
+      ✅ Lint and TypeScript checks passed
+      
+      Commit: 36706af (feat(2.5): Create auth context provider)
   
   "2.6":
     epic: 2
