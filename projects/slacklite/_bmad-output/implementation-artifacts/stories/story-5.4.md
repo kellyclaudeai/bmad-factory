@@ -6,14 +6,14 @@
 Create DM-specific page that reuses message list, input, and real-time updates from channel view. Only differences: Header shows user name instead of channel name.
 
 **Acceptance Criteria:**
-- [ ] Create `app/app/dms/[dmId]/page.tsx`
-- [ ] Reuse: `MessageList`, `MessageInput` components from channels
-- [ ] Fetch DM data: `useDocument(doc(db, 'workspaces/{workspaceId}/directMessages/{dmId}'))`
-- [ ] Header: Show other user's name + online indicator (green/gray dot)
-- [ ] Messages subcollection: `/workspaces/{workspaceId}/directMessages/{dmId}/messages/{messageId}`
-- [ ] Same real-time updates: RTDB path = `/messages/{workspaceId}/dm-{dmId}/{messageId}`
-- [ ] Same send logic: Write to Firestore + RTDB (dual-write)
-- [ ] Empty state: "No messages yet. Say hello!"
+- [x] Create `app/app/dms/[dmId]/page.tsx`
+- [x] Reuse: `MessageList`, `MessageInput` components from channels
+- [x] Fetch DM data: `useDocument(doc(db, 'workspaces/{workspaceId}/directMessages/{dmId}'))`
+- [x] Header: Show other user's name + online indicator (green/gray dot)
+- [x] Messages subcollection: `/workspaces/{workspaceId}/directMessages/{dmId}/messages/{messageId}`
+- [x] Same real-time updates: RTDB path = `/messages/{workspaceId}/dm-{dmId}/{messageId}`
+- [x] Same send logic: Write to Firestore + RTDB (dual-write)
+- [x] Empty state: "No messages yet. Say hello!"
 
 **Dependencies:**
 dependsOn: ["5.3", "4.7", "4.2"]

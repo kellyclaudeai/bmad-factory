@@ -13,6 +13,8 @@ const SCRIPT_TAG_PATTERN =
 const JAVASCRIPT_PROTOCOL_PATTERN = /javascript\s*:/gi;
 const HTML_TAG_PATTERN = /<[^>]*>/g;
 const XSS_PATTERN = /<\s*script|javascript\s*:|on\w+\s*=/i;
+const HTML_ENTITY_DECIMAL_PATTERN = /&#(\d+);/g;
+const HTML_ENTITY_HEX_PATTERN = /&#x([0-9a-f]+);/gi;
 const MESSAGE_MAX_LENGTH = 4000;
 const BLOCKED_XSS_ERROR = "Message contains blocked content.";
 
@@ -44,8 +46,65 @@ function success(): ValidationResult {
   };
 }
 
+function decodeCodePointEntity(
+  entity: string,
+  codePoint: string,
+  radix: 10 | 16,
+): string {
+  const parsedCodePoint = Number.parseInt(codePoint, radix);
+
+  if (
+    !Number.isInteger(parsedCodePoint) ||
+    parsedCodePoint < 0 ||
+    parsedCodePoint > 0x10ffff
+  ) {
+    return entity;
+  }
+
+  try {
+    return String.fromCodePoint(parsedCodePoint);
+  } catch {
+    return entity;
+  }
+}
+
+function decodeHtmlEntitiesOnce(text: string): string {
+  const decodedNamedEntities = text
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&(apos|#39|#x27);/gi, "'")
+    .replace(/&colon;/gi, ":");
+
+  return decodedNamedEntities
+    .replace(HTML_ENTITY_DECIMAL_PATTERN, (entity, codePoint: string) =>
+      decodeCodePointEntity(entity, codePoint, 10),
+    )
+    .replace(HTML_ENTITY_HEX_PATTERN, (entity, codePoint: string) =>
+      decodeCodePointEntity(entity, codePoint, 16),
+    );
+}
+
+function decodeHtmlEntities(text: string): string {
+  let decoded = text;
+
+  for (let iteration = 0; iteration < 2; iteration += 1) {
+    const nextDecodedValue = decodeHtmlEntitiesOnce(decoded);
+
+    if (nextDecodedValue === decoded) {
+      break;
+    }
+
+    decoded = nextDecodedValue;
+  }
+
+  return decoded;
+}
+
 export function sanitizeMessageText(text: string): string {
-  const withoutScriptTags = text.replace(SCRIPT_TAG_PATTERN, "");
+  const decodedText = decodeHtmlEntities(text);
+  const withoutScriptTags = decodedText.replace(SCRIPT_TAG_PATTERN, "");
   const purifier = getDOMPurifyInstance();
   const sanitized = purifier
     ? purifier.sanitize(withoutScriptTags, {
@@ -61,7 +120,7 @@ export function sanitizeMessageText(text: string): string {
 }
 
 export function hasBlockedXssPattern(text: string): boolean {
-  return XSS_PATTERN.test(text);
+  return XSS_PATTERN.test(decodeHtmlEntities(text));
 }
 
 export function validateMessageText(

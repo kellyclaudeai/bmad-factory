@@ -10,8 +10,7 @@ import {
   buildWorkspaceInviteUrl,
   createWorkspaceInvite,
 } from "@/lib/utils/workspaceInvites";
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { validateEmail } from "@/lib/utils/validation";
 
 export interface InviteTeamModalProps {
   isOpen: boolean;
@@ -21,7 +20,10 @@ export interface InviteTeamModalProps {
 }
 
 function parseEmails(input: string): string[] {
-  return input.split(/[\s,]+/).filter((email) => email.length > 0);
+  return input
+    .split(/[\s,]+/)
+    .map((email) => email.trim())
+    .filter((email) => email.length > 0);
 }
 
 export default function InviteTeamModal({
@@ -128,7 +130,7 @@ export default function InviteTeamModal({
   }, [isOpen, user?.uid, workspaceId, workspaceName]);
 
   const validateEmails = (emails: string[]): boolean => {
-    const invalid = emails.filter((email) => !EMAIL_REGEX.test(email));
+    const invalid = emails.filter((email) => !validateEmail(email).valid);
 
     setErrorMessage(
       invalid.length > 0 ? `Invalid emails: ${invalid.join(", ")}` : "",

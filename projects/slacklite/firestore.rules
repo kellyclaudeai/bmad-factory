@@ -85,7 +85,9 @@ service cloud.firestore {
     function hasBlockedXssPattern(value) {
       return value.lower().matches('.*<\\s*script.*') ||
              value.lower().matches('.*javascript\\s*:.*') ||
-             value.lower().matches('.*on[a-z0-9_]+\\s*=.*');
+             value.lower().matches('.*on[a-z0-9_]+\\s*=.*') ||
+             value.lower().matches('.*(&lt;|&amp;lt;|&#60;|&#x3c;)\\s*script.*') ||
+             value.lower().matches('.*javascript\\s*(&colon;|&#58;|&#x3a;).*');
     }
 
     function hasValidChannelName(data) {
@@ -99,6 +101,13 @@ service cloud.firestore {
              data.name.size() <= 50 &&
              data.name.matches('^[A-Za-z0-9 ]+$') &&
              data.name.matches('.*[A-Za-z0-9].*');
+    }
+
+    function hasValidEmailAddress(value) {
+      return value is string &&
+             value.size() > 0 &&
+             value.size() <= 254 &&
+             value.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
     }
     
     // Workspaces: Users can read/update their own workspace
@@ -160,8 +169,13 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isAuthenticated() &&
                     (userId == request.auth.uid || isSameWorkspaceUser(userId));
-      allow create: if isAuthenticated() && userId == request.auth.uid;
-      allow update: if userId == request.auth.uid;
+      allow create: if isAuthenticated() &&
+                      userId == request.auth.uid &&
+                      request.resource.data.userId == userId &&
+                      hasValidEmailAddress(request.resource.data.email);
+      allow update: if userId == request.auth.uid &&
+                      request.resource.data.userId == userId &&
+                      hasValidEmailAddress(request.resource.data.email);
       allow delete: if userId == request.auth.uid;
     }
 

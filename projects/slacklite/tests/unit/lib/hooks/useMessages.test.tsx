@@ -169,6 +169,21 @@ describe("useMessages", () => {
     expect(mocks.getDocsMock).not.toHaveBeenCalled();
   });
 
+  it("subscribes to direct message message paths when targetType is dm", async () => {
+    const { result } = renderHook(() =>
+      useMessages("dm-123", { targetType: "dm" }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(mocks.collectionMock).toHaveBeenCalledWith(
+      mocks.firestoreMock,
+      "workspaces/workspace-1/directMessages/dm-123/messages",
+    );
+  });
+
   it("loads older messages with startAfter cursor and prepends them", async () => {
     const newestPageDocs = createDescendingDocs(100, 51);
     const olderPageDocs = createDescendingDocs(50, 21);
