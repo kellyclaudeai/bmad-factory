@@ -951,10 +951,40 @@ stories:
   "6.2":
     epic: 6
     title: "Display Online/Offline Indicators"
-    status: in_progress
+    status: review
     estimated_effort: "1 hour"
     started_at: "2026-02-19T14:45:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:54:00-06:00"
     dependencies: ["6.1", "5.1"]
+    notes: |
+      ✅ Story 6.2 implementation complete - all acceptance criteria met
+      ✅ Created components/ui/OnlineIndicator.tsx:
+         - Props: isOnline: boolean
+         - 10px circle (h-2.5 w-2.5) with 2px white border
+         - Green (#2EB67D via bg-success) when online, gray (#868686 via bg-gray-600) when offline
+         - Accessible ARIA labels and role="status"
+      ✅ Updated components/features/sidebar/MemberList.tsx:
+         - Replaced inline status dot with OnlineIndicator component
+         - Positioned bottom-right of avatar
+      ✅ Created components/features/messages/DMHeader.tsx:
+         - Reusable header component for DM views
+         - Shows OnlineIndicator inline before user name
+      ✅ Exported OnlineIndicator from components/ui/index.ts
+      ✅ Real-time updates via existing useWorkspaceMembers Firestore subscription
+      ✅ Validation:
+         - ESLint: Passed
+         - Unit tests: 3/3 passed (ChannelPage tests)
+      ✅ Implementation built on top of existing uncommitted changes
+      
+      Files Changed:
+      - components/ui/OnlineIndicator.tsx (new)
+      - components/features/messages/DMHeader.tsx (new)
+      - components/features/sidebar/MemberList.tsx (updated)
+      - components/ui/index.ts (updated)
+      - _bmad-output/implementation-artifacts/stories/story-6.2.md (criteria marked complete)
+      
+      Commit: 4369e73 (feat(6.2): Display online/offline indicators)
   
   "6.3":
     epic: 6
