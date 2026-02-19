@@ -969,10 +969,43 @@ stories:
   "4.9":
     epic: 4
     title: "Add Message Character Limit Validation"
-    status: in_progress
+    status: review
     estimated_effort: "1 hour"
     dependencies: ["4.2"]
     started_at: "2026-02-19T15:04:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T15:06:00-06:00"
+    notes: |
+      ✅ Character limit validation implementation complete - all acceptance criteria met
+      ✅ MessageInput component updates:
+         - Character counter moved to below textarea (was above)
+         - Counter text: "{count} / 4000" with gray (under limit) or red (over limit) styling
+         - Explicit "Message too long. Maximum 4,000 characters." error message when over limit
+         - Send button disabled when >4000 characters
+      ✅ Client-side validation:
+         - useRealtimeMessages.sendMessage() rejects messages >4000 chars before any RTDB/Firestore write
+         - Throws exact error: "Message too long. Maximum 4,000 characters."
+      ✅ Server-side validation:
+         - Added hasValidMessageText() helper to firestore.rules
+         - Enforces text.size() > 0 && text.size() <= 4000 for all message creates (channels + DMs)
+      ✅ Tests added:
+         - tests/unit/components/MessageInput.test.tsx: Counter position, styling, error message, button disabled
+         - tests/unit/lib/useRealtimeMessages.test.tsx: Validation before writes
+         - tests/firestore.rules.spec.ts: Rules enforcement (4000 allowed, 4001 denied, empty denied)
+      ✅ All acceptance criteria marked complete in story file
+      ✅ Unit tests passing (11 tests)
+      ✅ Firestore rules tests added (require emulator for full execution)
+      
+      Files Changed:
+      - components/features/messages/MessageInput.tsx (counter moved, error message added)
+      - lib/hooks/useRealtimeMessages.ts (client-side validation guard)
+      - firestore.rules (server-side validation helper and enforcement)
+      - tests/unit/components/MessageInput.test.tsx (2 new tests)
+      - tests/unit/lib/useRealtimeMessages.test.tsx (1 new test)
+      - tests/firestore.rules.spec.ts (1 new test with 3 assertions)
+      - _bmad-output/implementation-artifacts/stories/story-4.9.md (all criteria checked)
+      
+      Commit: 218ed1d (feat(4.9): Add message character limit validation)
   
   # Epic 5: Direct Messages (1-on-1)
   "5.1":
@@ -1007,9 +1040,10 @@ stories:
   "5.3":
     epic: 5
     title: "Fetch and Display DM List"
-    status: todo
+    status: in_progress
     estimated_effort: "2 hours"
     dependencies: ["5.2"]
+    started_at: "2026-02-19T15:09:00-06:00"
   
   "5.4":
     epic: 5
