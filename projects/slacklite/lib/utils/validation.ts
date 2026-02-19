@@ -14,6 +14,7 @@ const JAVASCRIPT_PROTOCOL_PATTERN = /javascript\s*:/gi;
 const HTML_TAG_PATTERN = /<[^>]*>/g;
 const XSS_PATTERN = /<\s*script|javascript\s*:|on\w+\s*=/i;
 const MESSAGE_MAX_LENGTH = 4000;
+const BLOCKED_XSS_ERROR = "Message contains blocked content.";
 
 let domPurifyInstance: ReturnType<typeof createDOMPurify> | null = null;
 
@@ -67,6 +68,10 @@ export function validateMessageText(
   text: string,
   maxLength = MESSAGE_MAX_LENGTH,
 ): ValidationResult {
+  if (hasBlockedXssPattern(text)) {
+    return fail(BLOCKED_XSS_ERROR);
+  }
+
   const sanitized = sanitizeMessageText(text);
 
   if (sanitized.length === 0) {

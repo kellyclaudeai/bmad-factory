@@ -48,6 +48,13 @@ describe("validation utilities", () => {
       });
     });
 
+    it("rejects blocked xss patterns", () => {
+      expect(validateMessageText("javascript:alert(1)")).toEqual({
+        valid: false,
+        error: "Message contains blocked content.",
+      });
+    });
+
     it("rejects messages above max length", () => {
       const tooLong = "a".repeat(11);
       expect(validateMessageText(tooLong, 10)).toEqual({

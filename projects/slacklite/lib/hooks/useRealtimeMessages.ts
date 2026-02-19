@@ -15,7 +15,7 @@ import { Timestamp, doc, serverTimestamp as firestoreServerTimestamp, setDoc } f
 
 import { firestore, rtdb } from "@/lib/firebase/client";
 import { createRTDBMessage, type Message, type RTDBMessage } from "@/lib/types/models";
-import { sanitizeMessageText } from "@/lib/utils/validation";
+import { sanitizeMessageText, validateMessageText } from "@/lib/utils/validation";
 
 export interface MessageSender {
   userId: string;
@@ -373,6 +373,16 @@ export function useRealtimeMessages(
 
   const sendMessage = useCallback(
     async (text: string): Promise<string> => {
+      const validationResult = validateMessageText(text, MAX_MESSAGE_LENGTH);
+
+      if (!validationResult.valid) {
+        if (validationResult.error === `Message must be ${MAX_MESSAGE_LENGTH} characters or fewer.`) {
+          throw new Error(MESSAGE_TOO_LONG_ERROR);
+        }
+
+        return "";
+      }
+
       const sanitizedText = sanitizeMessageText(text);
 
       if (sanitizedText.length > MAX_MESSAGE_LENGTH) {

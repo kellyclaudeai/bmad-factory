@@ -121,6 +121,21 @@ describe("MessageInput mobile optimization", () => {
     expect(onSendMock).not.toHaveBeenCalled();
   });
 
+  it("does not send blocked XSS patterns", () => {
+    setViewportWidth(1024);
+
+    render(<MessageInput channelId="channel-1" onSend={onSendMock} />);
+
+    const textarea = screen.getByPlaceholderText("Type a message...");
+    fireEvent.change(textarea, { target: { value: "javascript:alert(1)" } });
+    fireEvent.keyDown(textarea, {
+      code: "Enter",
+      key: "Enter",
+    });
+
+    expect(onSendMock).not.toHaveBeenCalled();
+  });
+
   it("keeps Shift+Enter newline behavior on desktop", () => {
     setViewportWidth(1024);
 

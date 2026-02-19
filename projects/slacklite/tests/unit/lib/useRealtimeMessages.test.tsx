@@ -142,6 +142,26 @@ describe("useRealtimeMessages", () => {
     expect(firestoreMocks.setDocMock).not.toHaveBeenCalled();
   });
 
+  it("blocks messages with XSS patterns before attempting RTDB/Firestore writes", async () => {
+    const { result } = renderHook(() =>
+      useRealtimeMessages("workspace-1", "channel-1", {
+        userId: "user-1",
+        userName: "Austen",
+      }),
+    );
+
+    let messageId = "not-set";
+    await act(async () => {
+      messageId = await result.current.sendMessage("javascript:alert(1)");
+    });
+
+    expect(messageId).toBe("");
+    expect(result.current.messages).toEqual([]);
+    expect(databaseMocks.pushMock).not.toHaveBeenCalled();
+    expect(databaseMocks.setMock).not.toHaveBeenCalled();
+    expect(firestoreMocks.setDocMock).not.toHaveBeenCalled();
+  });
+
   it("writes RTDB first, then Firestore, with shared messageId and 1-hour RTDB ttl", async () => {
     databaseMocks.pushMock.mockImplementation((messagePathRef: { path: string }) => ({
       key: "server-message-2",
@@ -190,6 +210,100 @@ describe("useRealtimeMessages", () => {
 
     expect(databaseMocks.setMock.mock.invocationCallOrder[0]).toBeLessThan(
       firestoreMocks.setDocMock.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("uses DM-specific RTDB and Firestore paths in dm mode", async () => {
+    databaseMocks.pushMock.mockImplementation((messagePathRef: { path: string }) => ({
+      key: "dm-message-1",
+      path: `${messagePathRef.path}/dm-message-1`,
+    }));
+
+    const { result } = renderHook(() =>
+      useRealtimeMessages(
+        "workspace-1",
+        "dm-1",
+        {
+          userId: "user-1",
+          userName: "Austen",
+        },
+        {
+          targetType: "dm",
+          firestoreThreadId: "dm-1",
+          rtdbThreadId: "dm-dm-1",
+        },
+      ),
+    );
+
+    await act(async () => {
+      await result.current.sendMessage("hello dm");
+    });
+
+    expect(databaseMocks.refMock).toHaveBeenCalledWith({}, "messages/workspace-1/dm-dm-1");
+    expect(firestoreMocks.docMock).toHaveBeenCalledWith(
+      {},
+      "workspaces/workspace-1/directMessages/dm-1/messages/dm-message-1",
+    );
+    expect(firestoreMocks.setDocMock).toHaveBeenCalledWith(
+      { path: "workspaces/workspace-1/directMessages/dm-1/messages/dm-message-1" },
+      {
+        messageId: "dm-message-1",
+        channelId: "dm-1",
+        workspaceId: "workspace-1",
+        userId: "user-1",
+        userName: "Austen",
+        text: "hello dm",
+        timestamp: "SERVER_TIMESTAMP",
+        createdAt: "SERVER_TIMESTAMP",
+      },
+    );
+  });
+
+  it("writes DM messages to dm-{dmId} RTDB path and directMessages Firestore path", async () => {
+    databaseMocks.pushMock.mockImplementation((messagePathRef: { path: string }) => ({
+      key: "server-message-dm",
+      path: `${messagePathRef.path}/server-message-dm`,
+    }));
+
+    const { result } = renderHook(() =>
+      useRealtimeMessages(
+        "workspace-1",
+        "dm-123",
+        {
+          userId: "user-1",
+          userName: "Austen",
+        },
+        {
+          targetType: "dm",
+          rtdbThreadId: "dm-dm-123",
+          firestoreThreadId: "dm-123",
+        },
+      ),
+    );
+
+    let messageId = "";
+    await act(async () => {
+      messageId = await result.current.sendMessage("dm hello");
+    });
+
+    expect(messageId).toBe("server-message-dm");
+    expect(databaseMocks.refMock).toHaveBeenCalledWith({}, "messages/workspace-1/dm-dm-123");
+    expect(firestoreMocks.docMock).toHaveBeenCalledWith(
+      {},
+      "workspaces/workspace-1/directMessages/dm-123/messages/server-message-dm",
+    );
+    expect(firestoreMocks.setDocMock).toHaveBeenCalledWith(
+      { path: "workspaces/workspace-1/directMessages/dm-123/messages/server-message-dm" },
+      {
+        messageId: "server-message-dm",
+        channelId: "dm-123",
+        workspaceId: "workspace-1",
+        userId: "user-1",
+        userName: "Austen",
+        text: "dm hello",
+        timestamp: "SERVER_TIMESTAMP",
+        createdAt: "SERVER_TIMESTAMP",
+      },
     );
   });
 

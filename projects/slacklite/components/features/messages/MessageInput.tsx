@@ -11,7 +11,7 @@ import {
 
 import { Button } from "@/components/ui/Button";
 import { useRateLimit } from "@/lib/hooks/useRateLimit";
-import { sanitizeMessageText } from "@/lib/utils/validation";
+import { sanitizeMessageText, validateMessageText } from "@/lib/utils/validation";
 
 const MOBILE_BREAKPOINT = 768;
 const DESKTOP_MIN_TEXTAREA_HEIGHT = 44;
@@ -133,6 +133,12 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
     }
 
     if (trimmedText.length === 0 || isOverLimit) {
+      return;
+    }
+
+    const validationResult = validateMessageText(text, MAX_MESSAGE_LENGTH);
+
+    if (!validationResult.valid) {
       return;
     }
 
