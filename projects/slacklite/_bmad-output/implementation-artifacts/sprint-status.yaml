@@ -750,10 +750,52 @@ stories:
   "4.4":
     epic: 4
     title: "Implement Dual-Write Message Persistence"
-    status: in_progress
+    status: review
     estimated_effort: "3 hours"
     dependencies: ["4.1", "4.3"]
     started_at: "2026-02-19T14:43:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:54:00-06:00"
+    notes: |
+      ✅ Dual-write pattern implementation complete - all acceptance criteria met
+      ✅ RTDB-first dual-write with error handling:
+         - RTDB write first: /messages/{workspaceId}/{channelId}/{messageId}
+         - Firestore write second: /workspaces/{workspaceId}/channels/{channelId}/messages/{messageId}
+         - Same messageId used for both writes (consistency)
+         - RTDB TTL: 1 hour (3600000ms) auto-delete
+      ✅ Error handling UX:
+         - RTDB failure: Abort operation, rollback optimistic UI, show red error banner with retry
+         - Firestore failure: Warning banner, message delivered via RTDB, queued for retry
+      ✅ Retry mechanisms:
+         - RTDB failure: Manual retry via banner button (retryLastSend)
+         - Firestore failure: Background retry queue (15s interval) + manual retry button
+      ✅ Updated lib/hooks/useRealtimeMessages.ts:
+         - Added persistMessageToFirestore with Sentry logging
+         - Added retryQueuedFirestoreWrites with background interval
+         - Added sendErrorBanner and firestoreWarningBanner states
+         - Added retryLastSend and retryFirestoreWrite APIs
+         - Changed sendMessage return type to Promise<string>
+      ✅ Updated app/app/channels/[channelId]/page.tsx:
+         - Added red error banner for RTDB failures
+         - Added gray/yellow warning banner for Firestore failures
+         - Wired retry buttons to hook callbacks
+      ✅ Updated components/features/messages/MessageInput.tsx:
+         - Changed onSend to accept Promise<unknown> return type
+      ✅ Tests:
+         - tests/unit/lib/useRealtimeMessages.test.tsx: RTDB-first ordering, TTL validation, failure scenarios, retry queue
+         - tests/unit/app/ChannelPage.test.tsx: Banner rendering and retry button wiring
+         - All tests passing (38 tests across 9 files)
+      ✅ All acceptance criteria marked complete in story file
+      
+      Files Changed:
+      - lib/hooks/useRealtimeMessages.ts (dual-write logic, error handling, retry queue)
+      - app/app/channels/[channelId]/page.tsx (error/warning banners, retry buttons)
+      - components/features/messages/MessageInput.tsx (async send handler compatibility)
+      - tests/unit/lib/useRealtimeMessages.test.tsx (comprehensive test coverage)
+      - tests/unit/app/ChannelPage.test.tsx (banner and retry button tests)
+      - _bmad-output/implementation-artifacts/stories/story-4.4.md (all criteria marked complete)
+      
+      Commit: 9f8dee4 (feat(4.4): Implement dual-write message persistence)
   
   "4.5":
     epic: 4
