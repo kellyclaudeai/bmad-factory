@@ -189,6 +189,31 @@ export default async function ResearchDetail({ params }: ResearchDetailProps) {
           </CardContent>
         </Card>
 
+        {/* Active Session Notice */}
+        {status === "active" && !outputPath && !findings.length && (
+          <Card className="border-terminal-amber/30 bg-terminal-amber/5">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <div className="mt-1">
+                  <div className="h-3 w-3 rounded-full bg-terminal-amber animate-pulse" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-mono font-semibold text-terminal-amber">
+                    Research in Progress
+                  </h3>
+                  <p className="text-sm font-mono text-terminal-text">
+                    This research session is currently active. Research findings and artifacts
+                    will appear here once the Research Lead completes its work.
+                  </p>
+                  <p className="text-xs font-mono text-terminal-dim">
+                    Expected completion: 20-30 minutes from start
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Research Findings */}
         {findings.length > 0 && (
           <Card>
