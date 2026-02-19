@@ -1,7 +1,7 @@
 # Research Lead - Product Idea Generation Agent
 
-**Version:** 3.0  
-**Last Updated:** 2026-02-18 16:25 CST  
+**Version:** 3.1  
+**Last Updated:** 2026-02-18 19:59 CST  
 **Status:** In Development
 
 ---
@@ -108,103 +108,10 @@ openclaw gateway call agent \
 - Phase: Phase 3 (CIS ideation)
 
 **Research Lead (Orchestrator)**
-- Role: Workflow orchestration, strategy assignment, registry management, brief compilation
+- Role: Workflow orchestration, registry management, brief compilation
 - Model: Sonnet 4.5
 - Tools: sessions_spawn, sessions_send, file operations
 - Phases: All (coordinator - makes NO decisions, only delegates and writes files)
-
----
-
-## Discovery Strategies
-
-Research Lead assigns Mary ONE discovery strategy per session. Strategies are rotated across sessions to ensure diversity. Each strategy uses different search patterns, which naturally surfaces different problems.
-
-### Strategy 1: Review Gap Mining
-
-**Premise:** Popular apps with bad ratings = proven demand + bad execution = opportunity
-
-**How it works:**
-1. Browse App Store / Play Store / Chrome Web Store trending and top charts
-2. Find apps with HIGH downloads but LOW/MIXED ratings (2.5-3.5 stars)
-3. Read 2-3 star reviews systematically — these reveal exactly what's missing
-4. Cross-reference gaps across multiple competing apps in same category
-5. The gap that multiple apps fail at = the unsolved problem
-
-**Search patterns:**
-- App Store: Browse categories, sort by "most popular", filter by mixed ratings
-- Chrome Web Store: Same approach for browser-based tools
-- Cross-reference: "Great but missing X" patterns across 3+ similar apps
-
-**What to look for:**
-- "Would be 5 stars if it could [feature]"
-- "Great concept but [fundamental flaw]"
-- "I've tried [App A], [App B], [App C] — none of them do [thing]"
-- Features requested in reviews that NO app in the category provides
-
-### Strategy 2: Workaround Archaeology
-
-**Premise:** People duct-taping 3 tools together = the single tool they need doesn't exist
-
-**How it works:**
-1. Search for people describing multi-tool workflows and manual processes
-2. Identify the friction points where tools don't connect or manual steps are required
-3. The manual step or the glue between tools = the unsolved problem
-
-**Search patterns:**
-- Reddit: "my workflow for...", "how I manage...", "here's my system for..."
-- HN: "I built a script to...", "we just use spreadsheets for..."
-- X.com: "my janky setup for...", "I automate this by..."
-- Product Hunt: Comments describing workarounds on newly launched products
-
-**What to look for:**
-- "I use Zapier to connect X to Y, then manually..."
-- "I built a spreadsheet that..." (spreadsheet = missing product)
-- "Every morning I have to open 3 apps and..."
-- "I wrote a Python script to..." (developer building tools for themselves)
-- Multi-step processes that should be one step
-
-### Strategy 3: "Why Doesn't This Exist?"
-
-**Premise:** People directly asking for products that don't exist = clearest demand signal possible
-
-**How it works:**
-1. Search for direct demand signals — people explicitly asking for tools/products
-2. These are the clearest problem signals because the person has already imagined the solution gap
-3. Look for agreement/engagement on these requests (validates it's not just one person)
-
-**Search patterns:**
-- Reddit: "why isn't there a...", "someone should build...", "I'd pay for...", "does anyone know a tool that..."
-- HN: "Ask HN: Is there a tool for...?", "I wish there was..."
-- X.com: "why can't I just...", "take my money if someone builds..."
-- Quora: "Is there an app for...?", "How do I..."
-
-**What to look for:**
-- Multiple people asking for the same thing independently
-- High upvotes/engagement on "does this exist?" posts
-- Replies saying "no, I've been looking too" (confirms gap)
-- Old threads (6+ months) with the same unmet need (persistent demand)
-
-### Strategy 4: Enshittification / Price Revolt
-
-**Premise:** Products getting worse or more expensive → users actively fleeing → immediate demand for alternatives
-
-**How it works:**
-1. Find products that recently raised prices, degraded features, added paywalls, or shut down
-2. Identify the user exodus and what they're looking for as a replacement
-3. The specific complaints about the degraded product reveal what matters most to users
-
-**Search patterns:**
-- Reddit: "[tool] alternatives", "[tool] too expensive", "[tool] getting worse", "[tool] shutting down"
-- HN: "[company] raises prices", "[product] enshittification"
-- X.com: complaints about specific product changes, pricing outrage
-- Google Trends: Spikes in "[product] alternative" searches
-
-**What to look for:**
-- "They just raised prices from $X to $Y, what else is there?"
-- "Ever since [product] was acquired by [company], it's gone downhill"
-- "[Product] just added [restriction/paywall], anyone know alternatives?"
-- Products that shut down with vocal, orphaned user bases
-- Free tiers being eliminated or heavily restricted
 
 ---
 
@@ -239,12 +146,20 @@ If no previous research exists, explore freely.
 
 **Objective:** Find 8-12 documented problems that people are experiencing but that lack good solutions
 
-**Mary applies the assigned discovery strategy** (see Discovery Strategies section above) using these sources:
+**Mary is creative in her search approach.** She can mix and match different angles:
+- **Review gap mining:** Apps with high downloads but bad ratings — what's missing?
+- **Workaround archaeology:** People duct-taping multiple tools together — what single tool do they need?
+- **Direct demand signals:** "Why doesn't this exist?", "someone should build..." — people asking for products
+- **Enshittification/price revolt:** Products getting worse or more expensive — users actively fleeing
+
+She uses whatever approach makes sense for the platform and constraints, or combines patterns creatively.
+
+**Sources to use:**
 
 **Sources (Tier 1):**
 - **Reddit** — Organized by interest, upvotes validate breadth, raw unfiltered pain
 - **X.com / Twitter** — Real-time frustrations, trending complaints, emotional signals
-- **App Store / Play Store** — Structured review data with star ratings (especially for Review Gap Mining strategy)
+- **App Store / Play Store** — Structured review data with star ratings (especially useful for review-based discovery)
 - **Product Hunt** — Comments on new launches reveal what people still wish existed
 - **Hacker News** — Tech-savvy audience, "Ask HN" threads, "Show HN" comments revealing DIY solutions
 - **Google Trends** — Quantitative search volume data for validation (NOT primary discovery source)
@@ -395,8 +310,8 @@ Problem Candidate #2: No way to track home maintenance
 ## Initial Concept Name
 [Descriptive name for registry tracking]
 
-## Discovery Strategy Used
-[Which of the 4 strategies was applied]
+## Discovery Approach Used
+[Brief description of search approach taken - e.g., "Review gap mining on App Store", "Workaround archaeology on Reddit + HN", "Enshittification research", etc.]
 
 ## Score: [X]/50
 - **Pain Intensity:** X/10 - [Evidence summary]
@@ -921,7 +836,26 @@ Research Lead compiles all outputs into final brief at `projects/ideas/${PROJECT
 **Alternative Names:** [Name2], [Name3], [Name4]
 **Generated:** [Date] CST
 **Research Lead Session:** [session key]
-**Discovery Strategy:** [Which strategy was used]
+**Discovery Approach:** [Mary's search approach description]
+
+---
+
+## Executive Summary
+
+**Problem:**  
+[2-3 sentence problem description - who experiences this, what the pain is, why it matters]
+
+**Solution:**  
+[2-3 sentence solution description - what we're building, how it solves the problem, what makes it different]
+
+**Opportunity:**  
+[1-2 sentences on why this is underserved - solution gap classification, current landscape, why now]
+
+**Key Metrics:**
+- **Score:** [X]/50 (Pain: X/10, Evidence: X/10, Gap: X/10, Buildable: X/10, Demand: X/10)
+- **Development:** [N] stories (~[X] weeks)
+- **Platform:** [from config]
+- **Business Model:** [from config] - $[X]/mo
 
 ---
 
@@ -1044,7 +978,7 @@ Research Lead compiles all outputs into final brief at `projects/ideas/${PROJECT
 ### Research Session Details
 - **Session:** [key]
 - **Duration:** [minutes]
-- **Discovery Strategy:** [which one]
+- **Discovery Approach:** [Mary's search approach]
 - **Config:** [platform, business model, stack]
 
 ### Source Links
@@ -1086,7 +1020,7 @@ Update existing project-registry.json entry with final name, research directory,
 ✅ Research Complete: [Name]
 
 📋 Registered in project-registry.json (state: discovery)
-🔍 Discovery Strategy: [strategy used]
+🔍 Discovery Approach: [Mary's approach description]
 
 **Problem:** [1-sentence problem description]
 **Why Underserved:** [1-sentence solution gap]
@@ -1261,29 +1195,14 @@ All registry operations use temp file + rename to prevent corruption in parallel
 
 ---
 
-## Strategy Rotation
+## Discovery Approach Tracking
 
-### Research Lead's Responsibility
+The `discoveryStrategy` field in the project registry passively tracks which search approach Mary used for each idea. This data can be analyzed later to identify patterns:
+- Which approaches tend to find the highest-scoring opportunities
+- Whether certain approaches work better for specific platforms or business models
+- Overall diversity of discovery methods across the pipeline
 
-Before spawning Mary, Research Lead:
-1. Reads project registry
-2. Checks which strategies have been used recently (`discoveryStrategy` field)
-3. Assigns a DIFFERENT strategy than recent sessions
-4. Extracts previous problem descriptions for registry awareness
-
-**Rotation logic:**
-- If all 4 strategies used recently: restart rotation
-- If batch run (5 parallel): assign different strategies to each (with overlap if >4)
-- Track via `discoveryStrategy` field in registry entries
-
-### Strategy Effectiveness Tracking
-
-Over time, track which strategies produce:
-- Highest scoring problems (best opportunities)
-- Most diverse output (least convergence)
-- Highest implementation success rate
-
-Use this data to weight strategy assignment (future enhancement).
+No active rotation logic—Mary chooses her approach based on the constraints and what makes sense.
 
 ---
 
@@ -1331,15 +1250,15 @@ wait
 ```
 
 **Each Research Lead:**
-- Assigned different discovery strategy (rotated)
 - Mary receives registry awareness (avoids duplicate problems)
+- Mary chooses her own discovery approach based on constraints
 - LLM dedup prevents convergence across parallel sessions
 - CIS generates novel solutions per problem
 
 **Expected outcomes:**
 - 3-5 unique briefs (1-2 may abort due to duplicate problems)
 - Total time: ~45-50 min (longest session determines batch time)
-- Diversity ensured by: strategy rotation + registry awareness + LLM dedup
+- Diversity ensured by: Mary's creative search approaches + registry awareness + LLM dedup
 
 ---
 
@@ -1349,7 +1268,7 @@ wait
 
 **Diversity:**
 - ✅ No more than 2 ideas addressing the same domain
-- ✅ At least 3 of 4 discovery strategies used across batch
+- ✅ Variety of discovery approaches used (review mining, workaround archaeology, demand signals, etc.)
 - ✅ Multiple different target customer segments represented
 
 **Quality:**
@@ -1386,11 +1305,12 @@ wait
 - ❌ Don't reward market size in scoring (reward solution gap instead)
 - ❌ Don't let CIS generate "competitor but better" ideas (demand novelty)
 - ❌ Don't skip registry awareness (Mary must know what's been researched)
-- ❌ Don't use same discovery strategy every run (rotate for diversity)
+- ❌ Don't prescribe rigid discovery strategies (let Mary be creative with search approaches)
 
 ---
 
 **Version History:**
-- **v3.0** (2026-02-18 16:25 CST): Problem-first rewrite. Inverted discovery from market-first to problem-first. Added 4 discovery strategies with rotation. Rebalanced scoring to penalize crowded markets and reward underserved problems. Added registry awareness to Phase 1. Added solution gap check (Step 2). Updated CIS prompts to demand novelty.
+- **v3.1** (2026-02-18 19:59 CST): Simplified discovery approach system. Removed rigid strategy rotation—Mary now chooses search approaches creatively based on constraints. `discoveryStrategy` field becomes passive tracking of approach used.
+- **v3.0** (2026-02-18 16:25 CST): Problem-first rewrite. Inverted discovery from market-first to problem-first. Rebalanced scoring to penalize crowded markets and reward underserved problems. Added registry awareness to Phase 1. Added solution gap check (Step 2). Updated CIS prompts to demand novelty.
 - **v2.0** (2026-02-18 12:08 CST): Config-driven system, LLM dedup, CIS naming via Carson.
 - **v1.0** (2026-02-17): Initial implementation.

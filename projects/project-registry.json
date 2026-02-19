@@ -93,6 +93,36 @@
       "implementation": null,
       "followup": [],
       "researchDir": "ideas/hyper-local-event-discovery-2026-02-18-1824"
+    },
+    {
+      "id": "screenshot-declutter-assistant-2026-02-18-1957",
+      "name": "Triage",
+      "state": "discovery",
+      "paused": false,
+      "pausedReason": null,
+      "researchSession": "agent:research-lead:main",
+      "researchPhase": "complete",
+      "discoveryStrategy": "enshittification",
+      "timeline": {
+        "discoveredAt": "2026-02-19T01:58:12+0000",
+        "lastUpdated": "2026-02-19T02:23:24+0000"
+      },
+      "intake": {
+        "problem": "iPhone users accumulate hundreds to thousands of screenshots over time, mixing temporary information captures (recipes, directions, app reviews, receipts, conversations) with their real photo library. This digital clutter makes it difficult to find actual photos, creates storage pressure, and causes organizational stress. Current workarounds are manual and time-consuming (search by date daily, mass delete periodically), and existing app solutions are new/unproven or inadequate.",
+        "solution": "Screenshots land in a processing queue outside Photos (inbox zero workflow). Users swipe right to keep to Photos, swipe left to delete, swipe up for actions (OCR extract, share, annotate). Forces triage decisions and prevents Photos pollution. No existing iOS apps use inbox workflow for screenshots.",
+        "targetAudience": "Productivity enthusiasts, ADHD users, knowledge workers (25-40) who take 15-30 screenshots/week and value inbox zero satisfaction",
+        "keyFeatures": [
+          "Screenshot Interception (auto-route to Inbox)",
+          "Swipe Workflow (right=keep, left=delete, up=actions)",
+          "Quick Actions (OCR, reminders, share)",
+          "Smart Categories (AI auto-suggest)",
+          "Empty Inbox Goal (badge count, streak tracking)",
+          "Cloud Backup (premium sync)"
+        ]
+      },
+      "implementation": null,
+      "followup": [],
+      "researchDir": "ideas/screenshot-declutter-assistant-2026-02-18-1957"
     }
   ]
 }
