@@ -1,0 +1,177 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import {
+  assertFails,
+  assertSucceeds,
+  initializeTestEnvironment,
+  type RulesTestEnvironment,
+} from "@firebase/rules-unit-testing";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
+
+const RULES_PATH = resolve(process.cwd(), "firestore.rules");
+const TEST_PROJECT_ID = "slacklite-firestore-rules";
+
+let testEnv: RulesTestEnvironment;
+
+async function seedWorkspaceMembership(userId: string, workspaceId: string) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    const adminDb = context.firestore();
+
+    await setDoc(doc(adminDb, "users", userId), {
+      userId,
+      workspaceId,
+      email: `${userId}@example.com`,
+      displayName: userId,
+    });
+
+    await setDoc(doc(adminDb, "workspaces", workspaceId), {
+      workspaceId,
+      name: `Workspace ${workspaceId}`,
+      ownerId: userId,
+    });
+  });
+}
+
+async function seedChannel(workspaceId: string, channelId: string, createdBy: string) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    const adminDb = context.firestore();
+
+    await setDoc(doc(adminDb, "workspaces", workspaceId, "channels", channelId), {
+      channelId,
+      workspaceId,
+      name: channelId,
+      createdBy,
+    });
+  });
+}
+
+describe.sequential("Firestore security rules", () => {
+  beforeAll(async () => {
+    testEnv = await initializeTestEnvironment({
+      projectId: TEST_PROJECT_ID,
+      firestore: {
+        rules: readFileSync(RULES_PATH, "utf8"),
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await testEnv.clearFirestore();
+  });
+
+  afterAll(async () => {
+    await testEnv.cleanup();
+  });
+
+  it("User can read their own workspace data", async () => {
+    await seedWorkspaceMembership("user-1", "workspace-1");
+
+    const userDb = testEnv.authenticatedContext("user-1").firestore();
+
+    await assertSucceeds(getDoc(doc(userDb, "workspaces", "workspace-1")));
+  });
+
+  it("User CANNOT read other workspace data", async () => {
+    await seedWorkspaceMembership("user-1", "workspace-1");
+    await seedWorkspaceMembership("user-2", "workspace-2");
+
+    const userDb = testEnv.authenticatedContext("user-1").firestore();
+
+    await assertFails(getDoc(doc(userDb, "workspaces", "workspace-2")));
+  });
+
+  it("User can create channels in their workspace", async () => {
+    await seedWorkspaceMembership("user-1", "workspace-1");
+
+    const userDb = testEnv.authenticatedContext("user-1").firestore();
+
+    await assertSucceeds(
+      setDoc(doc(userDb, "workspaces", "workspace-1", "channels", "channel-1"), {
+        channelId: "channel-1",
+        workspaceId: "workspace-1",
+        name: "engineering",
+        createdBy: "user-1",
+      }),
+    );
+  });
+
+  it("User CANNOT create channels in other workspace", async () => {
+    await seedWorkspaceMembership("user-1", "workspace-1");
+    await seedWorkspaceMembership("user-2", "workspace-2");
+
+    const userDb = testEnv.authenticatedContext("user-1").firestore();
+
+    await assertFails(
+      setDoc(doc(userDb, "workspaces", "workspace-2", "channels", "channel-2"), {
+        channelId: "channel-2",
+        workspaceId: "workspace-2",
+        name: "restricted",
+        createdBy: "user-1",
+      }),
+    );
+  });
+
+  it("User can write messages in their workspace channels", async () => {
+    await seedWorkspaceMembership("user-1", "workspace-1");
+    await seedChannel("workspace-1", "general", "user-1");
+
+    const userDb = testEnv.authenticatedContext("user-1").firestore();
+
+    await assertSucceeds(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "general",
+          "messages",
+          "message-1",
+        ),
+        {
+          messageId: "message-1",
+          channelId: "general",
+          workspaceId: "workspace-1",
+          userId: "user-1",
+          userName: "User One",
+          text: "hello",
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+  });
+
+  it("User CANNOT write messages in other workspace channels", async () => {
+    await seedWorkspaceMembership("user-1", "workspace-1");
+    await seedWorkspaceMembership("user-2", "workspace-2");
+    await seedChannel("workspace-2", "general", "user-2");
+
+    const userDb = testEnv.authenticatedContext("user-1").firestore();
+
+    await assertFails(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-2",
+          "channels",
+          "general",
+          "messages",
+          "message-2",
+        ),
+        {
+          messageId: "message-2",
+          channelId: "general",
+          workspaceId: "workspace-2",
+          userId: "user-1",
+          userName: "User One",
+          text: "blocked",
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+  });
+});

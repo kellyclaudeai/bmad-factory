@@ -6,28 +6,28 @@
 Track unread messages per channel/DM with client-side increment strategy. Display badge in sidebar, clear count when user views channel with real-time updates.
 
 **Acceptance Criteria:**
-- [ ] **Data Structure:** Create `/unreadCounts/{userId}_{targetId}` collection:
-  - [ ] userId, targetId (channelId or dmId), targetType ('channel' | 'dm')
-  - [ ] count: number
-  - [ ] lastReadAt: Timestamp
-  - [ ] updatedAt: Timestamp
-- [ ] **Increment Strategy (Client-Side):**
-  - [ ] Each user's client subscribes to RTDB `/messages/{workspaceId}/{channelId}` for ALL channels they're a member of
-  - [ ] On `child_added` event (new message received):
-    - [ ] Check: Is this channel/DM the currently active view? (`channelId !== currentChannelId`)
-    - [ ] If NOT current channel: Increment unread count in Firestore
-    - [ ] Call: `updateDoc(unreadCountRef, { count: increment(1), updatedAt: serverTimestamp() })`
-  - [ ] If IS current channel: Do NOT increment (user is viewing it)
-- [ ] **Clear Strategy:**
-  - [ ] On channel/DM switch: Write `updateDoc(unreadCountRef, { count: 0, lastReadAt: serverTimestamp() })`
-  - [ ] Clear happens when channel becomes active (not on every message view)
-- [ ] **Security:**
-  - [ ] Firestore security rules: User can only read/write their own unread counts
-  - [ ] Rule: `allow read, write: if request.auth.uid == resource.data.userId;`
-- [ ] **Display:**
-  - [ ] Badge: Right-aligned in channel/DM list item, Primary Brand background, white text
-  - [ ] Badge shows number (e.g., "[3]"), hidden if count = 0
-  - [ ] Real-time updates: Subscribe to `/unreadCounts/{userId}_*` for current user
+- [x] **Data Structure:** Create `/unreadCounts/{userId}_{targetId}` collection:
+  - [x] userId, targetId (channelId or dmId), targetType ('channel' | 'dm')
+  - [x] count: number
+  - [x] lastReadAt: Timestamp
+  - [x] updatedAt: Timestamp
+- [x] **Increment Strategy (Client-Side):**
+  - [x] Each user's client subscribes to RTDB `/messages/{workspaceId}/{channelId}` for ALL channels they're a member of
+  - [x] On `child_added` event (new message received):
+    - [x] Check: Is this channel/DM the currently active view? (`channelId !== currentChannelId`)
+    - [x] If NOT current channel: Increment unread count in Firestore
+    - [x] Call: `updateDoc(unreadCountRef, { count: increment(1), updatedAt: serverTimestamp() })`
+  - [x] If IS current channel: Do NOT increment (user is viewing it)
+- [x] **Clear Strategy:**
+  - [x] On channel/DM switch: Write `updateDoc(unreadCountRef, { count: 0, lastReadAt: serverTimestamp() })`
+  - [x] Clear happens when channel becomes active (not on every message view)
+- [x] **Security:**
+  - [x] Firestore security rules: User can only read/write their own unread counts
+  - [x] Rule: `allow read, write: if request.auth.uid == resource.data.userId;`
+- [x] **Display:**
+  - [x] Badge: Right-aligned in channel/DM list item, Primary Brand background, white text
+  - [x] Badge shows number (e.g., "[3]"), hidden if count = 0
+  - [x] Real-time updates: Subscribe to `/unreadCounts/{userId}_*` for current user
 
 **Dependencies:**
 dependsOn: ["4.5", "3.2", "5.3"]

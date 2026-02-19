@@ -557,9 +557,10 @@ stories:
   "3.7":
     epic: 3
     title: "Implement Channel Rename Functionality"
-    status: todo
+    status: in_progress
     estimated_effort: "2 hours"
     dependencies: ["3.5"]
+    started_at: "2026-02-19T14:57:00-06:00"
   
   "3.8":
     epic: 3
@@ -1278,9 +1279,10 @@ stories:
   "10.2":
     epic: 10
     title: "Write Unit Tests for Custom Hooks"
-    status: todo
+    status: in_progress
     estimated_effort: "4 hours"
     dependencies: ["10.1", "2.5", "3.2", "4.5", "6.1"]
+    started_at: "2026-02-19T14:57:00-06:00"
   
   "10.3":
     epic: 10
