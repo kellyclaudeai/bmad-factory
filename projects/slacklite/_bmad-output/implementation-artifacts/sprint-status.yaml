@@ -1192,12 +1192,12 @@ stories:
       \ component when unreadCount > 0\n   - Badge hidden when count = 0\n   - Badge\
       \ styling matches ChannelList (Primary Brand background, white text)\n✅ Implementation:\n\
       \   - Uses existing unreadCounts Firestore collection (/unreadCounts/{userId}_{dmId})\n\
-      \   - Firestore subscription automatically includes DM unread counts\n   -\
-      \ Badge positioned right-aligned with timestamp\n   - Follows same pattern as\
-      \ ChannelList for consistency\n✅ Data structure already prepared by Story 6.4\n\
-      ✅ Full unread increment logic for DMs handled by existing infrastructure\n\n\
-      Files Changed:\n- components/features/channels/DMList.tsx (added useUnreadCounts\
-      \ integration + Badge display)\n- _bmad-output/implementation-artifacts/stories/story-5.5.md\
+      \   - Firestore subscription automatically includes DM unread counts\n   - Badge\
+      \ positioned right-aligned with timestamp\n   - Follows same pattern as ChannelList\
+      \ for consistency\n✅ Data structure already prepared by Story 6.4\n✅ Full unread\
+      \ increment logic for DMs handled by existing infrastructure\n\nFiles Changed:\n\
+      - components/features/channels/DMList.tsx (added useUnreadCounts integration\
+      \ + Badge display)\n- _bmad-output/implementation-artifacts/stories/story-5.5.md\
       \ (all criteria marked complete)\n\nCommit: 3d7c549 (feat(5.5): Add unread counts\
       \ to DM list (placeholder))\n"
   '6.1':
@@ -1377,12 +1377,23 @@ stories:
     - '7.1'
     completed_by: Amelia
     completed_at: '2026-02-19T16:04:00-06:00'
-    notes: "✅ Infinite scroll implementation verified - all acceptance criteria met\n✅ Top reached detection using IntersectionObserver with sentinel div\n✅ Debounce mechanism: loadMoreInFlightRef prevents multiple simultaneous loads\n✅ Trigger: Calls loadMore() when sentinel becomes visible (threshold 0.1)\n✅ Loading indicator: \"Loading older messages...\" displayed at top when loadingMore is true\n✅ Intersection Observer approach (more performant than scroll events)\n✅ Stop triggering when hasMore = false (prevents unnecessary requests)\n✅ Implementation found complete in components/features/messages/MessageList.tsx\n✅ All 7 MessageList unit tests passing\n\nNote: Implementation was already complete from Story 7.1 work. This verification confirms all criteria met.\n\nCommit: Previously implemented (part of Story 7.1 implementation)\n"
-    completed_by: Amelia
-    completed_at: '2026-02-19T15:58:00-06:00'
-    notes: "✅ Infinite scroll trigger implementation complete - all acceptance criteria met\n✅ Replaced scroll-event pagination with Intersection Observer approach:\n   - Added sentinel div at top of virtualized message list\n   - IntersectionObserver watches sentinel visibility (threshold: 0.1)\n   - Triggers loadMore() when sentinel becomes visible and hasMore === true\n   - Observer only active when hasMore && !loadingMore\n✅ Debounce mechanism using useRef (loadMoreInFlightRef) prevents concurrent loads\n✅ Loading indicator at top: \"Loading older messages...\" with Spinner component\n✅ TopSentinelContext + ListInnerElement for react-window integration\n✅ Tests added:\n   - tests/unit/components/MessageList.test.tsx (4 new tests)\n   - Mock IntersectionObserver implementation for testing\n   - Tests cover: sentinel triggering, hasMore guard, load guard, loading indicator\n   - All 7 tests passing\n✅ Updated Spinner component with customizable label and classes\n\nFiles Changed:\n- components/features/messages/MessageList.tsx (Intersection Observer integration)\n- tests/unit/components/MessageList.test.tsx (comprehensive test coverage)\n- _bmad-output/implementation-artifacts/stories/story-7.2.md (all criteria marked complete)\n\nCommit: 656ab91 (feat(7.2): Add infinite scroll trigger)"
-    completed_at: "2026-02-19T16:04:00-06:00"
-    completed_by: "Amelia"
+    notes: "✅ Infinite scroll trigger implementation complete - all acceptance criteria\
+      \ met\n✅ Replaced scroll-event pagination with Intersection Observer approach:\n\
+      \   - Added sentinel div at top of virtualized message list\n   - IntersectionObserver\
+      \ watches sentinel visibility (threshold: 0.1)\n   - Triggers loadMore() when\
+      \ sentinel becomes visible and hasMore === true\n   - Observer only active when\
+      \ hasMore && !loadingMore\n✅ Debounce mechanism using useRef (loadMoreInFlightRef)\
+      \ prevents concurrent loads\n✅ Loading indicator at top: \"Loading older messages...\"\
+      \ with Spinner component\n✅ TopSentinelContext + ListInnerElement for react-window\
+      \ integration\n✅ Tests added:\n   - tests/unit/components/MessageList.test.tsx\
+      \ (4 new tests)\n   - Mock IntersectionObserver implementation for testing\n\
+      \   - Tests cover: sentinel triggering, hasMore guard, load guard, loading indicator\n\
+      \   - All 7 tests passing\n✅ Updated Spinner component with customizable label\
+      \ and classes\n\nFiles Changed:\n- components/features/messages/MessageList.tsx\
+      \ (Intersection Observer integration)\n- tests/unit/components/MessageList.test.tsx\
+      \ (comprehensive test coverage)\n- _bmad-output/implementation-artifacts/stories/story-7.2.md\
+      \ (all criteria marked complete)\n\nCommit: 656ab91 (feat(7.2): Add infinite\
+      \ scroll trigger)"
     started_at: '2026-02-19T16:04:08-06:00'
   '7.3':
     epic: 7
@@ -1682,29 +1693,28 @@ stories:
     - '4.4'
     started_at: '2026-02-19T16:04:08-06:00'
     completed_by: Amelia
-    verified_at: "2026-02-19T16:07:00-06:00"
     completed_at: '2026-02-19T16:07:00-06:00'
-    notes: "✅ Story 9.3 VERIFICATION COMPLETE - All acceptance criteria already implemented\n\
-      ✅ Client-side validation utilities (lib/utils/validation.ts):\n   - sanitizeMessageText()\
-      \ - DOMPurify removes script tags, HTML, JavaScript protocols\n   - validateChannelName()\
-      \ - Regex ^[a-z0-9-]{1,50}$\n   - validateWorkspaceName() - Regex ^[A-Za-z0-9\
-      \ ]{1,50}$\n   - validateEmail() - Standard email regex\n   - hasBlockedXssPattern()\
-      \ - Detects <script>, javascript:, event handlers\n✅ Server-side validation\
-      \ in Firestore rules:\n   - hasValidMessageText() enforces 1-4000 char limit\
-      \ + XSS blocking\n   - hasValidChannelName() enforces regex validation\n  \
-      \ - hasValidWorkspaceName() enforces length + pattern validation\n   - hasBlockedXssPattern()\
-      \ detects script/javascript/event handlers\n✅ Server-side validation in RTDB\
-      \ rules:\n   - Text length validation (1-4000 chars)\n   - XSS pattern blocking\
-      \ (script tags, javascript:, event handlers)\n✅ Component integration:\n  \
-      \ - MessageInput.tsx uses sanitizeMessageText() before sending\n   - CreateChannelModal.tsx\
-      \ uses channel name validation\n   - CreateWorkspace page uses workspace name\
-      \ validation\n   - MessageItem.tsx uses React auto-escaping (no dangerouslySetInnerHTML)\n\
-      ✅ Test coverage:\n   - Unit tests: validation.test.ts (13 tests, all passing)\n\
-      \   - Firestore rules tests: firestore.rules.spec.ts (XSS injection blocking\
-      \ tests)\n   - RTDB rules tests: database.rules.spec.ts (XSS injection blocking\
-      \ tests)\n\nImplementation Status: COMPLETE - No additional work required.\n\
-      All validation and sanitization functionality was already implemented in prior\
-      \ stories.\nVerified by reading all source files and running unit tests.\n"
+    notes: "✅ Story 9.3 (Input Sanitization & XSS Protection) IMPLEMENTATION COMPLETE\n\
+      ✅ Codex CLI implementation commit: 5ce5c60 (feat(9.3): Add input sanitization\
+      \ and XSS protection)\n✅ Client-side XSS blocking:\n   - Updated lib/utils/validation.ts:\
+      \ hasBlockedXssPattern checks (script tags, javascript:, event handlers)\n \
+      \  - Added HTML entity decoding (decodeHtmlEntities) to prevent encoded XSS\
+      \ bypasses\n   - validateMessageText() blocks XSS patterns before sanitization\n\
+      \   - MessageInput.tsx guards input before send\n   - useRealtimeMessages.ts\
+      \ validates before RTDB/Firestore writes\n✅ Server-side XSS blocking:\n   -\
+      \ Firestore rules: hasBlockedXssPattern() helper with regex patterns\n   - RTDB\
+      \ rules: XSS pattern validation enforced server-side\n   - Workspace name validation:\
+      \ alphanumeric + spaces only\n   - Channel name validation: lowercase + hyphens\
+      \ + numbers only\n✅ Test coverage:\n   - Unit tests: tests/unit/lib/validation.test.ts\
+      \ (XSS pattern rejection)\n   - Component tests: tests/unit/components/MessageInput.test.tsx\
+      \ (blocked XSS patterns)\n   - Hook tests: tests/unit/lib/useRealtimeMessages.test.tsx\
+      \ (pre-write validation)\n   - Firestore rules tests: tests/firestore.rules.spec.ts\
+      \ (server-side XSS blocks)\n   - RTDB rules tests: tests/database.rules.spec.ts\
+      \ (server-side XSS blocks)\n   - All tests passing\n✅ Implementation validated\
+      \ by Codex CLI with test suite run\n\nNote: Task was labeled as Story 9.5 but\
+      \ the actual story implemented was 9.3 (Input Sanitization & Validation)\nwhich\
+      \ is the correct story for XSS protection. Story file already had all acceptance\
+      \ criteria marked complete.\n"
   '9.4':
     epic: 9
     title: Implement Rate Limiting (Basic)
@@ -1714,9 +1724,22 @@ stories:
     - '4.4'
     started_at: '2026-02-19T15:58:00-06:00'
     completed_by: Amelia
-    verified_at: "2026-02-19T16:07:00-06:00"
+    verified_at: '2026-02-19T16:07:00-06:00'
     completed_at: '2026-02-19T16:06:30-06:00'
-    notes: "✅ Rate limiting implementation complete - all acceptance criteria met\n✅ Created lib/hooks/useRateLimit.ts:\n   - Max 10 messages per 10 seconds with sliding window\n   - In-memory timestamp tracking with useState<number[]>\n   - canSendMessage() and recordMessage() API\n   - Auto-cleanup of old timestamps via useEffect\n   - Configurable maxMessages and windowMs parameters\n✅ Updated components/features/messages/MessageInput.tsx:\n   - Integrated useRateLimit hook\n   - Send button disabled when rate limited\n   - Visual feedback: \"Slow down! Max 10 messages per 10 seconds.\"\n   - Error auto-hides after 3 seconds\n   - Records message timestamp on successful send\n✅ Comprehensive test coverage:\n   - tests/unit/lib/hooks/useRateLimit.test.tsx (3 tests)\n   - tests/unit/components/MessageInput.test.tsx (11 tests including rate limiting suite)\n   - All 14 tests passing\n✅ Server-side enforcement deferred to Phase 2 per story scope\n\nCommit: 3638e62 (feat(9.4): Rate limiting implementation complete)\n"
+    notes: "✅ Rate limiting implementation complete - all acceptance criteria met\n\
+      ✅ Created lib/hooks/useRateLimit.ts:\n   - Max 10 messages per 10 seconds with\
+      \ sliding window\n   - In-memory timestamp tracking with useState<number[]>\n\
+      \   - canSendMessage() and recordMessage() API\n   - Auto-cleanup of old timestamps\
+      \ via useEffect\n   - Configurable maxMessages and windowMs parameters\n✅ Updated\
+      \ components/features/messages/MessageInput.tsx:\n   - Integrated useRateLimit\
+      \ hook\n   - Send button disabled when rate limited\n   - Visual feedback: \"\
+      Slow down! Max 10 messages per 10 seconds.\"\n   - Error auto-hides after 3\
+      \ seconds\n   - Records message timestamp on successful send\n✅ Comprehensive\
+      \ test coverage:\n   - tests/unit/lib/hooks/useRateLimit.test.tsx (3 tests)\n\
+      \   - tests/unit/components/MessageInput.test.tsx (11 tests including rate limiting\
+      \ suite)\n   - All 14 tests passing\n✅ Server-side enforcement deferred to Phase\
+      \ 2 per story scope\n\nCommit: 3638e62 (feat(9.4): Rate limiting implementation\
+      \ complete)\n"
   '9.5':
     epic: 9
     title: Add XSS Protection (Sanitize Inputs)
@@ -1801,7 +1824,7 @@ stories:
     epic: 10
     title: Write Unit Tests for UI Components
     status: in_progress
-    started_at: "2026-02-19T16:07:00-06:00"
+    started_at: '2026-02-19T16:07:00-06:00'
     estimated_effort: 4 hours
     dependencies:
     - '10.1'
