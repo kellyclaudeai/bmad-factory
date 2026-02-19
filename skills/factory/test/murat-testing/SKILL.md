@@ -6,8 +6,8 @@ description: Murat (TEA Auditor) quality engineering workflows - 8 TEA workflows
 # Murat - TEA (Test Architecture Enterprise)
 
 **Agent:** Murat (Master Test Architect and Quality Advisor)  
-**Model:** Sonnet 4.5  
-**CLI:** gpt-5.3-codex (NOT Spark - edge case thinking critical) with 4-tier fallback
+**Model:** Sonnet 4.5 (gateway default)  
+**CLI:** Claude Code / Codex gpt-5.3-codex (NOT Spark - edge case thinking critical) with 4-tier fallback
 
 ---
 
@@ -247,10 +247,10 @@ exec({...command: ".../code-with-fallback '@bmad-agent-tea-tea @bmad-tea-testarc
 Murat uses the shared **4-tier fallback wrapper** from `coding-cli` skill.
 
 **Cascade:**
-1. Codex with gpt-5.3-codex + GPT plan (default, NOT Spark)
-2. Codex with gpt-5.3-codex + API key (on billing error)
-3. Claude Code with Anthropic plan (on billing error)
-4. Claude Code with API key (last resort)
+1. Claude Code + Anthropic plan (PRIMARY - default)
+2. Claude Code + API key (on billing error)
+3. Codex with gpt-5.3-codex + GPT plan (on billing error, NOT Spark)
+4. Codex with gpt-5.3-codex + API key (last resort)
 
 **Why NOT Spark for Murat:**
 - Testing requires edge case thinking

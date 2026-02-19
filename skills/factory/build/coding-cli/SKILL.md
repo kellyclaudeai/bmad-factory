@@ -14,13 +14,13 @@ This skill provides the **4-tier automatic fallback cascade** for coding CLIs. W
 ## 4-Tier Fallback Cascade
 
 ```
-1. Codex with GPT plan (OpenAI subscription credits)
+1. Claude Code with Anthropic plan (PRIMARY - Anthropic subscription)
    ↓ (on billing/rate error)
-2. Codex with API key (OpenAI API key credits)
+2. Claude Code with API key (Anthropic API key credits)
    ↓ (on billing/rate error)
-3. Claude Code with Anthropic max plan (Anthropic subscription)
+3. Codex (gpt-5.3-codex) with GPT plan (OpenAI subscription credits)
    ↓ (on billing/rate error)
-4. Claude Code with API key (Anthropic API key credits - last resort)
+4. Codex (gpt-5.3-codex) with API key (OpenAI API key credits - last resort)
 ```
 
 **Detection:** Automatically detects errors containing:
@@ -58,12 +58,10 @@ exec({
 })
 ```
 
-**Force Claude Code (skip Codex):**
+**Model override note:**
 
-```bash
-FORCE_CLAUDE=1 /path/to/code-with-fallback "prompt"
-# Starts at Tier 3 (Claude Code with Anthropic plan)
-```
+Claude Code uses default Claude model (currently Sonnet 4-5).  
+Codex uses gpt-5.3-codex (from `~/.codex/config.toml`) - NOT Spark.
 
 ---
 
