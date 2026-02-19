@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -26,12 +27,16 @@ type FirestoreUserData = Record<string, unknown>;
 
 export type AuthUser = FirebaseUser & FirestoreUserData;
 
+interface SignOutOptions {
+  skipConfirmation?: boolean;
+}
+
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
+  signOut: (options?: SignOutOptions) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -49,6 +54,8 @@ function mergeUser(
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const isMountedRef = useRef(true);
+  const authListenerCleanupRef = useRef<(() => void) | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -62,16 +69,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await createUserWithEmailAndPassword(auth, email, password);
   }, []);
 
-  const signOut = useCallback(async () => {
-    await firebaseSignOut(auth);
-    setUser(null);
+  const cleanupFirebaseListeners = useCallback(() => {
+    if (authListenerCleanupRef.current) {
+      authListenerCleanupRef.current();
+      authListenerCleanupRef.current = null;
+    }
   }, []);
 
-  useEffect(() => {
-    let isMounted = true;
+  const clearLocalClientState = useCallback(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (!isMounted) {
+    window.dispatchEvent(new Event("slacklite:clear-client-state"));
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+  }, []);
+
+  const initializeAuthStateListener = useCallback(() => {
+    cleanupFirebaseListeners();
+
+    authListenerCleanupRef.current = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!isMountedRef.current) {
         return;
       }
 
@@ -84,26 +103,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const userSnapshot = await getDoc(doc(firestore, "users", firebaseUser.uid));
         const userData = (userSnapshot.data() as FirestoreUserData | undefined) ?? {};
-        if (isMounted) {
+        if (isMountedRef.current) {
           setUser(mergeUser(firebaseUser, userData));
         }
       } catch (error) {
         console.error("Failed to fetch user document from Firestore.", error);
-        if (isMounted) {
+        if (isMountedRef.current) {
           setUser(mergeUser(firebaseUser));
         }
       } finally {
-        if (isMounted) {
+        if (isMountedRef.current) {
           setLoading(false);
         }
       }
     });
+  }, [cleanupFirebaseListeners]);
+
+  const signOut = useCallback(
+    async (options?: SignOutOptions) => {
+      if (!options?.skipConfirmation && typeof window !== "undefined") {
+        const confirmed = window.confirm("Are you sure you want to sign out?");
+        if (!confirmed) {
+          return;
+        }
+      }
+
+      setLoading(true);
+
+      try {
+        await firebaseSignOut(auth);
+        cleanupFirebaseListeners();
+        clearLocalClientState();
+        setUser(null);
+        initializeAuthStateListener();
+        router.replace("/");
+      } catch (error) {
+        console.error("Failed to sign out user.", error);
+        throw new Error("Unable to sign out right now. Please try again.");
+      } finally {
+        if (isMountedRef.current) {
+          setLoading(false);
+        }
+      }
+    },
+    [cleanupFirebaseListeners, clearLocalClientState, initializeAuthStateListener, router],
+  );
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    initializeAuthStateListener();
 
     return () => {
-      isMounted = false;
-      unsubscribe();
+      isMountedRef.current = false;
+      cleanupFirebaseListeners();
     };
-  }, []);
+  }, [cleanupFirebaseListeners, initializeAuthStateListener]);
 
   useEffect(() => {
     if (loading || user) {

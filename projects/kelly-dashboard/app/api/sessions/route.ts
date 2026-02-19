@@ -103,6 +103,9 @@ async function scanSessionFiles(activeMinutes: number): Promise<FrontendSession[
   const sessions: FrontendSession[] = [];
   
   const registryMapping = await loadRegistryMapping();
+  
+  // For project-lead sessions: show ALL (ignore time filter)
+  // For other agents: use time filter as normal
 
   try {
     const agentDirs = await fs.readdir(AGENTS_ROOT, { withFileTypes: true });
@@ -124,7 +127,15 @@ async function scanSessionFiles(activeMinutes: number): Promise<FrontendSession[
           const filePath = path.join(sessionsDir, file);
           const stats = await fs.stat(filePath);
           
-          if (stats.mtimeMs < cutoff) continue;
+          // Project Lead sessions: show if in registry (ignore time filter)
+          // Other agents: respect time filter
+          const isProjectLead = agentName === 'project-lead';
+          if (isProjectLead) {
+            // For project-lead, only include if it matches a project in the registry
+            // We'll check this after reading session metadata
+          } else if (stats.mtimeMs < cutoff) {
+            continue;
+          }
           
           console.log(`[DEBUG] Found active session in ${agentName}: ${file}`);
           const sessionId = file.replace('.jsonl', '');
@@ -151,6 +162,11 @@ async function scanSessionFiles(activeMinutes: number): Promise<FrontendSession[
           const finalSessionKey = realSessionKey || buildSessionKey(agentName, sessionId);
           const agentType = extractAgentType(agentName);
           const projectId = await extractProjectId(finalSessionKey, registryMapping);
+          
+          // For project-lead: only include if it has a projectId (matches registry)
+          if (agentType === 'project-lead' && !projectId) {
+            continue;
+          }
           
           sessions.push({
             sessionKey: finalSessionKey,

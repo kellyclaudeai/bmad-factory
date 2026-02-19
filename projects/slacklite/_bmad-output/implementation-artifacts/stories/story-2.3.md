@@ -6,19 +6,19 @@
 Integrate Firebase Auth `createUserWithEmailAndPassword` to create user accounts. Create user document in Firestore after successful sign-up with proper data structure.
 
 **Acceptance Criteria:**
-- [ ] Sign Up form calls Firebase Auth: `createUserWithEmailAndPassword(auth, email, password)`
-- [ ] On success: Create user document in Firestore `/users/{userId}`:
-  - [ ] userId: Firebase Auth UID
-  - [ ] email: user email
-  - [ ] displayName: derived from email (before @)
-  - [ ] workspaceId: null (set later)
-  - [ ] createdAt: serverTimestamp()
-  - [ ] lastSeenAt: serverTimestamp()
-  - [ ] isOnline: false
-- [ ] Handle errors: Email already exists → show error "Email already in use. Sign in instead?"
-- [ ] On success: Redirect to `/create-workspace`
-- [ ] Loading state: Show spinner in button during async operation
-- [ ] Session persists: Use `setPersistence(auth, browserLocalPersistence)`
+- [x] Sign Up form calls Firebase Auth: `createUserWithEmailAndPassword(auth, email, password)`
+- [x] On success: Create user document in Firestore `/users/{userId}`:
+  - [x] userId: Firebase Auth UID
+  - [x] email: user email
+  - [x] displayName: derived from email (before @)
+  - [x] workspaceId: null (set later)
+  - [x] createdAt: serverTimestamp()
+  - [x] lastSeenAt: serverTimestamp()
+  - [x] isOnline: false
+- [x] Handle errors: Email already exists → show error "Email already in use. Sign in instead?"
+- [x] On success: Redirect to `/create-workspace`
+- [x] Loading state: Show spinner in button during async operation
+- [x] Session persists: Use `setPersistence(auth, browserLocalPersistence)`
 
 **Dependencies:**
 dependsOn: ["2.2", "1.4"]

@@ -6,13 +6,13 @@
 Listen to RTDB for new messages in current channel. Update UI instantly when other users send messages (<500ms latency) with proper deduplication and cleanup.
 
 **Acceptance Criteria:**
-- [ ] Subscribe to RTDB: `onChildAdded(ref(rtdb, 'messages/{workspaceId}/{channelId}'))`
-- [ ] On new message: Add to local state (append to messages array)
-- [ ] Deduplication: Check if message already exists (from Firestore) before adding
-- [ ] Auto-scroll to bottom if user is already at bottom of list
-- [ ] If user scrolled up: Show "New messages ↓" badge (don't auto-scroll)
-- [ ] Cleanup: `off(rtdbRef, 'child_added')` when component unmounts or channel changes
-- [ ] Measure latency: Log timestamp difference (send time vs receive time) → verify <500ms
+- [x] Subscribe to RTDB: `onChildAdded(ref(rtdb, 'messages/{workspaceId}/{channelId}'))`
+- [x] On new message: Add to local state (append to messages array)
+- [x] Deduplication: Check if message already exists (from Firestore) before adding
+- [x] Auto-scroll to bottom if user is already at bottom of list
+- [x] If user scrolled up: Show "New messages ↓" badge (don't auto-scroll)
+- [x] Cleanup: `off(rtdbRef, 'child_added')` when component unmounts or channel changes
+- [x] Measure latency: Log timestamp difference (send time vs receive time) → verify <500ms
 
 **Dependencies:**
 dependsOn: ["4.1", "1.4"]

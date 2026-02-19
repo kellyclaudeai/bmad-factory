@@ -6,6 +6,7 @@ export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  titleTag?: "h2" | "h3";
   children: ReactNode;
   size?: "sm" | "md" | "lg";
 }
@@ -14,6 +15,7 @@ export function Modal({
   isOpen,
   onClose,
   title,
+  titleTag = "h2",
   children,
   size = "md",
 }: ModalProps) {
@@ -88,6 +90,7 @@ export function Modal({
     md: "max-w-lg",
     lg: "max-w-2xl",
   };
+  const TitleTag = titleTag;
 
   return (
     <div
@@ -132,9 +135,9 @@ export function Modal({
 
         {/* Title */}
         {title && (
-          <h2 id="modal-title" className="mb-4 pr-8 text-xl font-semibold text-gray-900">
+          <TitleTag id="modal-title" className="mb-4 pr-8 text-xl font-semibold text-gray-900">
             {title}
-          </h2>
+          </TitleTag>
         )}
 
         {/* Content */}

@@ -16,7 +16,9 @@ interface SubagentCardProps {
   startedAt?: string
   completedAt?: string
   duration?: string
+  runtime?: string
   branch?: string
+  label?: string
 }
 
 export function SubagentCard({
@@ -30,7 +32,9 @@ export function SubagentCard({
   startedAt,
   completedAt,
   duration,
+  runtime,
   branch,
+  label,
 }: SubagentCardProps) {
   const router = useRouter()
   
@@ -46,8 +50,10 @@ export function SubagentCard({
       .join(' ')
   }
   
-  // Build display name: story ID + title when both available, otherwise fallback chain
+  // Build display name: story ID + title + dev/review type
+  const workType = label?.includes('-review-') ? 'Review' : label?.includes('-dev-') ? 'Dev' : ''
   const displayName = 
+    (story && storyTitle && workType ? `${story} - ${storyTitle} - ${workType}` : null) ||
     (story && storyTitle ? `${story}: ${storyTitle}` : null) ||
     storyTitle ||
     story ||
@@ -56,6 +62,22 @@ export function SubagentCard({
     (role ? role : 'Unnamed Subagent')
   
   const taskDisplay = formatTask(task)
+  
+  // Calculate runtime display
+  const runtimeDisplay = runtime || (startedAt ? calculateElapsedTime(startedAt) : null)
+  
+  function calculateElapsedTime(start: string): string {
+    const now = new Date()
+    const startDate = new Date(start)
+    const diffMs = now.getTime() - startDate.getTime()
+    const minutes = Math.floor(diffMs / 60000)
+    const hours = Math.floor(minutes / 60)
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes % 60}m`
+    }
+    return `${minutes}m`
+  }
   
   const handleClick = () => {
     if (isClickable) {
@@ -116,10 +138,10 @@ export function SubagentCard({
         </div>
         
         <div className="space-y-1.5 text-xs font-mono">
-          {taskDisplay && (
+          {persona && (
             <div className="flex items-center gap-2 text-terminal-text">
-              <span className="text-terminal-dim">Task:</span>
-              <span className="text-terminal-green">{taskDisplay}</span>
+              <span className="text-terminal-dim">Agent:</span>
+              <span className="text-terminal-green">{persona}</span>
             </div>
           )}
           
@@ -130,6 +152,13 @@ export function SubagentCard({
                 date={startedAt} 
                 className="text-terminal-green"
               />
+            </div>
+          )}
+          
+          {normalizedStatus === 'active' && runtimeDisplay && (
+            <div className="flex items-center gap-2 text-terminal-text">
+              <span className="text-terminal-dim">Runtime:</span>
+              <span className="text-terminal-green">{runtimeDisplay}</span>
             </div>
           )}
           

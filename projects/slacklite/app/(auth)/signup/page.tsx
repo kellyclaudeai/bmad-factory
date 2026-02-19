@@ -1,14 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import type { AuthError } from "firebase/auth";
+import {
+  browserLocalPersistence,
+  createUserWithEmailAndPassword,
+  setPersistence,
+} from "firebase/auth";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+
+import { Button, Input } from "@/components/ui";
+import { auth, firestore } from "@/lib/firebase/client";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
 const EMAIL_ERROR_MESSAGE = "Please enter a valid email address";
 const PASSWORD_ERROR_MESSAGE = "Password must be at least 8 characters";
+const DEFAULT_SIGNUP_ERROR_MESSAGE = "Sign up failed. Please try again.";
 
 const validateEmail = (value: string): string => {
   if (!value) {
@@ -26,10 +36,35 @@ const validatePassword = (value: string): string => {
   return value.length >= MIN_PASSWORD_LENGTH ? "" : PASSWORD_ERROR_MESSAGE;
 };
 
+function getSignUpErrorMessage(error: unknown): string {
+  if (!error || typeof error !== "object" || !("code" in error)) {
+    return DEFAULT_SIGNUP_ERROR_MESSAGE;
+  }
+
+  const errorCode = (error as AuthError).code;
+
+  switch (errorCode) {
+    case "auth/email-already-in-use":
+      return "Email already in use. Sign in instead?";
+    case "auth/weak-password":
+      return "Password is too weak";
+    case "auth/invalid-email":
+      return "Invalid email address";
+    default:
+      return DEFAULT_SIGNUP_ERROR_MESSAGE;
+  }
+}
+
+function deriveDisplayName(email: string): string {
+  return email.split("@")[0] ?? "";
+}
+
 export default function SignUpPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "" });
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const emailIsValid = EMAIL_REGEX.test(email);
@@ -38,6 +73,7 @@ export default function SignUpPage() {
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
+    setErrorMessage("");
     setErrors((current) => ({
       ...current,
       email: validateEmail(value),
@@ -46,6 +82,7 @@ export default function SignUpPage() {
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
+    setErrorMessage("");
     setErrors((current) => ({
       ...current,
       password: validatePassword(value),
@@ -54,9 +91,14 @@ export default function SignUpPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (loading) {
+      return;
+    }
+
+    const normalizedEmail = email.trim();
 
     const nextErrors = {
-      email: validateEmail(email),
+      email: validateEmail(normalizedEmail),
       password: validatePassword(password),
     };
     setErrors(nextErrors);
@@ -65,11 +107,31 @@ export default function SignUpPage() {
       return;
     }
 
+    setErrorMessage("");
     setLoading(true);
+
     try {
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, 500);
+      await setPersistence(auth, browserLocalPersistence);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        normalizedEmail,
+        password,
+      );
+      const firebaseUser = userCredential.user;
+
+      await setDoc(doc(firestore, "users", firebaseUser.uid), {
+        userId: firebaseUser.uid,
+        email: firebaseUser.email ?? normalizedEmail,
+        displayName: deriveDisplayName(normalizedEmail),
+        workspaceId: null,
+        createdAt: serverTimestamp(),
+        lastSeenAt: serverTimestamp(),
+        isOnline: false,
       });
+
+      router.replace("/create-workspace");
+    } catch (error) {
+      setErrorMessage(getSignUpErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -87,6 +149,7 @@ export default function SignUpPage() {
             className="mt-6"
             onSubmit={handleSubmit}
             aria-label="Sign up form"
+            noValidate
           >
             <div className="mb-4">
               <Input
@@ -99,6 +162,7 @@ export default function SignUpPage() {
                 onChange={(event) => handleEmailChange(event.target.value)}
                 error={errors.email}
                 aria-label="Email address"
+                disabled={loading}
               />
             </div>
 
@@ -114,8 +178,18 @@ export default function SignUpPage() {
                 onChange={(event) => handlePasswordChange(event.target.value)}
                 error={errors.password}
                 aria-label="Password"
+                disabled={loading}
               />
             </div>
+
+            {errorMessage ? (
+              <p
+                role="alert"
+                className="mb-4 rounded border border-error/30 bg-error/10 px-3 py-2 text-sm text-error"
+              >
+                {errorMessage}
+              </p>
+            ) : null}
 
             <Button
               type="submit"
@@ -124,7 +198,17 @@ export default function SignUpPage() {
               className="w-full"
               aria-label="Create Account"
             >
-              {loading ? "Creating Account..." : "Create Account"}
+              {loading ? (
+                <>
+                  <span
+                    aria-hidden="true"
+                    className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white/80 border-t-transparent"
+                  />
+                  Creating Account...
+                </>
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </form>
 

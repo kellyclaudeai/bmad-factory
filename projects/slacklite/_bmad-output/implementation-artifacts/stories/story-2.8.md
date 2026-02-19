@@ -6,14 +6,14 @@
 Add Next.js middleware to protect `/app/*` routes. Verify Firebase Auth token on server-side, redirect unauthenticated users to sign-in with proper session validation.
 
 **Acceptance Criteria:**
-- [ ] Create `middleware.ts` in project root
-- [ ] Middleware runs on `/app/*` paths (matcher config)
-- [ ] Check for Firebase Auth token in cookies
-- [ ] Verify token using Firebase Admin SDK: `verifyIdToken(token)`
-- [ ] If valid: Allow request, attach user ID to request headers
-- [ ] If invalid: Redirect to `/signin`
-- [ ] If no token: Redirect to `/signin`
-- [ ] Token refresh handled automatically by Firebase SDK
+- [x] Create `middleware.ts` in project root
+- [x] Middleware runs on `/app/*` paths (matcher config)
+- [x] Check for Firebase Auth token in cookies
+- [x] Verify token using Firebase Admin SDK: `verifyIdToken(token)`
+- [x] If valid: Allow request, attach user ID to request headers
+- [x] If invalid: Redirect to `/signin`
+- [x] If no token: Redirect to `/signin`
+- [x] Token refresh handled automatically by Firebase SDK
 
 **Dependencies:**
 dependsOn: ["2.5"]

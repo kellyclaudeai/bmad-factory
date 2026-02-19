@@ -8,136 +8,177 @@ export const dynamic = "force-dynamic";
 
 type ActiveSubagent = {
   sessionKey: string;
+  sessionId: string;
   agentType: string;
   story?: string;
+  storyTitle?: string;
   persona?: string;
   status: string;
   startedAt?: string;
   lastActivity: string;
   model?: string;
   label?: string;
+  runtime?: string;
 };
 
+const AGENTS_ROOT = path.join(os.homedir(), '.openclaw', 'agents');
+const PROJECTS_ROOT = '/Users/austenallred/clawd/projects';
+
+async function loadStoryTitles(projectId: string): Promise<Map<string, string>> {
+  const titles = new Map<string, string>();
+  const sprintStatusPath = path.join(PROJECTS_ROOT, projectId, '_bmad-output', 'implementation-artifacts', 'sprint-status.yaml');
+  
+  try {
+    const content = await fs.readFile(sprintStatusPath, 'utf8');
+    // Parse YAML-like structure for story titles
+    const storyRegex = /"(\d+\.\d+)":\s+(?:.*\n)*?\s+title:\s+"([^"]+)"/g;
+    let match;
+    while ((match = storyRegex.exec(content)) !== null) {
+      titles.set(match[1], match[2]);
+    }
+  } catch (error) {
+    // Sprint status file not found or parse error
+  }
+  
+  return titles;
+}
+
+function calculateRuntime(updatedAt: number): string {
+  const now = Date.now();
+  const runtimeMs = now - updatedAt;
+  const minutes = Math.floor(runtimeMs / 60000);
+  const hours = Math.floor(minutes / 60);
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes % 60}m`;
+  }
+  return `${minutes}m`;
+}
+
 function extractStoryFromLabel(label: string): string | undefined {
-  // Extract story ID from labels like "amelia-dev-10.1-notelite" or "amelia-review-3.8-notelite"
   const match = label.match(/(?:dev|review)-(\d+\.\d+)/);
   return match ? match[1] : undefined;
 }
 
-function extractPersonaFromLabel(label: string): string | undefined {
-  // Extract persona from labels like "amelia-dev-10.1-notelite"
+function extractPersonaFromAgentName(agentName: string): string | undefined {
   const personas: Record<string, string> = {
-    amelia: "Amelia (Dev)",
-    barry: "Barry (Fast Track)",
-    john: "John (PM)",
-    sally: "Sally (UX)",
-    winston: "Winston (Architecture)",
-    bob: "Bob (Stories)",
-    mary: "Mary (Product)",
-    carson: "Carson (CIS)",
-    victor: "Victor (CIS)",
-    maya: "Maya (CIS)",
-    quinn: "Quinn (QA)",
-    murat: "Murat (TEA)",
+    'bmad-bmm-amelia': "Amelia (Dev)",
+    'bmad-bmm-barry': "Barry (Fast Track)",
+    'bmad-cim-john': "John (PM)",
+    'bmad-cim-sally': "Sally (UX)",
+    'bmad-cim-winston': "Winston (Architecture)",
+    'bmad-cim-bob': "Bob (Stories)",
+    'bmad-cis-mary': "Mary (Product)",
+    'bmad-cis-carson': "Carson (CIS)",
+    'bmad-cis-victor': "Victor (CIS)",
+    'bmad-cis-maya': "Maya (CIS)",
+    'bmad-cis-quinn': "Quinn (QA)",
+    'bmad-tea-murat': "Murat (TEA)",
   };
-
-  for (const [key, value] of Object.entries(personas)) {
-    if (label.toLowerCase().includes(key)) {
-      return value;
-    }
-  }
-
-  return undefined;
+  
+  return personas[agentName] || agentName;
 }
 
-async function findActiveSubagents(projectId: string): Promise<ActiveSubagent[]> {
-  const homeDir = os.homedir();
-  const agentsDir = path.join(homeDir, '.openclaw', 'agents');
+async function findActiveSubagentsForProject(projectId: string, activeMinutes: number): Promise<ActiveSubagent[]> {
   const subagents: ActiveSubagent[] = [];
+  const now = Date.now();
+  const cutoff = now - (activeMinutes * 60 * 1000);
+  
+  // Load story titles from sprint-status.yaml
+  const storyTitles = await loadStoryTitles(projectId);
   
   try {
-    const agents = await fs.readdir(agentsDir);
+    const agentDirs = await fs.readdir(AGENTS_ROOT, { withFileTypes: true });
     
-    for (const agentName of agents) {
-      const sessionsJsonPath = path.join(agentsDir, agentName, 'sessions', 'sessions.json');
+    // Only look in BMAD agent directories (subagents)
+    const bmadAgents = agentDirs.filter(d => 
+      d.isDirectory() && d.name.startsWith('bmad-')
+    );
+    
+    for (const dir of bmadAgents) {
+      const agentName = dir.name;
+      const sessionsDir = path.join(AGENTS_ROOT, agentName, 'sessions');
+      const indexPath = path.join(sessionsDir, 'sessions.json');
       
       try {
-        const sessionsData = await fs.readFile(sessionsJsonPath, 'utf-8');
-        const sessions = JSON.parse(sessionsData);
+        // Read sessions.json index for labels and timestamps
+        const indexContent = await fs.readFile(indexPath, 'utf8');
+        const sessionIndex = JSON.parse(indexContent);
         
-        // Find subagents for this project
-        for (const [sessionKey, sessionData] of Object.entries(sessions)) {
-          // Must be a subagent session
-          if (!sessionKey.includes(':subagent:')) continue;
-          
+        // Find sessions with matching projectId in label
+        for (const [sessionKey, sessionData] of Object.entries(sessionIndex)) {
           const data = sessionData as any;
-          const label = data.label || '';
+          const label = data.label;
+          const updatedAt = data.updatedAt;
           
-          // Check if this subagent belongs to our project
-          // Match by label containing projectId
-          if (!label.toLowerCase().includes(projectId.toLowerCase())) continue;
-          
-          // Check if session is truly active (has a lock file)
-          const sessionId = data.sessionId;
-          if (sessionId) {
-            const lockPath = path.join(agentsDir, agentName, 'sessions', `${sessionId}.jsonl.lock`);
-            const transcriptPath = path.join(agentsDir, agentName, 'sessions', `${sessionId}.jsonl`);
-            
-            try {
-              // Check for lock file (indicates active session)
-              await fs.access(lockPath);
-              
-              // Get transcript stats for timestamps
-              const stats = await fs.stat(transcriptPath);
-              
-              subagents.push({
-                sessionKey,
-                agentType: agentName,
-                story: extractStoryFromLabel(label),
-                persona: extractPersonaFromLabel(label),
-                status: 'active',
-                startedAt: new Date(stats.birthtimeMs).toISOString(),
-                lastActivity: new Date(stats.mtimeMs).toISOString(),
-                model: data.model,
-                label,
-              });
-            } catch {
-              // No lock file = session completed or not started
-            }
+          if (!label || !label.toLowerCase().includes(projectId.toLowerCase())) {
+            continue;
           }
+          
+          // Check activity window using updatedAt from index
+          if (updatedAt && updatedAt < cutoff) {
+            continue;
+          }
+          
+          // Extract session ID from sessionKey (format: agent:bmad-...:subagent:UUID)
+          const sessionId = sessionKey.split(':').pop() || sessionKey;
+          
+          const story = extractStoryFromLabel(label);
+          const storyTitle = story ? storyTitles.get(story) : undefined;
+          const persona = extractPersonaFromAgentName(agentName);
+          const runtime = updatedAt ? calculateRuntime(updatedAt) : undefined;
+          
+          subagents.push({
+            sessionKey,
+            sessionId,
+            agentType: agentName,
+            story,
+            storyTitle,
+            persona,
+            status: 'active',
+            startedAt: updatedAt ? new Date(updatedAt).toISOString() : undefined,
+            lastActivity: updatedAt ? new Date(updatedAt).toISOString() : new Date().toISOString(),
+            label,
+            runtime,
+          });
         }
-      } catch (err) {
-        // No sessions.json for this agent or can't read it - skip
+      } catch (error) {
+        // Skip agents without sessions.json
         continue;
       }
     }
-  } catch (err) {
-    console.error('Error scanning agent directories:', err);
+  } catch (error) {
+    console.error('Error finding active subagents:', error);
   }
   
   return subagents;
 }
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const projectId = searchParams.get("projectId")?.trim();
-
-  if (!projectId) {
-    return NextResponse.json({ error: "Missing projectId query param" }, { status: 400 });
-  }
-
   try {
-    const activeSubagents = await findActiveSubagents(projectId);
-
+    const url = new URL(request.url);
+    const projectId = url.searchParams.get("projectId");
+    
+    if (!projectId) {
+      return NextResponse.json(
+        { error: "projectId parameter required" },
+        { status: 400 }
+      );
+    }
+    
+    const activeMinutes = parseInt(url.searchParams.get("activeMinutes") || "60", 10);
+    
+    const subagents = await findActiveSubagentsForProject(projectId, activeMinutes);
+    
     return NextResponse.json({
       projectId,
-      count: activeSubagents.length,
-      subagents: activeSubagents,
+      count: subagents.length,
+      subagents,
     });
-  } catch (error) {
-    console.error("Error fetching active subagents:", error);
+  } catch (error: any) {
+    console.error('Active subagents API error:', error);
     return NextResponse.json(
-      { error: "Failed to fetch active subagents", projectId, count: 0, subagents: [] },
+      { error: 'Failed to fetch active subagents', details: error?.message },
       { status: 500 }
     );
   }

@@ -32,7 +32,7 @@
 3. For each active (non-paused) project, check `timeline.lastUpdated`:
    - Compare with current time
    - Use registry's `timeline.lastUpdated` as source of truth
-4. If a project has been in same state **>60 minutes** with no registry updates:
+4. If a project has been in same state **>20 minutes** with no registry updates:
    - Send message to Project Lead: "Status check - any blockers? (Kelly safety net ping)"
    - Wait 5 minutes for response
 5. **If Project Lead doesn't respond:**
@@ -54,8 +54,14 @@
 
 **When to escalate to operator (without auto-recovery):**
 - Project Lead confirms they're blocked after retry attempts
-- Project has been stalled **>2 hours** even with "all good" responses (sanity check)
+- Project has been stalled **>60 minutes** even with "all good" responses (sanity check)
 - PL session is unresponsive but NOT frozen (may be in long operation)
+
+**Note:** 20-minute threshold chosen because:
+- Most subagent tasks complete in 5-15 minutes
+- PL should spawn next wave within 5 minutes of completions
+- 20 minutes means PL missed multiple 60-second polling cycles
+- Catches stalls before they waste 45+ minutes of dev time
 
 **Tracking:** Keep ephemeral notes in session memory (which project checked when). No persistent state needed—if Kelly restarts, it's fine to re-check projects. Document significant checks/escalations/recoveries in `memory/YYYY-MM-DD.md`.
 

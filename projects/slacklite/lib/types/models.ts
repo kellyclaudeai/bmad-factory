@@ -20,6 +20,20 @@ export interface FirebaseClientInstances {
 }
 
 /**
+ * Canonical Firestore user document shape.
+ * Path: /users/{userId}
+ */
+export interface User {
+  userId: string;
+  email: string;
+  displayName: string;
+  workspaceId: string | null;
+  createdAt: Timestamp;
+  lastSeenAt: Timestamp;
+  isOnline: boolean;
+}
+
+/**
  * Supported lifecycle states for message sending.
  */
 export type MessageStatus = "sending" | "sent" | "failed";

@@ -6,14 +6,17 @@
 Use Firebase RTDB `.info/connected` to track online/offline status. Update user presence in RTDB, sync to Firestore for persistence with automatic disconnect handling.
 
 **Acceptance Criteria:**
-- [ ] Create `lib/hooks/usePresence.ts`
-- [ ] On auth: Subscribe to `ref(rtdb, '.info/connected')`
-- [ ] If connected: Write to `/presence/{userId}`:
-  - [ ] online: true
-  - [ ] lastSeen: serverTimestamp()
-- [ ] Set onDisconnect hook: Automatically set `online: false` when user disconnects
-- [ ] Update Firestore `/users/{userId}`: Sync `isOnline` field for persistence
-- [ ] Test: Open app → online indicator appears, close tab → offline after disconnect
+- [x] Create `lib/hooks/usePresence.ts`
+- [x] On auth: Subscribe to `ref(rtdb, '.info/connected')`
+- [x] If connected: Write to `/presence/{userId}`:
+  - [x] online: true
+  - [x] lastSeen: serverTimestamp()
+- [x] Set onDisconnect hook: Automatically set `online: false` when user disconnects
+- [x] Update Firestore `/users/{userId}`: Sync `isOnline` field for persistence
+- [x] Create TypeScript types for presence data
+- [x] Add hook for subscribing to presence updates for other users
+- [x] Add connection state monitoring
+- [x] Test: Open app → online indicator appears, close tab → offline after disconnect
 
 **Dependencies:**
 dependsOn: ["1.4"]
