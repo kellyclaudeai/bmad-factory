@@ -235,12 +235,33 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
   const { id } = await params
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-  const [projectState, sessions] = await Promise.all([
+  const [projectState, sessions, liveSubagentsData] = await Promise.all([
     getProjectState(id),
     fetch(`${baseUrl}/api/sessions`, { cache: 'no-store' })
       .then((r) => (r.ok ? (r.json() as Promise<Session[]>) : ([] as Session[])))
       .catch(() => [] as Session[]),
+    fetch(`${baseUrl}/api/active-subagents?projectId=${id}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : { subagents: [] }))
+      .catch(() => ({ subagents: [] })),
   ])
+
+  // Merge live subagents with historical project-state subagents
+  const liveSubagents = liveSubagentsData.subagents || []
+  const historicalSubagents = projectState?.subagents || []
+  
+  // Combine: live subagents first (active), then historical (completed)
+  // Filter out historical subagents that are now active (avoid duplicates)
+  const activeSessionKeys = new Set(liveSubagents.map((s: any) => s.sessionKey))
+  const nonActiveHistorical = historicalSubagents.filter(
+    (s) => !s.sessionKey || !activeSessionKeys.has(s.sessionKey)
+  )
+  
+  const allSubagents = [...liveSubagents, ...nonActiveHistorical]
+  
+  // Update projectState to include all subagents
+  if (projectState) {
+    projectState.subagents = allSubagents
+  }
 
   // Fetch stories data for queued stories section
   const storiesData = projectState?.planningArtifacts?.storiesJson

@@ -80,6 +80,7 @@ export async function GET(request: Request) {
     if (project.implementation?.projectDir) {
       try {
         const sprintStatusPath = path.join(
+          PROJECTS_ROOT,
           project.implementation.projectDir,
           "_bmad-output/implementation-artifacts/sprint-status.yaml"
         );
