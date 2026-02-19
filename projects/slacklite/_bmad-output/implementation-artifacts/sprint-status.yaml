@@ -150,9 +150,24 @@ stories:
   "2.4":
     epic: 2
     title: "Build Sign In Form with Firebase Auth"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
-    dependencies: ["1.4", "2.2"]
+    dependencies: ["1.4", "1.6"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T11:11:00-06:00"
+    notes: |
+      ✅ Sign-in form implementation complete
+      ✅ Created app/(auth)/signin/page.tsx with Firebase Auth integration
+      ✅ Form fields: Email and Password (using design system Input component)
+      ✅ Firebase signInWithEmailAndPassword with browserLocalPersistence
+      ✅ Error handling: Invalid credentials, network errors (user-friendly messages)
+      ✅ Loading states: Disabled form during authentication
+      ✅ Auto-redirect: Authenticated users redirected from /signin to /app
+      ✅ Redirect on success: User sent to /app after sign-in
+      ✅ Link to Sign Up page included
+      ✅ All acceptance criteria marked complete in story file
+      
+      Commit: aef6bd5 (feat(2.4): Build sign in form with Firebase Auth)
   
   "2.5":
     epic: 2
