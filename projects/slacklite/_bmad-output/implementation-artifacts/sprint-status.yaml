@@ -665,10 +665,38 @@ stories:
   "4.3":
     epic: 4
     title: "Implement Optimistic UI Message Sending"
-    status: in_progress
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["4.2"]
     started_at: "2026-02-19T14:33:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:41:00-06:00"
+    notes: |
+      ✅ Story 4.3 completed - All acceptance criteria met
+      ✅ Implemented optimistic UI for message sending:
+         - temp_${Date.now()} message ID generation
+         - Immediate local state update with status: "sending"
+         - Instant message display (<50ms) with gray "Sending..." timestamp
+         - Success: Replace temp ID with server ID, update timestamp, status: "sent"
+         - Failure: Show red error "Failed to send. Retry?" with retry button
+         - Auto-scroll to bottom on message changes
+      ✅ Updated lib/hooks/useRealtimeMessages.ts:
+         - Added sendMessage(text) and retryMessage(messageId) APIs
+         - Optimistic message creation with temp ID tracking
+         - Success/failure handling with status updates
+         - Temp ID → server ID replacement on confirmation
+      ✅ Updated app/app/channels/[channelId]/page.tsx:
+         - Integrated sendMessage and retryMessage from hook
+         - Added message status rendering (sending/sent/failed)
+         - Added retry button for failed messages
+         - Implemented auto-scroll to bottom
+      ✅ Tests added:
+         - tests/unit/lib/useRealtimeMessages.test.tsx (instant optimistic add, success replacement, failure + retry)
+         - tests/unit/app/ChannelPage.test.tsx (failed message UI + retry, scroll-to-bottom)
+      ✅ All tests passing (19 tests across 7 files)
+      ✅ ESLint validation passed (2 pre-existing warnings outside this story)
+      
+      Commit: 9529124 (feat(4.3): Implement optimistic UI message sending)
   
   "4.4":
     epic: 4
