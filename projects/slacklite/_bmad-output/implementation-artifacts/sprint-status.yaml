@@ -482,10 +482,36 @@ stories:
   "3.9":
     epic: 3
     title: "Build Invite Team Modal UI"
-    status: in_progress
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["3.1"]
     started_at: "2026-02-19T14:26:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:31:47-06:00"
+    notes: |
+      ✅ Invite team modal UI complete - all acceptance criteria met
+      ✅ Created components/features/workspace/InviteTeamModal.tsx
+         - Modal with "Invite Team Members" title (H3)
+         - Textarea for comma/space-separated email input
+         - Email validation with regex /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+         - Parse emails with /[\s,]+/ delimiter
+         - Error display for invalid emails
+         - Invite link section with read-only input
+         - Copy to clipboard with "Copied!" feedback (2 seconds)
+         - Cancel and "Send Invites" buttons (primary variant)
+      ✅ Updated components/layout/Sidebar.tsx
+         - Added "Invite Team" button in Channels section
+         - Wired modal open/close handlers
+         - Pass workspaceId from auth context to modal
+      ✅ All acceptance criteria marked complete in story file
+      ✅ ESLint validation passed
+      
+      Note: TypeScript validation shows pre-existing error in tests/unit/components/ErrorBoundary.test.tsx (unrelated to this story)
+      
+      Files Changed:
+      - components/features/workspace/InviteTeamModal.tsx (new, 166 lines)
+      - components/layout/Sidebar.tsx (updated: added InviteTeamModal import and integration)
+      - _bmad-output/implementation-artifacts/stories/story-3.9.md (criteria marked complete)
   
   "3.10":
     epic: 3

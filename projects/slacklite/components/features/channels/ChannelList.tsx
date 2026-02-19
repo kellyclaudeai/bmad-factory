@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { useChannels } from "@/lib/hooks/useChannels";
 
@@ -10,6 +12,7 @@ export interface ChannelListProps {
 
 export function ChannelList({ onChannelSelect }: ChannelListProps) {
   const { channels, loading, error } = useChannels();
+  const pathname = usePathname();
 
   const sortedChannels = useMemo(() => {
     return [...channels].sort((firstChannel, secondChannel) =>
@@ -51,17 +54,27 @@ export function ChannelList({ onChannelSelect }: ChannelListProps) {
 
   return (
     <ul className="space-y-1">
-      {sortedChannels.map((channel) => (
-        <li key={channel.channelId}>
-          <button
-            type="button"
-            className="flex w-full items-center rounded px-2 py-1.5 text-left text-sm text-gray-800 transition-colors hover:bg-gray-200"
-            onClick={onChannelSelect}
-          >
-            <span className="truncate"># {channel.name}</span>
-          </button>
-        </li>
-      ))}
+      {sortedChannels.map((channel) => {
+        const isActive = pathname === `/app/channels/${channel.channelId}`;
+        
+        return (
+          <li key={channel.channelId}>
+            <Link
+              href={`/app/channels/${channel.channelId}`}
+              onClick={onChannelSelect}
+              className={`
+                flex w-full items-center rounded px-2 py-1.5 text-left text-sm transition-colors
+                ${isActive 
+                  ? 'bg-gray-300 border-l-4 border-primary-brand font-semibold text-gray-900' 
+                  : 'text-gray-800 hover:bg-gray-200'
+                }
+              `}
+            >
+              <span className="truncate"># {channel.name}</span>
+            </Link>
+          </li>
+        );
+      })}
     </ul>
   );
 }

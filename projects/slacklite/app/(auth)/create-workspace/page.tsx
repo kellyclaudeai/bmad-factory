@@ -2,11 +2,11 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { collection, doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 
 import { Button, Input } from "@/components/ui";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { firestore } from "@/lib/firebase/client";
+import { createWorkspace } from "@/lib/utils/workspace";
 
 const MIN_WORKSPACE_NAME_LENGTH = 1;
 const MAX_WORKSPACE_NAME_LENGTH = 50;
@@ -124,30 +124,13 @@ export default function CreateWorkspacePage() {
     setIsSubmitting(true);
 
     try {
-      const workspaceRef = doc(collection(firestore, "workspaces"));
-      await setDoc(workspaceRef, {
-        workspaceId: workspaceRef.id,
+      const { defaultChannelId } = await createWorkspace({
+        firestore,
         name: normalizedWorkspaceName,
-        ownerId: user.uid,
-        createdAt: serverTimestamp(),
+        userId: user.uid,
       });
 
-      await updateDoc(doc(firestore, "users", user.uid), {
-        workspaceId: workspaceRef.id,
-      });
-
-      const generalChannelRef = doc(
-        collection(firestore, "workspaces", workspaceRef.id, "channels"),
-      );
-      await setDoc(generalChannelRef, {
-        channelId: generalChannelRef.id,
-        workspaceId: workspaceRef.id,
-        name: "general",
-        createdBy: user.uid,
-        createdAt: serverTimestamp(),
-      });
-
-      router.replace("/app");
+      router.replace(`/app/channels/${defaultChannelId}`);
     } catch (error) {
       setErrorMessage(getWorkspaceCreationErrorMessage(error));
     } finally {
