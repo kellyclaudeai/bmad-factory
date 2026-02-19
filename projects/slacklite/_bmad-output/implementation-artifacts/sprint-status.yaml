@@ -936,10 +936,34 @@ stories:
   "11.3":
     epic: 11
     title: "Set Up Error Tracking with Sentry"
-    status: in_progress
+    status: dev-complete
     estimated_effort: "2 hours"
     dependencies: ["11.2"]
-    started_at: "2026-02-19T14:17:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:30:00-06:00"
+    notes: |
+      ✅ Sentry error tracking fully configured:
+      - @sentry/nextjs v10.39.0 installed
+      - Sentry initialization files: sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts
+      - instrumentation.ts with onRequestError handler
+      - instrumentation-client.ts with onRouterTransitionStart
+      - ErrorBoundary component wrapping app layout
+      - ErrorBoundaryFallback UI component with retry/reload buttons
+      - global-error.tsx for App Router error boundary
+      - User context tracking in AuthContext (Sentry.setUser)
+      - Performance monitoring enabled (tracesSampleRate: 0.1)
+      - Source map uploads configured in next.config.mjs (withSentryConfig)
+      - Environment variables documented in .env.example
+      - Network error filtering (beforeSend)
+      - Sensitive data sanitization (password, token fields removed)
+      - Environment detection (NEXT_PUBLIC_VERCEL_ENV fallback)
+      - Release tracking (git commit SHA)
+      - Unit test: tests/unit/components/ErrorBoundary.test.tsx
+      
+      Implementation complete across commits c3a1106 and 5d934cc.
+      All acceptance criteria met.
+      
+      Ready for code review.
   
   "11.4":
     epic: 11
