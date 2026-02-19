@@ -37,7 +37,9 @@ Examples:
 "Closing" a session means:
 1) Backup + remove the sessionKey entry from `sessions.json`
 2) Archive transcript by renaming to `*.deleted.<timestamp>` (if present)
-3) Restart the Gateway so UI/tools reflect the change immediately
+3) Gateway picks up changes automatically (no restart needed)
+
+**Note:** Previous versions called `openclaw gateway restart` which **breaks all active connections**. This has been removed - the dashboard auto-refreshes and will reflect changes within seconds.
 
 ## Commands
 

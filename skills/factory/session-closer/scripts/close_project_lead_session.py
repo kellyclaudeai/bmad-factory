@@ -21,9 +21,7 @@ def main() -> int:
     ap.add_argument("--session-key", help="Full session key (e.g., agent:main:jason)")
     ap.add_argument("--project-id", help="Project ID (for project-lead sessions)")
 
-    # Defaults: archive + restart (safe and matches operator preference)
-    ap.add_argument("--restart-gateway", action="store_true", default=True)
-    ap.add_argument("--no-restart-gateway", action="store_true")
+    # Archive transcript by default (safe, preserves history)
     ap.add_argument("--archive-transcript", action="store_true", default=True)
     ap.add_argument("--no-archive-transcript", action="store_true")
 
@@ -77,12 +75,13 @@ def main() -> int:
             dst = sess_dir / f"{session_id}.jsonl.deleted.{utc_ts()}"
             src.rename(dst)
 
-    # Restart gateway
-    restart = args.restart_gateway and not args.no_restart_gateway
-    if restart:
-        subprocess.run(["openclaw", "gateway", "restart"], check=False)
+    # Note: Gateway restart removed - sessions.json changes are picked up on next read
+    # Dashboard will reflect changes within seconds (no restart needed)
+    # If immediate reflection is critical, operator can manually refresh dashboard
+    # Old approach: subprocess.run(["openclaw", "gateway", "restart"]) - this BREAKS gateway
 
     print(f"CLOSED {session_key} sessionId={session_id}")
+    print("NOTE: Dashboard will reflect changes within seconds (auto-refresh)", file=sys.stderr)
     return 0
 
 
