@@ -617,10 +617,23 @@ stories:
   "5.1":
     epic: 5
     title: "Display Workspace Members in Sidebar"
-    status: in_progress
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["3.1"]
     started_at: "2026-02-19T14:24:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:27:00-06:00"
+    notes: |
+      ✅ Workspace members display implementation complete:
+      - Created lib/hooks/useWorkspaceMembers.ts with Firestore query, real-time listener, online-first sorting
+      - Created components/features/sidebar/WorkspaceMembersSection.tsx with collapsible header, loading/error states, empty state
+      - Integrated into Sidebar component (components/layout/Sidebar.tsx)
+      - MemberList component (pre-existing) used for presentational rendering
+      - Added "Invite Team" button integration with InviteTeamModal
+      - All acceptance criteria completed and marked in story file
+      - ESLint validation passed
+      
+      Commit: 06dac7a (feat(5.1): Display workspace members in sidebar)
   
   "5.2":
     epic: 5
