@@ -112,7 +112,7 @@ async function getProjectState(projectId: string): Promise<ProjectState | null> 
       } : undefined,
       // Keep raw planning artifacts data for detailed display
       planningArtifactsRaw: data.planningArtifacts,
-      subagents: [] // Will be populated from active-subagents API
+      subagents: data.subagents || [] // Populated from API (synthetic for Phase 1, real for Phase 2+)
     }
   } catch (error) {
     console.error('Failed to fetch project state:', error)

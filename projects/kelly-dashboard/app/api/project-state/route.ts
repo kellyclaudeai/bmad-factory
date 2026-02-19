@@ -147,6 +147,44 @@ export async function GET(request: Request) {
       currentPhase = "shipped";
     }
 
+    // Synthesize subagent entries from planning artifacts
+    const syntheticSubagents: Array<{
+      id: string;
+      story: string;
+      storyTitle: string;
+      persona: string;
+      task: string;
+      status: string;
+      startedAt?: string;
+      completedAt?: string;
+      duration?: string;
+    }> = [];
+
+    if (currentPhase === "planning") {
+      const artifactAgents: Record<string, { persona: string; task: string; title: string }> = {
+        "prd.md": { persona: "John (PM)", task: "create-prd", title: "Product Requirements Document" },
+        "ux-design.md": { persona: "Sally (UX)", task: "create-ux-design", title: "UX Design Specification" },
+        "architecture.md": { persona: "Winston (Architect)", task: "create-architecture", title: "Technical Architecture" },
+        "epics.md": { persona: "John (PM)", task: "create-epics-and-stories", title: "Epics & Stories" },
+      };
+
+      for (const [fileName, agentInfo] of Object.entries(artifactAgents)) {
+        const artifact = planningArtifacts[fileName];
+        if (artifact?.exists && artifact.modified) {
+          syntheticSubagents.push({
+            id: `planning-${fileName}`,
+            story: fileName.replace(".md", ""),
+            storyTitle: agentInfo.title,
+            persona: agentInfo.persona,
+            task: agentInfo.task,
+            status: artifact.isRecent ? "active" : "complete",
+            completedAt: artifact.modified,
+            startedAt: artifact.modified, // Approximation - we don't have true start time
+          });
+        }
+      }
+    }
+
     // Combine registry data + BMAD data
     const response = {
       projectId: project.id,
@@ -163,6 +201,9 @@ export async function GET(request: Request) {
       
       // Planning artifacts (Phase 1)
       planningArtifacts,
+      
+      // Subagents (synthesized from planning artifacts or real from sprint-status)
+      subagents: syntheticSubagents,
       
       // Story status from BMAD (Phase 2+)
       stories: sprintStatus?.stories.map(s => ({
