@@ -173,16 +173,17 @@ export function usePresenceUpdates(userIds?: string[]): UsePresenceUpdatesResult
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const subscribedUserIds = useMemo(
-    () => [...new Set((userIds ?? []).filter(Boolean))].sort(),
-    [userIds],
-  );
-
-  const subscriptionKey = subscribedUserIds.join("|");
+  const subscriptionKey = useMemo(() => {
+    return [...new Set((userIds ?? []).filter(Boolean))].sort().join("|");
+  }, [userIds]);
 
   useEffect(() => {
     let isMounted = true;
     const presenceRef = ref(rtdb, "presence");
+    const subscribedUserIds = subscriptionKey ? subscriptionKey.split("|") : [];
+    const subscribedSet =
+      subscribedUserIds.length > 0 ? new Set(subscribedUserIds) : null;
+    setLoading(true);
 
     const unsubscribe = onValue(
       presenceRef,
@@ -192,8 +193,6 @@ export function usePresenceUpdates(userIds?: string[]): UsePresenceUpdatesResult
         }
 
         const rawPresence = (snapshot.val() ?? {}) as Record<string, unknown>;
-        const subscribedSet =
-          subscribedUserIds.length > 0 ? new Set(subscribedUserIds) : null;
         const nextPresence: PresenceMap = {};
 
         for (const [userId, rawValue] of Object.entries(rawPresence)) {
@@ -224,7 +223,7 @@ export function usePresenceUpdates(userIds?: string[]): UsePresenceUpdatesResult
       isMounted = false;
       unsubscribe();
     };
-  }, [subscriptionKey, subscribedUserIds]);
+  }, [subscriptionKey]);
 
   return { presence, loading, error };
 }

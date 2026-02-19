@@ -6,13 +6,13 @@
 Add sign-out button in app header/settings. Clear user session and redirect to landing page with confirmation dialog for destructive action.
 
 **Acceptance Criteria:**
-- [ ] Sign Out button in Settings modal or app header (Destructive button styling)
-- [ ] Click triggers: `signOut(auth)`
-- [ ] On success: Clear user state in AuthContext
-- [ ] Redirect to landing page (`/`)
-- [ ] Confirmation dialog: "Are you sure you want to sign out?" (Modal with Cancel/Sign Out buttons)
-- [ ] Firebase listeners cleaned up (unsubscribe from Firestore/RTDB)
-- [ ] Local state cleared (messages, channels, etc.)
+- [x] Sign Out button in Settings modal or app header (Destructive button styling)
+- [x] Click triggers: `signOut(auth)`
+- [x] On success: Clear user state in AuthContext
+- [x] Redirect to landing page (`/`)
+- [x] Confirmation dialog: "Are you sure you want to sign out?" (Modal with Cancel/Sign Out buttons)
+- [x] Firebase listeners cleaned up (unsubscribe from Firestore/RTDB)
+- [x] Local state cleared (messages, channels, etc.)
 
 **Dependencies:**
 dependsOn: ["2.5"]
