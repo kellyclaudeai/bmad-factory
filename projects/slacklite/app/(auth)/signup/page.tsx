@@ -107,7 +107,7 @@ export default function SignUpPage() {
                 id="signup-password"
                 type="password"
                 label="Password"
-                placeholder="••••••••"
+                placeholder="********"
                 autoComplete="new-password"
                 minLength={MIN_PASSWORD_LENGTH}
                 value={password}
