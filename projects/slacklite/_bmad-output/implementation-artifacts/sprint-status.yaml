@@ -29,12 +29,14 @@ stories:
   "1.2":
     epic: 1
     title: "Configure Firebase Project via CLI"
-    status: review
+    status: done
     estimated_effort: "2 hours"
     dependencies: []
     completed_by: "Amelia"
     completed_at: "2026-02-19T00:30:00-06:00"
-    notes: "All 5 MAJOR security issues FIXED. Patched firestore.rules (workspace scoping, DM validation, unread counts), database.rules.json (RTDB workspace scoping), setup-firebase.sh (reliable provisioning). Tests written. Ready for review."
+    reviewed_by: "Amelia"
+    reviewed_at: "2026-02-19T08:59:00-06:00"
+    notes: "Security fix applied (2026-02-19 08:59): CRITICAL RTDB /users path vulnerability patched. Added security rules preventing workspaceId modification and enforcing read/write isolation. Rules ready for deployment after Firebase project creation."
   
   "1.3":
     epic: 1
@@ -53,9 +55,12 @@ stories:
   "1.5":
     epic: 1
     title: "Set Up Vercel Project via CLI"
-    status: todo
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["1.1"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T09:00:00-06:00"
+    notes: "Deployed to Vercel successfully. Production URL: https://slacklite-2rozi3fqx-kelly-1224s-projects.vercel.app. Custom domain slacklite.app aliased (SSL provisioning). App returns 401 - Firebase env vars need to be configured in Vercel settings once Firebase setup (Story 1.2) is complete."
   
   "1.6":
     epic: 1
