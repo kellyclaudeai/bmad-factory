@@ -5,9 +5,14 @@
 Distribute heartbeat to all active Project Lead sessions every 60 seconds.
 
 **Implementation:**
-1. Read `~/.openclaw/agents/project-lead/sessions/sessions.json`
-2. Find sessions matching `agent:project-lead:project-*`
-3. Filter for recently active (updated in last 60 minutes)
-4. Send `sessions_send(sessionKey, "HEARTBEAT_POLL")` to each
+1. List active PL sessions: `ls ~/.openclaw/agents/project-lead/sessions/*.lock | grep "project-" | grep -v "project-lead:main"`
+2. Extract session keys from lock files
+3. For each session, send heartbeat via Gateway (bypasses broken sessions.json):
+   ```bash
+   openclaw gateway call agent --params '{"message":"HEARTBEAT_POLL","sessionKey":"<key>","idempotencyKey":"'$(uuidgen)'"}' --timeout 5000 &
+   ```
+4. Run in background (don't wait for responses)
+
+**Why not sessions_send:** sessions.json mapping can be corrupted, causing timeouts. Gateway call is more reliable.
 
 If nothing needs attention, reply HEARTBEAT_OK.
