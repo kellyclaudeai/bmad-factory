@@ -517,9 +517,34 @@ stories:
   "6.1":
     epic: 6
     title: "Implement Firebase Presence System"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["1.4", "2.5"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T12:05:00-06:00"
+    notes: |
+      ✅ Firebase Presence System implemented with all acceptance criteria met
+      ✅ Created lib/types/presence.ts with TypeScript interfaces:
+         - PresenceData, PresenceMap, PresenceConnectionState
+         - UsePresenceResult, UsePresenceUpdatesResult
+      ✅ Implemented lib/hooks/usePresence.ts with three hooks:
+         - usePresence(): Tracks current user presence
+         - usePresenceUpdates(): Subscribes to other users' presence
+         - useConnectionState(): Monitors Firebase RTDB connection
+      ✅ Created components/providers/PresenceProvider.tsx (lightweight provider)
+      ✅ Integrated PresenceProvider into app/layout.tsx under AuthProvider
+      ✅ Presence tracking features:
+         - Subscribes to ref(rtdb, '.info/connected')
+         - Writes /presence/{userId} with online:true + serverTimestamp()
+         - Sets onDisconnect() handler for automatic offline detection
+         - Syncs to Firestore /users/{userId} (isOnline, lastSeenAt fields)
+         - Connection state monitoring with error handling
+      ✅ ESLint validation passed
+      ✅ All acceptance criteria marked complete in story file
+      
+      Note: Implementation was bundled with story 2.8 (commit 192f659)
+      
+      Status: Ready for code review
   
   "6.2":
     epic: 6
