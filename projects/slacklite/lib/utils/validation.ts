@@ -1,3 +1,5 @@
+import createDOMPurify from "dompurify";
+
 export interface ValidationResult {
   valid: boolean;
   error?: string;
@@ -8,9 +10,25 @@ const WORKSPACE_NAME_PATTERN = /^[A-Za-z0-9 ]+$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SCRIPT_TAG_PATTERN =
   /<\s*script\b[^>]*>([\s\S]*?)<\s*\/\s*script\s*>/gi;
-const JAVASCRIPT_PROTOCOL_PATTERN = /javascript:/gi;
+const JAVASCRIPT_PROTOCOL_PATTERN = /javascript\s*:/gi;
 const HTML_TAG_PATTERN = /<[^>]*>/g;
-const XSS_PATTERN = /<\s*script|javascript:|on\w+\s*=/i;
+const XSS_PATTERN = /<\s*script|javascript\s*:|on\w+\s*=/i;
+const MESSAGE_MAX_LENGTH = 4000;
+
+let domPurifyInstance: ReturnType<typeof createDOMPurify> | null = null;
+
+function getDOMPurifyInstance(): ReturnType<typeof createDOMPurify> | null {
+  if (domPurifyInstance) {
+    return domPurifyInstance;
+  }
+
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  domPurifyInstance = createDOMPurify(window);
+  return domPurifyInstance;
+}
 
 function fail(error: string): ValidationResult {
   return {
@@ -26,10 +44,18 @@ function success(): ValidationResult {
 }
 
 export function sanitizeMessageText(text: string): string {
-  return text
-    .replace(SCRIPT_TAG_PATTERN, "")
+  const withoutScriptTags = text.replace(SCRIPT_TAG_PATTERN, "");
+  const purifier = getDOMPurifyInstance();
+  const sanitized = purifier
+    ? purifier.sanitize(withoutScriptTags, {
+        ALLOWED_TAGS: [],
+        ALLOWED_ATTR: [],
+        KEEP_CONTENT: true,
+      })
+    : withoutScriptTags.replace(HTML_TAG_PATTERN, "");
+
+  return sanitized
     .replace(JAVASCRIPT_PROTOCOL_PATTERN, "")
-    .replace(HTML_TAG_PATTERN, "")
     .trim();
 }
 
@@ -39,7 +65,7 @@ export function hasBlockedXssPattern(text: string): boolean {
 
 export function validateMessageText(
   text: string,
-  maxLength = 4000,
+  maxLength = MESSAGE_MAX_LENGTH,
 ): ValidationResult {
   const sanitized = sanitizeMessageText(text);
 

@@ -15,6 +15,7 @@ import { Timestamp, doc, serverTimestamp as firestoreServerTimestamp, setDoc } f
 
 import { firestore, rtdb } from "@/lib/firebase/client";
 import { createRTDBMessage, type Message, type RTDBMessage } from "@/lib/types/models";
+import { sanitizeMessageText } from "@/lib/utils/validation";
 
 export interface MessageSender {
   userId: string;
@@ -335,13 +336,13 @@ export function useRealtimeMessages(
 
   const sendMessage = useCallback(
     async (text: string): Promise<string> => {
-      if (text.length > MAX_MESSAGE_LENGTH) {
+      const sanitizedText = sanitizeMessageText(text);
+
+      if (sanitizedText.length > MAX_MESSAGE_LENGTH) {
         throw new Error(MESSAGE_TOO_LONG_ERROR);
       }
 
-      const trimmedText = text.trim();
-
-      if (trimmedText.length === 0) {
+      if (sanitizedText.length === 0) {
         return "";
       }
 
@@ -362,7 +363,7 @@ export function useRealtimeMessages(
         workspaceId: normalizedWorkspaceId,
         userId: normalizedUserId,
         userName: normalizedUserName,
-        text: trimmedText,
+        text: sanitizedText,
         timestamp: tempTimestamp,
         createdAt: tempTimestamp,
         status: "sending",

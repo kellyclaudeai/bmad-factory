@@ -6,14 +6,14 @@
 Add client-side and server-side input validation and sanitization for all user inputs (messages, channel names, workspace names) to prevent XSS and injection attacks.
 
 **Acceptance Criteria:**
-- [ ] Sanitize message text: Remove script tags, HTML entities encoded
-- [ ] Validate channel names: Lowercase, hyphens, 1-50 chars (regex validation)
-- [ ] Validate workspace names: 1-50 chars, alphanumeric + spaces
-- [ ] Validate email addresses: Standard email regex
-- [ ] Escape user-generated content before rendering (React automatic, verify)
-- [ ] Server-side validation in Firestore/RTDB security rules
-- [ ] Block common XSS patterns (e.g., `<script>`, `javascript:`)
-- [ ] Test: Attempt to inject XSS → blocked and sanitized
+- [x] Sanitize message text: Remove script tags, HTML entities encoded
+- [x] Validate channel names: Lowercase, hyphens, 1-50 chars (regex validation)
+- [x] Validate workspace names: 1-50 chars, alphanumeric + spaces
+- [x] Validate email addresses: Standard email regex
+- [x] Escape user-generated content before rendering (React automatic, verify)
+- [x] Server-side validation in Firestore/RTDB security rules
+- [x] Block common XSS patterns (e.g., `<script>`, `javascript:`)
+- [x] Test: Attempt to inject XSS → blocked and sanitized
 
 **Dependencies:**
 dependsOn: ["4.2", "3.4"]

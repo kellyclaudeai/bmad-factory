@@ -13,6 +13,7 @@ import {
 
 import { Button, Input } from "@/components/ui";
 import { auth } from "@/lib/firebase/client";
+import { validateEmail as validateEmailInput } from "@/lib/utils/validation";
 
 function getSafeRedirectPath(value: string | null): string | null {
   if (!value) {
@@ -53,15 +54,36 @@ function getSignInErrorMessage(error: unknown): string {
   }
 }
 
+function getEmailValidationError(value: string, required = false): string {
+  if (!required && value.trim().length === 0) {
+    return "";
+  }
+
+  const result = validateEmailInput(value);
+
+  if (result.valid) {
+    return "";
+  }
+
+  return result.error ?? "Enter a valid email address.";
+}
+
 export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const redirectPath = getSafeRedirectPath(searchParams.get("next"));
+  const isEmailValid = validateEmailInput(email).valid;
+  const canSubmit =
+    !isLoading &&
+    !isCheckingAuth &&
+    isEmailValid &&
+    password.trim().length > 0;
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -82,12 +104,20 @@ export default function SignInPage() {
       return;
     }
 
+    const normalizedEmail = email.trim();
+    const nextEmailError = getEmailValidationError(normalizedEmail, true);
+    setEmailError(nextEmailError);
+
+    if (nextEmailError) {
+      return;
+    }
+
     setErrorMessage("");
     setIsLoading(true);
 
     try {
       await setPersistence(auth, browserLocalPersistence);
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      await signInWithEmailAndPassword(auth, normalizedEmail, password);
       router.replace(redirectPath ?? "/app");
     } catch (error) {
       setErrorMessage(getSignInErrorMessage(error));
@@ -120,9 +150,14 @@ export default function SignInPage() {
             label="Email"
             type="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setErrorMessage("");
+              setEmailError(getEmailValidationError(event.target.value));
+            }}
             autoComplete="email"
             disabled={isLoading}
+            error={emailError}
             required
           />
 
@@ -149,7 +184,7 @@ export default function SignInPage() {
           <Button
             type="submit"
             className="w-full"
-            disabled={isLoading || isCheckingAuth}
+            disabled={!canSubmit}
           >
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>

@@ -6,12 +6,12 @@
 Detect when user scrolls to top of message list, automatically trigger pagination to load older messages using Intersection Observer.
 
 **Acceptance Criteria:**
-- [ ] Scroll listener: Detect `scrollTop === 0` (reached top)
-- [ ] Debounce: Prevent multiple simultaneous loads (use `useRef` to track loading state)
-- [ ] Trigger: Call `loadMore()` when top reached
-- [ ] Show loading indicator: "Loading older messages..." at top (Spinner + text)
-- [ ] Intersection Observer alternative: Use sentinel div at top, trigger when visible (more performant)
-- [ ] Stop triggering when all messages loaded (hasMore = false)
+- [x] Top reached detection: detect when list top is visible (sentinel visibility; equivalent to `scrollTop === 0`)
+- [x] Debounce: Prevent multiple simultaneous loads (use `useRef` to track loading state)
+- [x] Trigger: Call `loadMore()` when top reached
+- [x] Show loading indicator: "Loading older messages..." at top (Spinner + text)
+- [x] Intersection Observer: Use sentinel div at top, trigger when visible (more performant)
+- [x] Stop triggering when all messages loaded (hasMore = false)
 
 **Dependencies:**
 dependsOn: ["7.1"]

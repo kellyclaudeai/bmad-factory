@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  createContext,
   forwardRef,
   memo,
   useCallback,
   useEffect,
+  useContext,
   useMemo,
   useRef,
   useState,
@@ -22,7 +24,6 @@ import type { Message } from "@/lib/types/models";
 const ESTIMATED_MESSAGE_HEIGHT_PX = 80;
 const DEFAULT_VIEWPORT_HEIGHT_PX = 600;
 const OVERSCAN_COUNT = 3;
-const LOAD_MORE_THRESHOLD_PX = 24;
 
 export interface MessageListProps {
   messages: Message[];
@@ -42,14 +43,24 @@ interface MessageListItemData {
   setRowHeight: (index: number, messageId: string, nextHeight: number) => void;
 }
 
-function Spinner() {
+interface SpinnerProps {
+  label?: string;
+  className?: string;
+  indicatorClassName?: string;
+}
+
+function Spinner({
+  label = "Loading messages...",
+  className = "text-sm text-gray-600",
+  indicatorClassName = "h-4 w-4",
+}: SpinnerProps = {}) {
   return (
-    <div role="status" className="flex items-center gap-2 text-sm text-gray-600">
+    <div role="status" className={`flex items-center gap-2 ${className}`}>
       <span
         aria-hidden="true"
-        className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"
+        className={`${indicatorClassName} animate-spin rounded-full border-2 border-gray-400 border-t-transparent`}
       />
-      Loading messages...
+      {label}
     </div>
   );
 }
@@ -66,6 +77,32 @@ function formatMessageTimestamp(timestamp: Message["timestamp"]): string {
 const ListOuterElement = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   function ListOuterElement(props, ref) {
     return <div {...props} ref={ref} data-testid="channel-message-list" />;
+  }
+);
+
+const TopSentinelContext = createContext<MutableRefObject<HTMLDivElement | null> | null>(null);
+
+const ListInnerElement = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  function ListInnerElement({ children, style, ...props }, ref) {
+    const sentinelRef = useContext(TopSentinelContext);
+
+    return (
+      <div {...props} ref={ref} style={{ ...style, position: "relative" }}>
+        <div
+          ref={(element) => {
+            if (!sentinelRef) {
+              return;
+            }
+
+            sentinelRef.current = element;
+          }}
+          data-testid="message-list-top-sentinel"
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px"
+        />
+        {children}
+      </div>
+    );
   }
 );
 
@@ -178,6 +215,7 @@ export default function MessageList({
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<VariableSizeList<MessageListItemData> | null>(null);
   const listOuterElementRef = useRef<HTMLDivElement | null>(null);
+  const listTopSentinelRef = useRef<HTMLDivElement | null>(null);
   const rowHeightsRef = useRef<Record<string, number>>({});
   const previousMessagesRef = useRef<Message[]>(messages);
   const measuredViewportHeightRef = useRef(DEFAULT_VIEWPORT_HEIGHT_PX);
@@ -236,17 +274,40 @@ export default function MessageList({
   const handleListScroll = useCallback(
     (scrollEvent: ListOnScrollProps): void => {
       onScroll?.(scrollEvent);
-
-      const shouldLoadMore =
-        scrollEvent.scrollDirection === "backward" &&
-        scrollEvent.scrollOffset <= LOAD_MORE_THRESHOLD_PX;
-
-      if (shouldLoadMore) {
-        void triggerLoadMore();
-      }
     },
-    [onScroll, triggerLoadMore]
+    [onScroll]
   );
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") {
+      return;
+    }
+
+    const listElement = listOuterElementRef.current;
+    const sentinelElement = listTopSentinelRef.current;
+
+    if (!listElement || !sentinelElement || !hasMore || loadingMore) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          void triggerLoadMore();
+        }
+      },
+      {
+        root: listElement,
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(sentinelElement);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasMore, loadingMore, triggerLoadMore]);
 
   const itemData = useMemo<MessageListItemData>(
     () => ({
@@ -377,33 +438,33 @@ export default function MessageList({
   return (
     <div ref={containerRef} className="relative h-full min-h-0">
       {loadingMore ? (
-        <div
-          role="status"
-          className="pointer-events-none absolute left-1/2 top-2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-md bg-white/95 px-3 py-1 text-xs text-gray-600 shadow"
-        >
-          <span
-            aria-hidden="true"
-            className="h-3 w-3 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"
+        <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-md bg-white/95 px-3 py-1 shadow">
+          <Spinner
+            label="Loading older messages..."
+            className="text-xs text-gray-600"
+            indicatorClassName="h-3 w-3"
           />
-          Loading older messages...
         </div>
       ) : null}
 
-      <VariableSizeList
-        ref={listRef}
-        outerRef={setOuterElementRef}
-        outerElementType={ListOuterElement}
-        height={viewportHeight}
-        width="100%"
-        itemCount={messages.length}
-        itemData={itemData}
-        itemSize={getRowHeight}
-        estimatedItemSize={ESTIMATED_MESSAGE_HEIGHT_PX}
-        overscanCount={OVERSCAN_COUNT}
-        onScroll={handleListScroll}
-      >
-        {MessageRow}
-      </VariableSizeList>
+      <TopSentinelContext.Provider value={listTopSentinelRef}>
+        <VariableSizeList
+          ref={listRef}
+          outerRef={setOuterElementRef}
+          outerElementType={ListOuterElement}
+          innerElementType={ListInnerElement}
+          height={viewportHeight}
+          width="100%"
+          itemCount={messages.length}
+          itemData={itemData}
+          itemSize={getRowHeight}
+          estimatedItemSize={ESTIMATED_MESSAGE_HEIGHT_PX}
+          overscanCount={OVERSCAN_COUNT}
+          onScroll={handleListScroll}
+        >
+          {MessageRow}
+        </VariableSizeList>
+      </TopSentinelContext.Provider>
     </div>
   );
 }

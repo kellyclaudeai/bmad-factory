@@ -10,6 +10,8 @@ import {
 } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { useRateLimit } from "@/lib/hooks/useRateLimit";
+import { sanitizeMessageText } from "@/lib/utils/validation";
 
 const MOBILE_BREAKPOINT = 768;
 const DESKTOP_MIN_TEXTAREA_HEIGHT = 44;
@@ -19,6 +21,8 @@ const MOBILE_FOCUSED_TEXTAREA_HEIGHT = "60vh";
 const MAX_MESSAGE_LENGTH = 4000;
 const COUNTER_THRESHOLD = 3900;
 const MESSAGE_TOO_LONG_ERROR = "Message too long. Maximum 4,000 characters.";
+const RATE_LIMIT_ERROR_MESSAGE = "Slow down! Max 10 messages per 10 seconds.";
+const RATE_LIMIT_ERROR_TIMEOUT_MS = 3000;
 
 export interface MessageInputProps {
   channelId: string;
@@ -58,12 +62,16 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
   const [text, setText] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [rateLimitError, setRateLimitError] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const rateLimitErrorTimeoutRef = useRef<number | null>(null);
+  const { canSendMessage, recordMessage } = useRateLimit();
 
   const trimmedText = text.trim();
   const isOverLimit = text.length > MAX_MESSAGE_LENGTH;
   const showCounter = text.length > COUNTER_THRESHOLD;
-  const isSendDisabled = trimmedText.length === 0 || isOverLimit;
+  const isRateLimited = !canSendMessage();
+  const isSendDisabled = trimmedText.length === 0 || isOverLimit || isRateLimited;
 
   useEffect(() => {
     const handleResize = (): void => {
@@ -87,17 +95,55 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
   useEffect(() => {
     setText("");
     setIsFocused(false);
+    setRateLimitError("");
+    if (rateLimitErrorTimeoutRef.current !== null) {
+      window.clearTimeout(rateLimitErrorTimeoutRef.current);
+      rateLimitErrorTimeoutRef.current = null;
+    }
     if (textareaRef.current) {
       resetTextareaHeight(textareaRef.current, window.innerWidth < MOBILE_BREAKPOINT);
     }
   }, [channelId]);
 
+  useEffect(
+    () => () => {
+      if (rateLimitErrorTimeoutRef.current !== null) {
+        window.clearTimeout(rateLimitErrorTimeoutRef.current);
+      }
+    },
+    [],
+  );
+
+  const showRateLimitError = useCallback(() => {
+    setRateLimitError(RATE_LIMIT_ERROR_MESSAGE);
+    if (rateLimitErrorTimeoutRef.current !== null) {
+      window.clearTimeout(rateLimitErrorTimeoutRef.current);
+    }
+
+    rateLimitErrorTimeoutRef.current = window.setTimeout(() => {
+      setRateLimitError("");
+      rateLimitErrorTimeoutRef.current = null;
+    }, RATE_LIMIT_ERROR_TIMEOUT_MS);
+  }, []);
+
   const handleSend = useCallback(() => {
-    if (isSendDisabled) {
+    if (isRateLimited) {
+      showRateLimitError();
       return;
     }
 
-    void Promise.resolve(onSend(text)).catch(() => undefined);
+    if (trimmedText.length === 0 || isOverLimit) {
+      return;
+    }
+
+    const sanitizedText = sanitizeMessageText(text);
+
+    if (sanitizedText.length === 0 || sanitizedText.length > MAX_MESSAGE_LENGTH) {
+      return;
+    }
+
+    recordMessage();
+    void Promise.resolve(onSend(sanitizedText)).catch(() => undefined);
     setText("");
 
     if (textareaRef.current) {
@@ -108,7 +154,17 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
         textareaRef.current.focus();
       }
     }
-  }, [isFocused, isMobile, isSendDisabled, onSend, text]);
+  }, [
+    isFocused,
+    isMobile,
+    isOverLimit,
+    isRateLimited,
+    onSend,
+    recordMessage,
+    showRateLimitError,
+    text,
+    trimmedText.length,
+  ]);
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -173,6 +229,12 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
       {isOverLimit && (
         <p className="mt-1 text-sm text-error" role="alert">
           {MESSAGE_TOO_LONG_ERROR}
+        </p>
+      )}
+
+      {rateLimitError && (
+        <p className="mt-1 text-sm text-error" role="alert">
+          {rateLimitError}
         </p>
       )}
     </div>

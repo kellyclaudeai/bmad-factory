@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Timestamp } from "firebase/firestore";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import MessageList from "@/components/features/messages/MessageList";
 import type { Message } from "@/lib/types/models";
@@ -28,8 +28,97 @@ function createMessages(
   });
 }
 
+type MockIntersectionObserverEntryOptions = {
+  isIntersecting: boolean;
+  target: Element;
+  rootBounds: DOMRectReadOnly | null;
+};
+
+function createMockEntry({
+  isIntersecting,
+  target,
+  rootBounds,
+}: MockIntersectionObserverEntryOptions): IntersectionObserverEntry {
+  const targetBounds = target.getBoundingClientRect();
+  const emptyRect = DOMRectReadOnly.fromRect();
+
+  return {
+    target,
+    time: Date.now(),
+    isIntersecting,
+    intersectionRatio: isIntersecting ? 1 : 0,
+    boundingClientRect: targetBounds,
+    intersectionRect: isIntersecting ? targetBounds : emptyRect,
+    rootBounds,
+  };
+}
+
+class MockIntersectionObserver implements IntersectionObserver {
+  static instances: MockIntersectionObserver[] = [];
+
+  readonly root: Element | Document | null;
+  readonly rootMargin: string;
+  readonly thresholds: ReadonlyArray<number>;
+
+  private readonly callback: IntersectionObserverCallback;
+  private observedTarget: Element | null = null;
+
+  observe = vi.fn((target: Element) => {
+    this.observedTarget = target;
+  });
+
+  unobserve = vi.fn((target: Element) => {
+    if (this.observedTarget === target) {
+      this.observedTarget = null;
+    }
+  });
+
+  disconnect = vi.fn(() => {
+    this.observedTarget = null;
+  });
+
+  takeRecords = vi.fn(() => []);
+
+  constructor(callback: IntersectionObserverCallback, options: IntersectionObserverInit = {}) {
+    this.callback = callback;
+    this.root = options.root ?? null;
+    this.rootMargin = options.rootMargin ?? "0px";
+    this.thresholds = Array.isArray(options.threshold)
+      ? options.threshold
+      : [options.threshold ?? 0];
+
+    MockIntersectionObserver.instances.push(this);
+  }
+
+  trigger(isIntersecting: boolean): void {
+    if (!this.observedTarget) {
+      return;
+    }
+
+    const rootBounds =
+      this.root instanceof Element ? this.root.getBoundingClientRect() : DOMRectReadOnly.fromRect();
+
+    this.callback(
+      [
+        createMockEntry({
+          isIntersecting,
+          target: this.observedTarget,
+          rootBounds,
+        }),
+      ],
+      this
+    );
+  }
+}
+
 describe("MessageList virtualization", () => {
+  beforeEach(() => {
+    MockIntersectionObserver.instances = [];
+    vi.stubGlobal("IntersectionObserver", MockIntersectionObserver);
+  });
+
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -139,5 +228,90 @@ describe("MessageList virtualization", () => {
     await waitFor(() => {
       expect(listElement.scrollTop).toBe(4640);
     });
+  });
+
+  it("triggers loadMore when top sentinel becomes visible", async () => {
+    const messages = createMessages(100);
+    const loadMore = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <div style={{ height: "600px" }}>
+        <MessageList messages={messages} loadMore={loadMore} hasMore />
+      </div>
+    );
+
+    const sentinel = await screen.findByTestId("message-list-top-sentinel");
+    const observer = MockIntersectionObserver.instances[0];
+
+    expect(observer).toBeDefined();
+    expect(observer?.observe).toHaveBeenCalledWith(sentinel);
+
+    observer?.trigger(true);
+
+    await waitFor(() => {
+      expect(loadMore).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("does not observe sentinel when there are no more messages to load", async () => {
+    const messages = createMessages(100);
+    const loadMore = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <div style={{ height: "600px" }}>
+        <MessageList messages={messages} loadMore={loadMore} hasMore={false} />
+      </div>
+    );
+
+    await screen.findByTestId("message-list-top-sentinel");
+
+    expect(MockIntersectionObserver.instances).toHaveLength(0);
+    expect(loadMore).not.toHaveBeenCalled();
+  });
+
+  it("prevents concurrent loadMore calls while a load is in flight", async () => {
+    const messages = createMessages(100);
+    let resolveLoadMore: (() => void) | null = null;
+    const loadMore = vi.fn().mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveLoadMore = resolve;
+        })
+    );
+
+    render(
+      <div style={{ height: "600px" }}>
+        <MessageList messages={messages} loadMore={loadMore} hasMore />
+      </div>
+    );
+
+    const observer = MockIntersectionObserver.instances[0];
+    expect(observer).toBeDefined();
+
+    observer?.trigger(true);
+    observer?.trigger(true);
+
+    await waitFor(() => {
+      expect(loadMore).toHaveBeenCalledTimes(1);
+    });
+
+    resolveLoadMore?.();
+
+    await waitFor(() => {
+      observer?.trigger(true);
+      expect(loadMore).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it("shows loading indicator for older messages at the top", () => {
+    const messages = createMessages(100);
+
+    render(
+      <div style={{ height: "600px" }}>
+        <MessageList messages={messages} hasMore loadingMore />
+      </div>
+    );
+
+    expect(screen.getByText("Loading older messages...")).toBeInTheDocument();
   });
 });

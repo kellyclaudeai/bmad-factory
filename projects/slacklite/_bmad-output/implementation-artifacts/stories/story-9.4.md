@@ -6,13 +6,13 @@
 Implement client-side rate limiting for message sending to prevent spam. Limit users to max 10 messages per 10 seconds with visual feedback.
 
 **Acceptance Criteria:**
-- [ ] Rate limit: Max 10 messages per 10 seconds per user
-- [ ] Client-side enforcement: Disable send button if limit reached
-- [ ] Visual feedback: Show error message "Slow down! Max 10 messages per 10 seconds."
-- [ ] Reset timer: After 10 seconds, limit resets
-- [ ] Track message count: Use in-memory queue (no persistence needed)
-- [ ] Server-side enforcement (Phase 2): Cloud Functions validate rate limit
-- [ ] Test: Send 11 messages rapidly → 11th blocked
+- [x] Rate limit: Max 10 messages per 10 seconds per user
+- [x] Client-side enforcement: Disable send button if limit reached
+- [x] Visual feedback: Show error message "Slow down! Max 10 messages per 10 seconds."
+- [x] Reset timer: After 10 seconds, limit resets
+- [x] Track message count: Use in-memory queue (no persistence needed)
+- [x] Server-side enforcement (Phase 2): Cloud Functions validate rate limit — deferred to Phase 2 by story scope
+- [x] Test: Send 11 messages rapidly → 11th blocked
 
 **Dependencies:**
 dependsOn: ["4.4"]

@@ -124,6 +124,31 @@ async function seedMessage(
     );
   });
 
+  it("blocks common XSS patterns in message text", async () => {
+    await seedWorkspaceMembership(USER_ID, WORKSPACE_ID);
+    const db = testEnv.authenticatedContext(USER_ID).database();
+
+    await assertFails(
+      set(ref(db, messagePath(WORKSPACE_ID, CHANNEL_ID, "msg-script-tag")), {
+        ...baseMessage,
+        text: "<script>alert(1)</script>",
+      }),
+    );
+
+    await assertFails(
+      set(ref(db, messagePath(WORKSPACE_ID, CHANNEL_ID, "msg-javascript-protocol")), {
+        ...baseMessage,
+        text: "javascript:alert(1)",
+      }),
+    );
+    await assertFails(
+      set(ref(db, messagePath(WORKSPACE_ID, CHANNEL_ID, "msg-event-handler")), {
+        ...baseMessage,
+        text: "<img src=x onerror=alert(1)>",
+      }),
+    );
+  });
+
   it("requires all message fields: userId, userName, text, and timestamp", async () => {
     await seedWorkspaceMembership(USER_ID, WORKSPACE_ID);
     const db = testEnv.authenticatedContext(USER_ID).database();
@@ -138,6 +163,18 @@ async function seedMessage(
         set(ref(db, messagePath(WORKSPACE_ID, CHANNEL_ID, `msg-missing-${field}`)), invalidMessage),
       );
     }
+  });
+
+  it("requires userId to match the authenticated user", async () => {
+    await seedWorkspaceMembership(USER_ID, WORKSPACE_ID);
+    const db = testEnv.authenticatedContext(USER_ID).database();
+
+    await assertFails(
+      set(ref(db, messagePath(WORKSPACE_ID, CHANNEL_ID, "msg-user-mismatch")), {
+        ...baseMessage,
+        userId: "other-user",
+      }),
+    );
   });
 
   it("denies unauthenticated reads and writes for messages", async () => {

@@ -78,22 +78,46 @@ service cloud.firestore {
     function hasValidMessageText(data) {
       return data.text is string &&
              data.text.size() > 0 &&
-             data.text.size() <= 4000;
+             data.text.size() <= 4000 &&
+             !hasBlockedXssPattern(data.text);
+    }
+
+    function hasBlockedXssPattern(value) {
+      return value.lower().matches('.*<\\s*script.*') ||
+             value.lower().matches('.*javascript\\s*:.*') ||
+             value.lower().matches('.*on[a-z0-9_]+\\s*=.*');
+    }
+
+    function hasValidChannelName(data) {
+      return data.name is string &&
+             data.name.matches('^[a-z0-9-]{1,50}$');
+    }
+
+    function hasValidWorkspaceName(data) {
+      return data.name is string &&
+             data.name.size() > 0 &&
+             data.name.size() <= 50 &&
+             data.name.matches('^[A-Za-z0-9 ]+$') &&
+             data.name.matches('.*[A-Za-z0-9].*');
     }
     
     // Workspaces: Users can read/update their own workspace
     match /workspaces/{workspaceId} {
       allow read: if isWorkspaceMember(workspaceId);
-      allow create: if isAuthenticated();
-      allow update: if isWorkspaceOwner(workspaceId);
+      allow create: if isAuthenticated() &&
+                      hasValidWorkspaceName(request.resource.data);
+      allow update: if isWorkspaceOwner(workspaceId) &&
+                      hasValidWorkspaceName(request.resource.data);
       allow delete: if isWorkspaceOwner(workspaceId);
       
       // Channels: All workspace members can read/create
       match /channels/{channelId} {
         allow read: if isWorkspaceMember(workspaceId);
-        allow create: if isWorkspaceMember(workspaceId);
-        allow update: if isWorkspaceOwner(workspaceId) || 
-                        resource.data.createdBy == request.auth.uid;
+        allow create: if isWorkspaceMember(workspaceId) &&
+                        hasValidChannelName(request.resource.data);
+        allow update: if (isWorkspaceOwner(workspaceId) || 
+                        resource.data.createdBy == request.auth.uid) &&
+                        hasValidChannelName(request.resource.data);
         allow delete: if (isWorkspaceOwner(workspaceId) || 
                             resource.data.createdBy == request.auth.uid) &&
                           resource.data.name != "general";
@@ -105,7 +129,11 @@ service cloud.firestore {
                           request.resource.data.userId == request.auth.uid &&
                           request.resource.data.workspaceId == workspaceId &&
                           hasValidMessageText(request.resource.data);
-          allow update: if resource.data.userId == request.auth.uid;
+          allow update: if resource.data.userId == request.auth.uid &&
+                          request.resource.data.userId == resource.data.userId &&
+                          request.resource.data.workspaceId == resource.data.workspaceId &&
+                          request.resource.data.channelId == resource.data.channelId &&
+                          hasValidMessageText(request.resource.data);
           allow delete: if resource.data.userId == request.auth.uid ||
                           isWorkspaceOwner(workspaceId) ||
                           isChannelCreator(workspaceId, channelId);

@@ -146,6 +146,49 @@ async function seedChannelMessage(
     );
   });
 
+  it("enforces channel name format (lowercase, numbers, hyphens, 1-50 chars)", async () => {
+    await seedWorkspaceMembership("user-1", "workspace-1");
+
+    const userDb = testEnv.authenticatedContext("user-1").firestore();
+
+    await assertFails(
+      setDoc(doc(userDb, "workspaces", "workspace-1", "channels", "channel-uppercase"), {
+        channelId: "channel-uppercase",
+        workspaceId: "workspace-1",
+        name: "Engineering Team",
+        createdBy: "user-1",
+      }),
+    );
+  });
+
+  it("enforces workspace name characters to letters, numbers, and spaces", async () => {
+    const userDb = testEnv.authenticatedContext("user-1").firestore();
+
+    await assertSucceeds(
+      setDoc(doc(userDb, "workspaces", "workspace-valid"), {
+        workspaceId: "workspace-valid",
+        name: "Team 42",
+        ownerId: "user-1",
+      }),
+    );
+
+    await assertFails(
+      setDoc(doc(userDb, "workspaces", "workspace-invalid-symbol"), {
+        workspaceId: "workspace-invalid-symbol",
+        name: "Team@42",
+        ownerId: "user-1",
+      }),
+    );
+
+    await assertFails(
+      setDoc(doc(userDb, "workspaces", "workspace-invalid-empty"), {
+        workspaceId: "workspace-invalid-empty",
+        name: "   ",
+        ownerId: "user-1",
+      }),
+    );
+  });
+
   it("User CANNOT create channels in other workspace", async () => {
     await seedWorkspaceMembership("user-1", "workspace-1");
     await seedWorkspaceMembership("user-2", "workspace-2");
@@ -265,6 +308,168 @@ async function seedChannelMessage(
           userId: "user-1",
           userName: "User One",
           text: "",
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+  });
+
+  it("blocks script tags and javascript protocol payloads in messages", async () => {
+    await seedWorkspaceMembership("user-1", "workspace-1");
+    await seedChannel("workspace-1", "general", "user-1");
+
+    const userDb = testEnv.authenticatedContext("user-1").firestore();
+
+    await assertFails(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "general",
+          "messages",
+          "message-script-tag",
+        ),
+        {
+          messageId: "message-script-tag",
+          channelId: "general",
+          workspaceId: "workspace-1",
+          userId: "user-1",
+          userName: "User One",
+          text: "<script>alert(1)</script>",
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+
+    await assertFails(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "general",
+          "messages",
+          "message-javascript-protocol",
+        ),
+        {
+          messageId: "message-javascript-protocol",
+          channelId: "general",
+          workspaceId: "workspace-1",
+          userId: "user-1",
+          userName: "User One",
+          text: "javascript:alert(1)",
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+  });
+
+  it("enforces workspace name validation on create", async () => {
+    const userDb = testEnv.authenticatedContext("owner-1").firestore();
+
+    await assertSucceeds(
+      setDoc(doc(userDb, "workspaces", "workspace-valid"), {
+        workspaceId: "workspace-valid",
+        name: "Acme Team 42",
+        ownerId: "owner-1",
+      }),
+    );
+
+    await assertFails(
+      setDoc(doc(userDb, "workspaces", "workspace-invalid-length"), {
+        workspaceId: "workspace-invalid-length",
+        name: "a".repeat(51),
+        ownerId: "owner-1",
+      }),
+    );
+
+    await assertFails(
+      setDoc(doc(userDb, "workspaces", "workspace-invalid-chars"), {
+        workspaceId: "workspace-invalid-chars",
+        name: "<script>alert(1)</script>",
+        ownerId: "owner-1",
+      }),
+    );
+  });
+
+  it("blocks common XSS patterns in message text", async () => {
+    await seedWorkspaceMembership("user-1", "workspace-1");
+    await seedChannel("workspace-1", "general", "user-1");
+
+    const userDb = testEnv.authenticatedContext("user-1").firestore();
+
+    await assertFails(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "general",
+          "messages",
+          "message-script-tag",
+        ),
+        {
+          messageId: "message-script-tag",
+          channelId: "general",
+          workspaceId: "workspace-1",
+          userId: "user-1",
+          userName: "User One",
+          text: "<script>alert(1)</script>",
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+
+    await assertFails(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "general",
+          "messages",
+          "message-js-protocol",
+        ),
+        {
+          messageId: "message-js-protocol",
+          channelId: "general",
+          workspaceId: "workspace-1",
+          userId: "user-1",
+          userName: "User One",
+          text: "javascript:alert(1)",
+          timestamp: new Date(),
+          createdAt: new Date(),
+        },
+      ),
+    );
+
+    await assertFails(
+      setDoc(
+        doc(
+          userDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "general",
+          "messages",
+          "message-event-handler",
+        ),
+        {
+          messageId: "message-event-handler",
+          channelId: "general",
+          workspaceId: "workspace-1",
+          userId: "user-1",
+          userName: "User One",
+          text: "<img src=x onerror=alert(1)>",
           timestamp: new Date(),
           createdAt: new Date(),
         },

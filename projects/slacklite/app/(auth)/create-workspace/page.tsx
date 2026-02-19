@@ -6,25 +6,21 @@ import { useRouter } from "next/navigation";
 import { Button, Input } from "@/components/ui";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { firestore } from "@/lib/firebase/client";
+import { validateWorkspaceName as validateWorkspaceNameInput } from "@/lib/utils/validation";
 import { createWorkspace } from "@/lib/utils/workspace";
 
-const MIN_WORKSPACE_NAME_LENGTH = 1;
 const MAX_WORKSPACE_NAME_LENGTH = 50;
 const DEFAULT_CREATION_ERROR_MESSAGE =
   "Unable to create workspace right now. Please try again.";
 
-function validateWorkspaceName(value: string): string {
-  const normalized = value.trim();
+function getWorkspaceNameValidationError(value: string): string {
+  const result = validateWorkspaceNameInput(value);
 
-  if (normalized.length < MIN_WORKSPACE_NAME_LENGTH) {
-    return "Workspace name is required.";
+  if (result.valid) {
+    return "";
   }
 
-  if (normalized.length > MAX_WORKSPACE_NAME_LENGTH) {
-    return `Workspace name must be ${MAX_WORKSPACE_NAME_LENGTH} characters or fewer.`;
-  }
-
-  return "";
+  return result.error ?? "Workspace name must be 1-50 characters.";
 }
 
 function getWorkspaceCreationErrorMessage(error: unknown): string {
@@ -83,14 +79,13 @@ export default function CreateWorkspacePage() {
     setIsCheckingWorkspace(false);
   }, [existingWorkspaceId, isAuthLoading, router, user]);
 
-  const normalizedNameLength = workspaceName.trim().length;
+  const workspaceNameValidationResult = validateWorkspaceNameInput(workspaceName);
   const canSubmit =
     !!user &&
     !isAuthLoading &&
     !isCheckingWorkspace &&
     !isSubmitting &&
-    normalizedNameLength >= MIN_WORKSPACE_NAME_LENGTH &&
-    normalizedNameLength <= MAX_WORKSPACE_NAME_LENGTH;
+    workspaceNameValidationResult.valid;
 
   const handleWorkspaceNameChange = (value: string) => {
     setWorkspaceName(value);
@@ -102,7 +97,7 @@ export default function CreateWorkspacePage() {
       return;
     }
 
-    setNameError(validateWorkspaceName(value));
+    setNameError(getWorkspaceNameValidationError(value));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -112,7 +107,7 @@ export default function CreateWorkspacePage() {
       return;
     }
 
-    const validationError = validateWorkspaceName(workspaceName);
+    const validationError = getWorkspaceNameValidationError(workspaceName);
     setNameError(validationError);
 
     if (validationError) {

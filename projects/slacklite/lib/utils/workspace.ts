@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 
 import type { Channel } from "@/lib/types/models";
+import { validateWorkspaceName } from "@/lib/utils/validation";
 
 export const DEFAULT_GENERAL_CHANNEL_NAME = "general";
 
@@ -112,6 +113,12 @@ export async function createWorkspace({
   userId,
 }: CreateWorkspaceInput): Promise<CreateWorkspaceResult> {
   const normalizedWorkspaceName = normalizeRequiredString(name, "Workspace name");
+  const workspaceNameValidation = validateWorkspaceName(normalizedWorkspaceName);
+
+  if (!workspaceNameValidation.valid) {
+    throw new Error(workspaceNameValidation.error ?? "Workspace name must be 1-50 characters.");
+  }
+
   const normalizedUserId = normalizeRequiredString(userId, "userId");
   const workspaceRef = doc(collection(firestore, "workspaces"));
 

@@ -13,10 +13,9 @@ import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 import { Button, Input } from "@/components/ui";
 import { auth, firestore } from "@/lib/firebase/client";
+import { validateEmail as validateEmailInput } from "@/lib/utils/validation";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
-const EMAIL_ERROR_MESSAGE = "Please enter a valid email address";
 const PASSWORD_ERROR_MESSAGE = "Password must be at least 8 characters";
 const DEFAULT_SIGNUP_ERROR_MESSAGE = "Sign up failed. Please try again.";
 
@@ -38,12 +37,18 @@ function getSafeRedirectPath(value: string | null): string | null {
   return normalized;
 }
 
-const validateEmail = (value: string): string => {
-  if (!value) {
+const validateEmailField = (value: string, required = false): string => {
+  if (!required && value.trim().length === 0) {
     return "";
   }
 
-  return EMAIL_REGEX.test(value) ? "" : EMAIL_ERROR_MESSAGE;
+  const result = validateEmailInput(value);
+
+  if (result.valid) {
+    return "";
+  }
+
+  return result.error ?? "Enter a valid email address.";
 };
 
 const validatePassword = (value: string): string => {
@@ -87,7 +92,7 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const redirectPath = getSafeRedirectPath(searchParams.get("next"));
 
-  const emailIsValid = EMAIL_REGEX.test(email);
+  const emailIsValid = validateEmailInput(email).valid;
   const passwordIsValid = password.length >= MIN_PASSWORD_LENGTH;
   const canSubmit = emailIsValid && passwordIsValid && !loading;
 
@@ -96,7 +101,7 @@ export default function SignUpPage() {
     setErrorMessage("");
     setErrors((current) => ({
       ...current,
-      email: validateEmail(value),
+      email: validateEmailField(value),
     }));
   };
 
@@ -118,7 +123,7 @@ export default function SignUpPage() {
     const normalizedEmail = email.trim();
 
     const nextErrors = {
-      email: validateEmail(normalizedEmail),
+      email: validateEmailField(normalizedEmail, true),
       password: validatePassword(password),
     };
     setErrors(nextErrors);
