@@ -31,7 +31,7 @@ BUDGET_DISPLAY_NAME="${BUDGET_DISPLAY_NAME:-SlackLite Monthly Budget Alert}"
 BUDGET_AMOUNT="${BUDGET_AMOUNT:-500USD}"
 
 log() {
-  printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1"
+  printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" >&2
 }
 
 require_command() {

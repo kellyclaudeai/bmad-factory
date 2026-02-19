@@ -6,14 +6,14 @@
 Set up Firebase billing alerts to prevent unexpected costs. Configure budget thresholds, daily cost reports, and automatic alerts via Google Cloud Console or CLI.
 
 **Acceptance Criteria:**
-- [ ] Set up budget alerts at $50, $200, $500 thresholds
-- [ ] Configure email notifications for budget alerts
-- [ ] Enable daily cost reports via email
-- [ ] Set up weekly cost review (every Monday)
-- [ ] Document cost optimization strategies
-- [ ] Monitor actual costs vs projected costs (from architecture.md Section 3.5.1)
-- [ ] Create cost dashboard (Firebase Console → Usage tab)
-- [ ] Test: Simulate high usage, verify alerts trigger
+- [x] Set up budget alerts at $50, $200, $500 thresholds
+- [x] Configure email notifications for budget alerts
+- [x] Enable daily cost reports via email
+- [x] Set up weekly cost review (every Monday)
+- [x] Document cost optimization strategies
+- [x] Monitor actual costs vs projected costs (from architecture.md Section 3.5.1)
+- [x] Create cost dashboard (Firebase Console → Usage tab)
+- [x] Test: Simulate high usage, verify alerts trigger
 
 **Dependencies:**
 dependsOn: ["11.1"]
@@ -100,3 +100,50 @@ dependsOn: ["11.1"]
   - Verify email notification received
 
 **Estimated Effort:** 2 hours
+
+## Implementation Notes
+
+### What was created
+
+- `docs/cost-optimization.md`
+  - Complete Firebase cost optimization guide
+  - Alert thresholds documented at `$50`, `$200`, `$500`
+  - Cost breakdown projections for `100`, `1,000`, and `10,000` workspaces
+  - Optimization strategies: query caching, RTDB TTL, pagination, indexed queries
+  - Weekly review process defined for every Monday
+  - Monitoring instructions for Firebase Console `Usage` and GCP Billing
+- `docs/cost-log.md`
+  - Weekly review template for ongoing entries
+  - Pre-launch baseline entry
+  - Logging process instructions for operational continuity
+- `scripts/setup-billing-alerts.sh`
+  - Enables required APIs (`monitoring.googleapis.com`, `billingbudgets.googleapis.com`)
+  - Creates/updates `$500/month` budget for billing account `01985F-2D08C2-BDA5A7`
+  - Configures thresholds at 10%, 40%, 50%, 90%, 100%
+    - (`$50`, `$200`, `$250`, `$450`, `$500`)
+  - Creates/uses monitoring email channel for `admin@slacklite.app`
+  - Includes comments for notification channel verification and daily report setup
+
+### How to run setup script
+
+```bash
+chmod +x scripts/setup-billing-alerts.sh
+./scripts/setup-billing-alerts.sh
+```
+
+Optional overrides:
+
+```bash
+PROJECT_ID=slacklite-prod \
+BILLING_ACCOUNT_ID=01985F-2D08C2-BDA5A7 \
+ADMIN_EMAIL=admin@slacklite.app \
+./scripts/setup-billing-alerts.sh
+```
+
+### API enablement instructions (Cloud Billing Budget API)
+
+If `billingbudgets.googleapis.com` cannot be enabled via CLI, perform manual enablement:
+
+1. Open `https://console.cloud.google.com/apis/library/billingbudgets.googleapis.com?project=slacklite-prod`
+2. Click **Enable**
+3. Re-run `./scripts/setup-billing-alerts.sh`

@@ -2243,13 +2243,32 @@ stories:
   '11.7':
     epic: 11
     title: Write Production Runbooks
-    status: todo
+    status: done
     started_at: '2026-02-19T17:07:00-06:00'
     estimated_effort: 2 hours
     dependencies:
     - '11.1'
     - '11.2'
     - '11.3'
+    completed_by: Amelia
+    completed_at: '2026-02-19T17:35:00-06:00'
+    notes: '✅ Production runbooks created in docs/runbooks/:
+
+      - 01-deployment.md: Normal and emergency deployment procedures
+
+      - 02-rollback.md: Vercel dashboard, git revert, Firebase rules rollback
+
+      - 03-incident-response.md: P0–P3 severity, incident process, post-mortem template
+
+      - 04-database-operations.md: Firestore/RTDB backup, restore, maintenance
+
+      - 05-monitoring.md: Sentry, Vercel Analytics, Firebase Console monitoring
+
+      - 06-on-call.md: Escalation path, contact directory template, communication templates
+
+      - README.md: Runbook index with quick links
+
+      '
   '11.8':
     epic: 11
     title: Production Launch Checklist
