@@ -163,7 +163,7 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
     recordMessage,
     showRateLimitError,
     text,
-    trimmedText.length,
+    trimmedText,
   ]);
 
   const handleChange = useCallback(

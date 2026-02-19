@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useDirectMessages } from "@/lib/hooks/useDirectMessages";
+import { useUnreadCounts } from "@/lib/hooks/useUnreadCounts";
+import { Badge } from "@/components/ui/Badge";
 import { formatRelativeTime } from "@/lib/utils/formatting";
 
 export interface DMListProps {
@@ -15,6 +17,24 @@ export function DMList({ onDirectMessageSelect }: DMListProps) {
   const { dms, loading, error } = useDirectMessages();
   const pathname = usePathname();
   const [, setTick] = useState(0);
+
+  // Extract active DM ID from pathname (e.g., /app/dms/dm-123 → dm-123)
+  const activeDmId = useMemo(() => {
+    const dmPathPrefix = "/app/dms/";
+    if (!pathname.startsWith(dmPathPrefix)) {
+      return "";
+    }
+    return pathname.slice(dmPathPrefix.length).split("/")[0]?.trim() ?? "";
+  }, [pathname]);
+
+  // Get unread counts for DMs
+  // Note: Pass empty channels array since this is for DMs, not channels
+  // The hook subscribes to Firestore unreadCounts which includes both channels and DMs
+  const { unreadCounts } = useUnreadCounts({
+    channels: [],
+    activeTargetId: activeDmId,
+    activeTargetType: "dm",
+  });
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -60,6 +80,7 @@ export function DMList({ onDirectMessageSelect }: DMListProps) {
     <ul className="space-y-1">
       {dms.map((directMessage) => {
         const isActive = pathname === `/app/dms/${directMessage.dmId}`;
+        const unreadCount = unreadCounts[directMessage.dmId] ?? 0;
         const formattedLastMessageAt =
           directMessage.lastMessageAt
             ? formatRelativeTime(directMessage.lastMessageAt)
@@ -79,11 +100,16 @@ export function DMList({ onDirectMessageSelect }: DMListProps) {
               `}
             >
               <span className="truncate">{directMessage.otherUserName}</span>
-              {formattedLastMessageAt ? (
-                <span className="ml-2 flex-shrink-0 text-xs text-gray-600">
-                  {formattedLastMessageAt}
-                </span>
-              ) : null}
+              <div className="ml-2 flex flex-shrink-0 items-center gap-2">
+                {formattedLastMessageAt ? (
+                  <span className="text-xs text-gray-600">{formattedLastMessageAt}</span>
+                ) : null}
+                {unreadCount > 0 ? (
+                  <Badge size="sm" className="flex-shrink-0">
+                    {unreadCount}
+                  </Badge>
+                ) : null}
+              </div>
             </Link>
           </li>
         );

@@ -22,9 +22,18 @@ export interface MessageSender {
   userName: string;
 }
 
+export type RealtimeMessageTargetType = "channel" | "dm";
+
+export interface UseRealtimeMessagesOptions {
+  targetType?: RealtimeMessageTargetType;
+  rtdbThreadId?: string | null | undefined;
+  firestoreThreadId?: string | null | undefined;
+}
+
 interface QueuedFirestoreWrite {
   messageId: string;
   channelId: string;
+  targetType: RealtimeMessageTargetType;
   workspaceId: string;
   userId: string;
   userName: string;
@@ -57,15 +66,29 @@ const MAX_MESSAGE_LENGTH = 4000;
 const RTDB_MESSAGE_TTL_MS = 60 * 60 * 1000;
 const FIRESTORE_RETRY_INTERVAL_MS = 15_000;
 
-function toQueuedFirestoreWrite(message: Message): QueuedFirestoreWrite {
+function toQueuedFirestoreWrite(
+  message: Message,
+  targetType: RealtimeMessageTargetType,
+): QueuedFirestoreWrite {
   return {
     messageId: message.messageId,
     channelId: message.channelId,
+    targetType,
     workspaceId: message.workspaceId,
     userId: message.userId,
     userName: message.userName,
     text: message.text,
   };
+}
+
+function getFirestoreMessagesCollectionPath(
+  workspaceId: string,
+  channelId: string,
+  targetType: RealtimeMessageTargetType,
+): string {
+  const parentCollection = targetType === "dm" ? "directMessages" : "channels";
+
+  return `workspaces/${workspaceId}/${parentCollection}/${channelId}/messages`;
 }
 
 function upsertQueuedWrite(
@@ -138,6 +161,7 @@ export function useRealtimeMessages(
   workspaceId: string | null | undefined,
   channelId: string | null | undefined,
   sender: MessageSender | null | undefined,
+  options: UseRealtimeMessagesOptions = {},
 ): UseRealtimeMessagesResult {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -152,8 +176,13 @@ export function useRealtimeMessages(
   const [sendErrorBanner, setSendErrorBanner] = useState<string | null>(null);
   const [lastFailedSendText, setLastFailedSendText] = useState<string | null>(null);
   const [firestoreRetryQueue, setFirestoreRetryQueue] = useState<QueuedFirestoreWrite[]>([]);
+  const normalizedTargetType: RealtimeMessageTargetType =
+    options.targetType === "dm" ? "dm" : "channel";
   const normalizedWorkspaceId = workspaceId?.trim() ?? "";
-  const normalizedChannelId = channelId?.trim() ?? "";
+  const normalizedFirestoreChannelId =
+    options.firestoreThreadId?.trim() ?? channelId?.trim() ?? "";
+  const normalizedRTDBChannelId =
+    options.rtdbThreadId?.trim() ?? channelId?.trim() ?? "";
   const normalizedUserId = sender?.userId?.trim() ?? "";
   const normalizedUserName = sender?.userName?.trim() ?? "";
 
@@ -179,7 +208,11 @@ export function useRealtimeMessages(
       try {
         const messageDocRef = doc(
           firestore,
-          `workspaces/${queuedWrite.workspaceId}/channels/${queuedWrite.channelId}/messages/${queuedWrite.messageId}`,
+          `${getFirestoreMessagesCollectionPath(
+            queuedWrite.workspaceId,
+            queuedWrite.channelId,
+            queuedWrite.targetType,
+          )}/${queuedWrite.messageId}`,
         );
 
         await setDoc(messageDocRef, {
@@ -205,6 +238,7 @@ export function useRealtimeMessages(
             },
             extra: {
               channelId: queuedWrite.channelId,
+              targetType: queuedWrite.targetType,
               workspaceId: queuedWrite.workspaceId,
               messageId: queuedWrite.messageId,
             },
@@ -260,7 +294,7 @@ export function useRealtimeMessages(
 
   const sendWithOptimisticMessage = useCallback(
     async (optimisticMessage: Message): Promise<string> => {
-      const messagePathRef = ref(rtdb, `messages/${normalizedWorkspaceId}/${normalizedChannelId}`);
+      const messagePathRef = ref(rtdb, `messages/${normalizedWorkspaceId}/${normalizedRTDBChannelId}`);
       const nextMessageRef = push(messagePathRef);
       const serverMessageId = nextMessageRef.key;
 
@@ -319,7 +353,9 @@ export function useRealtimeMessages(
       logDeliveryLatency(serverMessageId, sentAtMs);
 
       try {
-        await persistMessageToFirestore(toQueuedFirestoreWrite(confirmedMessage));
+        await persistMessageToFirestore(
+          toQueuedFirestoreWrite(confirmedMessage, normalizedTargetType),
+        );
       } catch {
         // RTDB delivery has already succeeded. Firestore failures are queued and surfaced as warnings.
       }
@@ -327,7 +363,8 @@ export function useRealtimeMessages(
       return serverMessageId;
     },
     [
-      normalizedChannelId,
+      normalizedRTDBChannelId,
+      normalizedTargetType,
       normalizedWorkspaceId,
       persistMessageToFirestore,
       rollbackOptimisticMessage,
@@ -348,7 +385,8 @@ export function useRealtimeMessages(
 
       if (
         normalizedWorkspaceId.length === 0 ||
-        normalizedChannelId.length === 0 ||
+        normalizedFirestoreChannelId.length === 0 ||
+        normalizedRTDBChannelId.length === 0 ||
         normalizedUserId.length === 0 ||
         normalizedUserName.length === 0
       ) {
@@ -359,7 +397,7 @@ export function useRealtimeMessages(
       const tempTimestamp = Timestamp.now();
       const optimisticMessage: Message = {
         messageId: tempId,
-        channelId: normalizedChannelId,
+        channelId: normalizedFirestoreChannelId,
         workspaceId: normalizedWorkspaceId,
         userId: normalizedUserId,
         userName: normalizedUserName,
@@ -375,7 +413,8 @@ export function useRealtimeMessages(
       return sendWithOptimisticMessage(optimisticMessage);
     },
     [
-      normalizedChannelId,
+      normalizedFirestoreChannelId,
+      normalizedRTDBChannelId,
       normalizedUserId,
       normalizedUserName,
       normalizedWorkspaceId,
@@ -447,14 +486,18 @@ export function useRealtimeMessages(
     setSendErrorBanner(null);
     setLastFailedSendText(null);
 
-    if (normalizedWorkspaceId.length === 0 || normalizedChannelId.length === 0) {
+    if (
+      normalizedWorkspaceId.length === 0 ||
+      normalizedFirestoreChannelId.length === 0 ||
+      normalizedRTDBChannelId.length === 0
+    ) {
       setLoading(false);
       return;
     }
 
     setLoading(true);
 
-    const messagesRef = ref(rtdb, `messages/${normalizedWorkspaceId}/${normalizedChannelId}`);
+    const messagesRef = ref(rtdb, `messages/${normalizedWorkspaceId}/${normalizedRTDBChannelId}`);
     const connectedRef = ref(rtdb, ".info/connected");
 
     const handleConnectionState = (snapshot: DataSnapshot): void => {
@@ -524,7 +567,7 @@ export function useRealtimeMessages(
       const messageTimestamp = Timestamp.fromMillis(rtdbMessage.timestamp);
       const realtimeMessage: Message = {
         messageId,
-        channelId: normalizedChannelId,
+        channelId: normalizedFirestoreChannelId,
         workspaceId: normalizedWorkspaceId,
         userId: rtdbMessage.userId,
         userName: rtdbMessage.userName,
@@ -551,7 +594,7 @@ export function useRealtimeMessages(
       off(messagesRef, "child_added", handleNewMessage);
       off(connectedRef, "value", handleConnectionState);
     };
-  }, [normalizedChannelId, normalizedWorkspaceId]);
+  }, [normalizedFirestoreChannelId, normalizedRTDBChannelId, normalizedWorkspaceId]);
 
   return {
     messages,

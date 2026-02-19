@@ -19,6 +19,11 @@ import { firestore } from "@/lib/firebase/client";
 import type { Message } from "@/lib/types/models";
 
 const PAGE_SIZE = 50;
+type MessageTargetType = "channel" | "dm";
+
+export interface UseMessagesOptions {
+  targetType?: MessageTargetType;
+}
 
 export interface UseMessagesResult {
   messages: Message[];
@@ -58,7 +63,20 @@ function mapMessages(snapshotDocs: QueryDocumentSnapshot<DocumentData>[]): Messa
     .filter((message): message is Message => message !== null);
 }
 
-export function useMessages(channelId: string): UseMessagesResult {
+function getMessagesCollectionPath(
+  workspaceId: string,
+  targetId: string,
+  targetType: MessageTargetType,
+): string {
+  const parentCollection = targetType === "dm" ? "directMessages" : "channels";
+
+  return `workspaces/${workspaceId}/${parentCollection}/${targetId}/messages`;
+}
+
+export function useMessages(
+  targetId: string,
+  options: UseMessagesOptions = {},
+): UseMessagesResult {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,9 +86,11 @@ export function useMessages(channelId: string): UseMessagesResult {
   const [loadingMore, setLoadingMore] = useState(false);
   const hasLoadedMoreRef = useRef(false);
   const loadingMoreRef = useRef(false);
+  const normalizedTargetType: MessageTargetType =
+    options.targetType === "dm" ? "dm" : "channel";
   const workspaceId =
     typeof user?.workspaceId === "string" ? user.workspaceId.trim() : "";
-  const normalizedChannelId = channelId.trim();
+  const normalizedTargetId = targetId.trim();
 
   useEffect(() => {
     loadingMoreRef.current = loadingMore;
@@ -79,7 +99,7 @@ export function useMessages(channelId: string): UseMessagesResult {
   const loadMore = useCallback(async (): Promise<void> => {
     if (
       workspaceId.length === 0 ||
-      normalizedChannelId.length === 0 ||
+      normalizedTargetId.length === 0 ||
       !hasMore ||
       loadingMoreRef.current ||
       !lastVisible
@@ -95,7 +115,11 @@ export function useMessages(channelId: string): UseMessagesResult {
     try {
       const messagesRef = collection(
         firestore,
-        `workspaces/${workspaceId}/channels/${normalizedChannelId}/messages`,
+        getMessagesCollectionPath(
+          workspaceId,
+          normalizedTargetId,
+          normalizedTargetType,
+        ),
       );
       const messagesQuery = query(
         messagesRef,
@@ -126,7 +150,13 @@ export function useMessages(channelId: string): UseMessagesResult {
       setLoadingMore(false);
       loadingMoreRef.current = false;
     }
-  }, [hasMore, lastVisible, normalizedChannelId, workspaceId]);
+  }, [
+    hasMore,
+    lastVisible,
+    normalizedTargetId,
+    normalizedTargetType,
+    workspaceId,
+  ]);
 
   useEffect(() => {
     setLoading(true);
@@ -138,7 +168,7 @@ export function useMessages(channelId: string): UseMessagesResult {
     hasLoadedMoreRef.current = false;
     loadingMoreRef.current = false;
 
-    if (workspaceId.length === 0 || normalizedChannelId.length === 0) {
+    if (workspaceId.length === 0 || normalizedTargetId.length === 0) {
       setLoading(false);
       setHasMore(false);
       return;
@@ -146,7 +176,7 @@ export function useMessages(channelId: string): UseMessagesResult {
 
     const messagesRef = collection(
       firestore,
-      `workspaces/${workspaceId}/channels/${normalizedChannelId}/messages`,
+      getMessagesCollectionPath(workspaceId, normalizedTargetId, normalizedTargetType),
     );
     const messagesQuery = query(
       messagesRef,
@@ -189,7 +219,7 @@ export function useMessages(channelId: string): UseMessagesResult {
     return () => {
       unsubscribeFirestore();
     };
-  }, [normalizedChannelId, workspaceId]);
+  }, [normalizedTargetId, normalizedTargetType, workspaceId]);
 
   return { messages, loading, error, loadMore, hasMore, loadingMore };
 }

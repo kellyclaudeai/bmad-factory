@@ -6,11 +6,11 @@
 Display unread message counts in DM list (same badge as channels). Full implementation in Epic 6, this story sets up structure and placeholder UI.
 
 **Acceptance Criteria:**
-- [ ] DM list item includes unread badge (Primary Brand background, white text, right-aligned)
-- [ ] Badge shows number: e.g., "[2]"
-- [ ] Badge hidden if count = 0
-- [ ] Data structure prepared (unread counts stored in `/unreadCounts/{userId}_{dmId}`)
-- [ ] Full unread logic implemented in Story 6.4
+- [x] DM list item includes unread badge (Primary Brand background, white text, right-aligned)
+- [x] Badge shows number: e.g., "[2]"
+- [x] Badge hidden if count = 0
+- [x] Data structure prepared (unread counts stored in `/unreadCounts/{userId}_{dmId}`)
+- [x] Full unread logic implemented in Story 6.4
 
 **Dependencies:**
 dependsOn: ["5.3"]
