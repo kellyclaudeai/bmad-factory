@@ -4,8 +4,12 @@
 .env.*.local
 .env.oauth
 
-# Node modules
+# Node modules and package manager caches
 node_modules/
+.pnpm-store/
+.yarn/
+.npm/
+.cache/
 
 # Build outputs
 .next/
