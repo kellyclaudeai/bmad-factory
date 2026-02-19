@@ -1517,6 +1517,8 @@ stories:
     epic: 8
     title: "Mobile-Friendly Top Bar"
     status: done
+    completed_at: "2026-02-19T15:27:00-06:00"
+    completed_by: "Amelia"
     started_at: "2026-02-19T15:20:00-06:00"
     completed_by: "Amelia"
     completed_at: "2026-02-19T15:21:00-06:00"
