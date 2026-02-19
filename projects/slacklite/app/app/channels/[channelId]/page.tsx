@@ -1,11 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+
+import ChannelHeader from "@/components/features/channels/ChannelHeader";
+import RenameChannelModal from "@/components/features/channels/RenameChannelModal";
 import { MessageInput } from "@/components/features/messages/MessageInput";
-import { useRealtimeMessages } from "@/lib/hooks/useRealtimeMessages";
 import { useAuth } from "@/lib/contexts/AuthContext";
+import { firestore } from "@/lib/firebase/client";
+import { useChannels } from "@/lib/hooks/useChannels";
 import type { Message } from "@/lib/types/models";
+import { useWorkspaceOwnerId } from "@/lib/hooks/useWorkspaceOwnerId";
+import { useRealtimeMessages } from "@/lib/hooks/useRealtimeMessages";
+import { renameChannel } from "@/lib/utils/channels";
 
 const BOTTOM_THRESHOLD_PX = 100;
 
@@ -26,6 +33,18 @@ export default function ChannelPage() {
   const { user } = useAuth();
   const workspaceId =
     typeof user?.workspaceId === "string" ? user.workspaceId.trim() : "";
+  const { channels } = useChannels();
+  const { ownerId: workspaceOwnerId } = useWorkspaceOwnerId(workspaceId);
+  const currentChannel = useMemo(
+    () => channels.find((channel) => channel.channelId === channelId) ?? null,
+    [channelId, channels],
+  );
+  const channelName = currentChannel?.name ?? channelId;
+  const canRenameChannel = Boolean(
+    user?.uid &&
+      currentChannel &&
+      (currentChannel.createdBy === user.uid || workspaceOwnerId === user.uid),
+  );
   const userName =
     typeof user?.displayName === "string" && user.displayName.trim().length > 0
       ? user.displayName.trim()
@@ -54,6 +73,7 @@ export default function ChannelPage() {
   );
   const [isChannelSwitching, setIsChannelSwitching] = useState(false);
   const [showNewMessagesBadge, setShowNewMessagesBadge] = useState(false);
+  const [isRenameChannelModalOpen, setIsRenameChannelModalOpen] = useState(false);
   const messageListRef = useRef<HTMLDivElement>(null);
   const previousMessageCountRef = useRef(0);
   const wasAtBottomRef = useRef(true);
@@ -108,6 +128,7 @@ export default function ChannelPage() {
     previousMessageCountRef.current = 0;
     wasAtBottomRef.current = true;
     hasInitializedScrollRef.current = false;
+    setIsRenameChannelModalOpen(false);
 
     setIsChannelSwitching(true);
     const timer = setTimeout(() => {
@@ -143,6 +164,28 @@ export default function ChannelPage() {
     previousMessageCountRef.current = messages.length;
   }, [messages, scrollToBottom]);
 
+  const handleRenameChannel = useCallback(
+    async (newName: string): Promise<void> => {
+      if (!user?.uid || workspaceId.length === 0 || !currentChannel) {
+        throw new Error("Unable to rename channel. Please try again.");
+      }
+
+      await renameChannel({
+        firestore,
+        workspaceId,
+        channelId: currentChannel.channelId,
+        currentName: currentChannel.name,
+        newName,
+        userId: user.uid,
+        channelCreatedBy: currentChannel.createdBy,
+        workspaceOwnerId,
+      });
+
+      setIsRenameChannelModalOpen(false);
+    },
+    [currentChannel, user?.uid, workspaceId, workspaceOwnerId],
+  );
+
   if (!user) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -153,6 +196,14 @@ export default function ChannelPage() {
 
   return (
     <div className="flex h-full flex-col">
+      <ChannelHeader
+        channelName={channelName}
+        canRenameChannel={canRenameChannel}
+        onRenameChannel={() => {
+          setIsRenameChannelModalOpen(true);
+        }}
+      />
+
       {/* Message List */}
       <div className="relative flex-1">
         <div
@@ -299,6 +350,15 @@ export default function ChannelPage() {
 
       {/* Message Input */}
       <MessageInput channelId={channelId} onSend={sendMessage} />
+
+      <RenameChannelModal
+        channel={currentChannel}
+        isOpen={isRenameChannelModalOpen}
+        onClose={() => {
+          setIsRenameChannelModalOpen(false);
+        }}
+        onRename={handleRenameChannel}
+      />
     </div>
   );
 }

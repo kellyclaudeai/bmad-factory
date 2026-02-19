@@ -565,9 +565,10 @@ stories:
   "3.8":
     epic: 3
     title: "Implement Channel Deletion"
-    status: todo
+    status: in_progress
     estimated_effort: "2 hours"
     dependencies: ["3.5"]
+    started_at: "2026-02-19T15:04:00-06:00"
   
   "3.9":
     epic: 3
@@ -933,9 +934,10 @@ stories:
   "4.9":
     epic: 4
     title: "Add Message Character Limit Validation"
-    status: todo
+    status: in_progress
     estimated_effort: "1 hour"
     dependencies: ["4.2"]
+    started_at: "2026-02-19T15:04:00-06:00"
   
   # Epic 5: Direct Messages (1-on-1)
   "5.1":

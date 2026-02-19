@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -9,31 +9,57 @@ import {
   formatChannelNameInput,
   getChannelNameValidationError,
 } from "@/lib/utils/channelName";
+import { isGeneralChannelName } from "@/lib/utils/workspace";
 
-export interface CreateChannelModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onCreate: (name: string) => Promise<void>;
+interface ChannelIdentity {
+  channelId: string;
+  name: string;
 }
 
-export default function CreateChannelModal({
+export interface RenameChannelModalProps {
+  channel: ChannelIdentity | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onRename: (newName: string) => Promise<void>;
+}
+
+export default function RenameChannelModal({
+  channel,
   isOpen,
   onClose,
-  onCreate,
-}: CreateChannelModalProps) {
+  onRename,
+}: RenameChannelModalProps) {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
+
+  const isGeneralChannel = useMemo(() => {
+    if (!channel) {
+      return false;
+    }
+
+    return isGeneralChannelName(channel.name);
+  }, [channel]);
 
   useEffect(() => {
     if (!isOpen) {
       setName("");
       setError("");
       setErrorMessage("");
-      setIsCreating(false);
+      setIsRenaming(false);
+      return;
     }
-  }, [isOpen]);
+
+    if (!channel) {
+      return;
+    }
+
+    setName(channel.name);
+    setError("");
+    setErrorMessage("");
+    setIsRenaming(false);
+  }, [channel, isOpen]);
 
   const handleNameChange = (value: string) => {
     const formatted = formatChannelNameInput(value);
@@ -48,24 +74,29 @@ export default function CreateChannelModal({
     setError(getChannelNameValidationError(formatted));
   };
 
-  const handleCreate = async () => {
-    if (!isValid || isCreating) {
+  const handleRename = async () => {
+    if (!channel || !isValid || isRenaming) {
       return;
     }
 
-    setIsCreating(true);
+    if (isGeneralChannel) {
+      setErrorMessage("Cannot rename #general channel");
+      return;
+    }
+
+    setIsRenaming(true);
     setErrorMessage("");
 
     try {
-      await onCreate(name);
+      await onRename(name);
     } catch (err) {
       const message =
         err instanceof Error && err.message.trim().length > 0
           ? err.message
-          : "Unable to create channel. Please try again.";
+          : "Unable to rename channel. Please try again.";
       setErrorMessage(message);
     } finally {
-      setIsCreating(false);
+      setIsRenaming(false);
     }
   };
 
@@ -73,7 +104,7 @@ export default function CreateChannelModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <h3 className="mb-4 text-xl font-semibold text-gray-900">Create a Channel</h3>
+      <h3 className="mb-4 text-xl font-semibold text-gray-900">Rename Channel</h3>
 
       {errorMessage && (
         <div className="mb-4 rounded bg-error px-4 py-3 text-sm text-white">
@@ -82,19 +113,19 @@ export default function CreateChannelModal({
       )}
 
       <div className="mb-4">
-        <label htmlFor="create-channel-name" className="mb-2 block text-sm font-medium text-gray-900">
+        <label htmlFor="rename-channel-name" className="mb-2 block text-sm font-medium text-gray-900">
           Name
         </label>
         <div className="flex items-center">
           <span className="mr-2 text-gray-700">#</span>
           <Input
-            id="create-channel-name"
+            id="rename-channel-name"
             value={name}
             onChange={(event) => handleNameChange(event.target.value)}
             placeholder="channel-name"
             error={error || undefined}
             autoFocus
-            disabled={isCreating}
+            disabled={isRenaming}
           />
         </div>
         <p className="mt-2 text-xs text-gray-700">
@@ -103,11 +134,11 @@ export default function CreateChannelModal({
       </div>
 
       <div className="flex justify-end gap-3">
-        <Button type="button" variant="secondary" onClick={onClose} disabled={isCreating}>
+        <Button type="button" variant="secondary" onClick={onClose} disabled={isRenaming}>
           Cancel
         </Button>
-        <Button type="button" variant="primary" onClick={handleCreate} disabled={!isValid || isCreating}>
-          {isCreating ? "Creating..." : "Create"}
+        <Button type="button" variant="primary" onClick={handleRename} disabled={!isValid || isRenaming}>
+          {isRenaming ? "Renaming..." : "Rename"}
         </Button>
       </div>
     </Modal>

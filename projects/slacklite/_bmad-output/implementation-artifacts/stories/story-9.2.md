@@ -6,17 +6,17 @@
 Test Realtime Database security rules using Firebase Emulator and CLI validation. Ensure message delivery security and workspace isolation with automated tests.
 
 **Acceptance Criteria:**
-- [ ] Create RTDB rules test file: `tests/database.rules.spec.ts`
-- [ ] Run tests: `firebase emulators:exec --only database "npm test"`
-- [ ] Test scenarios:
-  - [ ] User can write messages to their workspace channels
-  - [ ] User CANNOT write messages to other workspace channels
-  - [ ] User can read messages from their workspace channels
-  - [ ] User CANNOT read messages from other workspace channels
-  - [ ] Message text length validation (1-4000 chars)
-  - [ ] Message structure validation (all required fields)
-- [ ] All tests pass with 100% coverage
-- [ ] CI/CD integration: RTDB security tests run on every PR
+- [x] Create RTDB rules test file: `tests/database.rules.spec.ts`
+- [x] Run tests: `firebase emulators:exec --only database "npm test -- tests/database.rules.spec.ts"`
+- [x] Test scenarios:
+  - [x] User can write messages to their workspace channels
+  - [x] User CANNOT write messages to other workspace channels
+  - [x] User can read messages from their workspace channels
+  - [x] User CANNOT read messages from other workspace channels
+  - [x] Message text length validation (1-4000 chars)
+  - [x] Message structure validation (all required fields)
+- [x] All tests pass with 100% coverage
+- [x] CI/CD integration: RTDB security tests run on every PR
 
 **Dependencies:**
 dependsOn: ["1.2"]

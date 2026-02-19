@@ -56,7 +56,9 @@ describe("Realtime Database security rules", () => {
   });
 
   afterAll(async () => {
-    await testEnv.cleanup();
+    if (testEnv) {
+      await testEnv.cleanup();
+    }
   });
 
   beforeEach(async () => {
