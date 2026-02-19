@@ -6,17 +6,17 @@
 Create utility functions for relative timestamps ("2 min ago", "Yesterday", "Jan 15"). Use throughout app (messages, sidebar, tooltips) with consistent formatting.
 
 **Acceptance Criteria:**
-- [ ] Install: `pnpm add date-fns`
-- [ ] Create `lib/utils/formatting.ts`
-- [ ] Function: `formatRelativeTime(timestamp: Timestamp): string`
-- [ ] Logic:
-  - [ ] <1 hour: "X min ago" (e.g., "2 min ago")
-  - [ ] <24 hours: "Today at HH:MM AM/PM" (e.g., "Today at 2:45 PM")
-  - [ ] Yesterday: "Yesterday at HH:MM AM/PM"
-  - [ ] <7 days: "Monday at HH:MM AM/PM"
-  - [ ] Older: "Jan 15" or "Jan 15, 2026" (include year if different)
-- [ ] Use in MessageItem, DM list, channel list (lastMessageAt)
-- [ ] Update every minute (useEffect interval) for "X min ago" to stay current
+- [x] Install: `pnpm add date-fns`
+- [x] Create `lib/utils/formatting.ts`
+- [x] Function: `formatRelativeTime(timestamp: Timestamp): string`
+- [x] Logic:
+  - [x] <1 hour: "X min ago" (e.g., "2 min ago")
+  - [x] <24 hours: "Today at HH:MM AM/PM" (e.g., "Today at 2:45 PM")
+  - [x] Yesterday: "Yesterday at HH:MM AM/PM"
+  - [x] <7 days: "Monday at HH:MM AM/PM"
+  - [x] Older: "Jan 15" or "Jan 15, 2026" (include year if different)
+- [x] Use in MessageItem, DM list, channel list (lastMessageAt)
+- [x] Update every minute (useEffect interval) for "X min ago" to stay current
 
 **Dependencies:**
 dependsOn: ["4.7"]

@@ -1,36 +1,146 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  collection,
+  getDocs,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+  startAfter,
+  type DocumentData,
+  type DocumentSnapshot,
+  type QueryDocumentSnapshot,
+} from "firebase/firestore";
 
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { firestore } from "@/lib/firebase/client";
 import type { Message } from "@/lib/types/models";
 
+const PAGE_SIZE = 50;
+
 export interface UseMessagesResult {
   messages: Message[];
   loading: boolean;
   error: Error | null;
+  loadMore: () => Promise<void>;
+  hasMore: boolean;
+  loadingMore: boolean;
+}
+
+function toError(error: unknown): Error {
+  if (error instanceof Error) {
+    return error;
+  }
+
+  return new Error("Failed to load messages.");
+}
+
+function mapMessages(snapshotDocs: QueryDocumentSnapshot<DocumentData>[]): Message[] {
+  const seenMessageIds = new Set<string>();
+
+  return snapshotDocs
+    .map((documentSnapshot) => {
+      const messageId = documentSnapshot.id;
+
+      if (seenMessageIds.has(messageId)) {
+        return null;
+      }
+
+      seenMessageIds.add(messageId);
+
+      return {
+        messageId,
+        ...documentSnapshot.data(),
+      } as Message;
+    })
+    .filter((message): message is Message => message !== null);
 }
 
 export function useMessages(channelId: string): UseMessagesResult {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [, setSeenMessageIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [lastVisible, setLastVisible] = useState<DocumentSnapshot<DocumentData> | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const hasLoadedMoreRef = useRef(false);
+  const loadingMoreRef = useRef(false);
   const workspaceId =
     typeof user?.workspaceId === "string" ? user.workspaceId.trim() : "";
   const normalizedChannelId = channelId.trim();
 
   useEffect(() => {
+    loadingMoreRef.current = loadingMore;
+  }, [loadingMore]);
+
+  const loadMore = useCallback(async (): Promise<void> => {
+    if (
+      workspaceId.length === 0 ||
+      normalizedChannelId.length === 0 ||
+      !hasMore ||
+      loadingMoreRef.current ||
+      !lastVisible
+    ) {
+      return;
+    }
+
+    hasLoadedMoreRef.current = true;
+    loadingMoreRef.current = true;
+    setLoadingMore(true);
+    setError(null);
+
+    try {
+      const messagesRef = collection(
+        firestore,
+        `workspaces/${workspaceId}/channels/${normalizedChannelId}/messages`,
+      );
+      const messagesQuery = query(
+        messagesRef,
+        orderBy("timestamp", "desc"),
+        startAfter(lastVisible),
+        limit(PAGE_SIZE),
+      );
+      const snapshot = await getDocs(messagesQuery);
+      const olderMessages = mapMessages(snapshot.docs).reverse();
+
+      setMessages((previousMessages) => {
+        const existingIds = new Set(previousMessages.map((message) => message.messageId));
+        const uniqueOlderMessages = olderMessages.filter((message) => !existingIds.has(message.messageId));
+
+        return [...uniqueOlderMessages, ...previousMessages];
+      });
+
+      if (snapshot.empty || snapshot.docs.length < PAGE_SIZE) {
+        setHasMore(false);
+        setLastVisible(null);
+      } else {
+        setHasMore(true);
+        setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
+      }
+    } catch (loadMoreError) {
+      setError(toError(loadMoreError));
+    } finally {
+      setLoadingMore(false);
+      loadingMoreRef.current = false;
+    }
+  }, [hasMore, lastVisible, normalizedChannelId, workspaceId]);
+
+  useEffect(() => {
     setLoading(true);
     setError(null);
     setMessages([]);
-    setSeenMessageIds(new Set());
+    setLastVisible(null);
+    setHasMore(true);
+    setLoadingMore(false);
+    hasLoadedMoreRef.current = false;
+    loadingMoreRef.current = false;
 
     if (workspaceId.length === 0 || normalizedChannelId.length === 0) {
       setLoading(false);
+      setHasMore(false);
       return;
     }
 
@@ -47,29 +157,27 @@ export function useMessages(channelId: string): UseMessagesResult {
     const unsubscribeFirestore = onSnapshot(
       messagesQuery,
       (snapshot) => {
-        const nextSeenMessageIds = new Set<string>();
-        const firestoreMessages = snapshot.docs
-          .map((documentSnapshot) => {
-            const messageId = documentSnapshot.id;
+        const newestMessages = mapMessages(snapshot.docs).reverse();
+        const newestMessageIds = new Set(newestMessages.map((message) => message.messageId));
 
-            if (nextSeenMessageIds.has(messageId)) {
-              return null;
-            }
+        setMessages((previousMessages) => {
+          const olderMessages = previousMessages.filter(
+            (message) => !newestMessageIds.has(message.messageId),
+          );
 
-            nextSeenMessageIds.add(messageId);
-            const data = documentSnapshot.data();
+          return [...olderMessages, ...newestMessages];
+        });
 
-            return {
-              messageId,
-              ...data,
-            } as Message;
-          })
-          .filter((message): message is Message => message !== null);
+        if (!hasLoadedMoreRef.current) {
+          if (snapshot.docs.length < PAGE_SIZE) {
+            setHasMore(false);
+            setLastVisible(null);
+          } else {
+            setHasMore(true);
+            setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
+          }
+        }
 
-        const sortedMessages = firestoreMessages.reverse();
-
-        setSeenMessageIds(nextSeenMessageIds);
-        setMessages(sortedMessages);
         setLoading(false);
       },
       (snapshotError) => {
@@ -83,5 +191,5 @@ export function useMessages(channelId: string): UseMessagesResult {
     };
   }, [normalizedChannelId, workspaceId]);
 
-  return { messages, loading, error };
+  return { messages, loading, error, loadMore, hasMore, loadingMore };
 }

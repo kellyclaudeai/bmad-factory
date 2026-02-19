@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useDirectMessages } from "@/lib/hooks/useDirectMessages";
+import { formatRelativeTime } from "@/lib/utils/formatting";
 
 export interface DMListProps {
   onDirectMessageSelect?: () => void;
@@ -12,6 +14,17 @@ export interface DMListProps {
 export function DMList({ onDirectMessageSelect }: DMListProps) {
   const { dms, loading, error } = useDirectMessages();
   const pathname = usePathname();
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setTick((tick) => tick + 1);
+    }, 60 * 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -47,6 +60,10 @@ export function DMList({ onDirectMessageSelect }: DMListProps) {
     <ul className="space-y-1">
       {dms.map((directMessage) => {
         const isActive = pathname === `/app/dms/${directMessage.dmId}`;
+        const formattedLastMessageAt =
+          directMessage.lastMessageAt
+            ? formatRelativeTime(directMessage.lastMessageAt)
+            : null;
 
         return (
           <li key={directMessage.dmId}>
@@ -54,7 +71,7 @@ export function DMList({ onDirectMessageSelect }: DMListProps) {
               href={`/app/dms/${directMessage.dmId}`}
               onClick={onDirectMessageSelect}
               className={`
-                flex w-full items-center rounded px-2 py-1.5 text-left text-sm transition-colors
+                flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-sm transition-colors
                 ${isActive
                   ? "bg-gray-300 border-l-4 border-primary-brand font-semibold text-gray-900"
                   : "text-gray-800 hover:bg-gray-200"
@@ -62,6 +79,11 @@ export function DMList({ onDirectMessageSelect }: DMListProps) {
               `}
             >
               <span className="truncate">{directMessage.otherUserName}</span>
+              {formattedLastMessageAt ? (
+                <span className="ml-2 flex-shrink-0 text-xs text-gray-600">
+                  {formattedLastMessageAt}
+                </span>
+              ) : null}
             </Link>
           </li>
         );
@@ -71,4 +93,3 @@ export function DMList({ onDirectMessageSelect }: DMListProps) {
 }
 
 export default DMList;
-
