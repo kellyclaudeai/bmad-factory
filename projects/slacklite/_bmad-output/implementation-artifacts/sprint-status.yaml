@@ -1032,10 +1032,43 @@ stories:
   "5.2":
     epic: 5
     title: "Implement Start DM Functionality"
-    status: in_progress
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["5.1"]
     started_at: "2026-02-19T15:07:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T15:15:00-06:00"
+    notes: |
+      ✅ Click-to-DM functionality complete - all acceptance criteria met
+      ✅ Created lib/actions/startDM.ts:
+         - Async function with DM lookup/creation logic
+         - Queries /workspaces/{workspaceId}/directMessages for existing DM
+         - array-contains query with both user IDs validation
+         - Creates new DM if not found with auto-generated dmId
+         - Sorted userIds array for consistency
+         - serverTimestamp() for createdAt, null for lastMessageAt
+         - Input validation and normalization
+      ✅ Updated components/features/sidebar/MemberList.tsx:
+         - Added onClick handler calling startDM action
+         - Loading state with spinner during check/create
+         - Disabled state for current user and during loading
+         - Navigation to /app/dms/{dmId} after success
+         - Error handling with console logging
+      ✅ Tests added:
+         - tests/unit/lib/startDM.test.ts (3 tests: existing DM, new DM, self-DM rejection)
+         - tests/unit/components/sidebar/MemberList.test.tsx (3 tests: click behavior, loading state, disabled state)
+         - All 6 tests passing
+      ✅ All acceptance criteria marked complete in story file
+      ✅ ESLint validation passed
+      
+      Files Changed:
+      - lib/actions/startDM.ts (new, 85 lines)
+      - components/features/sidebar/MemberList.tsx (updated with click handler and loading state)
+      - tests/unit/lib/startDM.test.ts (new, 135 lines)
+      - tests/unit/components/sidebar/MemberList.test.tsx (new, 128 lines)
+      - _bmad-output/implementation-artifacts/stories/story-5.2.md (criteria marked complete)
+      
+      Commit: 692977f (feat(5.2): Implement click-to-DM from member list)
   
   "5.3":
     epic: 5
@@ -1452,6 +1485,8 @@ stories:
     status: done
     estimated_effort: "4 hours"
     dependencies: ["10.1", "2.5", "3.2", "4.5", "6.1"]
+    completed_at: "2026-02-19T15:13:00-06:00"
+    completed_by: "Amelia"
     started_at: "2026-02-19T14:57:00-06:00"
     completed_by: "Amelia"
     completed_at: "2026-02-19T14:58:00-06:00"
