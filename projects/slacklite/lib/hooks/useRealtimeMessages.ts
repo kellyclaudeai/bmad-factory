@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import * as Sentry from "@sentry/nextjs";
 import {
   off,
   onChildAdded,
@@ -10,9 +11,9 @@ import {
   set,
   type DataSnapshot,
 } from "firebase/database";
-import { Timestamp } from "firebase/firestore";
+import { Timestamp, doc, serverTimestamp as firestoreServerTimestamp, setDoc } from "firebase/firestore";
 
-import { rtdb } from "@/lib/firebase/client";
+import { firestore, rtdb } from "@/lib/firebase/client";
 import { createRTDBMessage, type Message, type RTDBMessage } from "@/lib/types/models";
 
 export interface MessageSender {
@@ -20,12 +21,57 @@ export interface MessageSender {
   userName: string;
 }
 
+interface QueuedFirestoreWrite {
+  messageId: string;
+  channelId: string;
+  workspaceId: string;
+  userId: string;
+  userName: string;
+  text: string;
+}
+
+export interface FirestoreWarningBanner {
+  message: string;
+  messageId: string;
+  pendingCount: number;
+}
+
 export interface UseRealtimeMessagesResult {
   messages: Message[];
   loading: boolean;
   error: Error | null;
-  sendMessage: (text: string) => Promise<void>;
+  sendMessage: (text: string) => Promise<string>;
   retryMessage: (messageId: string) => Promise<void>;
+  sendErrorBanner: string | null;
+  retryLastSend: () => Promise<void>;
+  firestoreWarningBanner: FirestoreWarningBanner | null;
+  retryFirestoreWrite: (messageId: string) => Promise<void>;
+}
+
+const RTDB_SEND_ERROR_BANNER = "Message failed to send. Retry?";
+const FIRESTORE_PERSISTENCE_WARNING_BANNER =
+  "Message sent but not saved. It will disappear in 1 hour.";
+const RTDB_MESSAGE_TTL_MS = 60 * 60 * 1000;
+const FIRESTORE_RETRY_INTERVAL_MS = 15_000;
+
+function toQueuedFirestoreWrite(message: Message): QueuedFirestoreWrite {
+  return {
+    messageId: message.messageId,
+    channelId: message.channelId,
+    workspaceId: message.workspaceId,
+    userId: message.userId,
+    userName: message.userName,
+    text: message.text,
+  };
+}
+
+function upsertQueuedWrite(
+  queue: QueuedFirestoreWrite[],
+  queuedWrite: QueuedFirestoreWrite,
+): QueuedFirestoreWrite[] {
+  const withoutExisting = queue.filter((entry) => entry.messageId !== queuedWrite.messageId);
+
+  return [...withoutExisting, queuedWrite];
 }
 
 function isNonEmptyString(value: unknown): value is string {
@@ -97,7 +143,12 @@ export function useRealtimeMessages(
   const pendingServerIdsByTempIdRef = useRef<Map<string, string>>(new Map());
   const tempIdsByServerIdRef = useRef<Map<string, string>>(new Map());
   const messagesRef = useRef<Message[]>([]);
+  const firestoreRetryQueueRef = useRef<QueuedFirestoreWrite[]>([]);
+  const backgroundRetryInFlightRef = useRef(false);
   const isConnectedRef = useRef(false);
+  const [sendErrorBanner, setSendErrorBanner] = useState<string | null>(null);
+  const [lastFailedSendText, setLastFailedSendText] = useState<string | null>(null);
+  const [firestoreRetryQueue, setFirestoreRetryQueue] = useState<QueuedFirestoreWrite[]>([]);
   const normalizedWorkspaceId = workspaceId?.trim() ?? "";
   const normalizedChannelId = channelId?.trim() ?? "";
   const normalizedUserId = sender?.userId?.trim() ?? "";
@@ -107,81 +158,185 @@ export function useRealtimeMessages(
     messagesRef.current = messages;
   }, [messages]);
 
+  useEffect(() => {
+    firestoreRetryQueueRef.current = firestoreRetryQueue;
+  }, [firestoreRetryQueue]);
+
+  const rollbackOptimisticMessage = useCallback((optimisticMessageId: string): void => {
+    setMessages((previousMessages) =>
+      previousMessages.filter((message) => message.messageId !== optimisticMessageId),
+    );
+  }, []);
+
+  const persistMessageToFirestore = useCallback(
+    async (
+      queuedWrite: QueuedFirestoreWrite,
+      options: { captureException: boolean } = { captureException: true },
+    ): Promise<void> => {
+      try {
+        const messageDocRef = doc(
+          firestore,
+          `workspaces/${queuedWrite.workspaceId}/channels/${queuedWrite.channelId}/messages/${queuedWrite.messageId}`,
+        );
+
+        await setDoc(messageDocRef, {
+          messageId: queuedWrite.messageId,
+          channelId: queuedWrite.channelId,
+          workspaceId: queuedWrite.workspaceId,
+          userId: queuedWrite.userId,
+          userName: queuedWrite.userName,
+          text: queuedWrite.text,
+          timestamp: firestoreServerTimestamp(),
+          createdAt: firestoreServerTimestamp(),
+        });
+
+        setFirestoreRetryQueue((previousQueue) =>
+          previousQueue.filter((entry) => entry.messageId !== queuedWrite.messageId),
+        );
+      } catch (firestoreError) {
+        if (options.captureException) {
+          Sentry.captureException(firestoreError, {
+            tags: {
+              feature: "dual-write-messages",
+              provider: "firestore",
+            },
+            extra: {
+              channelId: queuedWrite.channelId,
+              workspaceId: queuedWrite.workspaceId,
+              messageId: queuedWrite.messageId,
+            },
+          });
+        }
+
+        setFirestoreRetryQueue((previousQueue) => upsertQueuedWrite(previousQueue, queuedWrite));
+        throw toError(firestoreError, "Failed to persist message to Firestore.");
+      }
+    },
+    [],
+  );
+
+  const retryQueuedFirestoreWrites = useCallback(async (): Promise<void> => {
+    if (backgroundRetryInFlightRef.current) {
+      return;
+    }
+
+    const queueSnapshot = firestoreRetryQueueRef.current;
+
+    if (queueSnapshot.length === 0) {
+      return;
+    }
+
+    backgroundRetryInFlightRef.current = true;
+
+    try {
+      for (const queuedWrite of queueSnapshot) {
+        try {
+          await persistMessageToFirestore(queuedWrite, { captureException: false });
+        } catch {
+          // Keep failed writes in queue for future retries.
+        }
+      }
+    } finally {
+      backgroundRetryInFlightRef.current = false;
+    }
+  }, [persistMessageToFirestore]);
+
+  useEffect(() => {
+    if (firestoreRetryQueue.length === 0) {
+      return;
+    }
+
+    const retryIntervalId = window.setInterval(() => {
+      void retryQueuedFirestoreWrites();
+    }, FIRESTORE_RETRY_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(retryIntervalId);
+    };
+  }, [firestoreRetryQueue.length, retryQueuedFirestoreWrites]);
+
   const sendWithOptimisticMessage = useCallback(
-    async (optimisticMessage: Message): Promise<void> => {
+    async (optimisticMessage: Message): Promise<string> => {
       const messagePathRef = ref(rtdb, `messages/${normalizedWorkspaceId}/${normalizedChannelId}`);
       const nextMessageRef = push(messagePathRef);
       const serverMessageId = nextMessageRef.key;
 
       if (!serverMessageId) {
-        setMessages((previousMessages) =>
-          previousMessages.map((message) =>
-            message.messageId === optimisticMessage.messageId
-              ? { ...message, status: "failed" }
-              : message,
-          ),
-        );
-        setError(new Error("Failed to generate a message ID."));
-        return;
+        rollbackOptimisticMessage(optimisticMessage.messageId);
+        setSendErrorBanner(RTDB_SEND_ERROR_BANNER);
+        setLastFailedSendText(optimisticMessage.text);
+        throw new Error("Failed to generate a message ID.");
       }
 
       pendingServerIdsByTempIdRef.current.set(optimisticMessage.messageId, serverMessageId);
       tempIdsByServerIdRef.current.set(serverMessageId, optimisticMessage.messageId);
 
+      const sentAtMs = Date.now();
+      const payload = createRTDBMessage(
+        {
+          userId: optimisticMessage.userId,
+          userName: optimisticMessage.userName,
+          text: optimisticMessage.text,
+        },
+        {
+          timestamp: sentAtMs,
+          ttlMs: RTDB_MESSAGE_TTL_MS,
+        },
+      );
+
       try {
-        const sentAtMs = Date.now();
-        const payload = createRTDBMessage(
-          {
-            userId: optimisticMessage.userId,
-            userName: optimisticMessage.userName,
-            text: optimisticMessage.text,
-          },
-          { timestamp: sentAtMs },
-        );
-
         await set(nextMessageRef, payload);
-
+      } catch (rtdbWriteError) {
         pendingServerIdsByTempIdRef.current.delete(optimisticMessage.messageId);
         tempIdsByServerIdRef.current.delete(serverMessageId);
-        seenMessageIdsRef.current.add(serverMessageId);
-        setError(null);
-
-        const serverTimestamp = Timestamp.fromMillis(sentAtMs);
-        setMessages((previousMessages) =>
-          previousMessages.map((message) =>
-            message.messageId === optimisticMessage.messageId
-              ? {
-                  ...message,
-                  messageId: serverMessageId,
-                  timestamp: serverTimestamp,
-                  createdAt: serverTimestamp,
-                  status: "sent",
-                }
-              : message,
-          ),
-        );
-      } catch (sendError) {
-        pendingServerIdsByTempIdRef.current.delete(optimisticMessage.messageId);
-        tempIdsByServerIdRef.current.delete(serverMessageId);
-        setMessages((previousMessages) =>
-          previousMessages.map((message) =>
-            message.messageId === optimisticMessage.messageId
-              ? { ...message, status: "failed" }
-              : message,
-          ),
-        );
-        setError(toError(sendError, "Failed to send message."));
+        rollbackOptimisticMessage(optimisticMessage.messageId);
+        setSendErrorBanner(RTDB_SEND_ERROR_BANNER);
+        setLastFailedSendText(optimisticMessage.text);
+        throw toError(rtdbWriteError, RTDB_SEND_ERROR_BANNER);
       }
+
+      pendingServerIdsByTempIdRef.current.delete(optimisticMessage.messageId);
+      tempIdsByServerIdRef.current.delete(serverMessageId);
+      seenMessageIdsRef.current.add(serverMessageId);
+
+      const confirmedTimestamp = Timestamp.fromMillis(sentAtMs);
+      const confirmedMessage: Message = {
+        ...optimisticMessage,
+        messageId: serverMessageId,
+        timestamp: confirmedTimestamp,
+        createdAt: confirmedTimestamp,
+        status: "sent",
+      };
+
+      setMessages((previousMessages) =>
+        previousMessages.map((message) =>
+          message.messageId === optimisticMessage.messageId ? confirmedMessage : message,
+        ),
+      );
+      logDeliveryLatency(serverMessageId, sentAtMs);
+
+      try {
+        await persistMessageToFirestore(toQueuedFirestoreWrite(confirmedMessage));
+      } catch {
+        // RTDB delivery has already succeeded. Firestore failures are queued and surfaced as warnings.
+      }
+
+      return serverMessageId;
     },
-    [normalizedChannelId, normalizedWorkspaceId],
+    [
+      normalizedChannelId,
+      normalizedWorkspaceId,
+      persistMessageToFirestore,
+      rollbackOptimisticMessage,
+    ],
   );
 
   const sendMessage = useCallback(
-    async (text: string): Promise<void> => {
+    async (text: string): Promise<string> => {
       const trimmedText = text.trim();
 
       if (trimmedText.length === 0) {
-        return;
+        return "";
       }
 
       if (
@@ -190,8 +345,7 @@ export function useRealtimeMessages(
         normalizedUserId.length === 0 ||
         normalizedUserName.length === 0
       ) {
-        setError(new Error("Missing workspace, channel, or user details."));
-        return;
+        throw new Error("Missing workspace, channel, or user details.");
       }
 
       const tempId = `temp_${Date.now()}`;
@@ -208,9 +362,10 @@ export function useRealtimeMessages(
         status: "sending",
       };
 
-      setError(null);
+      setSendErrorBanner(null);
+      setLastFailedSendText(null);
       setMessages((previousMessages) => [...previousMessages, optimisticMessage]);
-      await sendWithOptimisticMessage(optimisticMessage);
+      return sendWithOptimisticMessage(optimisticMessage);
     },
     [
       normalizedChannelId,
@@ -239,7 +394,7 @@ export function useRealtimeMessages(
         status: "sending",
       };
 
-      setError(null);
+      setSendErrorBanner(null);
       setMessages((previousMessages) =>
         previousMessages.map((message) =>
           message.messageId === messageId ? retryMessageRecord : message,
@@ -250,6 +405,31 @@ export function useRealtimeMessages(
     [sendWithOptimisticMessage],
   );
 
+  const retryLastSend = useCallback(async (): Promise<void> => {
+    if (!lastFailedSendText) {
+      return;
+    }
+
+    await sendMessage(lastFailedSendText);
+  }, [lastFailedSendText, sendMessage]);
+
+  const retryFirestoreWrite = useCallback(
+    async (messageId: string): Promise<void> => {
+      const queuedWrite = firestoreRetryQueueRef.current.find((entry) => entry.messageId === messageId);
+
+      if (!queuedWrite) {
+        return;
+      }
+
+      try {
+        await persistMessageToFirestore(queuedWrite);
+      } catch {
+        // Preserve warning state while write remains queued.
+      }
+    },
+    [persistMessageToFirestore],
+  );
+
   useEffect(() => {
     seenMessageIdsRef.current.clear();
     pendingServerIdsByTempIdRef.current.clear();
@@ -257,6 +437,8 @@ export function useRealtimeMessages(
     isConnectedRef.current = false;
     setMessages([]);
     setError(null);
+    setSendErrorBanner(null);
+    setLastFailedSendText(null);
 
     if (normalizedWorkspaceId.length === 0 || normalizedChannelId.length === 0) {
       setLoading(false);
@@ -370,5 +552,16 @@ export function useRealtimeMessages(
     error,
     sendMessage,
     retryMessage,
+    sendErrorBanner,
+    retryLastSend,
+    firestoreWarningBanner:
+      firestoreRetryQueue.length > 0
+        ? {
+            message: FIRESTORE_PERSISTENCE_WARNING_BANNER,
+            messageId: firestoreRetryQueue[0].messageId,
+            pendingCount: firestoreRetryQueue.length,
+          }
+        : null,
+    retryFirestoreWrite,
   };
 }

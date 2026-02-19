@@ -6,14 +6,14 @@
 Show 10px colored dots next to usernames in member list and DM headers. Green = online, gray = offline with proper real-time updates.
 
 **Acceptance Criteria:**
-- [ ] Create `components/ui/OnlineIndicator.tsx`
-- [ ] Props: `isOnline: boolean`
-- [ ] Render: 10px circle, green (#2EB67D) if online, gray (#868686) if offline
-- [ ] 2px white border (separation from background)
-- [ ] Positioned: Bottom-right of avatar or inline before name
-- [ ] Member list: Show indicator next to each member's name
-- [ ] DM header: Show indicator next to other user's name
-- [ ] Updates in real-time (subscribe to `/presence/{userId}`)
+- [x] Create `components/ui/OnlineIndicator.tsx`
+- [x] Props: `isOnline: boolean`
+- [x] Render: 10px circle, green (#2EB67D) if online, gray (#868686) if offline
+- [x] 2px white border (separation from background)
+- [x] Positioned: Bottom-right of avatar or inline before name
+- [x] Member list: Show indicator next to each member's name
+- [x] DM header: Show indicator next to other user's name
+- [x] Updates in real-time (via `useWorkspaceMembers` Firestore `users.isOnline` subscription)
 
 **Dependencies:**
 dependsOn: ["6.1", "5.1"]

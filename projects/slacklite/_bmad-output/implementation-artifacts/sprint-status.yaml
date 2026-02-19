@@ -966,9 +966,10 @@ stories:
   "6.4":
     epic: 6
     title: "Implement Unread Message Counts"
-    status: todo
+    status: in_progress
     estimated_effort: "3 hours"
     dependencies: ["4.5"]
+    started_at: "2026-02-19T14:47:00-06:00"
   
   "6.4.1":
     epic: 6
@@ -1064,9 +1065,10 @@ stories:
   "8.2":
     epic: 8
     title: "Optimize Message Input for Mobile"
-    status: todo
+    status: in_progress
     estimated_effort: "2 hours"
     dependencies: ["4.2"]
+    started_at: "2026-02-19T14:47:00-06:00"
   
   "8.3":
     epic: 8

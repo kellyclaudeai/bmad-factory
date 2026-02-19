@@ -6,14 +6,14 @@
 Automatically scroll to bottom when new messages arrive (if user is already at bottom). Show "New messages" badge if user scrolled up with proper user control.
 
 **Acceptance Criteria:**
-- [ ] Detect scroll position: Check if scrollTop + clientHeight ≈ scrollHeight (within 100px of bottom)
-- [ ] On new message:
-  - [ ] If at bottom: Auto-scroll to bottom (`scrollIntoView` or `scrollTo`)
-  - [ ] If scrolled up: Show "New messages ↓" badge (Primary Brand background, bottom-right corner, 32px height)
-- [ ] Badge click: Scroll to bottom, hide badge
-- [ ] Badge auto-hides when user manually scrolls to bottom
-- [ ] Smooth scrolling: `behavior: 'smooth'` (optional, depends on UX preference)
-- [ ] Works on initial load (scroll to bottom when channel first loaded)
+- [x] Detect scroll position: Check if scrollTop + clientHeight ≈ scrollHeight (within 100px of bottom)
+- [x] On new message:
+  - [x] If at bottom: Auto-scroll to bottom (`scrollIntoView` or `scrollTo`)
+  - [x] If scrolled up: Show "New messages ↓" badge (Primary Brand background, bottom-right corner, 32px height)
+- [x] Badge click: Scroll to bottom, hide badge
+- [x] Badge auto-hides when user manually scrolls to bottom
+- [x] Smooth scrolling: `behavior: 'smooth'` (optional, depends on UX preference)
+- [x] Works on initial load (scroll to bottom when channel first loaded)
 
 **Dependencies:**
 dependsOn: ["4.7"]

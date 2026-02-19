@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { Avatar } from "@/components/ui/Avatar";
+import OnlineIndicator from "@/components/ui/OnlineIndicator";
 
 type LastSeenAtValue =
   | Date
@@ -75,13 +76,9 @@ export function MemberList({ members, currentUserId, className = "" }: MemberLis
           >
             <div className="relative">
               <Avatar alt={member.displayName} fallbackText={member.displayName} size="sm" />
-              <span
-                aria-label={member.isOnline ? "Online" : "Offline"}
-                role="status"
-                className={`absolute bottom-0 right-0 inline-block h-2.5 w-2.5 rounded-full border-2 border-white ${
-                  member.isOnline ? "bg-[#2EB67D]" : "bg-[#868686]"
-                }`}
-              />
+              <span className="absolute bottom-0 right-0">
+                <OnlineIndicator isOnline={member.isOnline} />
+              </span>
             </div>
             <span className="text-sm text-gray-900">
               {member.displayName}
