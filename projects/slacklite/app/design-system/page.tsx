@@ -83,14 +83,42 @@ export default function DesignSystemPage() {
           <div>
             <h3 className="mb-3 text-lg font-medium text-gray-800">Gray Scale</h3>
             <div className="flex gap-2">
-              {[900, 800, 700, 600, 500, 400, 300, 200, 100].map((shade) => (
-                <div key={shade} className="flex flex-col items-center">
-                  <div
-                    className={`h-12 w-12 rounded-lg bg-gray-${shade} ${shade < 500 ? "" : "border border-gray-400"}`}
-                  />
-                  <span className="mt-1 text-xs">{shade}</span>
-                </div>
-              ))}
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 rounded-lg bg-gray-900" />
+                <span className="mt-1 text-xs">900</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 rounded-lg bg-gray-800" />
+                <span className="mt-1 text-xs">800</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 rounded-lg bg-gray-700" />
+                <span className="mt-1 text-xs">700</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 rounded-lg bg-gray-600" />
+                <span className="mt-1 text-xs">600</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 rounded-lg bg-gray-500 border border-gray-400" />
+                <span className="mt-1 text-xs">500</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 rounded-lg bg-gray-400 border border-gray-400" />
+                <span className="mt-1 text-xs">400</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 rounded-lg bg-gray-300 border border-gray-400" />
+                <span className="mt-1 text-xs">300</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 rounded-lg bg-gray-200 border border-gray-400" />
+                <span className="mt-1 text-xs">200</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 rounded-lg bg-gray-100 border border-gray-400" />
+                <span className="mt-1 text-xs">100</span>
+              </div>
             </div>
           </div>
         </section>

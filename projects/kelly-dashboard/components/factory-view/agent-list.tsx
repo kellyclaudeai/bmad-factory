@@ -38,11 +38,11 @@ function groupSessions(sessions: Session[]): GroupedSessions {
   }
   
   sessions.forEach((session) => {
-    if (session.agentType.includes('project-lead')) {
+    if (session.agentType?.includes('project-lead')) {
       groups.projectLeads.push(session)
-    } else if (session.agentType.includes('barry')) {
+    } else if (session.agentType?.includes('barry')) {
       groups.barry.push(session)
-    } else if (session.agentType.includes('mary')) {
+    } else if (session.agentType?.includes('mary')) {
       groups.mary.push(session)
     } else {
       groups.independent.push(session)

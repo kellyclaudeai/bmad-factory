@@ -16,7 +16,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       secondary:
         "bg-transparent text-gray-700 border border-gray-600 hover:bg-gray-200 focus:ring-gray-600",
       destructive:
-        "bg-error text-white hover:bg-red-600 focus:ring-error",
+        "bg-error text-white hover:opacity-90 focus:ring-error",
     };
 
     const sizeStyles = {

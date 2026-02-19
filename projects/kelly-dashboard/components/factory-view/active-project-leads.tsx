@@ -66,15 +66,15 @@ function inferProjectOneLiner(projectId: string): string {
   const id = projectId.toLowerCase();
 
   // Try a few common patterns (good enough for a dashboard scanline).
-  if (id.includes("meeting") && id.includes("time")) return "Schedule + track meeting time";
-  if (id.includes("meeting")) return "Meeting scheduling";
-  if (id.includes("fasting")) return "Fasting timer + streak tracking";
-  if (id.includes("hydration")) return "Hydration tracking";
-  if (id.includes("bug") && id.includes("dictionary")) return "Bug dictionary / lookup";
-  if (id.includes("dictionary")) return "Reference / lookup tool";
-  if (id.includes("dashboard")) return "Factory dashboard / monitoring UI";
-  if (id.includes("tracker")) return "A lightweight tracking app";
-  if (id.includes("timer")) return "A simple timer utility";
+  if (id?.includes("meeting") && id?.includes("time")) return "Schedule + track meeting time";
+  if (id?.includes("meeting")) return "Meeting scheduling";
+  if (id?.includes("fasting")) return "Fasting timer + streak tracking";
+  if (id?.includes("hydration")) return "Hydration tracking";
+  if (id?.includes("bug") && id?.includes("dictionary")) return "Bug dictionary / lookup";
+  if (id?.includes("dictionary")) return "Reference / lookup tool";
+  if (id?.includes("dashboard")) return "Factory dashboard / monitoring UI";
+  if (id?.includes("tracker")) return "A lightweight tracking app";
+  if (id?.includes("timer")) return "A simple timer utility";
 
   return "Project";
 }
@@ -235,7 +235,7 @@ export function ActiveProjectLeads() {
 
   // Filter for project-lead sessions
   const projectLeads = sessions?.filter(
-    (s) => s.projectId && (s.agentType === "project-lead" || s.sessionKey.includes("project-lead")),
+    (s) => s.projectId && (s.agentType === "project-lead" || s.sessionKey?.includes("project-lead")),
   ) || [];
 
   // Sort by most recent activity

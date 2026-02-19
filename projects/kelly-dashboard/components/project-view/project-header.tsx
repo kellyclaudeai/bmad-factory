@@ -10,15 +10,15 @@ type ProjectHeaderProps = {
 function getStageStatus(stage: string): 'healthy' | 'warning' | 'critical' {
   const lowerStage = stage.toLowerCase()
   
-  if (lowerStage.includes('complete') || lowerStage.includes('shipped')) {
+  if (lowerStage?.includes('complete') || lowerStage?.includes('shipped')) {
     return 'healthy'
   }
   
-  if (lowerStage.includes('implementation') || lowerStage.includes('active')) {
+  if (lowerStage?.includes('implementation') || lowerStage?.includes('active')) {
     return 'warning'
   }
   
-  if (lowerStage.includes('planning') || lowerStage.includes('queued')) {
+  if (lowerStage?.includes('planning') || lowerStage?.includes('queued')) {
     return 'healthy'
   }
   
