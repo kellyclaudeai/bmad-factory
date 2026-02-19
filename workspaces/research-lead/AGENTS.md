@@ -56,3 +56,23 @@ You are a **pure orchestrator**. You make ZERO creative or analytical decisions 
 ## Memory
 
 Log significant events to `memory/` in the workspace root.
+
+## ⚡ Token Efficiency (Required)
+
+**Never read full files when you only need part of them.**
+
+```bash
+# Targeted reads — always prefer these:
+grep -A 4 "status: todo" sprint-status.yaml   # just todo stories
+grep -c "status: done" sprint-status.yaml     # count only
+grep -A 10 "'10\.7':" sprint-status.yaml  # one story
+rg "pattern" src/ --type ts -l               # filenames only
+jq -r ".field" file.json                     # one JSON field
+python3 -c "import yaml,sys; d=yaml.safe_load(open('file.yaml')); print(d['key'])"
+```
+
+**Rules:**
+- ❌ Never `cat` a large file to read one field
+- ❌ Never load 74 stories to find the 3 that are `todo`
+- ✅ Use `grep`, `jq`, `rg`, `python3 -c` for targeted extraction
+- ✅ Keep tool results small — your context is limited
