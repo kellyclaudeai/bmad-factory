@@ -822,8 +822,9 @@ stories:
   "4.8":
     epic: 4
     title: "Implement Auto-Scroll to Bottom"
-    status: todo
+    status: in_progress
     estimated_effort: "1-2 hours"
+    started_at: "2026-02-19T14:45:00-06:00"
     dependencies: ["4.7"]
   
   "4.9":

@@ -6,17 +6,17 @@
 Render messages in main view with author name, timestamp, and text. Use flat Slack-style design (no bubbles) with proper typography and spacing from UX design spec.
 
 **Acceptance Criteria:**
-- [ ] Create `components/features/messages/MessageList.tsx`
-- [ ] Create `components/features/messages/MessageItem.tsx`
-- [ ] MessageItem structure:
-  - [ ] Line 1: Author name (14px Semibold, Gray 900) + Timestamp (13px, Gray 700, 8px left margin)
-  - [ ] Line 2: Message text (16px, Gray 900, 4px top margin)
-  - [ ] Border bottom: 1px solid Gray 300 (separator)
-  - [ ] Padding: 12px vertical, 16px horizontal
-- [ ] Timestamp format: Relative ("2 min ago", "Yesterday", "Jan 15")
-- [ ] Word wrap: break-word for long messages
-- [ ] Hover state: Gray 200 background (for future actions like copy)
-- [ ] Accessible: Each message is <article> with aria-label="Message from {userName} at {timestamp}"
+- [x] Create `components/features/messages/MessageList.tsx`
+- [x] Create `components/features/messages/MessageItem.tsx`
+- [x] MessageItem structure:
+  - [x] Line 1: Author name (14px Semibold, Gray 900) + Timestamp (13px, Gray 700, 8px left margin)
+  - [x] Line 2: Message text (16px, Gray 900, 4px top margin)
+  - [x] Border bottom: 1px solid Gray 300 (separator)
+  - [x] Padding: 12px vertical, 16px horizontal
+- [x] Timestamp format: Relative ("2 min ago", "Yesterday", "Jan 15")
+- [x] Word wrap: break-word for long messages
+- [x] Hover state: Gray 200 background (for future actions like copy)
+- [x] Accessible: Each message is <article> with aria-label="Message from {userName} at {timestamp}"
 
 **Dependencies:**
 dependsOn: ["4.6"]
