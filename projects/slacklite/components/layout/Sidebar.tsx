@@ -121,7 +121,7 @@ export function Sidebar({ workspaceName, isOpen, onClose }: SidebarProps) {
                   id="dms-title"
                   className="text-xs font-semibold uppercase tracking-wide text-gray-600"
                 >
-                  DMs
+                  Direct Messages
                 </h2>
                 <Button
                   type="button"

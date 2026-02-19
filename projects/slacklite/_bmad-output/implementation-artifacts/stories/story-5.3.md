@@ -6,14 +6,14 @@
 Query all DMs for current user, display in sidebar under "Direct Messages" section with other user's name and real-time updates.
 
 **Acceptance Criteria:**
-- [ ] Create `lib/hooks/useDirectMessages.ts`
-- [ ] Query: `query(collection(db, 'workspaces/{workspaceId}/directMessages'), where('userIds', 'array-contains', currentUserId))`
-- [ ] Real-time listener: `onSnapshot`
-- [ ] Sort: By lastMessageAt DESC (most recent first)
-- [ ] Resolve other user's name: For each DM, filter userIds to get other user, fetch their displayName
-- [ ] Render: Other user's name (no `#` prefix, unlike channels)
-- [ ] Active state: Highlight current DM with same styling as channels
-- [ ] Empty state: "No direct messages yet. Click a team member to start chatting."
+- [x] Create `lib/hooks/useDirectMessages.ts`
+- [x] Query: `query(collection(db, 'workspaces/{workspaceId}/directMessages'), where('userIds', 'array-contains', currentUserId))`
+- [x] Real-time listener: `onSnapshot`
+- [x] Sort: By lastMessageAt DESC (most recent first)
+- [x] Resolve other user's name: For each DM, filter userIds to get other user, fetch their displayName
+- [x] Render: Other user's name (no `#` prefix, unlike channels)
+- [x] Active state: Highlight current DM with same styling as channels
+- [x] Empty state: "No direct messages yet. Click a team member to start chatting."
 
 **Dependencies:**
 dependsOn: ["5.2", "1.4"]

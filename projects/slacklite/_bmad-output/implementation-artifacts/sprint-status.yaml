@@ -600,9 +600,11 @@ stories:
   "3.8":
     epic: 3
     title: "Implement Channel Deletion"
-    status: review
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["3.5"]
+    completed_at: "2026-02-19T15:15:00-06:00"
+    completed_by: "Amelia"
     started_at: "2026-02-19T15:04:00-06:00"
     completed_by: "Amelia"
     completed_at: "2026-02-19T15:15:00-06:00"
@@ -1073,7 +1075,7 @@ stories:
   "5.2":
     epic: 5
     title: "Implement Start DM Functionality"
-    status: review
+    status: done
     estimated_effort: "2 hours"
     dependencies: ["5.1"]
     completed_at: "2026-02-19T15:14:00-06:00"
@@ -1209,7 +1211,8 @@ stories:
   "6.3":
     epic: 6
     title: "Implement Active Channel Highlighting"
-    status: todo
+    status: in_progress
+    started_at: "2026-02-19T15:15:00-06:00"
     estimated_effort: "1 hour"
     dependencies: ["3.3"]
   
@@ -1296,7 +1299,8 @@ stories:
   "7.1":
     epic: 7
     title: "Implement Cursor-Based Pagination"
-    status: todo
+    status: in_progress
+    started_at: "2026-02-19T15:15:00-06:00"
     estimated_effort: "2-3 hours"
     dependencies: ["4.6"]
   
@@ -1310,14 +1314,16 @@ stories:
   "7.3":
     epic: 7
     title: "Optimize Message List Rendering with Virtualization"
-    status: todo
+    status: in_progress
+    started_at: "2026-02-19T15:15:00-06:00"
     estimated_effort: "2-3 hours"
     dependencies: ["4.7"]
   
   "7.4":
     epic: 7
     title: "Add Timestamp Formatting Helpers"
-    status: todo
+    status: in_progress
+    started_at: "2026-02-19T15:15:00-06:00"
     estimated_effort: "1-2 hours"
     dependencies: ["4.7"]
   
