@@ -42,6 +42,11 @@ yarn-error.log*
 # local tool state
 .firebase-config
 
+# firebase emulators
+emulator-data/
+*-debug.log
+ui-debug.log
+
 # vercel
 .vercel
 
