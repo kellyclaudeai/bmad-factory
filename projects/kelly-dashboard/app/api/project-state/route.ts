@@ -77,11 +77,20 @@ export async function GET(request: Request) {
 
     // If project has a projectDir, try to read BMAD artifacts
     let sprintStatus = null;
+    let planningArtifacts: Record<string, { exists: boolean; size?: number; modified?: string }> = {};
+    
     if (project.implementation?.projectDir) {
+      // Handle both relative and absolute paths
+      let projectPath = project.implementation.projectDir;
+      if (path.isAbsolute(projectPath)) {
+        projectPath = path.relative(PROJECTS_ROOT, projectPath);
+      }
+
+      // Check for sprint-status.yaml (implementation phase)
       try {
         const sprintStatusPath = path.join(
           PROJECTS_ROOT,
-          project.implementation.projectDir,
+          projectPath,
           "_bmad-output/implementation-artifacts/sprint-status.yaml"
         );
         const sprintYaml = await fs.readFile(sprintStatusPath, "utf8");
@@ -89,6 +98,47 @@ export async function GET(request: Request) {
       } catch (error) {
         // Sprint status doesn't exist yet (planning phase) - not an error
       }
+
+      // Check for planning artifacts (Phase 1)
+      const artifactNames = ["prd.md", "ux-design.md", "architecture.md", "epics.md"];
+      for (const artifactName of artifactNames) {
+        try {
+          // Handle both relative and absolute paths
+          let projectPath = project.implementation.projectDir;
+          if (path.isAbsolute(projectPath)) {
+            projectPath = path.relative(PROJECTS_ROOT, projectPath);
+          }
+          
+          const artifactPath = path.join(
+            PROJECTS_ROOT,
+            projectPath,
+            "_bmad-output/planning-artifacts",
+            artifactName
+          );
+          const stats = await fs.stat(artifactPath);
+          planningArtifacts[artifactName] = {
+            exists: true,
+            size: stats.size,
+            modified: stats.mtime.toISOString()
+          };
+        } catch {
+          planningArtifacts[artifactName] = { exists: false };
+        }
+      }
+    }
+
+    // Infer current phase from artifacts
+    let currentPhase = "unknown";
+    if (project.state === "in-progress") {
+      if (sprintStatus) {
+        currentPhase = "implementation"; // Phase 2 or later
+      } else if (Object.values(planningArtifacts).some(a => a.exists)) {
+        currentPhase = "planning"; // Phase 1
+      }
+    } else if (project.state === "discovery") {
+      currentPhase = "discovery";
+    } else if (project.state === "shipped") {
+      currentPhase = "shipped";
     }
 
     // Combine registry data + BMAD data
@@ -102,7 +152,13 @@ export async function GET(request: Request) {
       intake: project.intake,
       implementation: project.implementation,
       
-      // Story status from BMAD
+      // Current phase inference
+      currentPhase,
+      
+      // Planning artifacts (Phase 1)
+      planningArtifacts,
+      
+      // Story status from BMAD (Phase 2+)
       stories: sprintStatus?.stories.map(s => ({
         id: s.id,
         status: s.status

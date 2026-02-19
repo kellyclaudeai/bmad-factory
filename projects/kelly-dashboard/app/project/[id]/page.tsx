@@ -76,17 +76,37 @@ type Session = {
 const PROJECTS_ROOT = '/Users/austenallred/clawd/projects'
 
 async function getProjectState(projectId: string): Promise<ProjectState | null> {
-  // Flat structure: projects/{projectId}/project-state.json
+  // NEW: Fetch from project-state API instead of reading file directly
   try {
-    const projectStatePath = path.join(PROJECTS_ROOT, projectId, 'project-state.json')
-    const contents = await fs.readFile(projectStatePath, 'utf8')
-    return JSON.parse(contents)
-  } catch (error) {
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
-      console.error(`Project state not found for ${projectId}`)
+    const response = await fetch(`http://localhost:3000/api/project-state?id=${projectId}`, {
+      cache: 'no-store'
+    })
+    
+    if (!response.ok) {
+      console.error(`Project state API returned ${response.status}`)
       return null
     }
-    console.error('Failed to read project state:', error)
+    
+    const data = await response.json()
+    
+    // Transform new API format to match expected ProjectState structure
+    return {
+      projectId: data.projectId,
+      stage: data.currentPhase || 'unknown',
+      currentPhase: data.currentPhase,
+      createdAt: data.timeline?.discoveredAt,
+      updatedAt: data.timeline?.lastUpdated,
+      startedAt: data.timeline?.startedAt,
+      planningArtifacts: data.planningArtifacts ? {
+        prd: data.planningArtifacts['prd.md']?.exists ? 'complete' : 'pending',
+        uxDesign: data.planningArtifacts['ux-design.md']?.exists ? 'complete' : 'pending',
+        architecture: data.planningArtifacts['architecture.md']?.exists ? 'complete' : 'pending',
+        epics: data.planningArtifacts['epics.md']?.exists ? 'complete' : 'pending',
+      } : undefined,
+      subagents: [] // Will be populated from active-subagents API
+    }
+  } catch (error) {
+    console.error('Failed to fetch project state:', error)
     return null
   }
 }
