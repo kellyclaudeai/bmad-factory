@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-18T19:16:00-06:00",
+  "lastUpdated": "2026-02-18T19:55:00-06:00",
   
   "heartbeat": {
     "lastProjectScan": 1771462500,
@@ -50,14 +50,18 @@
       "notes": "Research Details page errors for active Research Lead sessions. Bug report filed. PL session exists but times out."
     },
     {
-      "what": "NoteLite zombie session cleanup",
-      "who": "operator",
-      "addedAt": "2026-02-18T19:15:00-06:00",
-      "notes": "ROOT CAUSE FOUND: Gateway received external SIGTERM at 19:07 CST, killing 8 running agents mid-execution (only agent 3.5 completed). Those 8 sessions now zombie (exist in sessions_list but can't process messages). Project Lead also timing out. Need to clean up zombie sessions and respawn fresh agents. Awaiting operator decision on cleanup method."
+      "what": "NoteLite serial spawn test (OpenClaw bug workaround)",
+      "who": "agent:project-lead:project-notelite",
+      "addedAt": "2026-02-18T19:54:00-06:00",
+      "notes": "CONFIRMED SYSTEMIC BUG: 4 spawn attempts with 80-85% zombie rate (agents created but never start processing, totalTokens stuck at 0). Attempt 1: 1/9 worked. Attempt 2: 2/11 worked. Attempt 3: 1/6 worked (throttled 5+1 with 10s delay). Testing serial spawning (1 agent per 60s) to see if 100% serial avoids initialization race condition. Operator approved Option 3. Serial spawn test initiated 19:54 CST."
     }
   ],
   
   "notes": [
+    {
+      "timestamp": "2026-02-18T19:55:00-06:00",
+      "text": "Pre-compaction #21 state flush. CONFIRMED SYSTEMIC OPENCLAW BUG: 4 spawn attempts with consistent 80-85% zombie rate. Timeline: 19:16-19:24 config chaos (openclaw.json stripped to research-lead only during cleanup, restored from .bak). 19:27-19:30 fixed Research Lead allowlist (was BMM agents, changed to Mary+CIS) + added all 12 subagents. 19:30-19:52 multiple spawn attempts: Attempt 1 (19:20): 2/11 worked, 9 zombies. Attempt 2 (19:27): 1/6 worked, 5 zombies. Cleaned 12 zombies at 19:49. 19:52 throttled spawn test (5 agents, 10s delay, +1 more): only 1/6 worked (story 7.5 at 125k tokens), 5 zombies (6.4, 5.4, 5.5, 8.1, 10.2 all 0 tokens after 1+ min). 19:54 operator approved Option 3: fully serial spawning (1 agent per 60s) to test if 100% serial avoids race condition. Serial spawn test initiated via gateway call. Pattern consistent: agents spawn successfully but most never enter processing loop (stuck at totalTokens:0 forever). Not a config issue - core OpenClaw session initialization bug under concurrent load."
+    },
     {
       "timestamp": "2026-02-18T19:16:00-06:00",
       "text": "Pre-compaction #20 state flush. ROOT CAUSE DISCOVERED: Gateway received external SIGTERM at 19:07:07 CST, killing 9 running NoteLite agents mid-execution. Only agent 3.5 (Slash Command) completed before SIGTERM. The other 8 (4.2, 4.6, 5.2, 8.3 dev + 3.6, 6.4, 7.1, 7.2 reviews) now zombies - exist in sessions_list but can't process messages. Transcript logs show they WERE working 19:05-19:07. Gateway restarted automatically at 19:07:09, then I restarted again at 19:11:47 (thought it was session deadlock, but actually was SIGTERM aftermath). Project Lead also timing out when messaged. Unknown what sent SIGTERM - not me, not operator (as far as I know). System needs zombie cleanup before NoteLite can continue."
