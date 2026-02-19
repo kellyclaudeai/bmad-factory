@@ -51,12 +51,149 @@ log_error() {
 GCLOUD_CREATE_LOG="$(mktemp -t slacklite-gcloud-create.XXXXXX.log)"
 FIREBASE_ADD_LOG="$(mktemp -t slacklite-firebase-add.XXXXXX.log)"
 FIREBASE_CONFIG_FILE="firebase-config.json"
+FIRESTORE_CREATE_LOG="$(mktemp -t slacklite-firestore-create.XXXXXX.log)"
+RTDB_CREATE_LOG="$(mktemp -t slacklite-rtdb-create.XXXXXX.log)"
+RTDB_INSTANCES_FILE="$(mktemp -t slacklite-rtdb-instances.XXXXXX.json)"
+AUTH_PATCH_RESPONSE="$(mktemp -t slacklite-auth-patch.XXXXXX.json)"
+AUTH_GET_RESPONSE="$(mktemp -t slacklite-auth-get.XXXXXX.json)"
 
 cleanup() {
-    rm -f "$FIREBASE_CONFIG_FILE" "$GCLOUD_CREATE_LOG" "$FIREBASE_ADD_LOG"
+    rm -f \
+        "$FIREBASE_CONFIG_FILE" \
+        "$GCLOUD_CREATE_LOG" \
+        "$FIREBASE_ADD_LOG" \
+        "$FIRESTORE_CREATE_LOG" \
+        "$RTDB_CREATE_LOG" \
+        "$RTDB_INSTANCES_FILE" \
+        "$AUTH_PATCH_RESPONSE" \
+        "$AUTH_GET_RESPONSE"
 }
 
 trap cleanup EXIT
+
+list_rtdb_instances() {
+    firebase database:instances:list --project="$PROJECT_ID" --json > "$RTDB_INSTANCES_FILE" 2>/dev/null
+}
+
+extract_rtdb_database_url() {
+    jq -r --arg instance "$RTDB_INSTANCE" \
+      '.result[]?
+       | select((.instance // (.name | split("/")[-1])) == $instance)
+       | .databaseUrl // empty' \
+      "$RTDB_INSTANCES_FILE" | head -n1
+}
+
+ensure_firestore_database() {
+    local firestore_db="(default)"
+    log_info "Ensuring Firestore database instance exists..."
+
+    if firebase firestore:databases:get "$firestore_db" --project="$PROJECT_ID" --json > /dev/null 2>&1; then
+        log_success "Firestore database already exists"
+        return
+    fi
+
+    log_info "Creating Firestore database in location: $FIRESTORE_LOCATION"
+    if firebase firestore:databases:create "$firestore_db" --project="$PROJECT_ID" --location="$FIRESTORE_LOCATION" 2>&1 | tee "$FIRESTORE_CREATE_LOG"; then
+        log_success "Firestore database creation requested"
+    else
+        if grep -Eqi "already exists|ALREADY_EXISTS" "$FIRESTORE_CREATE_LOG"; then
+            log_warning "Firestore database already exists. Continuing..."
+        else
+            log_error "Failed to create Firestore database."
+            log_info "Check $FIRESTORE_CREATE_LOG for details."
+            exit 1
+        fi
+    fi
+
+    for _ in {1..30}; do
+        if firebase firestore:databases:get "$firestore_db" --project="$PROJECT_ID" --json > /dev/null 2>&1; then
+            log_success "Firestore database is ready"
+            return
+        fi
+        sleep 5
+    done
+
+    log_error "Timed out waiting for Firestore database provisioning."
+    exit 1
+}
+
+ensure_rtdb_instance() {
+    log_info "Ensuring Realtime Database instance exists..."
+
+    if list_rtdb_instances && jq -e --arg instance "$RTDB_INSTANCE" '.result[]? | select((.instance // (.name | split("/")[-1])) == $instance)' "$RTDB_INSTANCES_FILE" > /dev/null; then
+        log_success "Realtime Database instance already exists: $RTDB_INSTANCE"
+        return
+    fi
+
+    log_info "Creating Realtime Database instance: $RTDB_INSTANCE ($RTDB_LOCATION)"
+    if firebase database:instances:create "$RTDB_INSTANCE" --project="$PROJECT_ID" --location="$RTDB_LOCATION" 2>&1 | tee "$RTDB_CREATE_LOG"; then
+        log_success "Realtime Database instance creation requested"
+    else
+        if grep -Eqi "already exists|already have|already own" "$RTDB_CREATE_LOG"; then
+            log_warning "Realtime Database instance already exists. Continuing..."
+        else
+            log_error "Failed to create Realtime Database instance."
+            log_info "Check $RTDB_CREATE_LOG for details."
+            exit 1
+        fi
+    fi
+
+    for _ in {1..30}; do
+        if list_rtdb_instances && jq -e --arg instance "$RTDB_INSTANCE" '.result[]? | select((.instance // (.name | split("/")[-1])) == $instance)' "$RTDB_INSTANCES_FILE" > /dev/null; then
+            log_success "Realtime Database instance is ready"
+            return
+        fi
+        sleep 5
+    done
+
+    log_error "Timed out waiting for Realtime Database instance provisioning."
+    exit 1
+}
+
+ensure_email_password_auth() {
+    log_info "Enabling Email/Password authentication via Identity Toolkit API..."
+
+    local token
+    token="$(gcloud auth print-access-token 2>/dev/null || true)"
+    if [ -z "$token" ]; then
+        log_error "Unable to get OAuth access token from gcloud."
+        log_info "Run: gcloud auth login"
+        exit 1
+    fi
+
+    local endpoint="https://identitytoolkit.googleapis.com/admin/v2/projects/${PROJECT_ID}/config"
+    local patch_status
+    patch_status="$(curl -sS -o "$AUTH_PATCH_RESPONSE" -w "%{http_code}" \
+      -X PATCH \
+      -H "Authorization: Bearer ${token}" \
+      -H "Content-Type: application/json" \
+      "${endpoint}?updateMask=signIn.email.enabled,signIn.email.passwordRequired" \
+      -d '{"signIn":{"email":{"enabled":true,"passwordRequired":true}}}')"
+
+    if [ "$patch_status" != "200" ]; then
+      log_error "Failed to update auth provider settings (HTTP $patch_status)."
+      if jq -e '.error.message' "$AUTH_PATCH_RESPONSE" > /dev/null 2>&1; then
+        log_error "Identity Toolkit API error: $(jq -r '.error.message' "$AUTH_PATCH_RESPONSE")"
+      fi
+      exit 1
+    fi
+
+    for _ in {1..10}; do
+        local get_status
+        get_status="$(curl -sS -o "$AUTH_GET_RESPONSE" -w "%{http_code}" \
+          -H "Authorization: Bearer ${token}" \
+          "${endpoint}")"
+
+        if [ "$get_status" = "200" ] && jq -e '.signIn.email.enabled == true and .signIn.email.passwordRequired == true' "$AUTH_GET_RESPONSE" > /dev/null 2>&1; then
+            log_success "Email/Password authentication is enabled and verified"
+            return
+        fi
+        sleep 2
+    done
+
+    log_error "Email/Password authentication could not be verified as enabled."
+    exit 1
+}
 
 ################################################################################
 # PREREQUISITE CHECKS
@@ -107,6 +244,14 @@ check_prerequisites() {
     else
         log_success "jq $(jq --version) found"
     fi
+
+    # Check curl
+    if ! command -v curl &> /dev/null; then
+        log_error "curl not found. Install curl to enable Authentication provider setup."
+        all_met=false
+    else
+        log_success "curl $(curl --version | head -n1 | awk '{print $2}') found"
+    fi
     
     # Check Firebase authentication
     if ! firebase projects:list &> /dev/null; then
@@ -150,7 +295,8 @@ check_prerequisites
 # Prompt for project details
 read -p "Enter Firebase Project ID (e.g., slacklite-prod): " PROJECT_ID
 read -p "Enter Project Display Name (e.g., SlackLite Production): " PROJECT_NAME
-REGION=${FIREBASE_REGION:-us-central1}
+FIRESTORE_LOCATION=${FIRESTORE_LOCATION:-us-central1}
+RTDB_LOCATION=${FIREBASE_REGION:-us-central1}
 
 if [ -z "$PROJECT_ID" ] || [ -z "$PROJECT_NAME" ]; then
     log_error "Project ID and Name are required"
@@ -163,10 +309,13 @@ if ! [[ "$PROJECT_ID" =~ ^[a-z0-9-]{6,30}$ ]]; then
     exit 1
 fi
 
+RTDB_INSTANCE="${PROJECT_ID}-default-rtdb"
+
 log_info "Configuration:"
 echo "  Project ID:   $PROJECT_ID"
 echo "  Project Name: $PROJECT_NAME"
-echo "  Region:       $REGION"
+echo "  Firestore:    $FIRESTORE_LOCATION"
+echo "  RTDB:         $RTDB_LOCATION ($RTDB_INSTANCE)"
 echo ""
 
 ################################################################################
@@ -228,6 +377,10 @@ for api in "${apis_to_enable[@]}"; do
     fi
 done
 
+ensure_firestore_database
+ensure_rtdb_instance
+ensure_email_password_auth
+
 # Create or re-use web app
 log_info "Ensuring web app exists..."
 APP_ID="$(firebase apps:list web --project="$PROJECT_ID" --json 2>/dev/null | jq -r '.result[]? | select(.displayName == "SlackLite Web") | .appId' | head -n1)"
@@ -265,7 +418,13 @@ APP_ID_FROM_CONFIG="$(jq -r '.result.sdkConfig.appId // empty' "$FIREBASE_CONFIG
 DATABASE_URL="$(jq -r '.result.sdkConfig.databaseURL // empty' "$FIREBASE_CONFIG_FILE")"
 
 if [ -z "$DATABASE_URL" ]; then
-    DATABASE_URL="https://${PROJECT_ID}-default-rtdb.firebaseio.com"
+    if list_rtdb_instances; then
+        DATABASE_URL="$(extract_rtdb_database_url)"
+    fi
+fi
+
+if [ -z "$DATABASE_URL" ]; then
+    DATABASE_URL="https://${RTDB_INSTANCE}.firebaseio.com"
 fi
 
 if [ -z "$API_KEY" ] || [ -z "$AUTH_DOMAIN" ] || [ -z "$PROJECT_ID_FROM_CONFIG" ] || [ -z "$STORAGE_BUCKET" ] || [ -z "$MESSAGING_SENDER_ID" ] || [ -z "$APP_ID_FROM_CONFIG" ]; then

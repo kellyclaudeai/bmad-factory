@@ -33,6 +33,34 @@ export default {
           100: "#F8F8F8",
         },
       },
+      fontFamily: {
+        sans: [
+          "var(--font-inter)",
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          '"Segoe UI"',
+          "Roboto",
+          '"Helvetica Neue"',
+          "Arial",
+          "sans-serif",
+        ],
+      },
+      fontSize: {
+        xs: ["0.75rem", { lineHeight: "1rem" }], // 12/16
+        sm: ["0.8125rem", { lineHeight: "1.125rem" }], // 13/18
+        base: ["0.875rem", { lineHeight: "1.25rem" }], // 14/20
+        lg: ["1rem", { lineHeight: "1.5rem" }], // 16/24
+        xl: ["1.25rem", { lineHeight: "1.75rem" }], // 20/28
+        "2xl": ["1.5rem", { lineHeight: "2rem" }], // 24/32
+        "3xl": ["2rem", { lineHeight: "2.5rem" }], // 32/40
+      },
+      fontWeight: {
+        normal: "400",
+        medium: "500",
+        semibold: "600",
+        bold: "700",
+      },
       spacing: {
         1: "4px",
         2: "8px",
@@ -40,7 +68,11 @@ export default {
         4: "16px",
         5: "20px",
         6: "24px",
+        7: "28px",
         8: "32px",
+        9: "36px",
+        10: "40px",
+        11: "44px",
         12: "48px",
       },
     },

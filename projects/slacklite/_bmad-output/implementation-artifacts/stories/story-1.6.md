@@ -6,17 +6,17 @@
 Configure Tailwind CSS with SlackLite design tokens (colors, typography, spacing from UX spec). Create reusable UI components (Button, Input, Modal) following design system specifications.
 
 **Acceptance Criteria:**
-- [ ] `tailwind.config.ts` includes design system colors (Primary Brand, Success, Error, Gray scale)
-- [ ] Typography scale configured (fontFamily: Inter, fontSize: 12px-32px, fontWeight: 400-700)
-- [ ] Spacing scale configured (base 4px unit, 1-12 scale)
-- [ ] UI component library created in `components/ui/`:
-  - [ ] `Button.tsx` (Primary, Secondary, Destructive variants)
-  - [ ] `Input.tsx` (with error states, focus styles)
-  - [ ] `Modal.tsx` (with overlay, focus trap, ESC to close)
-  - [ ] `Badge.tsx` (for unread counts)
-  - [ ] `Avatar.tsx` (with initials fallback)
-- [ ] Storybook setup (optional for MVP) or test page at `/design-system` showing all components
-- [ ] Components follow WCAG 2.1 AA contrast ratios (4.5:1 minimum)
+- [x] `tailwind.config.ts` includes design system colors (Primary Brand, Success, Error, Gray scale)
+- [x] Typography scale configured (fontFamily: Inter, fontSize: 12px-32px, fontWeight: 400-700)
+- [x] Spacing scale configured (base 4px unit, 1-12 scale)
+- [x] UI component library created in `components/ui/`:
+  - [x] `Button.tsx` (Primary, Secondary, Destructive variants)
+  - [x] `Input.tsx` (with error states, focus styles)
+  - [x] `Modal.tsx` (with overlay, focus trap, ESC to close)
+  - [x] `Badge.tsx` (for unread counts)
+  - [x] `Avatar.tsx` (with initials fallback)
+- [x] Storybook setup (optional for MVP) or test page at `/design-system` showing all components
+- [x] Components follow WCAG 2.1 AA contrast ratios (4.5:1 minimum)
 
 **Dependencies:**
 dependsOn: ["1.1"]

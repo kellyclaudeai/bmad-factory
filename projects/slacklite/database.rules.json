@@ -3,8 +3,8 @@
     "messages": {
       "$workspaceId": {
         "$channelId": {
-          ".read": "auth != null",
-          ".write": "auth != null",
+          ".read": "auth != null && root.child('users').child(auth.uid).child('workspaceId').val() == $workspaceId",
+          ".write": "auth != null && root.child('users').child(auth.uid).child('workspaceId').val() == $workspaceId",
           "$messageId": {
             ".validate": "newData.hasChildren(['userId', 'userName', 'text', 'timestamp']) && newData.child('text').val().length > 0 && newData.child('text').val().length <= 4000"
           }
