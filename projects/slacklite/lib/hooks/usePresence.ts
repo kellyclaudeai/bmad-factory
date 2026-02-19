@@ -29,14 +29,35 @@ function getErrorMessage(error: unknown, fallback: string): string {
 
 function normalizePresenceData(value: unknown): PresenceData {
   if (!value || typeof value !== "object") {
-    return { online: false, lastSeen: null };
+    return { online: false, lastSeen: null, lastSeenAt: null };
   }
 
-  const candidate = value as { online?: unknown; lastSeen?: unknown };
+  const candidate = value as {
+    online?: unknown;
+    lastSeen?: unknown;
+    lastSeenAt?: unknown;
+  };
+  const normalizedLastSeen =
+    typeof candidate.lastSeen === "number" ? candidate.lastSeen : null;
+  const normalizedLastSeenAt =
+    typeof candidate.lastSeenAt === "number"
+      ? candidate.lastSeenAt
+      : normalizedLastSeen;
 
   return {
     online: candidate.online === true,
-    lastSeen: typeof candidate.lastSeen === "number" ? candidate.lastSeen : null,
+    lastSeen: normalizedLastSeen,
+    lastSeenAt: normalizedLastSeenAt,
+  };
+}
+
+function createPresencePayload(online: boolean) {
+  const lastSeenTimestamp = rtdbServerTimestamp();
+
+  return {
+    online,
+    lastSeen: lastSeenTimestamp,
+    lastSeenAt: lastSeenTimestamp,
   };
 }
 
@@ -107,15 +128,9 @@ export function usePresence(): UsePresenceResult {
             }
 
             disconnectHandler = onDisconnect(userPresenceRef);
-            await disconnectHandler.set({
-              online: false,
-              lastSeen: rtdbServerTimestamp(),
-            });
+            await disconnectHandler.set(createPresencePayload(false));
 
-            await set(userPresenceRef, {
-              online: true,
-              lastSeen: rtdbServerTimestamp(),
-            });
+            await set(userPresenceRef, createPresencePayload(true));
 
             await syncFirestoreStatus(true);
             if (isMounted) {
@@ -153,10 +168,7 @@ export function usePresence(): UsePresenceResult {
         void disconnectHandler.cancel();
       }
 
-      void set(userPresenceRef, {
-        online: false,
-        lastSeen: rtdbServerTimestamp(),
-      }).catch(() => undefined);
+      void set(userPresenceRef, createPresencePayload(false)).catch(() => undefined);
 
       void syncFirestoreStatus(false);
     };

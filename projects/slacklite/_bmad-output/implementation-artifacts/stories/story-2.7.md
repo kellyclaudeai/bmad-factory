@@ -6,18 +6,18 @@
 Create workspace setup page shown after sign-up. User names their workspace and becomes owner. Automatically create default #general channel and redirect to main app.
 
 **Acceptance Criteria:**
-- [ ] Create `app/(auth)/create-workspace/page.tsx` (Client Component)
-- [ ] Form: "What's the name of your team or project?" → Text input
-- [ ] Validation: 1-50 characters, required
-- [ ] Submit creates workspace in Firestore `/workspaces/{workspaceId}`:
-  - [ ] workspaceId: auto-generated
-  - [ ] name: user input
-  - [ ] ownerId: current user UID
-  - [ ] createdAt: serverTimestamp()
-- [ ] Update user document: Set `workspaceId` to new workspace ID
-- [ ] Create default #general channel in workspace
-- [ ] On success: Redirect to `/app` (lands in #general)
-- [ ] Only shown once (if user already has workspaceId, redirect to `/app`)
+- [x] Create `app/(auth)/create-workspace/page.tsx` (Client Component)
+- [x] Form: "What's the name of your team or project?" → Text input
+- [x] Validation: 1-50 characters, required
+- [x] Submit creates workspace in Firestore `/workspaces/{workspaceId}`:
+  - [x] workspaceId: auto-generated
+  - [x] name: user input
+  - [x] ownerId: current user UID
+  - [x] createdAt: serverTimestamp()
+- [x] Update user document: Set `workspaceId` to new workspace ID
+- [x] Create default #general channel in workspace
+- [x] On success: Redirect to `/app` (lands in #general)
+- [x] Only shown once (if user already has workspaceId, redirect to `/app`)
 
 **Dependencies:**
 dependsOn: ["2.3", "1.4"]

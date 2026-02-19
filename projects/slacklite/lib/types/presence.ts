@@ -1,6 +1,7 @@
 export interface PresenceData {
   online: boolean;
   lastSeen: number | null;
+  lastSeenAt: number | null;
 }
 
 export type PresenceMap = Record<string, PresenceData>;

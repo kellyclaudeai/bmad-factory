@@ -129,9 +129,27 @@ stories:
   "2.1":
     epic: 2
     title: "Create Landing Page"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["1.1", "1.6"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T11:12:00-06:00"
+    notes: |
+      ✅ Marketing landing page implemented at root route (/)
+      ✅ Created app/(marketing)/layout.tsx with fixed header and footer
+      ✅ Header: SlackLite logo + Sign In/Sign Up buttons using Button component
+      ✅ Landing page Server Component: app/(marketing)/page.tsx
+      ✅ Hero section: "Lightweight Team Messaging" + "Slack's simplicity. None of the bloat."
+      ✅ CTAs: "Get Started Free" → /signup, "Sign In" → /signin
+      ✅ Features section: 3-column grid (Real-Time Messages, Simple Setup, Free to Start)
+      ✅ Footer: About, Privacy, Terms links (placeholder pages created)
+      ✅ Fully responsive design (mobile + desktop breakpoints)
+      ✅ SEO metadata: title, description, Open Graph tags
+      ✅ All acceptance criteria completed
+      ✅ Build validated with temporary Firebase env vars
+      
+      Note: app/page.tsx removed (replaced by marketing route)
+      Files created: app/(marketing)/page.tsx, layout.tsx, about/page.tsx, privacy/page.tsx, terms/page.tsx
   
   "2.2":
     epic: 2
@@ -161,9 +179,27 @@ stories:
   "2.3":
     epic: 2
     title: "Implement Firebase Auth Sign Up"
-    status: todo
+    status: review
     estimated_effort: "2-3 hours"
     dependencies: ["1.4", "2.2"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T12:01:00-06:00"
+    notes: |
+      ✅ Firebase Auth sign-up integration complete
+      ✅ app/(auth)/signup/page.tsx wired to createUserWithEmailAndPassword
+      ✅ Firestore user document created on success (/users/{uid})
+      ✅ User fields: userId, email, displayName (from email), workspaceId (null), createdAt, lastSeenAt, isOnline
+      ✅ Error handling: email-already-in-use, weak-password, invalid-email
+      ✅ Loading state with spinner in button
+      ✅ Redirect to /create-workspace on success
+      ✅ Browser local persistence configured
+      ✅ User interface added to lib/types/models.ts
+      ✅ All acceptance criteria met and marked complete in story file
+      
+      Note: Implementation was found already complete in commit 192f659 (story 2.8)
+      Story file updated to reflect completion status.
+      
+      Status: Ready for code review
   
   "2.4":
     epic: 2
@@ -213,9 +249,35 @@ stories:
   "2.6":
     epic: 2
     title: "Implement Sign Out Functionality"
-    status: todo
+    status: review
     estimated_effort: "1 hour"
     dependencies: ["2.5"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T12:00:00-06:00"
+    notes: |
+      ✅ Sign-out functionality implemented with all acceptance criteria met
+      ✅ Updated AuthContext with signOut method:
+         - Calls Firebase signOut()
+         - Shows confirmation dialog (skippable via options)
+         - Clears auth state and redirects to landing page
+         - Handles errors gracefully with loading state
+         - Cleans up Firebase listeners (authListenerCleanupRef)
+         - Clears local storage and session storage
+      ✅ Created Header component with destructive sign-out button
+      ✅ Confirmation modal with H3 title, Cancel/Sign Out buttons
+      ✅ Created app header layout (app/app/layout.tsx)
+      ✅ Created app landing page (app/app/page.tsx)
+      ✅ Updated Modal component to support H3 titles
+      ✅ All acceptance criteria marked complete in story file
+      
+      Files Changed:
+      - lib/contexts/AuthContext.tsx (enhanced signOut + cleanup)
+      - components/ui/Modal.tsx (added titleTag prop)
+      - components/layout/Header.tsx (new)
+      - app/app/layout.tsx (new)
+      - app/app/page.tsx (new)
+      
+      Commit: 1449c09 (feat(2.6): Implement sign out functionality)
   
   "2.7":
     epic: 2
@@ -227,9 +289,27 @@ stories:
   "2.8":
     epic: 2
     title: "Implement Protected Route Middleware"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["2.5"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T12:00:00-06:00"
+    notes: |
+      ✅ Protected route middleware implemented
+      ✅ Created middleware.ts in project root protecting /app/* routes
+      ✅ Created lib/firebase-admin.ts with Firebase Admin SDK setup
+      ✅ Token verification using verifyIdToken from Firebase Admin SDK
+      ✅ Redirects unauthenticated users to /signin
+      ✅ Attaches x-user-id header for authenticated requests
+      ✅ Updated .env.example with Firebase Admin SDK credentials
+      ✅ Added runtime='nodejs' for Next.js 15 compatibility
+      ✅ All acceptance criteria completed
+      ✅ ESLint passed (1 warning: unused error variable in catch block)
+      
+      Commit: 192f659 (feat(2.8): Implement protected route middleware)
+      
+      Note: Build fails due to existing Firebase client env issue (auth/invalid-api-key during prerender).
+      This is unrelated to middleware implementation.
   
   # Epic 3: Workspace & Channel Management
   "3.1":
@@ -347,9 +427,27 @@ stories:
   "4.5":
     epic: 4
     title: "Subscribe to Real-Time Message Updates"
-    status: todo
+    status: review
     estimated_effort: "2-3 hours"
     dependencies: ["4.1"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T12:05:00-06:00"
+    notes: |
+      ✅ Created lib/hooks/useRealtimeMessages.ts - React hook for RTDB real-time message subscription
+      ✅ Subscribes to RTDB path: /messages/{workspaceId}/{channelId}
+      ✅ Listens for onChildAdded events from Firebase RTDB
+      ✅ Returns { messages: Message[], loading: boolean, error: Error | null }
+      ✅ Handles connection state via .info/connected RTDB reference
+      ✅ Auto-unsubscribes on unmount and channel switch
+      ✅ Implements message deduplication using Set<messageId> (seenMessageIdsRef)
+      ✅ Converts RTDB timestamp (milliseconds) to Firestore Timestamp format
+      ✅ Logs message delivery latency (<500ms target, warns if exceeded)
+      ✅ All acceptance criteria marked complete in story file
+      ✅ ESLint and TypeScript validation passed
+      
+      Commit: 192f659 (bundled with Story 2.8 - feat(2.8): Implement protected route middleware)
+      
+      Status: Ready for code review
   
   "4.6":
     epic: 4
@@ -419,9 +517,34 @@ stories:
   "6.1":
     epic: 6
     title: "Implement Firebase Presence System"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["1.4", "2.5"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T12:05:00-06:00"
+    notes: |
+      ✅ Firebase Presence System implemented with all acceptance criteria met
+      ✅ Created lib/types/presence.ts with TypeScript interfaces:
+         - PresenceData, PresenceMap, PresenceConnectionState
+         - UsePresenceResult, UsePresenceUpdatesResult
+      ✅ Implemented lib/hooks/usePresence.ts with three hooks:
+         - usePresence(): Tracks current user presence
+         - usePresenceUpdates(): Subscribes to other users' presence
+         - useConnectionState(): Monitors Firebase RTDB connection
+      ✅ Created components/providers/PresenceProvider.tsx (lightweight provider)
+      ✅ Integrated PresenceProvider into app/layout.tsx under AuthProvider
+      ✅ Presence tracking features:
+         - Subscribes to ref(rtdb, '.info/connected')
+         - Writes /presence/{userId} with online:true + serverTimestamp()
+         - Sets onDisconnect() handler for automatic offline detection
+         - Syncs to Firestore /users/{userId} (isOnline, lastSeenAt fields)
+         - Connection state monitoring with error handling
+      ✅ ESLint validation passed
+      ✅ All acceptance criteria marked complete in story file
+      
+      Note: Implementation was bundled with story 2.8 (commit 192f659)
+      
+      Status: Ready for code review
   
   "6.2":
     epic: 6
@@ -570,9 +693,26 @@ stories:
   "10.1":
     epic: 10
     title: "Set Up Testing Infrastructure"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["1.1"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T12:09:00-06:00"
+    notes: |
+      ✅ Testing infrastructure complete
+      ✅ Vitest installed and configured (v4.0.18)
+      ✅ React Testing Library installed (@testing-library/react v16.3.2, @testing-library/jest-dom v6.9.1)
+      ✅ Playwright installed and configured (v1.58.2)
+      ✅ npm scripts added: test, test:ui, test:coverage, test:e2e, test:e2e:ui
+      ✅ Test directories created: tests/unit/, tests/integration/, tests/e2e/
+      ✅ Example tests demonstrating setup: tests/unit/example.test.tsx, tests/e2e/example.spec.ts
+      ✅ CI workflow configured: .github/workflows/test.yml (unit + e2e tests on PR)
+      ✅ Test coverage reporting configured (80% thresholds: lines, functions, branches, statements)
+      ✅ Vitest config includes explicit test file patterns to prevent cross-framework conflicts
+      ✅ All tests passing: Vitest (1 test), Playwright E2E (3 browsers: chromium, firefox, webkit)
+      ✅ README.md updated with testing instructions
+      
+      Commit: 0f8f1d3 (feat(10.1): Set up testing infrastructure)
   
   "10.2":
     epic: 10

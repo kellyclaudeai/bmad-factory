@@ -29,7 +29,7 @@ export interface User {
   displayName: string;
   workspaceId: string | null;
   createdAt: Timestamp;
-  lastSeenAt: Timestamp;
+  lastSeenAt?: Timestamp | null;
   isOnline: boolean;
 }
 
