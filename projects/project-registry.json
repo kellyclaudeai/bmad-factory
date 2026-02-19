@@ -288,12 +288,43 @@
       },
       "implementation": {
         "projectDir": "slacklite",
-        "plSession": "agent:project-lead:project-slacklite",
+        "plSession": "agent:project-lead:81d7f501",
         "qaUrl": "https://slacklite-r3vwdr5la-kelly-1224s-projects.vercel.app"
       },
       "followup": [],
       "projectId": "slacklite",
       "surfacedForQA": false
+    },
+    {
+      "id": "car-maintenance-tracker-2026-02-19-1047",
+      "name": "Hindsight",
+      "state": "discovery",
+      "paused": false,
+      "pausedReason": null,
+      "surfacedForQA": false,
+      "researchSession": "agent:research-lead:main",
+      "researchPhase": "complete",
+      "discoveryStrategy": "review-gap-mining + workaround-archaeology",
+      "timeline": {
+        "discoveredAt": "2026-02-19T16:54:23+0000",
+        "lastUpdated": "2026-02-19T17:05:39+0000"
+      },
+      "intake": {
+        "problem": "Vehicle owners lose service records, forget maintenance schedules, and can't prove service history when selling. Existing apps require tedious manual odometer entry every time and don't integrate photos/receipts effectively. This leads to lost resale value, warranty claim denials, and anxiety about whether maintenance is up to date.",
+        "solution": "Retroactive maintenance tracker that scans camera roll for car-related photos using on-device ML, builds maintenance timeline backwards, then becomes forward tracker. Novel: Starts with retroactive scanning instead of 'start fresh', treats camera roll as primary database, delivers immediate value by recovering forgotten history.",
+        "targetAudience": "Vehicle owners (18-65) who maintain cars outside dealerships, resale-conscious drivers, DIY mechanics. Currently use paper receipts, spreadsheets, or scattered camera roll photos. Episodic but high-stakes pain (selling car).",
+        "keyFeatures": [
+          "Retroactive photo scanning (on-device ML)",
+          "OCR extraction from receipts/work orders",
+          "Timeline reconstruction from discovered photos",
+          "Forward tracking with photo capture",
+          "Professional PDF export for resale",
+          "Multi-vehicle support (premium)"
+        ]
+      },
+      "implementation": null,
+      "followup": [],
+      "researchDir": "ideas/car-maintenance-tracker-2026-02-19-1047"
     }
   ]
 }

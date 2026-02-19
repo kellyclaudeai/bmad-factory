@@ -6,15 +6,15 @@
 Create sign-up page with email/password form, client-side validation, and error handling UI (no backend integration yet). Accessible form with keyboard navigation and error states.
 
 **Acceptance Criteria:**
-- [ ] Create `app/(auth)/signup/page.tsx` (Client Component with 'use client')
-- [ ] Form fields: Email (type="email"), Password (type="password", min 8 chars)
-- [ ] Real-time validation: Email format, password length
-- [ ] Error messages displayed below inputs (red border + text)
-- [ ] Submit button: "Create Account" (Primary button, disabled if validation fails)
-- [ ] Link to Sign In: "Already have an account? Sign In"
-- [ ] Form state managed with useState (email, password, errors, loading)
-- [ ] Accessible: ARIA labels, keyboard navigation (Tab, Enter to submit)
-- [ ] Mobile responsive (full-width form on mobile)
+- [x] Create `app/(auth)/signup/page.tsx` (Client Component with 'use client')
+- [x] Form fields: Email (type="email"), Password (type="password", min 8 chars)
+- [x] Real-time validation: Email format, password length
+- [x] Error messages displayed below inputs (red border + text)
+- [x] Submit button: "Create Account" (Primary button, disabled if validation fails)
+- [x] Link to Sign In: "Already have an account? Sign In"
+- [x] Form state managed with useState (email, password, errors, loading)
+- [x] Accessible: ARIA labels, keyboard navigation (Tab, Enter to submit)
+- [x] Mobile responsive (full-width form on mobile)
 
 **Dependencies:**
 dependsOn: ["1.6"]

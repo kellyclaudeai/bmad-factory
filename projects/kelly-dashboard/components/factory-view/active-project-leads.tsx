@@ -102,9 +102,9 @@ function getPlatformLabel(session: Session): string {
 }
 
 function ProjectLeadCard({ session }: { session: Session }) {
-  const projectId = session.projectId || "unknown";
-  const title = session.projectTitle || humanizeProjectId(projectId);
-  const oneLiner = session.projectDescription || inferProjectOneLiner(projectId);
+  const projectId = session.projectId || session.sessionId.slice(0, 8);
+  const title = session.projectTitle || (session.projectId ? humanizeProjectId(session.projectId) : "Unknown Project");
+  const oneLiner = session.projectDescription || (session.projectId ? inferProjectOneLiner(session.projectId) : "Project session (no registry entry)");
   const status = session.status || "active";
   const relativeTime = formatRelativeTime(session.lastActivity);
   const sessionName = getSessionShortName(session.sessionKey);
@@ -233,9 +233,9 @@ export function ActiveProjectLeads() {
     );
   }
 
-  // Filter for project-lead sessions
+  // Filter for project-lead sessions (show even without projectId)
   const projectLeads = sessions?.filter(
-    (s) => s.projectId && (s.agentType === "project-lead" || s.sessionKey?.includes("project-lead")),
+    (s) => s.agentType === "project-lead" || s.sessionKey?.includes("project-lead"),
   ) || [];
 
   // Sort by most recent activity

@@ -6,7 +6,7 @@
 Define TypeScript interfaces for Message, create Firestore schema, and set up dual-write pattern (RTDB + Firestore) data structures with proper type safety.
 
 **Acceptance Criteria:**
-- [ ] Create `lib/types/models.ts` with Message interface:
+- [x] Create `lib/types/models.ts` with Message interface:
   ```typescript
   interface Message {
     messageId: string;
@@ -20,9 +20,9 @@ Define TypeScript interfaces for Message, create Firestore schema, and set up du
     status?: 'sending' | 'sent' | 'failed';
   }
   ```
-- [ ] Firestore path: `/workspaces/{workspaceId}/channels/{channelId}/messages/{messageId}`
-- [ ] RTDB path: `/messages/{workspaceId}/{channelId}/{messageId}`
-- [ ] Document structure validated (all required fields present)
+- [x] Firestore path: `/workspaces/{workspaceId}/channels/{channelId}/messages/{messageId}`
+- [x] RTDB path: `/messages/{workspaceId}/{channelId}/{messageId}`
+- [x] Document structure validated (all required fields present)
 
 **Dependencies:**
 dependsOn: ["1.4"]

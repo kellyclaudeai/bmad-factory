@@ -6,15 +6,15 @@
 Create sign-in page with email/password authentication using Firebase Auth. Redirect authenticated users to `/app` with persistent session management.
 
 **Acceptance Criteria:**
-- [ ] Create `app/(auth)/signin/page.tsx` (Client Component)
-- [ ] Form fields: Email, Password
-- [ ] Submit calls: `signInWithEmailAndPassword(auth, email, password)`
-- [ ] On success: Redirect to `/app` (last viewed channel or #general)
-- [ ] Handle errors: Invalid credentials → show error "Invalid email or password"
-- [ ] Loading state: Disable form during authentication
-- [ ] Link to Sign Up: "Don't have an account? Sign Up"
-- [ ] Session persists across browser restarts (browserLocalPersistence)
-- [ ] Authenticated users auto-redirected from `/signin` to `/app`
+- [x] Create `app/(auth)/signin/page.tsx` (Client Component)
+- [x] Form fields: Email, Password
+- [x] Submit calls: `signInWithEmailAndPassword(auth, email, password)`
+- [x] On success: Redirect to `/app` (last viewed channel or #general)
+- [x] Handle errors: Invalid credentials → show error "Invalid email or password"
+- [x] Loading state: Disable form during authentication
+- [x] Link to Sign Up: "Don't have an account? Sign Up"
+- [x] Session persists across browser restarts (browserLocalPersistence)
+- [x] Authenticated users auto-redirected from `/signin` to `/app`
 
 **Dependencies:**
 dependsOn: ["1.4", "1.6"]

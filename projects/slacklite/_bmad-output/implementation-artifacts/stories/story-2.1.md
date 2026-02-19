@@ -6,15 +6,15 @@
 Build static landing page with hero section, product pitch, and CTAs for Sign Up / Sign In. Server-side rendered for SEO optimization with SlackLite brand positioning.
 
 **Acceptance Criteria:**
-- [ ] Create `app/(marketing)/page.tsx` (Server Component for SEO)
-- [ ] Hero section: "Lightweight Team Messaging" headline, "Slack's simplicity. None of the bloat." subtitle
-- [ ] Primary CTA button: "Get Started Free" → links to `/signup`
-- [ ] Secondary CTA button: "Sign In" → links to `/signin`
-- [ ] Header with logo ("SlackLite") and auth buttons (Sign In, Sign Up)
-- [ ] Features section (3-column grid): Real-Time Messages, Simple Setup, Free to Start
-- [ ] Footer with About, Privacy, Terms links (placeholder pages)
-- [ ] Fully responsive (desktop + mobile breakpoints)
-- [ ] Meta tags for SEO (title, description, Open Graph)
+- [x] Create `app/(marketing)/page.tsx` (Server Component for SEO)
+- [x] Hero section: "Lightweight Team Messaging" headline, "Slack's simplicity. None of the bloat." subtitle
+- [x] Primary CTA button: "Get Started Free" → links to `/signup`
+- [x] Secondary CTA button: "Sign In" → links to `/signin`
+- [x] Header with logo ("SlackLite") and auth buttons (Sign In, Sign Up)
+- [x] Features section (3-column grid): Real-Time Messages, Simple Setup, Free to Start
+- [x] Footer with About, Privacy, Terms links (placeholder pages)
+- [x] Fully responsive (desktop + mobile breakpoints)
+- [x] Meta tags for SEO (title, description, Open Graph)
 
 **Dependencies:**
 dependsOn: ["1.1", "1.6"]

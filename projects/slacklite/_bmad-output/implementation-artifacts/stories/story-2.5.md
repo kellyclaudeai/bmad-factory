@@ -6,14 +6,14 @@
 Build React Context for global authentication state. Provide user data, loading state, and auth methods (signIn, signUp, signOut) to entire app with Firestore user data integration.
 
 **Acceptance Criteria:**
-- [ ] Create `lib/contexts/AuthContext.tsx`
-- [ ] Context provides: `{ user, loading, signIn, signUp, signOut }`
-- [ ] User state synced with Firebase Auth: `onAuthStateChanged` listener
-- [ ] On auth change: Fetch user data from Firestore `/users/{uid}` and merge with Firebase Auth user
-- [ ] Custom hook: `useAuth()` wraps `useContext(AuthContext)`
-- [ ] Loading state: `true` during initial auth check, `false` after resolved
-- [ ] Wrap app in AuthProvider in `app/layout.tsx`
-- [ ] Protected routes check `user` state: If null, redirect to `/signin`
+- [x] Create `lib/contexts/AuthContext.tsx`
+- [x] Context provides: `{ user, loading, signIn, signUp, signOut }`
+- [x] User state synced with Firebase Auth: `onAuthStateChanged` listener
+- [x] On auth change: Fetch user data from Firestore `/users/{uid}` and merge with Firebase Auth user
+- [x] Custom hook: `useAuth()` wraps `useContext(AuthContext)`
+- [x] Loading state: `true` during initial auth check, `false` after resolved
+- [x] Wrap app in AuthProvider in `app/layout.tsx`
+- [x] Protected routes check `user` state: If null, redirect to `/signin`
 
 **Dependencies:**
 dependsOn: ["1.4"]
