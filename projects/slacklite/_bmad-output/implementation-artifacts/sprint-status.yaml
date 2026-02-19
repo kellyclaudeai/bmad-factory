@@ -1363,10 +1363,32 @@ stories:
   "7.1":
     epic: 7
     title: "Implement Cursor-Based Pagination"
-    status: in_progress
+    status: done
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T15:30:00-06:00"
     started_at: "2026-02-19T15:15:00-06:00"
     estimated_effort: "2-3 hours"
     dependencies: ["4.6"]
+    notes: |
+      ✅ Cursor-based pagination implementation validated - all acceptance criteria met
+      ✅ useMessages hook with loadMore functionality already implemented (commit 73d1afd)
+         - useState<DocumentSnapshot | null>(lastVisible) tracks cursor
+         - query with orderBy + startAfter + limit(50)
+         - Prepends older messages to array
+         - hasMore flag disables loadMore when no more results
+      ✅ MessageList scroll handling (react-window virtualization)
+         - Detects scroll to top (scrollOffset <= 24px)
+         - Triggers loadMore when at top and hasMore === true
+         - Maintains scroll position after prepend
+         - Loading indicator at top while fetching
+      ✅ Test coverage added:
+         - tests/unit/lib/hooks/useMessages.test.tsx (pagination tests)
+         - tests/unit/lib/useMessages.test.tsx (pagination tests)
+         - All 12 tests passing
+      ✅ Validation: pnpm vitest run + pnpm eslint (no errors)
+      
+      Implementation Note: Core pagination code was already present from Story 7.4.
+      This story validated implementation, marked criteria complete, and added test coverage.
   
   "7.2":
     epic: 7
