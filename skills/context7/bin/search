@@ -1,0 +1,15 @@
+#!/bin/bash
+# Search for projects in Context7
+
+set -euo pipefail
+
+API_KEY=$(cat ~/.context7_api_key)
+export CONTEXT7_API_KEY="$API_KEY"
+
+if [ $# -eq 0 ]; then
+  echo "Usage: search <term>"
+  echo "Example: search firebase"
+  exit 1
+fi
+
+npx -y context7@latest search "$@"

@@ -173,21 +173,141 @@ echo -n "1:656802787955:web:f0699073fc24e5514ab006" | vercel env add NEXT_PUBLIC
 
 ### Authorized Domains in Firebase
 
-**Required:** Add your deployment domains to Firebase Auth → Settings → Authorized domains:
+**CRITICAL:** Add your deployment domains to Firebase Auth → Settings → Authorized domains **immediately after deploying to Vercel**.
 
-- `localhost` (for local development)
-- `your-app.vercel.app` (production)
+**What happens if you skip this:**
+```
+FirebaseError: Firebase: Error (auth/unauthorized-domain)
+Info: The current domain is not authorized for OAuth operations.
+```
+Google Sign-In will fail on production until the domain is authorized.
+
+**Required domains:**
+- `localhost` (for local development) — usually added by default
+- `your-app.vercel.app` (production) — **must be added manually after first deploy**
+- `your-app.firebaseapp.com` (default)
+- `your-app.web.app` (default)
 - Any custom domains
 
-**Via Firebase Console:**
-https://console.firebase.google.com/project/YOUR_PROJECT/authentication/settings
+**Via Firebase Console (manual):**
+1. Go to https://console.firebase.google.com/project/YOUR_PROJECT/authentication/settings
+2. Click "Authorized domains" tab
+3. Click "Add domain"
+4. Enter `your-app.vercel.app`
+5. Click "Add"
 
-Or use **web-browser skill** to automate this via CDP.
+**Via web-browser skill (automated):**
+Use the browser tool to automate domain addition via CDP (zero clicks required).
 
 ### Deployment Checklist
 
 1. ✅ Configure CSP headers in `next.config.ts`
 2. ✅ Add Firebase env vars to Vercel (using `echo -n`)
-3. ✅ Add deployment domains to Firebase Authorized domains
+3. ✅ **Add deployment domains to Firebase Authorized domains** ⚠️ **DO THIS IMMEDIATELY AFTER FIRST DEPLOY** — auth will fail on production until this is done
 4. ✅ Test on `localhost` before deploying to production
-5. ✅ Verify Google Sign-In works on production URL
+5. ✅ Verify Google Sign-In works on production URL (may need hard refresh to clear cached CSP)
+
+## signInWithRedirect vs signInWithPopup (CRITICAL)
+
+### The Problem: Cross-Origin Storage Access
+
+**TL;DR:** `signInWithRedirect()` is broken in production on modern browsers. Use `signInWithPopup()` instead, or implement a reverse proxy.
+
+Firebase's `signInWithRedirect()` uses a **cross-origin iframe** to handle authentication. This iframe connects to your Firebase authDomain (e.g., `your-app.firebaseapp.com`) to perform the OAuth flow. Modern browsers (Safari, Chrome in Incognito, Firefox with tracking protection) **block third-party storage access**, which prevents the redirect result from being captured.
+
+**Symptoms:**
+- OAuth flow completes successfully (user → Google → consent → redirect back to your app)
+- `getRedirectResult()` returns `null` even though redirect happened
+- User stays on landing page instead of being signed in
+- Console shows COOP policy errors: `"Cross-Origin-Opener-Policy policy would block the window.closed call"`
+- Firebase `init.json` 404 errors
+
+**Official Firebase documentation:** https://firebase.google.com/docs/auth/web/redirect-best-practices
+
+### Solutions (in order of preference)
+
+#### 1. Use signInWithPopup (Easiest - Works Immediately)
+
+**Change:**
+```typescript
+// ❌ BROKEN in production (third-party storage blocked)
+await signInWithRedirect(auth, provider);
+// Later: const result = await getRedirectResult(auth); // returns null
+
+// ✅ WORKS everywhere (no cross-origin issues)
+const result = await signInWithPopup(auth, provider);
+// UserCredential returned immediately, no second call needed
+```
+
+**Pros:**
+- 2-line fix
+- Works on all browsers immediately
+- No server-side changes needed
+
+**Cons:**
+- Popups can be blocked by browser/extensions
+- Less smooth UX on mobile (context switch)
+
+**When to use:** Default choice for all projects unless mobile UX is critical.
+
+#### 2. Reverse Proxy (Better UX, More Setup)
+
+Proxy auth requests to Firebase's domain to eliminate cross-origin access:
+
+**Next.js `next.config.ts`:**
+```typescript
+async rewrites() {
+  return [
+    {
+      source: '/__/auth/:path*',
+      destination: 'https://YOUR-PROJECT.firebaseapp.com/__/auth/:path*',
+    },
+    {
+      source: '/__/firebase/:path*',
+      destination: 'https://YOUR-PROJECT.firebaseapp.com/__/firebase/:path*',
+    }
+  ];
+}
+```
+
+Then update Firebase config to use your custom domain as `authDomain`:
+```typescript
+const firebaseConfig = {
+  authDomain: "your-custom-domain.com",  // Not .firebaseapp.com
+  // ... rest of config
+};
+```
+
+**Important:** Also add `your-custom-domain.com` to:
+- Firebase Auth → Authorized domains
+- OAuth provider redirect URIs (e.g., Google Cloud Console)
+
+**When to use:** When mobile UX matters and you can handle server-side rewrites.
+
+#### 3. Use Google Sign-In SDK Directly (Most Reliable)
+
+Skip Firebase's auth helpers entirely:
+
+```typescript
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+
+// Use Google's JavaScript client library
+// https://developers.google.com/identity/gsi/web/guides/overview
+const googleUser = await gapi.auth2.getAuthInstance().currentUser.get();
+const credential = GoogleAuthProvider.credential(
+  googleUser.getAuthResponse().id_token
+);
+const result = await signInWithCredential(auth, credential);
+```
+
+**When to use:** Enterprise apps requiring maximum reliability across all platforms.
+
+### Factory Standard
+
+**Default to signInWithPopup for all Firebase Auth implementations.**
+
+Only use `signInWithRedirect` if:
+- Mobile UX is a hard requirement, AND
+- You implement reverse proxy rewrites
+
+**Document this decision in project README and commit messages.**

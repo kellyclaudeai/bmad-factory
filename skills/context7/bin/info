@@ -1,0 +1,15 @@
+#!/bin/bash
+# Get metadata about a specific Context7 project
+
+set -euo pipefail
+
+API_KEY=$(cat ~/.context7_api_key)
+export CONTEXT7_API_KEY="$API_KEY"
+
+if [ $# -eq 0 ]; then
+  echo "Usage: info <projectIdentifier>"
+  echo "Example: info firebase/firebase-js-sdk"
+  exit 1
+fi
+
+npx -y context7@latest info "$@"

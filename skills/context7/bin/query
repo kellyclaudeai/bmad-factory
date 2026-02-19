@@ -1,0 +1,19 @@
+#!/bin/bash
+# Query Context7 documentation for a specific project
+
+set -euo pipefail
+
+API_KEY=$(cat ~/.context7_api_key)
+export CONTEXT7_API_KEY="$API_KEY"
+
+if [ $# -lt 2 ]; then
+  echo "Usage: query <projectIdentifier> <query>"
+  echo "Example: query firebase/firebase-js-sdk 'signInWithRedirect usage'"
+  exit 1
+fi
+
+PROJECT="$1"
+shift
+QUERY="$*"
+
+npx -y context7@latest "$PROJECT" "$QUERY"
