@@ -195,9 +195,20 @@ Add Manus MCP server to OpenClaw config:
 ```yaml
 platform: "iOS" | "web" | "Android"
 complexity: "very_simple" | "simple" | "moderate" | "complex"
+novelty_level: "low" | "medium" | "high"
 pricing_model: "freemium" | "paid" | "subscription"
 avoid_pain_points: ["domain-1", "domain-2", ...] # Previously researched problems
 ```
+
+**Config Parameters:**
+- `platform`: Target platform (iOS | web | Android)
+- `complexity`: Technical scope and story count
+- `novelty_level`: How novel/differentiated the solution should be
+  - `low`: Can compete in crowded markets with better execution
+  - `medium`: Differentiated approach in existing categories
+  - `high`: Novel approaches, underserved/wide open markets only
+- `pricing_model`: Monetization strategy (freemium | paid | subscription)
+- `avoid_pain_points`: Array of problem domains to skip
 
 **Mapping to Research Lead v3.3 constraints:**
 - `complexity: "very_simple"` → 15-25 stories
@@ -210,12 +221,12 @@ avoid_pain_points: ["domain-1", "domain-2", ...] # Previously researched problem
 **Kelly constructs a natural language prompt that invokes the Manus skill:**
 
 ```
-Run idea-factory skill with platform={platform}, complexity={complexity}, pricing_model={pricing_model}, avoid=[{avoid_pain_points}]
+Run idea-factory skill with platform={platform}, complexity={complexity}, novelty_level={novelty_level}, pricing_model={pricing_model}, avoid=[{avoid_pain_points}]
 ```
 
 **Example:**
 ```
-Run idea-factory skill with platform=iOS, complexity=simple, pricing_model=freemium, avoid=[fasting tracking, water intake tracking, caffeine intake tracking, parking location tracking]
+Run idea-factory skill with platform=iOS, complexity=moderate, novelty_level=high, pricing_model=subscription, avoid=[fasting tracking, water intake tracking, caffeine intake tracking, parking location tracking, ADHD navigation, home maintenance tracking, finance categorization]
 ```
 
 **The idea-factory skill handles all discovery logic internally.** No need to send the full discovery workflow prompt - Manus maintains that workflow.
@@ -431,11 +442,12 @@ Kelly:
 1. Parses config from message:
    - platform: iOS | web | Android
    - complexity: very_simple | simple | moderate | complex
+   - novelty_level: low | medium | high
    - pricing_model: freemium | paid | subscription
 2. Loads previously researched domains from project-registry.json → avoid_pain_points list
 3. Constructs skill invocation prompt:
    ```
-   Run idea-factory skill with platform=iOS, complexity=simple, pricing_model=freemium, avoid=[fasting tracking, water intake tracking, ...]
+   Run idea-factory skill with platform=iOS, complexity=moderate, novelty_level=high, pricing_model=subscription, avoid=[fasting tracking, water intake tracking, caffeine intake tracking, parking location tracking, ADHD navigation, home maintenance tracking, finance categorization]
    ```
 4. Triggers Manus via REST API:
    ```bash

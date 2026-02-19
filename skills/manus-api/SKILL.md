@@ -148,19 +148,23 @@ fs.writeFileSync(`${outputDir}/manus-discovery-ios-b2c-simple.md`, output);
 ### Skill Invocation Format
 
 ```
-Run idea-factory skill with platform={platform}, complexity={complexity}, pricing_model={pricing_model}, avoid=[{avoid_list}]
+Run idea-factory skill with platform={platform}, complexity={complexity}, novelty_level={novelty_level}, pricing_model={pricing_model}, avoid=[{avoid_list}]
 ```
 
 **Config Options:**
 - `platform`: `"iOS"` | `"web"` | `"Android"`
 - `complexity`: `"very_simple"` | `"simple"` | `"moderate"` | `"complex"`
+- `novelty_level`: `"low"` | `"medium"` | `"high"`
+  - `low`: Can compete in crowded markets with better execution
+  - `medium`: Differentiated approach in existing categories
+  - `high`: Novel approaches, underserved/wide open markets only
 - `pricing_model`: `"freemium"` | `"paid"` | `"subscription"`
 - `avoid`: Array of pain points to avoid (previously researched domains)
 
 **Example:**
 ```bash
 /Users/austenallred/clawd/skills/manus-api/bin/create-task \
-  --prompt "Run idea-factory skill with platform=iOS, complexity=simple, pricing_model=freemium, avoid=[fasting tracking, water intake tracking, caffeine intake tracking]" \
+  --prompt "Run idea-factory skill with platform=iOS, complexity=moderate, novelty_level=high, pricing_model=subscription, avoid=[fasting tracking, water intake tracking, caffeine intake tracking, parking location tracking, ADHD navigation, home maintenance tracking, finance categorization]" \
   --profile manus-1.6
 ```
 
