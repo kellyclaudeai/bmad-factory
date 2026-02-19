@@ -362,9 +362,45 @@ stories:
   "3.2":
     epic: 3
     title: "Fetch and Display Channel List"
-    status: todo
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["3.1"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:24:00-06:00"
+    notes: |
+      ✅ Channel list implementation complete - all acceptance criteria met
+      ✅ Created lib/types/models.ts Channel interface (channelId, workspaceId, name, createdBy, createdAt, lastMessageAt?, messageCount?)
+      ✅ Created lib/hooks/useChannels.ts - real-time Firestore hook
+         - Queries: collection(firestore, "workspaces/{workspaceId}/channels").orderBy("name", "asc")
+         - onSnapshot subscription for real-time updates
+         - Returns { channels, loading, error }
+         - Handles auth/workspace guard (empty state when no user/workspace)
+         - Cleanup on unmount
+      ✅ Created components/features/channels/ChannelList.tsx
+         - Uses useChannels hook
+         - Loading spinner with accessible role="status"
+         - Error message with role="alert"
+         - Empty state: "No channels yet. Create one to get started."
+         - Channel buttons with # prefix, hover effects
+         - Alphabetically sorted (client-side defensive sort)
+         - No unread counts (Story 6.4 adds that)
+      ✅ Updated components/layout/Sidebar.tsx
+         - Removed hardcoded DEFAULT_CHANNELS
+         - Removed channels prop from SidebarProps
+         - Replaced channels.map() with <ChannelList onChannelSelect={onClose} />
+         - Kept "+ New Channel" button
+      ✅ All acceptance criteria marked complete in story file
+      ✅ Tests passing: pnpm test (2 files, 2 tests)
+      ✅ Build: TypeScript validation passed for this story (pre-existing Sentry config error unrelated to this implementation)
+      
+      Files Changed:
+      - lib/types/models.ts (Channel interface added)
+      - lib/hooks/useChannels.ts (new)
+      - components/features/channels/ChannelList.tsx (new)
+      - components/layout/Sidebar.tsx (updated to use ChannelList)
+      - _bmad-output/implementation-artifacts/stories/story-3.2.md (criteria marked complete)
+      
+      Commit: 5d934cc (feat(3.2): Fetch and display channel list)
   
   "3.3":
     epic: 3
@@ -447,10 +483,33 @@ stories:
   "4.2":
     epic: 4
     title: "Build Message Input Component"
-    status: in_progress
+    status: review
     estimated_effort: "2 hours"
     dependencies: ["1.6", "3.1"]
     started_at: "2026-02-19T14:19:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T14:24:56-06:00"
+    notes: |
+      ✅ MessageInput component implemented at components/features/messages/MessageInput.tsx
+      ✅ Auto-expanding textarea (44px min, 200px max, scrolls past max)
+      ✅ Placeholder: "Type a message..."
+      ✅ Key handlers: Enter sends (preventDefault), Shift+Enter inserts newline
+      ✅ Character counter shown when >3900 chars (red when >4000)
+      ✅ Send button: Primary button, disabled when empty (trim) or >4000 chars
+      ✅ Input clears after send, focus returns to textarea
+      ✅ Props: channelId (string) and onSend (text: string) => void | Promise<void>
+      ✅ All acceptance criteria marked complete in story file
+      ✅ ESLint validation passed
+      
+      Implementation details:
+      - Client component ("use client" directive)
+      - useCallback hooks for optimal re-render performance
+      - useEffect clears input when channelId changes
+      - Uses design system Button component
+      - Auto-resize textarea via scrollHeight measurement
+      - Handles CJK input composition (isComposing check)
+      
+      Ready for code review
   
   "4.3":
     epic: 4
@@ -841,9 +900,10 @@ stories:
   "11.3":
     epic: 11
     title: "Set Up Error Tracking with Sentry"
-    status: todo
+    status: in_progress
     estimated_effort: "2 hours"
     dependencies: ["11.2"]
+    started_at: "2026-02-19T14:17:00-06:00"
   
   "11.4":
     epic: 11
