@@ -65,15 +65,11 @@ function isLoopbackHost(hostWithPort: string): boolean {
 }
 
 function assertEmulatorConfiguration(): void {
-  const configuredHosts = [
-    AUTH_EMULATOR_HOST,
-    FIRESTORE_EMULATOR_HOST,
-    DATABASE_EMULATOR_HOST,
-  ];
+  const configuredHosts = [AUTH_EMULATOR_HOST, FIRESTORE_EMULATOR_HOST, DATABASE_EMULATOR_HOST];
 
   if (!configuredHosts.every(isLoopbackHost)) {
     throw new Error(
-      "E2E messaging tests must run against local Firebase emulators (localhost / 127.0.0.1).",
+      "E2E messaging tests must run against local Firebase emulators (localhost / 127.0.0.1)."
     );
   }
 }
@@ -99,7 +95,7 @@ function getAdminApp(): App {
       projectId: EMULATOR_PROJECT_ID,
       databaseURL: `http://${DATABASE_EMULATOR_HOST}/?ns=${DATABASE_NAMESPACE}`,
     },
-    ADMIN_APP_NAME,
+    ADMIN_APP_NAME
   );
 }
 
@@ -120,7 +116,7 @@ async function requireOk(response: Response, requestLabel: string): Promise<void
 
   const body = await response.text().catch(() => "");
   throw new Error(
-    `${requestLabel} failed (${response.status} ${response.statusText}). ${body}`.trim(),
+    `${requestLabel} failed (${response.status} ${response.statusText}). ${body}`.trim()
   );
 }
 
@@ -132,7 +128,7 @@ async function waitForFirebaseEmulators(timeoutMs = 30_000): Promise<void> {
       const [authResponse, firestoreResponse, databaseResponse] = await Promise.all([
         fetch(`http://${AUTH_EMULATOR_HOST}/emulator/v1/projects/${EMULATOR_PROJECT_ID}/accounts`),
         fetch(
-          `http://${FIRESTORE_EMULATOR_HOST}/v1/projects/${EMULATOR_PROJECT_ID}/databases/(default)/documents?pageSize=1`,
+          `http://${FIRESTORE_EMULATOR_HOST}/v1/projects/${EMULATOR_PROJECT_ID}/databases/(default)/documents?pageSize=1`
         ),
         fetch(`http://${DATABASE_EMULATOR_HOST}/.json?ns=${DATABASE_NAMESPACE}`),
       ]);
@@ -159,7 +155,7 @@ async function resetFirebaseEmulators(): Promise<void> {
       `http://${FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/${EMULATOR_PROJECT_ID}/databases/(default)/documents`,
       {
         method: "DELETE",
-      },
+      }
     ),
     fetch(`http://${DATABASE_EMULATOR_HOST}/.json?ns=${DATABASE_NAMESPACE}`, {
       method: "DELETE",
@@ -287,7 +283,7 @@ async function waitForMessagingSurface(page: Page): Promise<void> {
 async function openSignedInSession(
   browser: Browser,
   user: SeededUser,
-  targetPath: string,
+  targetPath: string
 ): Promise<SignedInSession> {
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -311,9 +307,11 @@ async function sendMessage(page: Page, messageText: string): Promise<void> {
 }
 
 async function openChannel(page: Page, channelName: string): Promise<void> {
-  await page.getByRole("link", { name: new RegExp(`Channel ${escapeRegExp(channelName)}`, "i") }).click();
+  await page
+    .getByRole("link", { name: new RegExp(`Channel ${escapeRegExp(channelName)}`, "i") })
+    .click();
   await expect(
-    page.getByRole("heading", { name: new RegExp(`# ${escapeRegExp(channelName)}`, "i") }),
+    page.getByRole("heading", { name: new RegExp(`# ${escapeRegExp(channelName)}`, "i") })
   ).toBeVisible();
   await waitForMessagingSurface(page);
 }
@@ -335,7 +333,7 @@ test.describe("Real-Time Messaging", () => {
     const session = await openSignedInSession(
       browser,
       scenario.users.userA,
-      `/app/channels/${scenario.generalChannelId}`,
+      `/app/channels/${scenario.generalChannelId}`
     );
 
     try {
@@ -359,12 +357,12 @@ test.describe("Real-Time Messaging", () => {
     const sessionA = await openSignedInSession(
       browser,
       scenario.users.userA,
-      `/app/channels/${scenario.generalChannelId}`,
+      `/app/channels/${scenario.generalChannelId}`
     );
     const sessionB = await openSignedInSession(
       browser,
       scenario.users.userB,
-      `/app/channels/${scenario.generalChannelId}`,
+      `/app/channels/${scenario.generalChannelId}`
     );
 
     try {
@@ -384,7 +382,7 @@ test.describe("Real-Time Messaging", () => {
     const session = await openSignedInSession(
       browser,
       scenario.users.userA,
-      `/app/channels/${scenario.generalChannelId}`,
+      `/app/channels/${scenario.generalChannelId}`
     );
 
     try {
@@ -414,12 +412,12 @@ test.describe("Real-Time Messaging", () => {
     const sessionA = await openSignedInSession(
       browser,
       scenario.users.userA,
-      `/app/channels/${scenario.generalChannelId}`,
+      `/app/channels/${scenario.generalChannelId}`
     );
     const sessionB = await openSignedInSession(
       browser,
       scenario.users.userB,
-      `/app/channels/${scenario.devTeamChannelId}`,
+      `/app/channels/${scenario.devTeamChannelId}`
     );
 
     try {
@@ -434,7 +432,7 @@ test.describe("Real-Time Messaging", () => {
       await expect(
         sessionA.page.getByRole("link", {
           name: /Channel dev-team,\s*1 unread messages/i,
-        }),
+        })
       ).toHaveCount(0);
       await expect(messageRow(sessionA.page, unreadMessage)).toBeVisible();
     } finally {
@@ -447,7 +445,7 @@ test.describe("Real-Time Messaging", () => {
     const session = await openSignedInSession(
       browser,
       scenario.users.userA,
-      `/app/channels/${scenario.generalChannelId}`,
+      `/app/channels/${scenario.generalChannelId}`
     );
 
     try {
@@ -459,7 +457,7 @@ test.describe("Real-Time Messaging", () => {
       await expect(
         session.page.getByRole("heading", {
           name: new RegExp(`# ${escapeRegExp(channelName)}`, "i"),
-        }),
+        })
       ).toBeVisible({ timeout: 10_000 });
       await waitForMessagingSurface(session.page);
 
@@ -476,12 +474,12 @@ test.describe("Real-Time Messaging", () => {
     const sessionA = await openSignedInSession(
       browser,
       scenario.users.userA,
-      `/app/channels/${scenario.generalChannelId}`,
+      `/app/channels/${scenario.generalChannelId}`
     );
     const sessionB = await openSignedInSession(
       browser,
       scenario.users.userB,
-      `/app/channels/${scenario.generalChannelId}`,
+      `/app/channels/${scenario.generalChannelId}`
     );
 
     try {

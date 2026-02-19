@@ -21,8 +21,7 @@ process.env.PLAYWRIGHT_FIREBASE_DATABASE_NAMESPACE = PLAYWRIGHT_FIREBASE_PROJECT
 
 process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS = "true";
 process.env.NEXT_PUBLIC_FIREBASE_API_KEY =
-  process.env.NEXT_PUBLIC_FIREBASE_API_KEY ??
-  "AIzaSyDUMMY_KEY_FOR_PLAYWRIGHT_E2E_TESTS_123456";
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? "AIzaSyDUMMY_KEY_FOR_PLAYWRIGHT_E2E_TESTS_123456";
 process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN =
   process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ??
   `${PLAYWRIGHT_FIREBASE_PROJECT_ID}.firebaseapp.com`;
@@ -46,7 +45,14 @@ process.env.NEXT_PUBLIC_FIREBASE_DATABASE_EMULATOR_HOST = DATABASE_EMULATOR_HOST
 process.env.FIREBASE_AUTH_EMULATOR_HOST = AUTH_EMULATOR_HOST;
 process.env.FIRESTORE_EMULATOR_HOST = FIRESTORE_EMULATOR_HOST;
 process.env.FIREBASE_DATABASE_EMULATOR_HOST = DATABASE_EMULATOR_HOST;
-process.env.SKIP_AUTH_MIDDLEWARE = "true";
+process.env.PLAYWRIGHT_USE_FIREBASE_EMULATOR = process.env.PLAYWRIGHT_USE_FIREBASE_EMULATOR ?? "1";
+process.env.SKIP_AUTH_MIDDLEWARE = process.env.SKIP_AUTH_MIDDLEWARE ?? "true";
+
+const webServerEnv = Object.fromEntries(
+  Object.entries(process.env).filter(
+    (entry): entry is [string, string] => typeof entry[1] === "string",
+  ),
+);
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -65,12 +71,10 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],
   webServer: {
-    command: "pnpm build && pnpm start -- --port 3000",
+    command: "pnpm dev -- --port 3000",
     url: PLAYWRIGHT_BASE_URL,
-    timeout: 300_000,
+    timeout: 180_000,
     reuseExistingServer: !process.env.CI,
-    env: {
-      ...process.env,
-    },
+    env: webServerEnv,
   },
 });

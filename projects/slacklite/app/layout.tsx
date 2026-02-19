@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PerformanceDashboard } from "@/components/monitoring/PerformanceDashboard";
+import { PerformanceMonitoringProvider } from "@/components/providers/PerformanceMonitoringProvider";
 import { PresenceProvider } from "@/components/providers/PresenceProvider";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import "./globals.css";
@@ -33,11 +35,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ErrorBoundary>
+          <PerformanceMonitoringProvider />
           <AuthProvider>
             <PresenceProvider />
             {children}
           </AuthProvider>
         </ErrorBoundary>
+        <PerformanceDashboard />
         <Analytics />
         <SpeedInsights />
       </body>

@@ -6,23 +6,23 @@
 Implement client-side performance monitoring for key Web Vitals metrics (FCP, LCP, TTI, CLS, FID/INP) and custom application metrics (message delivery latency, channel switch time). Integrate with Vercel Analytics and Sentry for performance tracking and alerting.
 
 **Acceptance Criteria:**
-- [ ] Install web-vitals library: `pnpm add web-vitals`
-- [ ] Create `lib/monitoring/performance.ts` with Web Vitals tracking
-- [ ] Track core Web Vitals:
-  - [ ] First Contentful Paint (FCP) - Target: <1.8s
-  - [ ] Largest Contentful Paint (LCP) - Target: <2.5s
-  - [ ] Cumulative Layout Shift (CLS) - Target: <0.1
-  - [ ] Interaction to Next Paint (INP) - Target: <200ms
-- [ ] Track custom metrics:
-  - [ ] Message delivery latency - Target: <500ms
-  - [ ] Channel switch duration - Target: <200ms
-  - [ ] Authentication time - Target: <1s
-- [ ] Integrate with Vercel Analytics (already installed via @vercel/analytics)
-- [ ] Send metrics to Sentry for performance monitoring
-- [ ] Add performance monitoring to root layout
-- [ ] Create performance dashboard component (optional, for debugging)
-- [ ] Add performance tests to verify metrics are being tracked
-- [ ] Document performance monitoring in README
+- [x] Install web-vitals library: `pnpm add web-vitals`
+- [x] Create `lib/monitoring/performance.ts` with Web Vitals tracking
+- [x] Track core Web Vitals:
+  - [x] First Contentful Paint (FCP) - Target: <1.8s
+  - [x] Largest Contentful Paint (LCP) - Target: <2.5s
+  - [x] Cumulative Layout Shift (CLS) - Target: <0.1
+  - [x] Interaction to Next Paint (INP) - Target: <200ms
+- [x] Track custom metrics:
+  - [x] Message delivery latency - Target: <500ms
+  - [x] Channel switch duration - Target: <200ms
+  - [x] Authentication time - Target: <1s
+- [x] Integrate with Vercel Analytics (already installed via @vercel/analytics)
+- [x] Send metrics to Sentry for performance monitoring
+- [x] Add performance monitoring to root layout
+- [x] Create performance dashboard component (optional, for debugging)
+- [x] Add performance tests to verify metrics are being tracked
+- [x] Document performance monitoring in README
 
 **Dependencies:**
 dependsOn: ["4.4", "11.3"]
@@ -200,4 +200,4 @@ dependsOn: ["4.4", "11.3"]
 
 **Estimated Effort:** 3 hours
 
-**Status:** TODO
+**Status:** DONE

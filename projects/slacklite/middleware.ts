@@ -14,7 +14,7 @@ function buildSignInUrl(request: NextRequest): URL {
 
 function redirectToSignIn(
   request: NextRequest,
-  options: { clearSessionCookie?: boolean } = {},
+  options: { clearSessionCookie?: boolean } = {}
 ): NextResponse {
   const response = NextResponse.redirect(buildSignInUrl(request));
 

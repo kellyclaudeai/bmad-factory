@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { useChannels } from "@/lib/hooks/useChannels";
 import { useUnreadCounts } from "@/lib/hooks/useUnreadCounts";
+import { startChannelSwitchTracking } from "@/lib/monitoring/performance";
 import { Badge } from "@/components/ui/Badge";
 import { formatRelativeTime } from "@/lib/utils/formatting";
 
@@ -78,6 +79,14 @@ export function ChannelList({ onChannelSelect }: ChannelListProps) {
     [sortedChannels.length],
   );
 
+  const handleChannelSelection = useCallback(
+    (channelId: string) => {
+      startChannelSwitchTracking(channelId);
+      onChannelSelect?.();
+    },
+    [onChannelSelect],
+  );
+
   const handleChannelKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLAnchorElement>, index: number) => {
       if (sortedChannels.length === 0) {
@@ -104,11 +113,11 @@ export function ChannelList({ onChannelSelect }: ChannelListProps) {
           return;
         }
 
+        handleChannelSelection(channelId);
         router.push(`/app/channels/${channelId}`);
-        onChannelSelect?.();
       }
     },
-    [focusChannel, onChannelSelect, router, sortedChannels],
+    [focusChannel, handleChannelSelection, router, sortedChannels],
   );
 
   if (loading) {
@@ -157,7 +166,9 @@ export function ChannelList({ onChannelSelect }: ChannelListProps) {
                 channelRefs.current[index] = element;
               }}
               href={`/app/channels/${channel.channelId}`}
-              onClick={onChannelSelect}
+              onClick={() => {
+                handleChannelSelection(channel.channelId);
+              }}
               onFocus={() => setFocusedIndex(index)}
               onKeyDown={(event) => handleChannelKeyDown(event, index)}
               tabIndex={index === focusedIndex ? 0 : -1}

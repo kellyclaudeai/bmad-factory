@@ -17,7 +17,9 @@ const firestoreMocks = vi.hoisted(() => ({
 }));
 
 const sentryMocks = vi.hoisted(() => ({
+  captureMessageMock: vi.fn(),
   captureExceptionMock: vi.fn(),
+  distributionMock: vi.fn(),
 }));
 
 vi.mock("firebase/database", async () => {
@@ -47,6 +49,10 @@ vi.mock("firebase/firestore", async () => {
 
 vi.mock("@sentry/nextjs", () => ({
   captureException: sentryMocks.captureExceptionMock,
+  captureMessage: sentryMocks.captureMessageMock,
+  metrics: {
+    distribution: sentryMocks.distributionMock,
+  },
 }));
 
 vi.mock("@/lib/firebase/client", () => ({
@@ -64,6 +70,8 @@ describe("useRealtimeMessages", () => {
     Object.values(databaseMocks).forEach((mockFn) => mockFn.mockReset());
     Object.values(firestoreMocks).forEach((mockFn) => mockFn.mockReset());
     sentryMocks.captureExceptionMock.mockReset();
+    sentryMocks.captureMessageMock.mockReset();
+    sentryMocks.distributionMock.mockReset();
 
     firestoreMocks.serverTimestampMock.mockReturnValue("SERVER_TIMESTAMP");
     firestoreMocks.docMock.mockImplementation((_firestore: unknown, path: string) => ({ path }));

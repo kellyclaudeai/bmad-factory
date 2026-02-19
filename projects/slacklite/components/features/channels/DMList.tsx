@@ -17,6 +17,7 @@ export function DMList({ onDirectMessageSelect }: DMListProps) {
   const { dms, loading, error } = useDirectMessages();
   const pathname = usePathname();
   const [, setTick] = useState(0);
+  const dmIds = useMemo(() => dms.map((directMessage) => directMessage.dmId), [dms]);
 
   // Extract active DM ID from pathname (e.g., /app/dms/dm-123 → dm-123)
   const activeDmId = useMemo(() => {
@@ -32,6 +33,7 @@ export function DMList({ onDirectMessageSelect }: DMListProps) {
   // The hook subscribes to Firestore unreadCounts which includes both channels and DMs
   const { unreadCounts } = useUnreadCounts({
     channels: [],
+    directMessageIds: dmIds,
     activeTargetId: activeDmId,
     activeTargetType: "dm",
   });

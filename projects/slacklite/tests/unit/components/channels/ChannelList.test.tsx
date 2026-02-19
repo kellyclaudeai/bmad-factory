@@ -1,4 +1,9 @@
 import { render, screen } from "@testing-library/react";
+import {
+  forwardRef,
+  type AnchorHTMLAttributes,
+  type ReactNode,
+} from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -17,6 +22,30 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+vi.mock("next/link", () => {
+  const MockLink = forwardRef<
+    HTMLAnchorElement,
+    AnchorHTMLAttributes<HTMLAnchorElement> & {
+      children: ReactNode;
+      href: string | { pathname?: string };
+    }
+  >(({ children, href, ...props }, ref) => (
+    <a
+      ref={ref}
+      href={typeof href === "string" ? href : href.pathname ?? ""}
+      {...props}
+    >
+      {children}
+    </a>
+  ));
+  MockLink.displayName = "MockLink";
+
+  return {
+    __esModule: true,
+    default: MockLink,
+  };
+});
+
 vi.mock("@/lib/hooks/useChannels", () => ({
   useChannels: mocks.useChannelsMock,
 }));
@@ -26,6 +55,7 @@ vi.mock("@/lib/hooks/useUnreadCounts", () => ({
 }));
 
 import { ChannelList } from "@/components/features/channels/ChannelList";
+import { runAxe } from "@/tests/utils/axe";
 
 describe("ChannelList", () => {
   beforeEach(() => {
@@ -66,6 +96,23 @@ describe("ChannelList", () => {
     });
   });
 
+  it("renders the channel list", () => {
+    render(<ChannelList />);
+
+    expect(screen.getByRole("list", { name: "Channels" })).toBeInTheDocument();
+    expect(screen.getByText("# general")).toBeInTheDocument();
+    expect(screen.getByText("# dev-team")).toBeInTheDocument();
+  });
+
+  it("highlights the active channel", () => {
+    render(<ChannelList />);
+
+    const activeChannel = screen.getByText("# general").closest("a");
+
+    expect(activeChannel).not.toBeNull();
+    expect(activeChannel).toHaveClass("bg-gray-300", "border-l-4", "font-semibold");
+  });
+
   it("renders unread badges with brand styling in channel rows", () => {
     render(<ChannelList />);
 
@@ -89,5 +136,12 @@ describe("ChannelList", () => {
         channels: expect.any(Array),
       }),
     );
+  });
+
+  it("has no detectable accessibility violations", async () => {
+    const { container } = render(<ChannelList />);
+    const results = await runAxe(container);
+
+    expect(results.violations).toHaveLength(0);
   });
 });

@@ -13,6 +13,7 @@ import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 import { Button, Input } from "@/components/ui";
 import { auth, firestore } from "@/lib/firebase/client";
+import { trackAuthTime } from "@/lib/monitoring/performance";
 import { validateEmail as validateEmailInput } from "@/lib/utils/validation";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -134,6 +135,8 @@ export default function SignUpPage() {
 
     setErrorMessage("");
     setLoading(true);
+    const authStartTime = Date.now();
+    let authOutcome: "success" | "failure" = "failure";
 
     try {
       await setPersistence(auth, browserLocalPersistence);
@@ -154,10 +157,15 @@ export default function SignUpPage() {
         isOnline: false,
       });
 
+      authOutcome = "success";
       router.replace(redirectPath ?? "/create-workspace");
     } catch (error) {
       setErrorMessage(getSignUpErrorMessage(error));
     } finally {
+      trackAuthTime(authStartTime, Date.now(), {
+        flow: "signup",
+        outcome: authOutcome,
+      });
       setLoading(false);
     }
   };

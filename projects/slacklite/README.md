@@ -93,6 +93,24 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+## Performance Monitoring
+
+SlackLite includes client-side performance monitoring in `lib/monitoring/performance.ts`.
+
+- Core Web Vitals tracked: `FCP`, `LCP`, `CLS`, `INP`, `TTFB`
+- Custom metrics tracked:
+  - `message.delivery.latency` (target `<500ms`)
+  - `channel.switch.duration` (target `<200ms`)
+  - `auth.signin.duration` (target `<1s`)
+- Metrics are sent to both:
+  - Vercel Analytics custom events via `window.va`
+  - Sentry performance metrics (`Sentry.metrics.distribution`)
+- Threshold breaches emit warning-level Sentry events for alerting.
+
+Monitoring is initialized globally from `app/layout.tsx` via `PerformanceMonitoringProvider`.
+
+In development, a debug overlay (`PerformanceDashboard`) appears after metrics start flowing.
+
 ## Testing
 
 ### Install Playwright Browsers (first run)

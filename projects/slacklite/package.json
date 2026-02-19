@@ -17,8 +17,10 @@
     "test:security:rules": "firebase emulators:exec --only firestore,database \"pnpm vitest run tests/firestore.rules.spec.ts tests/database.rules.spec.ts\"",
     "test:firestore-rules": "firebase emulators:exec --only firestore \"pnpm vitest run tests/firestore.rules.spec.ts\"",
     "test:integration:firebase-rules": "firebase emulators:exec --only firestore,database \"pnpm vitest run tests/integration/firebase-rules.spec.ts\"",
-    "test:e2e": "PLAYWRIGHT_FIREBASE_PROJECT_ID=demo-slacklite firebase emulators:exec --project demo-slacklite --only auth,firestore,database \"playwright test\"",
-    "test:e2e:ui": "PLAYWRIGHT_FIREBASE_PROJECT_ID=demo-slacklite firebase emulators:exec --project demo-slacklite --only auth,firestore,database \"playwright test --ui\"",
+    "test:e2e:runner": "playwright test",
+    "test:e2e:ui:runner": "playwright test --ui",
+    "test:e2e": "PLAYWRIGHT_USE_FIREBASE_EMULATOR=1 PLAYWRIGHT_FIREBASE_PROJECT_ID=demo-slacklite FIREBASE_PROJECT_ID=demo-slacklite FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_DATABASE_EMULATOR_HOST=127.0.0.1:9000 SKIP_AUTH_MIDDLEWARE=true NEXT_PUBLIC_FIREBASE_API_KEY=demo-api-key NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=demo-slacklite.firebaseapp.com NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-slacklite NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=demo-slacklite.appspot.com NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012 NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:e2edemo NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://demo-slacklite.firebaseio.com firebase emulators:exec --project demo-slacklite --only auth,firestore,database \"pnpm test:e2e:runner\"",
+    "test:e2e:ui": "PLAYWRIGHT_USE_FIREBASE_EMULATOR=1 PLAYWRIGHT_FIREBASE_PROJECT_ID=demo-slacklite FIREBASE_PROJECT_ID=demo-slacklite FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_DATABASE_EMULATOR_HOST=127.0.0.1:9000 SKIP_AUTH_MIDDLEWARE=true NEXT_PUBLIC_FIREBASE_API_KEY=demo-api-key NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=demo-slacklite.firebaseapp.com NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-slacklite NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=demo-slacklite.appspot.com NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012 NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:e2edemo NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://demo-slacklite.firebaseio.com firebase emulators:exec --project demo-slacklite --only auth,firestore,database \"pnpm test:e2e:ui:runner\"",
     "emulators": "firebase emulators:start",
     "emulators:export": "firebase emulators:export ./emulator-data",
     "emulators:import": "firebase emulators:start --import=./emulator-data"
@@ -37,7 +39,8 @@
     "next": "15.5.12",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-window": "^1.8.10"
+    "react-window": "^1.8.10",
+    "web-vitals": "^5.1.0"
   },
   "devDependencies": {
     "@axe-core/react": "^4.11.1",

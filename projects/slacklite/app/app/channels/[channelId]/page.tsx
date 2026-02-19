@@ -12,6 +12,10 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 import { firestore } from "@/lib/firebase/client";
 import { useChannels } from "@/lib/hooks/useChannels";
 import { useWorkspaceOwnerId } from "@/lib/hooks/useWorkspaceOwnerId";
+import {
+  consumeChannelSwitchStart,
+  trackChannelSwitch,
+} from "@/lib/monitoring/performance";
 import { useRealtimeMessages } from "@/lib/hooks/useRealtimeMessages";
 import { deleteChannel, renameChannel } from "@/lib/utils/channels";
 import { isGeneralChannelName } from "@/lib/utils/workspace";
@@ -73,6 +77,7 @@ export default function ChannelPage() {
   const [isDeleteChannelModalOpen, setIsDeleteChannelModalOpen] = useState(false);
   const [channelActionError, setChannelActionError] = useState<string | null>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
+  const channelSwitchStartTimeRef = useRef<number | null>(null);
   const previousMessageCountRef = useRef(0);
   const wasAtBottomRef = useRef(true);
   const hasInitializedScrollRef = useRef(false);
@@ -136,6 +141,8 @@ export default function ChannelPage() {
   }, [channelActionError]);
 
   useEffect(() => {
+    channelSwitchStartTimeRef.current =
+      consumeChannelSwitchStart(channelId) ?? Date.now();
     setShowNewMessagesBadge(false);
     previousMessageCountRef.current = 0;
     wasAtBottomRef.current = true;
@@ -150,6 +157,21 @@ export default function ChannelPage() {
     }, 100);
     return () => clearTimeout(timer);
   }, [channelId]);
+
+  useEffect(() => {
+    if (channelId.length === 0 || loading || isChannelSwitching) {
+      return;
+    }
+
+    const switchStartTime = channelSwitchStartTimeRef.current;
+
+    if (switchStartTime === null) {
+      return;
+    }
+
+    trackChannelSwitch(switchStartTime, Date.now(), { channelId });
+    channelSwitchStartTimeRef.current = null;
+  }, [channelId, isChannelSwitching, loading]);
 
   useEffect(() => {
     if (messages.length === 0) {

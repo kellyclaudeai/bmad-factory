@@ -6,14 +6,14 @@
 Write end-to-end tests for critical user flows (signup, login, channel creation, message sending) using Playwright. Ensure core user journeys work from start to finish.
 
 **Acceptance Criteria:**
-- [ ] E2E test: New user signup flow (email/password → workspace creation → redirects to app)
-- [ ] E2E test: Existing user login flow (email/password → redirects to app)
-- [ ] E2E test: Channel creation flow (click "+ New Channel" → enter name → channel created → redirects to channel)
-- [ ] E2E test: Message sending flow (type message → press Enter → message appears)
-- [ ] E2E test: Sign out flow (click sign out → confirm → redirects to landing page)
-- [ ] E2E test: Protected route enforcement (unauthenticated user → redirects to signin)
-- [ ] All tests run against Firebase Emulator (not production)
-- [ ] Tests run in CI/CD pipeline
+- [x] ✅ E2E test: New user signup flow (email/password → workspace creation → redirects to app)
+- [x] ✅ E2E test: Existing user login flow (email/password → redirects to app)
+- [x] ✅ E2E test: Channel creation flow (click "+ New Channel" → enter name → channel created → redirects to channel)
+- [x] ✅ E2E test: Message sending flow (type message → press Enter → message appears)
+- [x] ✅ E2E test: Sign out flow (click sign out → confirm → redirects to landing page)
+- [x] ✅ E2E test: Protected route enforcement (unauthenticated user → redirects to signin)
+- [x] ✅ All tests run against Firebase Emulator (not production)
+- [x] ✅ Tests run in CI/CD pipeline
 
 **Dependencies:**
 dependsOn: ["10.1"]

@@ -1,9 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { Timestamp } from "firebase/firestore";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import MessageItem from "@/components/features/messages/MessageItem";
 import type { Message } from "@/lib/types/models";
+import { runAxe } from "@/tests/utils/axe";
+import * as formatting from "@/lib/utils/formatting";
 
 function createMessage(text: string): Message {
   const timestamp = Timestamp.now();
@@ -25,7 +27,48 @@ function normalizeTextContent(element: HTMLElement | null): string {
   return (element?.textContent ?? "").replace(/\s+/g, " ").trim();
 }
 
-describe("MessageItem long message truncation", () => {
+describe("MessageItem", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("renders the author name", () => {
+    render(<MessageItem message={createMessage("Hello world")} />);
+
+    expect(screen.getByText("Austen")).toBeInTheDocument();
+  });
+
+  it("renders the timestamp", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-02-19T12:00:00.000Z"));
+
+    try {
+      const timestamp = Timestamp.fromDate(new Date("2026-02-19T11:55:00.000Z"));
+      const message = createMessage("Hello world");
+      message.timestamp = timestamp;
+      message.createdAt = timestamp;
+
+      render(<MessageItem message={message} />);
+
+      expect(screen.getByText("5 min ago")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("uses formatRelativeTime to format message timestamps", () => {
+    const formattedTimestamp = "Custom formatted timestamp";
+    const formatRelativeTimeSpy = vi
+      .spyOn(formatting, "formatRelativeTime")
+      .mockReturnValue(formattedTimestamp);
+    const message = createMessage("Helper formatting");
+
+    render(<MessageItem message={message} />);
+
+    expect(formatRelativeTimeSpy).toHaveBeenCalledWith(message.timestamp);
+    expect(screen.getByText(formattedTimestamp)).toBeInTheDocument();
+  });
+
   it("renders user-generated html-like content as text", () => {
     const htmlLikeText = '<script>alert("xss")</script><b>hello</b>';
     const { container } = render(<MessageItem message={createMessage(htmlLikeText)} />);
@@ -94,5 +137,12 @@ describe("MessageItem long message truncation", () => {
     fireEvent.keyUp(showMoreButton, { key: "Enter" });
 
     expect(screen.getByRole("button", { name: "Show less" })).toBeInTheDocument();
+  });
+
+  it("has no detectable accessibility violations", async () => {
+    const { container } = render(<MessageItem message={createMessage("Accessible message")} />);
+    const results = await runAxe(container);
+
+    expect(results.violations).toHaveLength(0);
   });
 });

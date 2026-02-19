@@ -30,6 +30,7 @@ import type { Channel, UnreadTargetType } from "@/lib/types/models";
 
 export interface UseUnreadCountsOptions {
   channels: Channel[];
+  directMessageIds?: string[];
   activeTargetId?: string | null;
   activeTargetType?: UnreadTargetType;
 }
@@ -84,6 +85,28 @@ function toChannelIds(channels: Channel[]): string[] {
   return [...uniqueChannelIds];
 }
 
+function toTargetIds(targetIds: string[] | undefined): string[] {
+  if (!targetIds || targetIds.length === 0) {
+    return [];
+  }
+
+  const uniqueTargetIds = new Set<string>();
+
+  targetIds.forEach((targetId) => {
+    if (typeof targetId !== "string") {
+      return;
+    }
+
+    const normalizedTargetId = targetId.trim();
+
+    if (normalizedTargetId.length > 0) {
+      uniqueTargetIds.add(normalizedTargetId);
+    }
+  });
+
+  return [...uniqueTargetIds];
+}
+
 function toMessageAuthorUserId(snapshot: DataSnapshot): string {
   const payload = snapshot.val();
 
@@ -98,6 +121,7 @@ function toMessageAuthorUserId(snapshot: DataSnapshot): string {
 
 export function useUnreadCounts({
   channels,
+  directMessageIds,
   activeTargetId,
   activeTargetType = "channel",
 }: UseUnreadCountsOptions): UseUnreadCountsResult {
@@ -112,6 +136,7 @@ export function useUnreadCounts({
   const normalizedActiveTargetId =
     typeof activeTargetId === "string" ? activeTargetId.trim() : "";
   const channelIds = useMemo(() => toChannelIds(channels), [channels]);
+  const dmIds = useMemo(() => toTargetIds(directMessageIds), [directMessageIds]);
   const activeTargetIdRef = useRef(normalizedActiveTargetId);
 
   useEffect(() => {
@@ -119,7 +144,7 @@ export function useUnreadCounts({
   }, [normalizedActiveTargetId]);
 
   const incrementUnreadCount = useCallback(
-    async (targetId: string): Promise<void> => {
+    async (targetId: string, targetType: UnreadTargetType): Promise<void> => {
       if (userId.length === 0 || targetId.length === 0) {
         return;
       }
@@ -141,7 +166,7 @@ export function useUnreadCounts({
       await setDoc(unreadCountRef, {
         userId,
         targetId,
-        targetType: "channel",
+        targetType,
         count: 1,
         lastReadAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -244,14 +269,29 @@ export function useUnreadCounts({
   }, [activeTargetType, clearUnreadCount, normalizedActiveTargetId, userId]);
 
   useEffect(() => {
-    if (userId.length === 0 || workspaceId.length === 0 || channelIds.length === 0) {
+    if (
+      userId.length === 0 ||
+      workspaceId.length === 0 ||
+      (channelIds.length === 0 && dmIds.length === 0)
+    ) {
       return;
     }
 
+    const channelTargets = channelIds.map((channelId) => ({
+      targetId: channelId,
+      targetType: "channel" as const,
+      rtdbThreadId: channelId,
+    }));
+    const dmTargets = dmIds.map((dmId) => ({
+      targetId: dmId,
+      targetType: "dm" as const,
+      rtdbThreadId: `dm-${dmId}`,
+    }));
+    const unreadTargets = [...channelTargets, ...dmTargets];
     const detachListeners: Array<() => void> = [];
 
-    channelIds.forEach((channelId) => {
-      const channelMessagesRef = ref(rtdb, `messages/${workspaceId}/${channelId}`);
+    unreadTargets.forEach((unreadTarget) => {
+      const channelMessagesRef = ref(rtdb, `messages/${workspaceId}/${unreadTarget.rtdbThreadId}`);
       const channelMessagesQuery = rtdbQuery(
         channelMessagesRef,
         orderByChild("timestamp"),
@@ -273,13 +313,18 @@ export function useUnreadCounts({
           return;
         }
 
-        if (activeTargetIdRef.current === channelId) {
+        if (
+          activeTargetType === unreadTarget.targetType &&
+          activeTargetIdRef.current === unreadTarget.targetId
+        ) {
           return;
         }
 
-        void incrementUnreadCount(channelId).catch((incrementError) => {
-          setError(toError(incrementError, "Failed to increment unread count."));
-        });
+        void incrementUnreadCount(unreadTarget.targetId, unreadTarget.targetType).catch(
+          (incrementError) => {
+            setError(toError(incrementError, "Failed to increment unread count."));
+          },
+        );
       };
 
       const handleMessageError = (listenerError: Error): void => {
@@ -298,7 +343,7 @@ export function useUnreadCounts({
         detachListener();
       });
     };
-  }, [channelIds, incrementUnreadCount, userId, workspaceId]);
+  }, [activeTargetType, channelIds, dmIds, incrementUnreadCount, userId, workspaceId]);
 
   return {
     unreadCounts,

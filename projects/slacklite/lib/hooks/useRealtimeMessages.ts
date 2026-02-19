@@ -14,6 +14,7 @@ import {
 import { Timestamp, doc, serverTimestamp as firestoreServerTimestamp, setDoc } from "firebase/firestore";
 
 import { firestore, rtdb } from "@/lib/firebase/client";
+import { trackMessageLatency } from "@/lib/monitoring/performance";
 import { createRTDBMessage, type Message, type RTDBMessage } from "@/lib/types/models";
 import { sanitizeMessageText, validateMessageText } from "@/lib/utils/validation";
 
@@ -135,7 +136,11 @@ function parseRTDBMessage(value: unknown): RTDBMessage | null {
 }
 
 function logDeliveryLatency(messageId: string, sentAtMs: number): void {
-  const latencyMs = Date.now() - sentAtMs;
+  const latencyMs = trackMessageLatency(sentAtMs, Date.now());
+
+  if (latencyMs > 60_000) {
+    return;
+  }
 
   if (latencyMs < 500) {
     console.log(

@@ -13,6 +13,7 @@ import {
 
 import { Button, Input } from "@/components/ui";
 import { auth } from "@/lib/firebase/client";
+import { trackAuthTime } from "@/lib/monitoring/performance";
 import { syncServerSession } from "@/lib/utils/session";
 import { validateEmail as validateEmailInput } from "@/lib/utils/validation";
 
@@ -115,6 +116,8 @@ export default function SignInPage() {
 
     setErrorMessage("");
     setIsLoading(true);
+    const authStartTime = Date.now();
+    let authOutcome: "success" | "failure" = "failure";
 
     try {
       await setPersistence(auth, browserLocalPersistence);
@@ -124,10 +127,15 @@ export default function SignInPage() {
         password,
       );
       await syncServerSession(userCredential.user);
+      authOutcome = "success";
       router.replace(redirectPath ?? "/app");
     } catch (error) {
       setErrorMessage(getSignInErrorMessage(error));
     } finally {
+      trackAuthTime(authStartTime, Date.now(), {
+        flow: "signin",
+        outcome: authOutcome,
+      });
       setIsLoading(false);
     }
   };
