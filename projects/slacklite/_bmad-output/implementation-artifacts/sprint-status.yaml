@@ -48,9 +48,22 @@ stories:
   "1.4":
     epic: 1
     title: "Initialize Firebase SDK in Next.js"
-    status: todo
+    status: done
     estimated_effort: "1 hour"
     dependencies: ["1.1", "1.2"]
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T10:50:00-06:00"
+    notes: |
+      ✅ Firebase SDK v11 installed (firebase@11 + @firebase/auth + @firebase/firestore + @firebase/database)
+      ✅ Created lib/firebase/client.ts with Firebase initialization
+      ✅ Environment variables configured (NEXT_PUBLIC_FIREBASE_* pattern)
+      ✅ Exported auth, firestore, rtdb instances
+      ✅ Emulator connection logic added (dev mode: localhost:9099, :8080, :9000)
+      ✅ Created lib/types/models.ts with Firebase SDK type imports
+      ✅ Created .env.local.example with all required variables documented
+      ✅ Build successful - no errors
+      
+      Commit: ee323ba (feat(1.4): Initialize Firebase SDK in Next.js)
   
   "1.5":
     epic: 1
