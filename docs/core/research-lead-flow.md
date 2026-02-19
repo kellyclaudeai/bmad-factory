@@ -82,10 +82,10 @@ openclaw gateway call agent \
 ### Core Agents
 
 **Mary (Business Analyst)**
-- Role: Problem discovery, solution gap analysis, competitive validation, initial naming
+- Role: Problem discovery, solution gap analysis, solution selection
 - Model: Sonnet 4.5
 - Tools: web_search, web_fetch
-- Phases: Phase 1 (problem discovery + initial naming), Phase 4 (solution selection), Phase 5 (deep-dive)
+- Phases: Phase 1 (problem discovery + initial naming), Phase 4 (solution selection)
 
 **Carson (Brainstorming Coach)**
 - Role: Divergent thinking, creative naming
@@ -102,10 +102,10 @@ openclaw gateway call agent \
 - Model: Sonnet 4.5
 - Phase: Phase 3 (CIS ideation)
 
-**Quinn (Creative Problem Solver)**
-- Role: TRIZ, systems thinking, root cause analysis
+**Quinn (Devil's Advocate)**
+- Role: Skeptical analyst, tries to kill bad ideas before dev time is wasted
 - Model: Sonnet 4.5
-- Phase: Phase 3 (CIS ideation)
+- Phase: Phase 5 (idea validation — not ideation)
 
 **Research Lead (Orchestrator)**
 - Role: Workflow orchestration, registry management, brief compilation
@@ -222,71 +222,70 @@ Problem Candidate #2: No way to track home maintenance
 
 **Objective:** Score remaining candidates to find the best opportunity — balancing pain intensity, demand evidence, and solution gap
 
-**For each remaining candidate, Mary scores 1-10 across five dimensions:**
+**For each remaining candidate, Mary evaluates binary kill gates first, then scores across four dimensions:**
+
+**KILL GATES (binary — fail any = abort):**
+
+1. **No evidence of spending** — Nobody pays for anything in this space. Zero paid products exist, no discussions about pricing, no evidence people would spend money to solve this.
+2. **Cold start problem** — Product needs other users' data to work on day 1. Classic two-sided marketplace or UGC platform with chicken-and-egg dependency.
+3. **Can't build with our stack** — Requires technology outside configured stack (specialized ML, real-time video, hardware, proprietary APIs we can't access).
+4. **Incumbent fortress** — Well-funded competitor (Series A+) does this exact thing well. Product is actively maintained, users are happy (4+ stars), clear market leader exists.
+
+**If ANY kill gate is triggered → eliminate immediately, regardless of other factors.**
+
+---
+
+**SCORING (4 dimensions, 1-10 each, total /40):**
 
 **1. Pain Intensity (1-10):**
-- How badly does this problem affect people?
-- Evidence: strong language ("hate", "nightmare", "impossible", "waste")
-- Active solution-seeking behavior (people trying multiple tools, building DIY solutions)
-- Frequency: daily annoyance > monthly annoyance
-- Impact: costs money, wastes significant time, causes stress/anxiety
+- How severely does this affect people?
+- **Evidence:** Strong emotional language ("hate", "nightmare", "impossible", "waste"), financial cost, time waste, stress/anxiety
+- **Active solution-seeking:** People trying multiple tools, building DIY solutions, asking "why doesn't this exist?"
+- **Frequency vs. Stakes:** Daily annoyances can score high (8-10). BUT high-stakes infrequent pain (tax filing, weddings, moving, gift-giving) can score EQUALLY high if the impact is severe enough.
+- **Impact depth:** Does this cost real money? Waste hours? Cause emotional distress?
 
-**2. Evidence Breadth (1-10):**
-- How many INDEPENDENT sources document this problem?
-- Multiple platforms: Reddit + HN + X + Reviews = strong (8-10)
-- Single platform, multiple threads: decent (5-7)
-- Single thread, high engagement: weak but notable (3-4)
-- Geographic spread: global > just SF tech bubble
-- Time spread: mentioned last week AND 6 months ago = persistent
+**2. Willingness to Pay (1-10):** ← REPLACES "Evidence Breadth"
+- Are people ALREADY paying for solutions in this space (even bad ones)?
+- **10:** Multiple paid products exist, users paying $10-50+/mo, active discussions about pricing
+- **8-9:** Some paid solutions exist, or people paying for adjacent tools/workarounds
+- **6-7:** Freemium products with paid tiers, or significant time investment in DIY solutions (time = money signal)
+- **4-5:** Mostly free solutions, but some evidence of willingness to pay (people asking "is there a paid version?")
+- **2-3:** Purely free/ad-supported space, minimal monetization discussion
+- **1:** Zero evidence anyone would pay for this (fails kill gate #1)
+- **Note:** We care about SPENDING SIGNALS, not just "how many people mentioned it." One person paying $50/mo is stronger signal than 100 Reddit upvotes.
 
-**3. Solution Gap (1-10):** ← CRITICAL — INVERTED FROM v2.0
-- How POORLY served is this problem currently?
+**3. Competition Gap (1-10):** ← RENAMED, SAME INVERTED SCALE
+- How poorly served is this currently?
 - **10:** No solutions exist at all — people use terrible manual workarounds
 - **8-9:** Solutions exist but ALL are bad (low ratings, major feature gaps, abandoned)
 - **6-7:** 1-2 decent solutions exist but with significant gaps or overpriced
 - **4-5:** Decent solutions exist, minor gaps only
 - **2-3:** Good solutions exist, hard to differentiate
-- **1:** Excellent solutions already serve this need perfectly — no opportunity
-- **Note:** This is the OPPOSITE of "market size validation." A problem with 10 well-funded competitors scores LOW here, not high. We want problems that are UNDERSERVED.
+- **1:** Excellent solutions already serve this need perfectly (fails kill gate #4)
+- **Note:** This is INVERTED. We want UNDERSERVED problems, not crowded markets.
 
 **4. Buildability (1-10):**
 - Can this be built with our configured platform and stack?
 - **Platform match:** Config says web-app → can this be a web app?
 - **Technical complexity:** Solo developer scope (40-60 stories max)?
-- **Data requirements:** Can we access the data needed? No proprietary datasets?
-- **No specialized tech:** No custom ML models, no real-time video, no hardware
-- **Legal/compliance:** Consumer tools = low barrier. Healthcare/finance = high barrier.
-- **Value Source Analysis (CRITICAL):** What is the primary data/content this product needs to deliver its core value? Score based on value source type:
+- **Stack alignment:** Can our configured stack handle this?
+- **Legal/compliance:** Consumer tools = low barrier (8-10). Healthcare/finance = high barrier (4-6).
+- **Value Source Analysis (CRITICAL):** What is the primary data/content this product needs to deliver its core value?
   - **10:** Self-contained — the software itself creates value (calculator, editor, converter). Works on day 1 with 0 users, no external dependencies.
   - **8-9:** User's own data — user brings their own value (budget tracker, habit app, notes). No cold start problem, no data dependency.
   - **6-7:** External data via reliable, established APIs — data exists and is accessible (weather APIs, public datasets, government data). Verify API actually exists and covers the need.
   - **4-5:** External data via scraping or unreliable sources — data might exist but requires building/maintaining scrapers, or APIs are limited/expensive. High maintenance burden.
-  - **2-3:** User-generated content from OTHER users — marketplace, social network, review platform. Classic cold start: app is useless with 0 users. Requires solving chicken-and-egg problem.
-  - **1:** Requires data that provably doesn't exist in accessible form — no API, no scrapable source, depends entirely on people uploading content they have no incentive to upload.
-  - **If value source scores ≤ 3, cap overall Buildability at 4/10 max** regardless of other factors. A technically simple app with no data is still unbuildable.
+  - **2-3:** User-generated content from OTHER users (fails kill gate #2)
+  - **1:** Requires data that provably doesn't exist in accessible form (fails kill gate #3)
+  - **If value source scores ≤ 3, this fails kill gate #2 or #3** — eliminate before scoring.
 
-**5. Demand Validation (1-10):** ← QUANTITATIVE SIGNALS, NOT COMPETITOR FUNDING
-- Is there QUANTITATIVE evidence that enough people have this problem?
-- **Google Trends:** Search volume for related queries (10K+/mo = decent, 100K+ = strong)
-- **App downloads:** Related (even bad) apps have significant downloads? (100K+ = validated demand)
-- **Community size:** Relevant subreddits, forums, Discord servers have large memberships?
-- **Engagement:** Problem-related posts consistently get high engagement (not one-off viral post)?
-- **Willingness to pay:** Any evidence people would pay? (discussions about pricing, existing paid products in adjacent space)
-- **Note:** This replaces "Market Size" from v2.0. We're validating DEMAND (people want this solved) without rewarding CROWDEDNESS (lots of competitors).
+**Total Score: 4-40 points per problem**
 
-**Total Score: 5-50 points per problem**
+**Minimum threshold: 28/40 to proceed**
 
-**Disqualifiers (immediate elimination, regardless of score):**
-- Well-served problem (3+ good products with 4+ star ratings, active development)
-- Crowded market (5+ funded competitors, even if gaps exist)
-- Requires hardware/physical product (config is software-focused)
-- Needs proprietary data we can't access (e.g., real-time stock feeds, medical records)
-- Heavily regulated without clear compliance path (HIPAA, banking regs)
-- Technical complexity beyond configured stack scope
-- No monetization path (purely free/open-source space, zero willingness to pay)
-- Platform mismatch (mobile-only problem when config is web-app, unless web solution viable)
-- Zero demand validation (no search volume, no app downloads, no community — just one Reddit post)
-- **Uncontrollable value source** — core product value depends on data/content that doesn't exist in accessible form AND requires other users to generate (cold start with no bootstrap path). Ask: "On day 1 with 0 users and only public APIs/data, does this product deliver value?" If no → disqualify.
+**Disqualifiers (covered by kill gates + threshold):**
+- Kill gate failures (no spending, cold start, can't build, incumbent fortress)
+- Score below 28/40 (insufficient opportunity even if no kill gates triggered)
 
 ---
 
@@ -313,12 +312,17 @@ Problem Candidate #2: No way to track home maintenance
 ## Discovery Approach Used
 [Brief description of search approach taken - e.g., "Review gap mining on App Store", "Workaround archaeology on Reddit + HN", "Enshittification research", etc.]
 
-## Score: [X]/50
+## Kill Gates: PASS ✅
+- ✅ Evidence of spending exists
+- ✅ No cold start problem
+- ✅ Buildable with our stack
+- ✅ No incumbent fortress
+
+## Score: [X]/40 (minimum 28 required)
 - **Pain Intensity:** X/10 - [Evidence summary]
-- **Evidence Breadth:** X/10 - [Source count and diversity]
-- **Solution Gap:** X/10 - [Current solution landscape - what exists, why it's bad/missing]
-- **Buildability:** X/10 - [Platform fit, stack alignment, complexity estimate]
-- **Demand Validation:** X/10 - [Search volume, app downloads, community size]
+- **Willingness to Pay:** X/10 - [What people currently pay, spending signals]
+- **Competition Gap:** X/10 - [Current solution landscape - what exists, why it's bad/missing]
+- **Buildability:** X/10 - [Platform fit, stack alignment, complexity estimate, value source]
 
 ## Problem Description
 [2-3 sentence description of the unsolved problem]
@@ -468,9 +472,9 @@ If YES_DUPLICATE, specify which existing entry matches and explain why.
 
 ### Phase 3: CIS Ideation (5-8 min)
 
-**Objective:** Generate 15-20 novel solutions to the discovered problem
+**Objective:** Generate 15 novel solutions to the discovered problem
 
-**Research Lead spawns 4 CIS personas in parallel.**
+**Research Lead spawns 3 CIS personas in parallel** (Carson, Victor, Maya). Each generates 5 solutions = 15 total.
 
 **Prompt structure for each persona:**
 
@@ -483,7 +487,7 @@ Target Customer: [From Mary's output]
 
 Current Landscape: [What exists now and why it's inadequate]
 
-Your task: Generate 4-5 novel solutions that address this problem.
+Your task: Generate 5 novel solutions that address this problem.
 
 Constraints (CRITICAL — apply to all solutions):
 - **Platform:** [from config — e.g., "Web application (browser-based)"]
@@ -503,9 +507,8 @@ Focus on your unique methodology:
 - [Carson: Divergent thinking, volume over judgment]
 - [Victor: Blue Ocean strategy, disruptive angles]
 - [Maya: Human-centered design, empathy-driven]
-- [Quinn: TRIZ, systems thinking, root cause analysis]
 
-Output: 4-5 solution concepts with:
+Output: 5 solution concepts with:
 - Name (creative, varied — not all compound words)
 - 2-3 sentence description
 - How it solves the problem (specifically, not generically)
@@ -515,25 +518,20 @@ Output: 4-5 solution concepts with:
 
 **Carson (Brainstorming Coach):**
 - Divergent thinking, volume over judgment
-- 4-5 wild ideas, some unconventional
+- 5 wild ideas, some unconventional
 - Naming style: Playful, unexpected (e.g., "Done-ish", "Oops")
 
 **Victor (Innovation Strategist):**
 - Blue Ocean strategy, disruptive angles
-- 4-5 ideas that avoid incremental thinking
+- 5 ideas that avoid incremental thinking
 - Naming style: Metaphorical, strategic (e.g., "Lighthouse", "Canvas")
 
 **Maya (Design Thinking Coach):**
 - Human-centered, empathy-driven
-- 4-5 ideas focused on user experience and emotional needs
+- 5 ideas focused on user experience and emotional needs
 - Naming style: Evocative, emotional (e.g., "Peace", "Clarity")
 
-**Quinn (Creative Problem Solver):**
-- TRIZ, systems thinking, root cause
-- 4-5 ideas that solve underlying system issues
-- Naming style: Action-oriented, outcome-focused (e.g., "Track", "Fix")
-
-**Research Lead collects all solutions (16-20 total), prepares for Phase 4**
+**Research Lead collects all solutions (15 total), prepares for Phase 4**
 
 ---
 
@@ -568,26 +566,26 @@ For each solution, search:
 
 #### 2. Score Each Solution (2-3 min)
 
-**5 dimensions (1-10 each):**
+**4 dimensions (1-10 each, total /40):**
 
-**Novelty (1-10):**
-- How unique is this approach?
+**1. Novelty (1-10):**
+- How genuinely unique is this approach?
 - Does a direct competitor already do this exact thing?
 - Is there a genuinely novel angle or insight?
-- Would this make someone say "huh, that's clever" — not just "oh, another [category] app"?
+- Would someone say "huh, clever" — not "oh, another [category] app"?
 
-**Problem-Solution Fit (1-10):**
+**2. Problem-Solution Fit (1-10):**
 - Does this actually solve the discovered problem well?
 - Does it address the ROOT CAUSE or just symptoms?
 - Would target customers see immediate value?
 - Is the solution aligned with how customers experience the problem?
 
-**Feasibility (1-10):**
+**3. Feasibility (1-10):**
 - Can this be built as a [platform from config]?
 - Does it fit our stack?
 - Complexity within solo dev scope (40-60 stories)?
 - Technical risks manageable?
-- **Value Source (CRITICAL):** What data/content powers the core value? Score harshly:
+- **Value Source Check:** What data/content powers the core value?
   - Self-contained or user's own data (8-10) → user brings their own value, no dependencies
   - Reliable external APIs (6-7) → verify the API actually exists and covers the need
   - Scraping or unreliable sources (4-5) → high maintenance, fragile
@@ -595,24 +593,28 @@ For each solution, search:
   - Data doesn't exist in accessible form (1) → disqualify
   - **Ask: "On day 1 with 0 users, does this product deliver value?"** If no, cap Feasibility at 4/10.
 
-**Differentiation (1-10):**
-- How clearly does this stand apart from existing solutions?
-- Could you explain the difference in one sentence?
-- Defensibility — can competitors easily copy the novel aspect?
+**4. Revenue Thesis (1-10):**
+- Can Mary write a compelling one-paragraph revenue thesis?
+- **Format:** "People currently [pay $X for / spend Y hours on] [inferior solution]. We charge $Z/mo. At realistic users × conversion, Year 1 ARR = $W."
+- **10:** Clear thesis with realistic assumptions, defensible math, proven willingness to pay
+- **8-9:** Solid thesis but some assumptions require mild optimism
+- **6-7:** Plausible but requires several optimistic assumptions
+- **4-5:** Weak thesis, relies on heroic conversion rates or unproven pricing
+- **2-3:** Very speculative, minimal evidence of willingness to pay
+- **1:** Cannot write a coherent revenue thesis with realistic assumptions
+- **If the math requires heroic assumptions → score low**
 
-**Monetizability (1-10):**
-- Clear path to revenue?
-- Obvious pricing model? (subscription, one-time, freemium, usage-based)
-- Willingness to pay validated or inferable?
-- Retention/stickiness potential?
+**Total: 4-40 points per solution**
 
-**Total: 5-50 points per solution**
+**Minimum threshold: 28/40 to proceed**
 
 #### 3. Select Top Solution (1 min)
 
-- Pick highest scoring solution
+- Pick highest scoring solution (must score ≥28/40)
 - If tied, prefer higher **Novelty** score (novel > incremental)
 - Document reasoning — specifically WHY this approach is different from existing solutions
+
+**Mary must also write the revenue thesis paragraph as part of her output.**
 
 **Mary's Output:**
 
@@ -622,12 +624,14 @@ For each solution, search:
 ## Concept: [Name from CIS]
 [2-3 sentence description from CIS]
 
-## Score: [X]/50
+## Score: [X]/40 (minimum 28 required)
 - **Novelty:** X/10 - [What's genuinely new about this approach]
 - **Problem-Solution Fit:** X/10 - [How well it addresses the discovered problem]
-- **Feasibility:** X/10 - [Technical fit assessment]
-- **Differentiation:** X/10 - [How it stands apart]
-- **Monetizability:** X/10 - [Revenue path assessment]
+- **Feasibility:** X/10 - [Technical fit assessment, value source check]
+- **Revenue Thesis:** X/10 - [Can we write a compelling revenue story?]
+
+## Revenue Thesis
+[One paragraph following the format: "People currently [pay $X for / spend Y hours on] [inferior solution]. We charge $Z/mo. At realistic users × conversion, Year 1 ARR = $W." Include justification for pricing, conversion assumptions, and why this is defensible.]
 
 ## Why This Solution Won
 [What made this stand out — specifically the novel angle]
@@ -664,91 +668,188 @@ For each solution, search:
 
 ---
 
-### Phase 5: Competitive Deep-Dive - Mary (8-12 min)
+### Phase 5: Devil's Advocate - Quinn (8-12 min)
 
-**Objective:** Deep validation of the selected solution — feasibility, competitive position, business model
+**Objective:** Try to KILL the idea. Find the strongest reasons this will fail BEFORE we waste dev time building it.
 
-**Config Reminder:**
-Research Lead reminds Mary:
+**Philosophy:** A good Devil's Advocate kills 30-40% of ideas that make it to Phase 5. This is NOT a rubber stamp — Quinn's job is genuine skepticism.
+
+**Research Lead spawns Quinn with:**
+- Mary's problem statement (Phase 1)
+- The selected solution (Phase 4)
+- Mary's revenue thesis (Phase 4)
+- All CIS solutions that were NOT selected (for context — what alternatives were considered?)
+
+**Quinn's Research (8-12 min):**
+
+#### 1. Strongest Counterargument (2-3 min)
+
+**What's the #1 reason this will fail?**
+- Not "what could go wrong" — what WILL go wrong?
+- What's the fatal flaw in the logic?
+- What assumption is most likely to be wrong?
+- What have we overlooked?
+
+**Examples of strong counterarguments:**
+- "This assumes people WANT to track this, but the problem is they don't care enough to open an app daily."
+- "The 'novel' approach is actually just feature bloat — simpler competitors will win."
+- "This solves a problem people complain about but won't pay to fix."
+
+#### 2. Demand Skepticism (2-3 min)
+
+**Is the "evidence" cherry-picked?**
+- Mary found Reddit posts and tweets — but do people ACTUALLY want this or just complain online?
+- How many of those upvotes translate to paying customers?
+- Is this a "nice to have" or a genuine pain point?
+- Search for COUNTER-evidence: posts saying "this isn't actually a problem" or "I tried this and didn't care"
+
+**Red flags:**
+- High Reddit engagement but zero successful products (suggests people like complaining, not paying)
+- Evidence from 2+ years ago with no recent mentions (problem may have faded)
+- All evidence from one niche community (not representative)
+
+#### 3. Revenue Attack (2-3 min)
+
+**Poke holes in Mary's revenue thesis:**
+- Are the pricing assumptions realistic? Would people actually pay $X/mo for this?
+- Is the conversion rate assumption heroic? (5% is common, 10%+ is optimistic, 20%+ is fantasy)
+- Is the user acquisition assumption realistic? "If we just get 1000 users" — HOW?
+- Compare to similar products — what do THEY charge? What's THEIR conversion?
+- If no direct comparables exist, is that because the monetization is genuinely hard?
+
+**Examples of revenue attacks:**
+- "Mary assumes $15/mo but competitor charges $5/mo — we'd need 3x better to justify premium."
+- "Revenue thesis assumes 1000 users Year 1 but doesn't explain HOW we acquire them."
+- "This is a 'use once and done' tool — no recurring value, subscription won't work."
+
+#### 4. Competitive Blind Spots (2-3 min)
+
+**What competitors or substitutes did Mary miss?**
+- Search more aggressively for competitors (different keywords, adjacent categories)
+- Look for FAILED predecessors — products that tried this and shut down (why did they fail? are we making the same mistake?)
+- Free substitutes (spreadsheets, pen & paper, existing tools used creatively)
+- "Good enough" alternatives that don't solve the problem perfectly but are free/cheap
+
+**Questions to answer:**
+- Why hasn't this been built already if the opportunity is so clear?
+- If competitors failed, what makes us think we'll succeed?
+- Are there structural reasons this market is hard?
+
+#### 5. Retention Risk (1-2 min)
+
+**Will users keep paying month 2, 6, 12?**
+- Is this a one-time novelty or sustained habit?
+- Does the product get MORE valuable over time (data accumulation, habit formation)?
+- Or does it solve a problem once and then users churn?
+- What's the usage frequency? Daily use → high retention. Monthly → risky. Annually → unsustainable.
+
+**Red flags:**
+- Problem only matters occasionally (e.g., once a year)
+- No data lock-in or switching costs
+- Value doesn't compound over time
+- Competitors can easily poach users
+
+---
+
+**Quinn's Output:**
+
 ```markdown
-Constraints (reminder):
-- Platform: [from config]
-- Business Model: [from config]
-- Stack: [from config]
+# DEVIL'S ADVOCATE ANALYSIS
 
-Validate feasibility and competitive position within these constraints.
-Remember: We chose this problem BECAUSE it's underserved. The deep-dive should 
-confirm that and flesh out the business case, not re-validate market size.
+## Recommendation: KILL / PROCEED
+
+[One sentence: Kill this idea, or proceed with caution]
+
+---
+
+## 1. Strongest Counterargument
+
+**The Fatal Flaw:**
+[2-3 sentences: What's the #1 reason this will fail?]
+
+**Why This Matters:**
+[1-2 sentences: Why this flaw is likely to be fatal, not just a challenge]
+
+---
+
+## 2. Demand Skepticism
+
+**Is The Evidence Real?**
+[2-4 sentences: Cherry-picked? Do people actually want this or just complain? Counter-evidence found?]
+
+**Red Flags:**
+- [Specific red flag 1]
+- [Specific red flag 2]
+- [Specific red flag 3]
+
+---
+
+## 3. Revenue Thesis Attack
+
+**Holes in the Math:**
+[2-4 sentences: What assumptions are unrealistic? Pricing too high? Conversion too optimistic? User acquisition hand-waved?]
+
+**Comparable Products:**
+- [Competitor/analog]: $X/mo, Y users, Z% conversion
+- [Our assumption]: $A/mo, B users, C% conversion
+- [Reality check]: [Why our assumptions may be off]
+
+---
+
+## 4. Competitive Blind Spots
+
+**What Mary Missed:**
+[2-4 sentences: Competitors, failed predecessors, free substitutes she didn't consider]
+
+**Failed Predecessors:**
+- [Product 1]: Shut down in [year] — [why it failed]
+- [Product 2]: Pivoted away from this — [reason]
+
+**Why This Market Is Hard:**
+[1-2 sentences: Structural challenges in this space]
+
+---
+
+## 5. Retention Risk
+
+**Will Users Stay?**
+[2-3 sentences: One-time novelty or sustained habit? Does value compound over time?]
+
+**Churn Risk:** [Low / Medium / High]
+- Usage frequency: [Daily / Weekly / Monthly / Annually]
+- Data lock-in: [Strong / Weak / None]
+- Value accumulation: [Yes / No]
+
+---
+
+## Final Verdict
+
+**If KILL:**
+[2-3 sentences: Why this idea should be aborted. What's the strongest reason NOT to build this?]
+
+**If PROCEED:**
+[2-3 sentences: What are the BIGGEST risks we need to watch out for? This is not a green light — it's a yellow light with warnings.]
+
+---
+
+## Alternative Solutions Worth Reconsidering
+
+[If one of the NON-selected CIS solutions from Phase 4 actually seems stronger after this analysis, mention it here. Sometimes the "clever" solution is worse than the "boring" solution.]
 ```
 
-**Mary's deep research:**
+---
 
-#### 1. Competitive Analysis (3-4 min)
+**Research Lead Decision:**
 
-**Identify all competitors (if any):**
-- Direct competitors (same solution to same problem)
-- Indirect competitors (different solution to same problem)
-- Adjacent competitors (same target customer, different problem)
+**If Quinn recommends KILL:**
+- Remove registry entry
+- Announce to Kelly: "❌ Idea killed by Quinn: [concept name] — [1-sentence reason]"
+- **Self-close session** (Phase 6 step 6)
+- **Session ends**
 
-**For each competitor, research:**
-- Features offered and what's missing
-- Pricing model and tiers
-- User sentiment (reviews, ratings, complaints)
-- Active development or stagnant?
-- Funding/traction (users, revenue, growth)
-
-**Feature comparison matrix:**
-| Feature | Competitor A | Competitor B | Our Approach |
-|---------|-------------|--------------|--------------|
-| [Core feature 1] | ✅ | ❌ | ✅ |
-| [Core feature 2] | ❌ | ✅ | ✅ Better |
-| [Our novel approach] | ❌ | ❌ | ✅ Unique |
-
-**If no direct competitors exist:** Research adjacent solutions and workarounds people use. This validates the problem is real AND confirms the solution space is open.
-
-#### 2. Novelty Assessment (2-3 min)
-
-**Is our approach truly novel?**
-- Similar products that tried and failed? (why did they fail? can we avoid those mistakes?)
-- What makes our angle fundamentally different?
-- Risk of replication (how easily can competitors copy us?)
-
-#### 3. Feasibility Deep-Dive (2-3 min)
-
-**Technical requirements validation:**
-- **APIs needed:** Do they exist? Cost? Rate limits?
-- **Data requirements:** Can we get the data needed? Legal?
-- **Platform fit:** Confirmed alignment with config
-- **Stack fit:** Can our configured stack handle this?
-- **Regulatory considerations:** Privacy, compliance, ToS
-- **Development complexity estimate:** Story count, epic breakdown, technical risks
-
-#### 4. Business Model Validation (1-2 min)
-
-**Pricing strategy:**
-- Based on competitor analysis (or adjacent market pricing if no direct competitors)
-- Value-based pricing (what's it worth to solve this problem?)
-- Willingness to pay signals
-
-**Revenue potential:**
-- Market size estimate (TAM/SAM)
-- Penetration assumptions
-- Revenue projection
-
-**Customer acquisition:**
-- Organic channels (SEO, content, communities, Product Hunt)
-- Where do target users hang out online?
-
-**Retention indicators:**
-- Usage frequency
-- Switching costs / data lock-in
-- Value accumulation over time
-
-**Mary's Output:** Full competitive deep-dive report (same format as v2.0)
-
-**GO / NO-GO decision:**
-- **GO:** Proceed to Phase 6
-- **NO-GO:** Abort session, clean registry, announce to Kelly with reasoning, **self-close session** (Phase 6 step 6)
+**If Quinn recommends PROCEED:**
+- Continue to Phase 6 (Compilation & Finalization)
+- Quinn's analysis will be included in the final PRD as a "Risk Assessment" section
 
 ---
 
@@ -966,6 +1067,34 @@ Research Lead compiles all outputs into final brief at `projects/ideas/${PROJECT
 
 ---
 
+## Risk Assessment (Devil's Advocate - Quinn)
+
+**Quinn's Verdict:** [PROCEED with caution / concerns noted]
+
+### Strongest Counterargument
+[Quinn's #1 reason this could fail]
+
+### Demand Skepticism
+[Is the evidence cherry-picked? Do people actually want this?]
+- **Red Flags:** [List from Quinn]
+
+### Revenue Thesis Concerns
+[Holes Quinn found in the math: pricing, conversion, user acquisition assumptions]
+- **Comparable Products:** [What similar products actually charge/convert]
+
+### Competitive Blind Spots
+[Competitors, failed predecessors, or free substitutes Quinn found that Mary missed]
+
+### Retention Risk
+- **Churn Risk:** [Low / Medium / High]
+- **Usage Frequency:** [Daily / Weekly / Monthly]
+- **Value Accumulation:** [Does product get more valuable over time?]
+
+### Key Risks to Watch
+[2-3 biggest risks from Quinn's analysis — what could kill this project?]
+
+---
+
 ## Appendix
 
 ### Research Session Details
@@ -1019,7 +1148,8 @@ Update existing project-registry.json entry with final name, research directory,
 **Why Underserved:** [1-sentence solution gap]
 **Solution:** [1-sentence solution description]
 **What's Novel:** [1-sentence novelty pitch]
-**Score:** [X]/50
+**Solution Score:** [X]/40
+**Quinn's Verdict:** [PROCEED / concerns noted]
 **Development Estimate:** [stories] stories (~[weeks] weeks)
 **Platform:** [from config]
 **Business Model:** [from config]
@@ -1207,9 +1337,9 @@ No active rotation logic—Mary chooses her approach based on the constraints an
 |-------|----------|------------|
 | Phase 1: Problem Discovery (Mary) | 12-17 min | 12-17 min |
 | Phase 2: Registration + LLM Dedup (RL) | 3-4 min | 15-21 min |
-| Phase 3: CIS Ideation (4 personas parallel) | 5-8 min | 20-29 min |
+| Phase 3: CIS Ideation (3 personas parallel) | 5-8 min | 20-29 min |
 | Phase 4: Solution Selection (Mary) | 5-8 min | 25-37 min |
-| Phase 5: Competitive Deep-Dive (Mary) | 8-12 min | 33-49 min |
+| Phase 5: Devil's Advocate (Quinn) | 8-12 min | 33-49 min |
 | Phase 6: Compilation + Naming (RL + Carson) | 5-7 min | 38-56 min |
 
 **Total: 38-56 minutes per session** (target: ~45 min average)
