@@ -121,3 +121,73 @@ If the app needs a dedicated OAuth client per project:
 - `firebase` auth issues: run `firebase login` and `firebase projects:list`
 - `gcloud` auth issues: `gcloud auth list` + `gcloud config set account ...`
 - API enablement errors: re-run `gcloud services enable ...`
+
+## Deploying Firebase Auth to Vercel (Next.js)
+
+### Critical: CSP Configuration
+
+**Problem:** Firebase Google Auth loads external scripts that will be blocked by strict Content Security Policy headers.
+
+**Solution:** Update `next.config.ts` CSP to allow Google Auth domains:
+
+```typescript
+{
+  key: 'Content-Security-Policy',
+  value: [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://accounts.google.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: https: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com",
+    "frame-src https://accounts.google.com",  // Required for Google Sign-In popup
+    "frame-ancestors 'self'",
+    "base-uri 'self'",
+    "form-action 'self'"
+  ].join('; ')
+}
+```
+
+**Key additions for Firebase Auth:**
+- `https://apis.google.com` in `script-src`
+- `https://accounts.google.com` in `script-src` and `frame-src`
+
+### Adding Environment Variables to Vercel
+
+**Problem:** Using heredoc (`<<<`) or piped input with newlines causes URL encoding issues (`%0A` in values).
+
+**Solution:** Use `echo -n` (no trailing newline) when adding env vars via CLI:
+
+```bash
+# ❌ WRONG - adds newline character
+vercel env add NEXT_PUBLIC_FIREBASE_API_KEY production <<< "AIzaSy..."
+
+# ✅ CORRECT - no newline
+echo -n "AIzaSyD-HyULu4wPHZsRPHl_mOTDkp1cpofliTU" | vercel env add NEXT_PUBLIC_FIREBASE_API_KEY production
+echo -n "notelite-app.firebaseapp.com" | vercel env add NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN production
+echo -n "notelite-app" | vercel env add NEXT_PUBLIC_FIREBASE_PROJECT_ID production
+echo -n "notelite-app.firebasestorage.app" | vercel env add NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET production
+echo -n "656802787955" | vercel env add NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID production
+echo -n "1:656802787955:web:f0699073fc24e5514ab006" | vercel env add NEXT_PUBLIC_FIREBASE_APP_ID production
+```
+
+### Authorized Domains in Firebase
+
+**Required:** Add your deployment domains to Firebase Auth → Settings → Authorized domains:
+
+- `localhost` (for local development)
+- `your-app.vercel.app` (production)
+- Any custom domains
+
+**Via Firebase Console:**
+https://console.firebase.google.com/project/YOUR_PROJECT/authentication/settings
+
+Or use **web-browser skill** to automate this via CDP.
+
+### Deployment Checklist
+
+1. ✅ Configure CSP headers in `next.config.ts`
+2. ✅ Add Firebase env vars to Vercel (using `echo -n`)
+3. ✅ Add deployment domains to Firebase Authorized domains
+4. ✅ Test on `localhost` before deploying to production
+5. ✅ Verify Google Sign-In works on production URL
