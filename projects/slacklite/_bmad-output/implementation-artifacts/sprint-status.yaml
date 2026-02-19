@@ -1171,12 +1171,15 @@ stories:
   '5.4':
     epic: 5
     title: Build DM View (Reuse Channel Message UI)
-    status: in_progress
+    status: done
     started_at: '2026-02-19T15:59:00-06:00'
+    completed_by: Amelia
+    completed_at: '2026-02-19T16:09:00-06:00'
     estimated_effort: 2 hours
     dependencies:
     - '4.7'
     - '5.3'
+    notes: "✅ DM view implementation complete - all acceptance criteria met\n✅ Created app/app/dms/[dmId]/page.tsx:\n   - Fetches DM doc using useDocument from workspaces/{workspaceId}/directMessages/{dmId}\n   - Fetches other user doc and renders DMHeader (name + online indicator)\n   - Reuses MessageList and MessageInput components from channels\n   - useRealtimeMessages in DM mode with targetType: 'dm'\n   - Firestore path: directMessages/{dmId}/messages\n   - RTDB path: /messages/{workspaceId}/dm-{dmId}\n   - Same send/retry/banner flow as channels (dual-write)\n   - Empty state: 'No messages yet. Say hello!'\n   - Participant validation and error handling\n✅ Updated tests/unit/lib/useRealtimeMessages.test.tsx:\n   - Added DM-specific RTDB and Firestore path tests\n   - All 9 tests passing\n✅ All acceptance criteria marked complete in story file\n✅ ESLint and test validation passed\n\nCommit: 729213d (feat(5.4): Build DM View (Reuse Channel Message UI))\n"
   '5.5':
     epic: 5
     title: Add Unread Counts to DM List (Placeholder)
