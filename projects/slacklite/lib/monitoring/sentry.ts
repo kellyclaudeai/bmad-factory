@@ -79,7 +79,10 @@ export function getSentryRelease(): string | undefined {
   );
 }
 
-export function sentryBeforeSend(event: Event, hint?: EventHint): Event | null {
+export function sentryBeforeSend<TEvent extends Event>(
+  event: TEvent,
+  hint?: EventHint,
+): TEvent | null {
   if (isNetworkError(event, hint)) {
     return null;
   }

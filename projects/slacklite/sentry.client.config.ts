@@ -14,5 +14,7 @@ Sentry.init({
   release: getSentryRelease(),
   tracesSampleRate: 0.1,
   sendDefaultPii: false,
-  beforeSend: sentryBeforeSend,
+  beforeSend(event, hint) {
+    return sentryBeforeSend(event, hint);
+  },
 });

@@ -21,6 +21,7 @@ import {
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { usePathname, useRouter } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 import { auth, firestore } from "@/lib/firebase/client";
 
 type FirestoreUserData = Record<string, unknown>;
@@ -168,6 +169,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.replace("/signin");
     }
   }, [loading, pathname, router, user]);
+
+  useEffect(() => {
+    if (!user) {
+      Sentry.setUser(null);
+      return;
+    }
+
+    Sentry.setUser({
+      id: user.uid,
+      username: user.displayName ?? undefined,
+    });
+  }, [user]);
 
   const value = useMemo(
     () => ({

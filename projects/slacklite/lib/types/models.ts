@@ -34,6 +34,20 @@ export interface User {
 }
 
 /**
+ * Canonical Firestore channel document shape.
+ * Path: /workspaces/{workspaceId}/channels/{channelId}
+ */
+export interface Channel {
+  channelId: string;
+  workspaceId: string;
+  name: string;
+  createdBy: string;
+  createdAt: Timestamp;
+  lastMessageAt?: Timestamp;
+  messageCount?: number;
+}
+
+/**
  * Supported lifecycle states for message sending.
  */
 export type MessageStatus = "sending" | "sent" | "failed";

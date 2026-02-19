@@ -6,16 +6,16 @@
 Query Firestore for all channels in current workspace, display in sidebar alphabetically sorted. Subscribe to real-time updates for channel additions, renames, and deletions.
 
 **Acceptance Criteria:**
-- [ ] Create `lib/hooks/useChannels.ts` custom hook
-- [ ] Query: `collection(db, 'workspaces/{workspaceId}/channels').orderBy('name', 'asc')`
-- [ ] Real-time listener: `onSnapshot` to detect new channels, renames, deletions
-- [ ] Return: `{ channels: Channel[], loading: boolean, error: Error | null }`
-- [ ] Create `components/features/channels/ChannelList.tsx`
-- [ ] Render list of channels with `#` prefix (e.g., "# general", "# dev-team")
-- [ ] Alphabetically sorted
-- [ ] No unread counts yet (Story 6.4 adds that)
-- [ ] Loading state: Show spinner while fetching
-- [ ] Empty state: "No channels yet. Create one to get started."
+- [x] Create `lib/hooks/useChannels.ts` custom hook
+- [x] Query: `collection(db, 'workspaces/{workspaceId}/channels').orderBy('name', 'asc')`
+- [x] Real-time listener: `onSnapshot` to detect new channels, renames, deletions
+- [x] Return: `{ channels: Channel[], loading: boolean, error: Error | null }`
+- [x] Create `components/features/channels/ChannelList.tsx`
+- [x] Render list of channels with `#` prefix (e.g., "# general", "# dev-team")
+- [x] Alphabetically sorted
+- [x] No unread counts yet (Story 6.4 adds that)
+- [x] Loading state: Show spinner while fetching
+- [x] Empty state: "No channels yet. Create one to get started."
 
 **Dependencies:**
 dependsOn: ["3.1", "1.4"]

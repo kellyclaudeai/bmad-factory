@@ -6,7 +6,7 @@ import {
   type ErrorInfo,
   type ReactNode,
 } from "react";
-import { ErrorBoundaryFallback } from "@/components/ErrorBoundaryFallback";
+import { ErrorBoundaryFallback } from "./ErrorBoundaryFallback";
 
 type ErrorFallbackRenderer = (props: {
   error: Error | null;

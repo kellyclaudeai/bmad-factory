@@ -6,17 +6,17 @@
 Create textarea for message composition at bottom of channel view. Handle Enter to send, Shift+Enter for new line, character limit (4000 chars), and auto-expanding textarea.
 
 **Acceptance Criteria:**
-- [ ] Create `components/features/messages/MessageInput.tsx`
-- [ ] Textarea: Min height 44px, max height 200px (then scrollable)
-- [ ] Placeholder: "Type a message..."
-- [ ] Auto-expanding: Grows with content (up to max height)
-- [ ] Key handlers:
-  - [ ] Enter: Submit message (preventDefault)
-  - [ ] Shift+Enter: New line (default behavior)
-- [ ] Character counter: Shows count when >3900 chars (red if >4000)
-- [ ] Send button: Primary button, disabled if input empty or >4000 chars
-- [ ] Input clears after send
-- [ ] Focus remains in textarea after send (ready for next message)
+- [x] Create `components/features/messages/MessageInput.tsx`
+- [x] Textarea: Min height 44px, max height 200px (then scrollable)
+- [x] Placeholder: "Type a message..."
+- [x] Auto-expanding: Grows with content (up to max height)
+- [x] Key handlers:
+  - [x] Enter: Submit message (preventDefault)
+  - [x] Shift+Enter: New line (default behavior)
+- [x] Character counter: Shows count when >3900 chars (red if >4000)
+- [x] Send button: Primary button, disabled if input empty or >4000 chars
+- [x] Input clears after send
+- [x] Focus remains in textarea after send (ready for next message)
 
 **Dependencies:**
 dependsOn: ["3.1", "1.6"]

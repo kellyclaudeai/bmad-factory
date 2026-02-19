@@ -1,5 +1,6 @@
 "use client";
 
+import ChannelList from "@/components/features/channels/ChannelList";
 import MemberList, {
   type MemberListMember,
 } from "@/components/features/sidebar/MemberList";
@@ -7,19 +8,13 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
-interface SidebarItem {
+interface DirectMessageItem {
   id: string;
   label: string;
   unreadCount?: number;
 }
 
-const DEFAULT_CHANNELS: SidebarItem[] = [
-  { id: "general", label: "general", unreadCount: 3 },
-  { id: "product", label: "product" },
-  { id: "engineering", label: "engineering", unreadCount: 1 },
-];
-
-const DEFAULT_DIRECT_MESSAGES: SidebarItem[] = [
+const DEFAULT_DIRECT_MESSAGES: DirectMessageItem[] = [
   { id: "alex", label: "Alex", unreadCount: 2 },
   { id: "sarah", label: "Sarah" },
   { id: "michael", label: "Michael" },
@@ -40,8 +35,7 @@ export interface SidebarProps {
   workspaceName: string;
   isOpen: boolean;
   onClose: () => void;
-  channels?: SidebarItem[];
-  directMessages?: SidebarItem[];
+  directMessages?: DirectMessageItem[];
   members?: MemberListMember[];
   currentUserId?: string;
 }
@@ -50,7 +44,6 @@ export function Sidebar({
   workspaceName,
   isOpen,
   onClose,
-  channels = DEFAULT_CHANNELS,
   directMessages = DEFAULT_DIRECT_MESSAGES,
   members = DEFAULT_MEMBERS,
   currentUserId,
@@ -99,23 +92,7 @@ export function Sidebar({
                 + New Channel
               </Button>
             </div>
-
-            <ul className="space-y-1">
-              {channels.map((channel) => (
-                <li key={channel.id}>
-                  <button
-                    type="button"
-                    className="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-sm text-gray-800 transition-colors hover:bg-gray-200"
-                    onClick={onClose}
-                  >
-                    <span className="truncate"># {channel.label}</span>
-                    {channel.unreadCount ? (
-                      <Badge size="sm">{channel.unreadCount}</Badge>
-                    ) : null}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <ChannelList onChannelSelect={onClose} />
           </section>
 
           <section aria-labelledby="dms-title">
