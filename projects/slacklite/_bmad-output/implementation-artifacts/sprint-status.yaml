@@ -1982,8 +1982,8 @@ stories:
   '10.7':
     epic: 10
     title: Performance Testing & Benchmarking
-    status: in_progress
-    started_at: '2026-02-19T16:10:00-06:00'
+    status: todo
+    started_at: '2026-02-19T17:07:00-06:00'
     estimated_effort: 3 hours
     dependencies:
     - '10.6'
@@ -2167,13 +2167,16 @@ stories:
     epic: 11
     title: Configure Firebase Billing Alerts
     status: todo
+    started_at: '2026-02-19T17:07:00-06:00'
     estimated_effort: 1-2 hours
     dependencies:
     - '11.1'
   '11.6':
     epic: 11
     title: Create CI/CD Pipeline (GitHub Actions)
-    status: todo
+    status: done
+    started_at: '2026-02-19T17:07:00-06:00'
+    completed_at: '2026-02-19T17:31:00-06:00'
     estimated_effort: 2-3 hours
     dependencies:
     - '10.1'
@@ -2182,6 +2185,7 @@ stories:
     epic: 11
     title: Write Production Runbooks
     status: todo
+    started_at: '2026-02-19T17:07:00-06:00'
     estimated_effort: 2 hours
     dependencies:
     - '11.1'
@@ -2191,6 +2195,7 @@ stories:
     epic: 11
     title: Production Launch Checklist
     status: todo
+    started_at: '2026-02-19T17:07:00-06:00'
     estimated_effort: 3 hours
     dependencies:
     - '11.2'
