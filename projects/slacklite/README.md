@@ -86,3 +86,36 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Testing
+
+### Install Playwright Browsers (first run)
+
+```bash
+pnpm exec playwright install
+```
+
+### Run Tests
+
+```bash
+# Unit + integration (Vitest watch mode)
+pnpm test
+
+# Vitest UI
+pnpm test:ui
+
+# Coverage report (80% thresholds configured)
+pnpm test:coverage
+
+# E2E tests (Playwright: Chromium, Firefox, WebKit)
+pnpm test:e2e
+
+# E2E UI mode
+pnpm test:e2e:ui
+```
+
+### Test Structure
+
+- `tests/unit/` - unit tests
+- `tests/integration/` - integration tests
+- `tests/e2e/` - end-to-end tests
