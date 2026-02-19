@@ -6,7 +6,7 @@ import {
   initializeTestEnvironment,
   type RulesTestEnvironment,
 } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
 
 const RULES_PATH = resolve(process.cwd(), "firestore.rules");
@@ -34,6 +34,20 @@ async function seedWorkspaceMembership(userId: string, workspaceId: string) {
   });
 }
 
+async function seedWorkspaceMember(userId: string, workspaceId: string) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    const adminDb = context.firestore();
+
+    await setDoc(doc(adminDb, "users", userId), {
+      userId,
+      workspaceId,
+      email: `${userId}@example.com`,
+      displayName: userId,
+    });
+
+  });
+}
+
 async function seedChannel(workspaceId: string, channelId: string, createdBy: string) {
   await testEnv.withSecurityRulesDisabled(async (context) => {
     const adminDb = context.firestore();
@@ -44,6 +58,39 @@ async function seedChannel(workspaceId: string, channelId: string, createdBy: st
       name: channelId,
       createdBy,
     });
+  });
+}
+
+async function seedChannelMessage(
+  workspaceId: string,
+  channelId: string,
+  messageId: string,
+  userId: string,
+) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    const adminDb = context.firestore();
+
+    await setDoc(
+      doc(
+        adminDb,
+        "workspaces",
+        workspaceId,
+        "channels",
+        channelId,
+        "messages",
+        messageId,
+      ),
+      {
+        messageId,
+        channelId,
+        workspaceId,
+        userId,
+        userName: userId,
+        text: "seed message",
+        timestamp: new Date(),
+        createdAt: new Date(),
+      },
+    );
   });
 }
 
@@ -253,6 +300,51 @@ async function seedChannel(workspaceId: string, channelId: string, createdBy: st
           timestamp: new Date(),
           createdAt: new Date(),
         },
+      ),
+    );
+  });
+
+  it("Workspace owner can delete a channel message they did not author", async () => {
+    await seedWorkspaceMembership("owner-1", "workspace-1");
+    await seedChannel("workspace-1", "engineering", "creator-1");
+    await seedChannelMessage("workspace-1", "engineering", "message-1", "member-1");
+
+    const ownerDb = testEnv.authenticatedContext("owner-1").firestore();
+
+    await assertSucceeds(
+      deleteDoc(
+        doc(
+          ownerDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "engineering",
+          "messages",
+          "message-1",
+        ),
+      ),
+    );
+  });
+
+  it("Channel creator can delete a channel message they did not author", async () => {
+    await seedWorkspaceMembership("owner-1", "workspace-1");
+    await seedWorkspaceMember("creator-1", "workspace-1");
+    await seedChannel("workspace-1", "engineering", "creator-1");
+    await seedChannelMessage("workspace-1", "engineering", "message-1", "member-1");
+
+    const channelCreatorDb = testEnv.authenticatedContext("creator-1").firestore();
+
+    await assertSucceeds(
+      deleteDoc(
+        doc(
+          channelCreatorDb,
+          "workspaces",
+          "workspace-1",
+          "channels",
+          "engineering",
+          "messages",
+          "message-1",
+        ),
       ),
     );
   });

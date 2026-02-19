@@ -6,15 +6,15 @@
 Allow channel creator or workspace owner to delete channels (except #general). Show confirmation dialog, remove from Firestore including all messages, and update sidebar with user redirect.
 
 **Acceptance Criteria:**
-- [ ] Add "Delete Channel" option (accessible from context menu)
-- [ ] Only visible to: Channel creator or workspace owner
-- [ ] Confirmation modal: "Are you sure you want to delete #{channelName}? This cannot be undone."
-- [ ] Buttons: Cancel (Secondary), Delete (Destructive red button)
-- [ ] On confirm: Delete Firestore document: `deleteDoc(channelRef)`
-- [ ] Firestore cascade: Delete all messages in channel (subcollection deletion)
-- [ ] Sidebar updates (channel removed via real-time listener)
-- [ ] If user is in deleted channel: Redirect to #general
-- [ ] #general cannot be deleted (show error if attempted)
+- [x] Add "Delete Channel" option (accessible from context menu)
+- [x] Only visible to: Channel creator or workspace owner
+- [x] Confirmation modal: "Are you sure you want to delete #{channelName}? This cannot be undone."
+- [x] Buttons: Cancel (Secondary), Delete (Destructive red button)
+- [x] On confirm: Delete Firestore document: `deleteDoc(channelRef)`
+- [x] Firestore cascade: Delete all messages in channel (subcollection deletion)
+- [x] Sidebar updates (channel removed via real-time listener)
+- [x] If user is in deleted channel: Redirect to #general
+- [x] #general cannot be deleted (show error if attempted)
 
 **Dependencies:**
 dependsOn: ["3.2", "3.5"]

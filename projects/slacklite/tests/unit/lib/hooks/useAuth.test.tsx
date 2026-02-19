@@ -39,6 +39,7 @@ vi.mock("firebase/firestore", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  useParams: () => ({}),
   usePathname: mocks.usePathnameMock,
   useRouter: () => ({
     replace: mocks.replaceMock,

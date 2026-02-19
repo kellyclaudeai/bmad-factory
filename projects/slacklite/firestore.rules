@@ -26,6 +26,12 @@ service cloud.firestore {
              exists(/databases/$(database)/documents/workspaces/$(workspaceId)) &&
              get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.ownerId == request.auth.uid;
     }
+
+    function isChannelCreator(workspaceId, channelId) {
+      return isWorkspaceMember(workspaceId) &&
+             exists(/databases/$(database)/documents/workspaces/$(workspaceId)/channels/$(channelId)) &&
+             get(/databases/$(database)/documents/workspaces/$(workspaceId)/channels/$(channelId)).data.createdBy == request.auth.uid;
+    }
     
     function isSameWorkspaceUser(userId) {
       return requesterUserDocExists() &&
@@ -99,7 +105,10 @@ service cloud.firestore {
                           request.resource.data.userId == request.auth.uid &&
                           request.resource.data.workspaceId == workspaceId &&
                           hasValidMessageText(request.resource.data);
-          allow update, delete: if resource.data.userId == request.auth.uid;
+          allow update: if resource.data.userId == request.auth.uid;
+          allow delete: if resource.data.userId == request.auth.uid ||
+                          isWorkspaceOwner(workspaceId) ||
+                          isChannelCreator(workspaceId, channelId);
         }
       }
       

@@ -6,15 +6,15 @@
 Write comprehensive unit tests for core utility functions, hooks, and components using Vitest and React Testing Library with 80%+ coverage.
 
 **Acceptance Criteria:**
-- [ ] Test `lib/utils/formatting.ts`: Timestamp formatting functions
-- [ ] Test `lib/utils/validation.ts`: Input validation functions
-- [ ] Test `lib/hooks/useChannels.ts`: Channel data fetching
-- [ ] Test `lib/hooks/useMessages.ts`: Message data fetching
-- [ ] Test `lib/hooks/useAuth.ts`: Authentication state management
-- [ ] Test `components/ui/Button.tsx`: Button variants and states
-- [ ] Test `components/ui/Input.tsx`: Input validation and errors
-- [ ] All tests pass: `pnpm test`
-- [ ] Coverage >80%: `pnpm test:coverage`
+- [x] Test `lib/utils/formatting.ts`: Timestamp formatting functions
+- [x] Test `lib/utils/validation.ts`: Input validation functions
+- [x] Test `lib/hooks/useChannels.ts`: Channel data fetching
+- [x] Test `lib/hooks/useMessages.ts`: Message data fetching
+- [x] Test `lib/hooks/useAuth.ts`: Authentication state management
+- [x] Test `components/ui/Button.tsx`: Button variants and states
+- [x] Test `components/ui/Input.tsx`: Input validation and errors
+- [x] All tests pass: `pnpm test`
+- [x] Coverage >80%: `pnpm test:coverage`
 
 **Dependencies:**
 dependsOn: ["10.1", "4.4", "3.5", "2.3"]

@@ -20,6 +20,7 @@ const firestoreMocks = vi.hoisted(() => ({
 
 const navigationMocks = vi.hoisted(() => ({
   replaceMock: vi.fn(),
+  useParamsMock: vi.fn(),
   usePathnameMock: vi.fn(),
   useRouterMock: vi.fn(),
 }));
@@ -51,6 +52,7 @@ vi.mock("firebase/firestore", async () => {
 });
 
 vi.mock("next/navigation", () => ({
+  useParams: navigationMocks.useParamsMock,
   usePathname: navigationMocks.usePathnameMock,
   useRouter: navigationMocks.useRouterMock,
 }));
@@ -113,6 +115,7 @@ describe("AuthProvider/useAuth", () => {
     navigationMocks.useRouterMock.mockReturnValue({
       replace: navigationMocks.replaceMock,
     });
+    navigationMocks.useParamsMock.mockReturnValue({});
     navigationMocks.usePathnameMock.mockReturnValue("/settings");
 
     authMocks.setPersistenceMock.mockResolvedValue(undefined);
