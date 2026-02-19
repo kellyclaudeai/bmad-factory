@@ -1424,6 +1424,8 @@ stories:
     epic: 7
     title: "Handle Large Messages with Truncation"
     status: done
+    completed_at: "2026-02-19T15:24:00-06:00"
+    completed_by: "Amelia"
     started_at: "2026-02-19T15:16:00-06:00"
     completed_by: "Amelia"
     completed_at: "2026-02-19T15:25:00-06:00"
@@ -1514,10 +1516,29 @@ stories:
   "8.3":
     epic: 8
     title: "Mobile-Friendly Top Bar"
-    status: in_progress
+    status: done
     started_at: "2026-02-19T15:20:00-06:00"
+    completed_by: "Amelia"
+    completed_at: "2026-02-19T15:21:00-06:00"
     estimated_effort: "1 hour"
     dependencies: ["3.1"]
+    notes: |
+      ✅ Touch gesture functionality complete - all acceptance criteria met
+      ✅ Implemented swipe gestures for sidebar navigation:
+         - Swipe right from left edge (<50px) opens sidebar
+         - Swipe left on open sidebar closes sidebar
+         - Touch threshold: >50px swipe distance required
+         - Animation follows finger during drag
+         - Release logic: complete if >50% across, otherwise snap back
+         - No conflict with vertical scroll (horizontal/vertical axis lock)
+         - Uses touchstart, touchmove, touchend, touchcancel events
+      ✅ Updated AppShell.tsx with comprehensive touch gesture state machine
+      ✅ Updated Sidebar.tsx with drag-follow animation support (mobileTranslateX, isGestureDragging)
+      ✅ Created comprehensive unit tests in tests/unit/components/layout/AppShell.test.tsx
+      ✅ All 6 tests passing (edge swipe open, swipe close, distance threshold, drag follow, snap logic, vertical scroll ignore)
+      ✅ ESLint validation passed
+      
+      Commit: e6d4c83 (feat(8.3): Mobile-friendly top bar)
   
   "8.4":
     epic: 8
@@ -1606,7 +1627,8 @@ stories:
   "9.3":
     epic: 9
     title: "Add Input Validation (Client & Server)"
-    status: todo
+    status: in_progress
+    started_at: "2026-02-19T15:25:00-06:00"
     estimated_effort: "2 hours"
     dependencies: ["3.5", "4.4"]
   

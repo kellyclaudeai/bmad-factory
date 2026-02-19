@@ -7,10 +7,10 @@ import ChannelHeader from "@/components/features/channels/ChannelHeader";
 import DeleteChannelModal from "@/components/features/channels/DeleteChannelModal";
 import RenameChannelModal from "@/components/features/channels/RenameChannelModal";
 import { MessageInput } from "@/components/features/messages/MessageInput";
+import MessageList from "@/components/features/messages/MessageList";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { firestore } from "@/lib/firebase/client";
 import { useChannels } from "@/lib/hooks/useChannels";
-import type { Message } from "@/lib/types/models";
 import { useWorkspaceOwnerId } from "@/lib/hooks/useWorkspaceOwnerId";
 import { useRealtimeMessages } from "@/lib/hooks/useRealtimeMessages";
 import { deleteChannel, renameChannel } from "@/lib/utils/channels";
@@ -18,35 +18,23 @@ import { isGeneralChannelName } from "@/lib/utils/workspace";
 
 const BOTTOM_THRESHOLD_PX = 100;
 
-function formatMessageTimestamp(timestamp: Message["timestamp"]): string {
-  const messageDate =
-    typeof timestamp === "number" ? new Date(timestamp) : timestamp.toDate();
-
-  return messageDate.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 export default function ChannelPage() {
   const params = useParams<{ channelId: string }>();
   const router = useRouter();
-  const channelId =
-    typeof params?.channelId === "string" ? params.channelId.trim() : "";
+  const channelId = typeof params?.channelId === "string" ? params.channelId.trim() : "";
   const { user } = useAuth();
-  const workspaceId =
-    typeof user?.workspaceId === "string" ? user.workspaceId.trim() : "";
+  const workspaceId = typeof user?.workspaceId === "string" ? user.workspaceId.trim() : "";
   const { channels } = useChannels();
   const { ownerId: workspaceOwnerId } = useWorkspaceOwnerId(workspaceId);
   const currentChannel = useMemo(
     () => channels.find((channel) => channel.channelId === channelId) ?? null,
-    [channelId, channels],
+    [channelId, channels]
   );
   const channelName = currentChannel?.name ?? channelId;
   const canManageChannel = Boolean(
     user?.uid &&
-      currentChannel &&
-      (currentChannel.createdBy === user.uid || workspaceOwnerId === user.uid),
+    currentChannel &&
+    (currentChannel.createdBy === user.uid || workspaceOwnerId === user.uid)
   );
   const generalChannelId = useMemo(() => {
     const generalChannel = channels.find((channel) => isGeneralChannelName(channel.name));
@@ -77,7 +65,7 @@ export default function ChannelPage() {
           userId: user.uid,
           userName,
         }
-      : null,
+      : null
   );
   const [isChannelSwitching, setIsChannelSwitching] = useState(false);
   const [showNewMessagesBadge, setShowNewMessagesBadge] = useState(false);
@@ -209,7 +197,7 @@ export default function ChannelPage() {
 
       setIsRenameChannelModalOpen(false);
     },
-    [currentChannel, user?.uid, workspaceId, workspaceOwnerId],
+    [currentChannel, user?.uid, workspaceId, workspaceOwnerId]
   );
 
   const handleOpenDeleteModal = useCallback(() => {
@@ -291,12 +279,7 @@ export default function ChannelPage() {
 
       {/* Message List */}
       <div className="relative flex-1">
-        <div
-          ref={messageListRef}
-          onScroll={handleMessageListScroll}
-          data-testid="channel-message-list"
-          className="h-full overflow-y-auto p-4"
-        >
+        <div className="flex h-full min-h-0 flex-col p-4">
           {sendErrorBanner && (
             <div
               role="alert"
@@ -341,7 +324,7 @@ export default function ChannelPage() {
           )}
 
           {(loading || isChannelSwitching) && (
-            <div className="flex items-center justify-center py-8">
+            <div className="flex flex-1 items-center justify-center py-8">
               <div role="status" className="flex items-center gap-2 text-sm text-gray-600">
                 <span
                   aria-hidden="true"
@@ -354,14 +337,12 @@ export default function ChannelPage() {
 
           {error && (
             <div className="rounded-lg bg-red-50 p-4">
-              <p className="text-sm text-red-800">
-                Failed to load messages. Please try again.
-              </p>
+              <p className="text-sm text-red-800">Failed to load messages. Please try again.</p>
             </div>
           )}
 
           {!loading && !error && messages.length === 0 && (
-            <div className="flex h-full items-center justify-center">
+            <div className="flex flex-1 items-center justify-center">
               <div className="text-center">
                 <p className="text-lg font-medium text-gray-900">No messages yet</p>
                 <p className="mt-1 text-sm text-gray-600">
@@ -372,50 +353,17 @@ export default function ChannelPage() {
           )}
 
           {!loading && !error && messages.length > 0 && (
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.messageId}
-                  className={`flex gap-3 ${message.status === "sending" ? "opacity-70" : ""}`}
-                >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded bg-primary-brand text-white font-semibold">
-                    {message.userName?.charAt(0).toUpperCase() || "?"}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-semibold text-gray-900">
-                        {message.userName || "Unknown"}
-                      </span>
-                      <span
-                        className={`text-xs ${
-                          message.status === "failed" ? "text-error" : "text-gray-500"
-                        }`}
-                      >
-                        {message.status === "sending"
-                          ? "Sending..."
-                          : formatMessageTimestamp(message.timestamp)}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm text-gray-800 whitespace-pre-wrap break-words">
-                      {message.text}
-                    </p>
-                    {message.status === "failed" && (
-                      <div className="mt-1 flex items-center gap-2">
-                        <span className="text-xs text-error">Failed to send. Retry?</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            void retryMessage(message.messageId);
-                          }}
-                          className="text-xs font-medium text-error underline decoration-error/60 underline-offset-2 hover:text-red-700"
-                        >
-                          Retry
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+            <div className="min-h-0 flex-1">
+              <MessageList
+                messages={messages}
+                onRetryMessage={(messageId) => {
+                  void retryMessage(messageId);
+                }}
+                onScroll={() => {
+                  handleMessageListScroll();
+                }}
+                outerRef={messageListRef}
+              />
             </div>
           )}
         </div>

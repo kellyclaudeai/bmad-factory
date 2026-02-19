@@ -14,13 +14,23 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 import { firestore } from "@/lib/firebase/client";
 import { createChannel } from "@/lib/utils/channels";
 
+export const MOBILE_SIDEBAR_WIDTH = 280;
+
 export interface SidebarProps {
   workspaceName: string;
   isOpen: boolean;
   onClose: () => void;
+  mobileTranslateX?: number | null;
+  isGestureDragging?: boolean;
 }
 
-export function Sidebar({ workspaceName, isOpen, onClose }: SidebarProps) {
+export function Sidebar({
+  workspaceName,
+  isOpen,
+  onClose,
+  mobileTranslateX = null,
+  isGestureDragging = false,
+}: SidebarProps) {
   const { user } = useAuth();
   const router = useRouter();
   const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false);
@@ -59,9 +69,16 @@ export function Sidebar({ workspaceName, isOpen, onClose }: SidebarProps) {
   return (
     <>
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[280px] flex-none border-r border-gray-300 bg-white transform transition-transform duration-200 ease-in-out lg:static lg:z-auto lg:w-[250px] lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-[280px] flex-none border-r border-gray-300 bg-white transform ${
+          isGestureDragging ? "" : "transition-transform duration-200 ease-in-out"
+        } lg:static lg:z-auto lg:w-[250px] lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-[280px]"
         }`}
+        style={
+          typeof mobileTranslateX === "number"
+            ? { transform: `translateX(${mobileTranslateX}px)` }
+            : undefined
+        }
         aria-label="Workspace sidebar"
       >
         <div className="flex h-full flex-col">

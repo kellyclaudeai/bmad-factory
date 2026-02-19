@@ -6,13 +6,13 @@
 Add swipe gestures for mobile: Swipe right to open sidebar, swipe left to close sidebar with smooth animations and proper touch handling.
 
 **Acceptance Criteria:**
-- [ ] Swipe right from left edge (< 50px): Open sidebar
-- [ ] Swipe left on open sidebar: Close sidebar
-- [ ] Touch threshold: >50px swipe distance to trigger
-- [ ] Animation follows finger during drag
-- [ ] Release: Complete animation if >50% across, otherwise snap back
-- [ ] No conflict with message list scrolling (vertical swipes)
-- [ ] Use touch events: touchstart, touchmove, touchend
+- [x] Swipe right from left edge (< 50px): Open sidebar
+- [x] Swipe left on open sidebar: Close sidebar
+- [x] Touch threshold: >50px swipe distance to trigger
+- [x] Animation follows finger during drag
+- [x] Release: Complete animation if >50% across, otherwise snap back
+- [x] No conflict with message list scrolling (vertical swipes)
+- [x] Use touch events: touchstart, touchmove, touchend
 
 **Dependencies:**
 dependsOn: ["3.1"]

@@ -6,14 +6,14 @@
 Use Firestore `startAfter` queries to paginate message history. Load 50 messages at a time when user scrolls to top with proper cursor management.
 
 **Acceptance Criteria:**
-- [ ] Update `useMessages` hook: Add `loadMore()` function
-- [ ] Track last visible document: `useState<DocumentSnapshot | null>(lastVisible)`
-- [ ] Query: `query(..., orderBy('timestamp', 'desc'), startAfter(lastVisible), limit(50))`
-- [ ] On scroll to top: Call `loadMore()` → fetch next 50 messages
-- [ ] Prepend to messages array (oldest messages at top)
-- [ ] Maintain scroll position after load (don't jump)
-- [ ] Disable loadMore if no more messages (`lastVisible === null` after query returns <50 results)
-- [ ] Loading indicator at top of list while fetching
+- [x] Update `useMessages` hook: Add `loadMore()` function
+- [x] Track last visible document: `useState<DocumentSnapshot | null>(lastVisible)`
+- [x] Query: `query(..., orderBy('timestamp', 'desc'), startAfter(lastVisible), limit(50))`
+- [x] On scroll to top: Call `loadMore()` → fetch next 50 messages
+- [x] Prepend to messages array (oldest messages at top)
+- [x] Maintain scroll position after load (don't jump)
+- [x] Disable loadMore if no more messages (`lastVisible === null` after query returns <50 results)
+- [x] Loading indicator at top of list while fetching
 
 **Dependencies:**
 dependsOn: ["4.6"]
