@@ -87,8 +87,9 @@
       "name": "Verdict",
       "path": "projects/verdict",
       "plSession": "agent:project-lead:project-verdict",
-      "phase": "implementing",
-      "createdAt": "2026-02-19T21:22:00-06:00"
+      "phase": "qa",
+      "createdAt": "2026-02-19T21:22:00-06:00",
+      "deployedUrl": "https://verdict-mvp.web.app"
     }
   ]
 }

@@ -2,7 +2,12 @@
 
 **Version:** 1.0  
 **Date:** 2026-02-19  
-**Status:** Proposed (not yet implemented)
+**Status:** Partially implemented
+- ✅ Figma MCP installed (`figma-developer-mcp`, configured in `~/.openclaw/mcp.json` — needs PAT token)
+- ✅ frontend-design skill installed (Anthropic official, guides aesthetic execution)
+- ✅ Design Mockups section added to Project Details page (screens as iframes, components as links, color/typography links)
+- ✅ `designAssets` field wired through API → UI
+- ⏳ Sally/Bob/Amelia agent instructions not yet activated (pending Figma PAT setup)
 
 ---
 

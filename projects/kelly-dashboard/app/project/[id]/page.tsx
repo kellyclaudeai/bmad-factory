@@ -27,6 +27,13 @@ type ProjectState = {
   devServerUrl?: string | null
   qaUrl?: string | null
   deployedUrl?: string | null
+  designAssets?: {
+    figma_file_url?: string
+    color_system?: string
+    typography?: string
+    components?: Record<string, string>
+    screens?: Record<string, string>
+  } | null
   phases?: Record<string, { name: string; stories: number[]; status: string }>
   planningArtifacts?: {
     intake?: string
@@ -473,6 +480,78 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
                   </a>
                 ) : null
               })()}
+            </div>
+          </section>
+        )}
+
+        {projectState?.designAssets && (
+          <section>
+            <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
+              Design Mockups
+            </h2>
+            <div className="space-y-6">
+              {/* Screens — full-width Figma embeds */}
+              {projectState.designAssets.screens && Object.keys(projectState.designAssets.screens).length > 0 && (
+                <div>
+                  <h3 className="text-sm font-mono text-terminal-dim uppercase tracking-wider mb-3">Screens</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries(projectState.designAssets.screens).map(([name, url]) => (
+                      <div key={name} className="space-y-2">
+                        <p className="text-xs font-mono text-terminal-dim capitalize">{name.replace(/_/g, ' ')}</p>
+                        <div className="rounded-lg overflow-hidden border border-terminal-border bg-terminal-card aspect-video">
+                          <iframe
+                            src={`https://www.figma.com/embed?embed_host=openclaw&url=${encodeURIComponent(url)}`}
+                            className="w-full h-full"
+                            allowFullScreen
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Components */}
+              {projectState.designAssets.components && Object.keys(projectState.designAssets.components).length > 0 && (
+                <div>
+                  <h3 className="text-sm font-mono text-terminal-dim uppercase tracking-wider mb-3">Components</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {Object.entries(projectState.designAssets.components).map(([name, url]) => (
+                      <a key={name} href={url} target="_blank" rel="noopener noreferrer"
+                        className="group block rounded-lg border border-terminal-border bg-terminal-card p-3 hover:border-terminal-green/50 transition-colors">
+                        <p className="text-xs font-mono text-terminal-dim group-hover:text-terminal-green capitalize truncate">
+                          {name.replace(/_/g, ' ')}
+                        </p>
+                        <p className="text-xs font-mono text-terminal-dim/50 mt-1">→ Figma</p>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Design system links */}
+              {(projectState.designAssets.color_system || projectState.designAssets.typography || projectState.designAssets.figma_file_url) && (
+                <div className="flex flex-wrap gap-3">
+                  {projectState.designAssets.figma_file_url && (
+                    <a href={projectState.designAssets.figma_file_url} target="_blank" rel="noopener noreferrer"
+                      className="text-xs font-mono text-blue-400 hover:underline">
+                      ↗ Open Figma File
+                    </a>
+                  )}
+                  {projectState.designAssets.color_system && (
+                    <a href={projectState.designAssets.color_system} target="_blank" rel="noopener noreferrer"
+                      className="text-xs font-mono text-terminal-dim hover:text-terminal-text">
+                      🎨 Color System
+                    </a>
+                  )}
+                  {projectState.designAssets.typography && (
+                    <a href={projectState.designAssets.typography} target="_blank" rel="noopener noreferrer"
+                      className="text-xs font-mono text-terminal-dim hover:text-terminal-text">
+                      🔤 Typography
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           </section>
         )}

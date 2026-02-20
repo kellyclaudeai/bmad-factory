@@ -281,6 +281,7 @@ export async function GET(request: Request) {
       devServerUrl: projectStateData?.devServerUrl || null,
       qaUrl: projectStateData?.qaUrl || null,
       deployedUrl: projectStateData?.deployedUrl || null,
+      designAssets: projectStateData?.designAssets || null,
       plSession: project.plSession,
       
       // Current phase inference
