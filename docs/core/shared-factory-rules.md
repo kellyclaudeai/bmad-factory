@@ -1,4 +1,4 @@
-# Factory Rules — Universal Standards
+# Shared Factory Rules — Universal Standards
 
 > These rules apply to **every agent** in the Kelly Software Factory: Kelly, Project Lead, John, Sally, Winston, Bob, Amelia, Murat, and any future agents.
 > 

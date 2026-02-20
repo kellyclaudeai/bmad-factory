@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "skills": {
+    "nextjs-expert": {
+      "version": "1.0.0",
+      "installedAt": 1771606454658
+    },
+    "shadcn-ui": {
+      "version": "1.0.0",
+      "installedAt": 1771606455866
+    },
+    "vercel": {
+      "version": "1.0.1",
+      "installedAt": 1771606456954
+    },
+    "drizzle": {
+      "version": "1.0.0",
+      "installedAt": 1771606458572
+    }
+  }
+}

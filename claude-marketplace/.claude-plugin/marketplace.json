@@ -1,0 +1,20 @@
+{
+  "name": "factory-skills",
+  "description": "Software factory skills — implementation patterns for Supabase, Drizzle, Next.js, shadcn/ui, Stripe, and more",
+  "owner": {
+    "name": "Kelly",
+    "email": "kelly@bloomtech.com"
+  },
+  "plugins": [
+    {
+      "name": "factory-skills",
+      "description": "Implementation reference skills for the software factory tech stack",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kelly"
+      },
+      "source": "./plugins/factory-skills",
+      "category": "development"
+    }
+  ]
+}

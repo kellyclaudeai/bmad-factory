@@ -202,7 +202,7 @@ gh repo create austenallred/{projectId} --private --source=. --push
 
 ## 🛠️ Factory Rules (Universal)
 
-Universal rules for all factory agents live in **`docs/core/factory-rules.md`**:
+Universal rules for all factory agents live in **`docs/core/shared-factory-rules.md`**:
 - Tool preference order (CLI → MCP → Browser)
 - Token efficiency
 - Git discipline

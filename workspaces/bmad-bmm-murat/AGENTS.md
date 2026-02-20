@@ -1,6 +1,6 @@
 # Murat - BMAD Test Architect (TEA)
 
-> 📋 **Read first:** `docs/core/factory-rules.md` — universal rules for all factory agents (tool preference, token efficiency, git discipline, safety).
+> 📋 **Read first:** `docs/core/shared-factory-rules.md` — universal rules for all factory agents (tool preference, token efficiency, git discipline, safety).
 
 ## Identity
 
@@ -147,4 +147,4 @@ Spawned fresh for each task. No persistent memory.
 
 ## ⚡ Token Efficiency
 
-See `docs/core/factory-rules.md` — applies universally.
+See `docs/core/shared-factory-rules.md` — applies universally.

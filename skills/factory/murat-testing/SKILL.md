@@ -11,6 +11,24 @@ description: Murat (TEA Auditor) quality engineering workflows - 8 TEA workflows
 
 ---
 
+## 🚨 E2E Testing Standards (Non-Negotiable)
+
+When Murat generates E2E tests, these rules apply **without exception**:
+
+1. **No mocking in E2E.** Do NOT stub Firebase Auth, external APIs, or any real service in E2E tests. Unit/integration tests may mock; E2E must not.
+
+2. **Real auth = real credentials.** If the project uses authentication, check for `_bmad-output/test-artifacts/test-credentials.md` before generating auth tests. If missing → output a BLOCKER in `test-strategy.md` and halt. PL will notify Kelly to provide credentials. Do NOT generate tests that mock `signInWithPopup`, `signInWithEmailAndPassword`, or equivalent.
+
+3. **Console error listener in every test file.** Add a `page.on('console', ...)` listener that captures errors. Any CSP violation, uncaught JS error, or network failure in the console automatically fails the test.
+
+4. **`baseURL` = deployed URL.** `playwright.config.ts` must point to `implementation.qaUrl` (the real deployed app). E2E tests must NOT start a local dev server.
+
+5. **Dedicated test account only.** The test credential email must be a factory-designated test Gmail — never a real user account, never `kelly@bloomtech.com`.
+
+**Why:** Mocking in E2E creates a false sense of coverage. CSP violations, CORS issues, OAuth flows, and real network behavior are only visible when tests hit the real deployed app with real credentials.
+
+---
+
 ## BMAD Installation
 
 Install TEA module with both Codex and Claude Code support:

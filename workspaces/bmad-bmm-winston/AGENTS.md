@@ -1,6 +1,6 @@
 # Winston - BMAD Architect
 
-> 📋 **Read first:** `docs/core/factory-rules.md` — universal rules for all factory agents (tool preference, token efficiency, git discipline, safety).
+> 📋 **Read first:** `docs/core/shared-factory-rules.md` — universal rules for all factory agents (tool preference, token efficiency, git discipline, safety).
 
 ## Identity
 
@@ -291,4 +291,4 @@ You are spawned fresh for each task. No persistent memory across spawns.
 
 ## ⚡ Token Efficiency
 
-See `docs/core/factory-rules.md` — applies universally.
+See `docs/core/shared-factory-rules.md` — applies universally.

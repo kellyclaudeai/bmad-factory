@@ -526,94 +526,100 @@ Try to kill these solutions. Find the fatal flaws. Novelty claims must be defens
 
 ---
 
-### Phase 5: Create PRD (3-5 min)
+### Phase 5: Create intake.md (3-5 min)
 
-**Objective:** Compile comprehensive product brief ready for Project Lead
+**Objective:** Write a lean product brief that BMAD agents can build from. Research detail goes in `research-notes.md` — intake.md is for builders, not researchers.
 
-**Research Lead writes {product-name}-PRD.md:**
+**Research Lead writes TWO files:**
+
+#### File 1: `intake.md` (the brief — BMAD reads this)
 
 ```markdown
-# [Product Name] - Product Requirements Document
+# [Product Name] - Product Brief
 
-**Generated:** [timestamp]
-**Research Session:** agent:research-lead:{number}
-**Discovery Strategy:** [Mary's approach]
-
----
-
-## Executive Summary
-
-**Title:** [Product Name]
-
-**Description:** [1-2 sentence description of what the product does]
-
-**Pain Point:** [1-2 sentence description of the core problem being solved]
+**Project ID:** [project-id]
+**Date:** [timestamp]
+**Source:** research-lead:[session]
 
 ---
+
+## What It Does
+
+[1-2 sentences. Plain English. What is this product?]
 
 ## Problem
 
-[Problem description from Phase 2]
+[2-3 sentences. What pain does it solve? Who has it?]
 
-### Evidence
+## Target Users
 
+[Who is this for? Be specific — role, context, situation.]
+
+## Core Features (MVP)
+
+- [Feature 1 — what it does for the user]
+- [Feature 2 — what it does for the user]
+- [Feature 3 — what it does for the user]
+
+Minimum viable scope. Only what's needed to deliver core value.
+
+## Business Model
+
+[Freemium | Subscription ($X/mo) | One-time purchase ($X) | Free | B2B SaaS]
+
+## Tech Stack
+
+DEFAULT — see docs/core/tech-stack.md
+
+<!-- Override only if intake specifies non-default tech:
+     e.g., Mobile: React Native + Expo | DB: Firebase instead of Supabase -->
+
+## Platform & Scope
+
+**Platform:** [Web | iOS | Android | Cross-platform]
+**Estimated stories:** [X-Y]
+
+## Notes
+
+[Optional: any constraints, external API dependencies, compliance, design references.]
+[Quinn scores: Problem [X]/100 · Solution [Y]/100]
+```
+
+#### File 2: `research-notes.md` (the research — for reference only, BMAD does not read)
+
+```markdown
+# [Product Name] - Research Notes
+
+**Research Session:** agent:research-lead:[number]
+**Discovery Strategy:** [Mary's approach]
+
+## Problem Evidence
 [Key quotes and sources from Mary's research]
 
-### Competitive Landscape
-
+## Competitive Landscape
 [Mary's competitive classification + specific gaps]
 
-### Why This Matters
-
+## Why This Problem Matters
 [Pain intensity + willingness to pay insights from Quinn]
 
----
-
-## Solution
-
-[Solution description from Phase 4]
-
-### Key Features
-
-[From CIS solution]
-
-### What Makes This Different
-
-[Novelty insights from Quinn - why this is novel]
-
-### Target Audience
-
-[Who experiences this problem + would use this solution]
-
----
+## Solution Differentiation
+[Novelty insights from Quinn — what makes this different]
 
 ## Revenue Thesis
-
-[Quinn's revenue thesis paragraph from Phase 4]
-
----
+[Quinn's revenue thesis paragraph]
 
 ## Risk Assessment
+**Quinn's Strongest Counterargument:** [what's most likely to go wrong]
+**Feasibility Notes:** [technical risks, value source, cold start considerations]
 
-**Quinn's Strongest Counterargument:**
-[What's most likely to go wrong]
-
-**Feasibility Notes:**
-[Technical risks, value source, cold start considerations]
-
----
-
-## Next Steps
-
-Ready for Project Lead implementation:
-1. Create project directory: `projects/{project-name}/`
-2. Copy this PRD
-3. Run BMAD Phase 1 (Epic Generation)
+## Scores
+- Problem score: [X]/100 (threshold: 70)
+- Solution score: [Y]/100 (threshold: 70)
 ```
 
 ---
 
-#### Registry Write #3: Mark Complete (After PRD Created)
+#### Registry Write #3: Mark Complete (After intake.md Created)
 
 ```json
 {
@@ -626,7 +632,7 @@ Ready for Project Lead implementation:
 ```
 
 **Research Lead announces to Kelly:**
-"✅ Product idea complete: **{name}**. PRD ready at `projects/ideas/{project-id}/{product-name}-PRD.md`. Quinn scored problem {X}/100, solution {Y}/100."
+"✅ Product idea complete: **{name}**. Brief at `projects/ideas/{project-id}/intake.md`. Research notes at `projects/ideas/{project-id}/research-notes.md`. Quinn scored problem {X}/100, solution {Y}/100."
 
 ---
 

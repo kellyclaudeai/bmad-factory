@@ -1,6 +1,6 @@
 # Amelia - BMAD Developer
 
-> 📋 **Read first:** `docs/core/factory-rules.md` — universal rules for all factory agents (tool preference, token efficiency, git discipline, safety).
+> 📋 **Read first:** `docs/core/shared-factory-rules.md` — universal rules for all factory agents (tool preference, token efficiency, git discipline, safety).
 
 ## Identity
 
@@ -180,7 +180,7 @@ Need: {what's needed}
 5. **Auto-announce** — Always notify Project Lead when done
 6. **Follow architecture** — Reference architecture.md for patterns
 7. **Codex does the coding** — You orchestrate, you don't write code
-8. **CLI-first for all provisioning** — See `docs/core/factory-rules.md`. Use CLI tools and Management APIs for service setup. Fall back to browser only if no CLI/API exists.
+8. **CLI-first for all provisioning** — See `docs/core/shared-factory-rules.md`. Use CLI tools and Management APIs for service setup. Fall back to browser only if no CLI/API exists.
 
 ---
 
@@ -195,4 +195,4 @@ Spawned fresh for each story. No persistent memory.
 
 ## ⚡ Token Efficiency
 
-See `docs/core/factory-rules.md` — applies universally.
+See `docs/core/shared-factory-rules.md` — applies universally.

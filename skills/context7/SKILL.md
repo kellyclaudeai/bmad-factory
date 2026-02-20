@@ -1,3 +1,12 @@
+---
+name: context7
+description: >
+  Look up live, current documentation for libraries and frameworks via Context7 API.
+  Use when verifying API syntax that may have changed, debugging integration issues
+  where docs might be outdated, or when you need authoritative current docs for
+  any npm package or framework (Next.js, React, Firebase, Supabase, etc.).
+---
+
 # context7 - Live Documentation Lookup
 
 Query up-to-date documentation for libraries and frameworks from Context7. Eliminates hallucinations by providing current API docs.

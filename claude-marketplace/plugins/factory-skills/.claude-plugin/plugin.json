@@ -1,0 +1,9 @@
+{
+  "name": "factory-skills",
+  "version": "1.0.0",
+  "description": "Software factory implementation skills — Supabase, Drizzle, Next.js, shadcn/ui, Stripe, and more. Shared source of truth with OpenClaw and Codex.",
+  "author": {
+    "name": "Kelly",
+    "email": "kelly@bloomtech.com"
+  }
+}
