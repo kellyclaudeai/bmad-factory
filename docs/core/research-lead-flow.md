@@ -22,14 +22,14 @@
 **Timeline:** 35-50 min per Research Lead session  
 **Model:** Sonnet 4.5 for all agents (balanced, cheap)  
 **Output:** 
-- Summary entry in `projects/project-registry.json` (state: `discovery`)
+- Summary entry in `projects/projects-registry.json` (state: `discovery`)
 - Full research artifacts in `projects/ideas/<project-id>/` directory
 
 **Architecture:**
 - 1 Research Lead = 1 idea (parallelize for batches)
 - Agent configs in `~/.openclaw/agents/{agentId}/config.json`
 - Agent workspaces in `~/.openclaw/workspace-{agentId}/` (AGENTS.md, SOUL.md, TOOLS.md, memory/)
-- Project Registry (`/Users/austenallred/clawd/projects/project-registry.json`) — summary registry for all projects
+- Project Registry (`/Users/austenallred/clawd/projects/projects-registry.json`) — summary registry for all projects
 - Research Artifacts (`/Users/austenallred/clawd/projects/ideas/<project-id>/`) — full research documents per idea
 
 ---

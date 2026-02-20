@@ -23,7 +23,7 @@ Project Lead owns a single project from intake to ship. One PL session per proje
 
 **Intake Source:** Research Lead creates comprehensive intake document at `projects/ideas/<project-id>/intake.md`. When starting a new project, Project Lead reads the registry entry's `researchDir` field to locate the intake file and supporting research documents (solution scoring, competitive analysis, naming options).
 
-**State tracking:** PL updates `projects/project-registry.json` at key lifecycle transitions. See `docs/core/project-registry-workflow.md` for full spec.
+**State tracking:** PL updates `projects/projects-registry.json` at key lifecycle transitions. See `docs/core/project-registry-workflow.md` for full spec.
 
 **Story status:** BMAD artifacts (`sprint-status.yaml`, `dependency-graph.json`) track implementation progress.
 
@@ -407,7 +407,7 @@ sessions_send(
 )
 ```
 
-Update project-registry.json:
+Update projects-registry.json:
 - **Set `state: "pending-qa"`** (was `in-progress`)
 - Set `surfacedForQA: false` (Kelly will set to true after announcing)
 - Ensure `implementation.qaUrl` is set
@@ -474,7 +474,7 @@ git checkout main && git merge dev && git push origin main
 # CI/CD deploys to production from main
 ```
 
-Update project-registry.json:
+Update projects-registry.json:
 - `state: "shipped"`
 - `timeline.shippedAt: (now)`
 - `implementation.deployedUrl: {productionUrl}`
@@ -553,7 +553,7 @@ sessions_send(
 
 ## State Management
 
-### projects/project-registry.json (Project Lead updates)
+### projects/projects-registry.json (Project Lead updates)
 
 Update your project entry at key lifecycle transitions:
 
@@ -567,7 +567,7 @@ jq '.projects |= map(
     .timeline.startedAt = (now|todate) |
     .timeline.lastUpdated = (now|todate)
   else . end
-)' projects/project-registry.json > tmp && mv tmp projects/project-registry.json
+)' projects/projects-registry.json > tmp && mv tmp projects/projects-registry.json
 ```
 
 **When to update:**

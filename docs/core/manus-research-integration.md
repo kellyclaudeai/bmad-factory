@@ -444,7 +444,7 @@ Kelly:
    - complexity: very_simple | simple | moderate | complex
    - novelty_level: low | medium | high
    - pricing_model: freemium | paid | subscription
-2. Loads previously researched domains from project-registry.json → avoid_pain_points list
+2. Loads previously researched domains from projects-registry.json → avoid_pain_points list
 3. Constructs skill invocation prompt:
    ```
    Run idea-factory skill with platform=iOS, complexity=moderate, novelty_level=high, pricing_model=subscription, avoid=[fasting tracking, water intake tracking, caffeine intake tracking, parking location tracking, ADHD navigation, home maintenance tracking, finance categorization]
@@ -580,7 +580,7 @@ User: "Generate full PRD for 'Plant Watering Tracker'"
    - Save manual review time
 
 4. **Backlog Management**
-   - Track ideas in project-registry.json
+   - Track ideas in projects-registry.json
    - "Show me all archived ideas from last month"
    - Expire stale ideas after 90 days
 

@@ -23,14 +23,14 @@
 **Timeline:** 34-50 min per Research Lead session  
 **Model:** Sonnet 4.5 for all agents (balanced, cheap)  
 **Output:** 
-- Summary entry in `projects/project-registry.json` (state: `discovery`)
+- Summary entry in `projects/projects-registry.json` (state: `discovery`)
 - Full research artifacts in `projects/ideas/<project-id>/` directory
 
 **Architecture:**
 - 1 Research Lead = 1 idea (parallelize for batches)
 - Agent configs in `~/.openclaw/agents/{agentId}/config.json`
 - Agent workspaces in `~/.openclaw/workspace-{agentId}/` (AGENTS.md, SOUL.md, TOOLS.md, memory/)
-- Project Registry (`/Users/austenallred/clawd/projects/project-registry.json`) — summary registry for all projects
+- Project Registry (`/Users/austenallred/clawd/projects/projects-registry.json`) — summary registry for all projects
 - Research Artifacts (`/Users/austenallred/clawd/projects/ideas/<project-id>/`) — full research documents per idea
 
 ---
@@ -425,7 +425,7 @@ If YES_DUPLICATE, specify which existing entry matches and explain why.
 
 **After dedup check passes, Research Lead registers problem in the project registry:**
 
-**Registry location:** `/Users/austenallred/clawd/projects/project-registry.json`
+**Registry location:** `/Users/austenallred/clawd/projects/projects-registry.json`
 
 **New entry format:**
 ```json
@@ -1173,7 +1173,7 @@ Research Lead compiles all outputs into final brief at `projects/ideas/${PROJECT
 
 **4. Update Registry Entry (30 sec)**
 
-Update existing project-registry.json entry with final name, research directory, and full intake data:
+Update existing projects-registry.json entry with final name, research directory, and full intake data:
 
 ```json
 {
@@ -1198,7 +1198,7 @@ Update existing project-registry.json entry with final name, research directory,
 ```
 ✅ Research Complete: [Name]
 
-📋 Registered in project-registry.json (state: discovery)
+📋 Registered in projects-registry.json (state: discovery)
 🔍 Discovery Approach: [Mary's approach description]
 
 **Problem:** [1-sentence problem description]
@@ -1252,7 +1252,7 @@ SESSION_SUFFIX="${SESSION_KEY#agent:research-lead:}"
 
 ```
 projects/
-├── project-registry.json                          # Summary registry (all projects)
+├── projects-registry.json                          # Summary registry (all projects)
 ├── ideas/                                          # Research Lead outputs (idea stage)
 │   ├── <project-id>/                               # One directory per researched idea
 │   │   ├── <idea-name>-prd.md                     # Product research document (e.g., bounce-prd.md)
@@ -1291,14 +1291,14 @@ projects/
 | **competitive-deepdive.md** | Detailed competitive analysis, novelty assessment, feasibility | Research Lead or Mary | Phase 5 |
 | **creative-naming.md** | Primary name + alternatives with rationale | Carson | Phase 6 |
 
-**Note:** These are working files in `ideas/<project-id>/`. The registry entry (`project-registry.json`) contains only summary data for fast lookups and deduplication. The `researchDir` field in the registry points to the idea directory (relative to `projects/`).
+**Note:** These are working files in `ideas/<project-id>/`. The registry entry (`projects-registry.json`) contains only summary data for fast lookups and deduplication. The `researchDir` field in the registry points to the idea directory (relative to `projects/`).
 
 ---
 
 ## Project Registry (Research Lead's Perspective)
 
 ### File Location
-`/Users/austenallred/clawd/projects/project-registry.json`
+`/Users/austenallred/clawd/projects/projects-registry.json`
 
 **Full lifecycle spec:** `docs/core/project-registry-workflow.md`
 

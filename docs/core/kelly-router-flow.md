@@ -25,7 +25,7 @@
 ### 2. Factory Monitoring
 
 **Heartbeat Checks (every 60 seconds)**
-- Read `projects/project-registry.json` for project lifecycle state
+- Read `projects/projects-registry.json` for project lifecycle state
 - Surface projects ready for user QA (state: "pending-qa", has `implementation.qaUrl`)
 - Detect stalled projects (>60 min no registry updates, not paused)
 - Send status pings to Project Lead if stalled (safety net, not primary monitoring)
@@ -113,7 +113,7 @@ sessions_spawn({ agentId: "project-lead", task: "..." })
 
 **After Creating:**
 - Session runs in background
-- Monitor via registry (project-registry.json) + BMAD artifacts (sprint-status.yaml)
+- Monitor via registry (projects-registry.json) + BMAD artifacts (sprint-status.yaml)
 - Send follow-up messages via `sessions_send(sessionKey="...", message="...")`
 
 ### 4. Documentation Maintenance
@@ -173,7 +173,7 @@ sessions_spawn({ agentId: "project-lead", task: "..." })
 2. Kelly Router must **not** spawn implementation/coding "doer" subagents directly (Amelia, Quinn, etc.)
 3. If a request feels small, still route to Project Lead — PL determines the right implementation path
 4. Kelly *may* spawn lightweight research/analysis helpers (Mary) **only** when task is not making code changes and not managing a project pipeline
-5. Canonical project lifecycle lives in `projects/project-registry.json`. BMAD artifacts track stories.
+5. Canonical project lifecycle lives in `projects/projects-registry.json`. BMAD artifacts track stories.
 
 ### Mechanics
 1. Identify/confirm `projectId` from registry
@@ -210,7 +210,7 @@ PL responded "all good, testing edge cases". Will re-check in 45 min.
 
 **Ephemeral tracking:** Heartbeat timestamps and recent check data can be kept in session memory (no file persistence needed). If Kelly restarts, re-checking projects is fine—no harm in redundant checks.
 
-### projects/project-registry.json (Research Lead creates, Project Lead updates, Kelly reads/writes)
+### projects/projects-registry.json (Research Lead creates, Project Lead updates, Kelly reads/writes)
 **Project lifecycle source of truth:**
 - All projects (discovery → in-progress → pending-qa → shipped → followup)
 - Timeline (discoveredAt, startedAt, shippedAt, lastUpdated)
@@ -316,7 +316,7 @@ One reaction per message max. Pick the one that fits best.
 ### Each Session
 1. Read `memory/YYYY-MM-DD.md` (today + yesterday) for recent context
 2. **If in MAIN SESSION** (direct chat): Also read `MEMORY.md`
-3. Check `projects/project-registry.json` for current project states
+3. Check `projects/projects-registry.json` for current project states
 4. Read `HEARTBEAT.md` if exists (task checklist)
 
 ### Write It Down
@@ -371,7 +371,7 @@ Orchestrator sessions (Project Lead, Research Lead) can freeze when:
 /Users/austenallred/clawd/skills/factory/session-recovery/bin/recover-session \
   --session-key "agent:project-lead:project-{projectId}" \
   --reason "unresponsive-to-status-check" \
-  --context-refresh "Context refresh after recovery. Read sprint-status.yaml and project-registry.json. Continue from last checkpoint."
+  --context-refresh "Context refresh after recovery. Read sprint-status.yaml and projects-registry.json. Continue from last checkpoint."
 ```
 
 **What it does:**
@@ -409,7 +409,7 @@ Orchestrator sessions (Project Lead, Research Lead) can freeze when:
 - `docs/changelog/CHANGELOG.md` - Kelly improvement timeline
 
 **Kelly reads (does not write):**
-- `projects/project-registry.json` - Project lifecycle source of truth (PL maintains)
+- `projects/projects-registry.json` - Project lifecycle source of truth (PL maintains)
 - `projects/{projectId}/_bmad-output/implementation-artifacts/sprint-status.yaml` - Story statuses
 
 **Kelly references:**

@@ -189,7 +189,7 @@ Lock files are ephemeral (seconds to minutes). They exist while an agent is mid-
 
 ## Migration from Old Design
 
-The old design used `project-registry.json` (singular) as the sole state file with fields like `state`, `surfacedForQA`, `implementedAt`, etc.
+The old design used `projects-registry.json` (singular) as the sole state file with fields like `state`, `surfacedForQA`, `implementedAt`, etc.
 
 **Mapping:**
 

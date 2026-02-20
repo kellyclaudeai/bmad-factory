@@ -311,7 +311,7 @@ git commit -m "area: brief description of change"
 
 **Kelly-Improver reads:**
 - `state/kelly.json` - Kelly operational state
-- `projects/project-registry.json` - Project lifecycle state
+- `projects/projects-registry.json` - Project lifecycle state
 - `memory/YYYY-MM-DD.md` - Recent events and lessons
 - Agent session histories (for debugging)
 
