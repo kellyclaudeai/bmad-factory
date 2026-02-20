@@ -12,9 +12,31 @@
 
 1. **CLI / SDK first** — shell commands, language SDKs, package managers, `curl`, `gh`, `supabase`, `firebase`, `stripe`, etc.
 2. **MCP tools second** — any MCP integration available in the workspace
-3. **Browser automation last** — only when CLI/MCP is unavailable, broken, or the task genuinely requires a real browser (e.g., OAuth flows, visual QA)
+3. **Browser automation third** — headless Playwright when CLI/MCP unavailable (see below)
+4. **Ask the operator last** — only for genuine blockers (MFA, email verification codes, payment info)
 
 If a skill says "use the browser," exhaust CLI/MCP options first. Do not ask a human to click a dashboard when an API or CLI exists.
+
+### 🎭 Browser Automation — Never Stop, Use Playwright
+
+When browser interaction is needed, **never stop and ask the user to do it**. Use headless Playwright:
+
+```javascript
+// Standard pattern — available globally at /opt/homebrew/lib/node_modules/playwright
+import { chromium } from '/opt/homebrew/lib/node_modules/playwright/index.mjs';
+const browser = await chromium.launch({ headless: true });
+const page = await browser.newPage();
+// ... automate the flow
+await browser.close();
+```
+
+**Stop and ask the operator ONLY for:**
+- Email verification links (can't access their inbox)
+- MFA / 2FA codes
+- Payment / credit card info
+- CAPTCHA that can't be bypassed
+
+**Everything else is automatable.** Form fills, signups, clicking through dashboards, grabbing API keys from settings pages — do it yourself.
 
 **For testing specifically:**
 - Prefer API-level tests (curl, SDK calls, jest/vitest unit tests) over E2E browser tests
