@@ -6,6 +6,8 @@
  * Status values:  active | waiting | awaiting-qa (from sessions API)
  * Research vals:  complete | completed | failed
  *
+ * Use displayPhase() for human-readable badge labels.
+ *
  * Semantic intent:
  *   🟡 planning    — early, not building yet
  *   🟢 build / active — actively shipping
@@ -51,4 +53,23 @@ export function phaseColor(val: string): string {
     default:
       return "bg-terminal-text/10 text-terminal-text border-terminal-text";
   }
+}
+
+/**
+ * Clean human-readable label for a phase/status value.
+ * Collapses all QA aliases to "QA", hyphenates → spaces, uppercases the rest.
+ *
+ * Examples:
+ *   "awaiting-qa"  → "QA"
+ *   "qa"           → "QA"
+ *   "testing"      → "QA"
+ *   "build"        → "BUILD"
+ *   "planning"     → "PLANNING"
+ *   "active"       → "ACTIVE"
+ *   "waiting"      → "WAITING"
+ */
+export function displayPhase(val: string): string {
+  const v = (val || "").toLowerCase();
+  if (v === "qa" || v === "testing" || v === "awaiting-qa" || v === "awaiting_qa") return "QA";
+  return v.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }

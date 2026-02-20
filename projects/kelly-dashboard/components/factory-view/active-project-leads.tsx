@@ -1,7 +1,7 @@
 "use client";
 
 import { useAutoRefresh } from "@/components/shared/auto-refresh";
-import { phaseColor } from "@/lib/phase-colors";
+import { phaseColor, displayPhase } from "@/lib/phase-colors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -142,7 +142,7 @@ function ProjectLeadCard({ session }: { session: Session }) {
               variant="outline"
               className={`text-xs font-mono ${phaseColor(session.phase || status)}`}
             >
-              {(session.phase || status).toUpperCase()}
+              {displayPhase(session.phase || status)}
             </Badge>
           </div>
         </CardHeader>

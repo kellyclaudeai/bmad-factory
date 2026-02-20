@@ -4,6 +4,7 @@ import { useAutoRefresh } from '@/components/shared/auto-refresh'
 import { Timestamp } from '@/components/shared/timestamp'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { phaseColor, displayPhase } from '@/lib/phase-colors'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useRouter } from 'next/navigation'
 
@@ -132,16 +133,12 @@ function AgentCard({ session }: { session: Session }) {
               session.status === 'paused' ? 'bg-yellow-500' :
               'bg-terminal-dim'
             }`} />
-            {/* Phase badge: matches detail page */}
+            {/* Phase badge — uses shared phaseColor for consistency */}
             <Badge
-              variant={(session.phase === 'qa' || session.status === 'active') ? 'default' : 'outline'}
-              className={
-                session.phase === 'qa' ? 'bg-blue-500 text-white border-0' :
-                session.status === 'active' ? 'bg-terminal-green text-terminal-bg border-0' :
-                ''
-              }
+              variant="outline"
+              className={`text-xs font-mono ${phaseColor(session.phase || session.status)}`}
             >
-              {session.phase || session.status}
+              {displayPhase(session.phase || session.status)}
             </Badge>
           </div>
         </CardTitle>

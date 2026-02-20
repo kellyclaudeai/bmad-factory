@@ -1,7 +1,7 @@
 "use client";
 
 import { useAutoRefresh } from "@/components/shared/auto-refresh";
-import { phaseColor } from "@/lib/phase-colors";
+import { phaseColor, displayPhase } from "@/lib/phase-colors";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -107,7 +107,7 @@ function AgentCard({ session }: { session: Session }) {
               variant="outline"
               className={`text-xs font-mono ${phaseColor(session.phase || session.status)}`}
             >
-              {(session.phase || session.status).toUpperCase()}
+              {displayPhase(session.phase || session.status)}
             </Badge>
           </div>
           <div className="text-sm text-terminal-dim font-mono truncate">

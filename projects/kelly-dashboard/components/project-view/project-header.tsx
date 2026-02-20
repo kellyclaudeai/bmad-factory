@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
-import { phaseColor } from '@/lib/phase-colors'
+import { phaseColor, displayPhase } from '@/lib/phase-colors'
 
 type ProjectHeaderProps = {
   projectId: string
@@ -34,7 +34,7 @@ export function ProjectHeader({ projectId, projectName, stage }: ProjectHeaderPr
           {projectName}
         </h1>
         <Badge variant="outline" className={`text-sm font-mono ${phaseColor(stage)}`}>
-          {(stage || 'unknown').toUpperCase()}
+          {displayPhase(stage || 'unknown')}
         </Badge>
       </div>
 
