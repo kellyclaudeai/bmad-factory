@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""
+Returns the most-recently-active Kelly (main agent) webchat session key.
+
+Priority:
+  1. state/kelly.json (explicit override written by Kelly itself)
+  2. Most recently updated agent:main:* session with lastChannel=webchat
+
+Falls back to agent:main:main if nothing else is found.
+"""
+import json, os, sys
+
+WORKSPACE = os.path.expanduser("~/clawd")
+SESSIONS_PATH = os.path.expanduser("~/.openclaw/agents/main/sessions/sessions.json")
+STATE_PATH = os.path.join(WORKSPACE, "state", "kelly.json")
+
+# 1. Check state/kelly.json first
+try:
+    with open(STATE_PATH) as f:
+        state = json.load(f)
+    key = state.get("activeSessionKey")
+    if key:
+        print(key)
+        sys.exit(0)
+except Exception:
+    pass
+
+# 2. Find most recently active webchat session from sessions.json
+try:
+    with open(SESSIONS_PATH) as f:
+        sessions = json.load(f)
+
+    SKIP = (":cron:", ":subagent:", ":run:")
+    candidates = [
+        (k, v)
+        for k, v in sessions.items()
+        if v.get("lastChannel") == "webchat"
+        and not any(s in k for s in SKIP)
+    ]
+
+    if candidates:
+        best = max(candidates, key=lambda x: x[1].get("updatedAt", 0))
+        print(best[0])
+        sys.exit(0)
+except Exception:
+    pass
+
+# 3. Fallback
+print("agent:main:main")
