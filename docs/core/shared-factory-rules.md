@@ -111,12 +111,23 @@ security find-generic-password -a "kelly-factory" -s "kelly-factory-credentials"
 2. **Email + password** — `kelly@bloomtech.com` + keychain password above
 3. **Ask operator** — only if neither works (e.g., site blocks Google OAuth + requires SMS verification)
 
+### Email Verification — Handle Autonomously
+
+**You have full access to `kelly@bloomtech.com` via Gmail in the openclaw browser profile.**
+
+When a signup requires email verification:
+1. Navigate to https://mail.google.com in the browser (already logged in via Google session)
+2. Find the verification email
+3. Click the verification link
+4. Continue the signup flow — no operator input needed
+
+This covers: TMDB, Watchmode, Supabase, Vercel, any other service that sends a verification email to `kelly@bloomtech.com`.
+
 ### Rules
-- ✅ Free tier signup with no payment info required → do it autonomously (use browser automation + factory credentials)
+- ✅ Free tier signup with no payment info required → do it autonomously (browser + factory credentials + Gmail verification)
 - ✅ Once obtained, set immediately via CLI: `vercel env add KEY_NAME` or equivalent
 - ⚠️ Paid tier or credit card required → stop and ask the operator first
-- ⚠️ Email verification link required → ask operator to click the link, then continue autonomously
-- ⚠️ MFA / 2FA / SMS code → ask operator
+- ⚠️ MFA / 2FA / SMS code → ask operator (we don't have SMS access)
 - ❌ Never store raw API keys in git or in any file committed to version control
 
 ---
