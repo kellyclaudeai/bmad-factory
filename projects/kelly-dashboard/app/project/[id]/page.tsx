@@ -7,6 +7,9 @@ import { SubagentGrid } from '@/components/project-view/subagent-grid'
 import { QueuedStories } from '@/components/project-view/queued-stories'
 import { LogsSection } from '@/components/subagent-view/logs-section'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Timestamp } from '@/components/shared/timestamp'
+import { phaseColor } from '@/lib/phase-colors'
 
 interface ProjectDetailProps {
   params: Promise<{ id: string }>
@@ -522,65 +525,71 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
                   Phase 1: Planning Artifacts
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries({
-                    'PRD': { key: 'prd', fileName: 'prd.md', agent: 'John (PM)' },
-                    'UX Design': { key: 'uxDesign', fileName: 'ux-design.md', agent: 'Sally (UX)' },
-                    'Architecture': { key: 'architecture', fileName: 'architecture.md', agent: 'Winston (Architect)' },
-                    'Epics & Stories': { key: 'epics', fileName: 'epics.md', agent: 'John (PM)' }
-                  }).map(([label, { key, fileName, agent }]) => {
-                    const status = (projectState.planningArtifacts as any)?.[key]
+                  {([
+                    { label: 'PRD',              key: 'prd',          fileName: 'prd.md',          agent: 'John' },
+                    { label: 'UX Design',        key: 'uxDesign',     fileName: 'ux-design.md',    agent: 'Sally' },
+                    { label: 'Architecture',     key: 'architecture', fileName: 'architecture.md', agent: 'Winston' },
+                    { label: 'Epics & Stories',  key: 'epics',        fileName: 'epics.md',        agent: 'John' },
+                  ] as const).map(({ label, key, fileName, agent }) => {
+                    const status = (projectState.planningArtifacts as any)?.[key] as string | undefined
                     const rawData = projectState.planningArtifactsRaw?.[fileName]
                     const isComplete = status === 'complete'
-                    const isActive = rawData?.isRecent && !isComplete
-                    
+                    const isActive  = !!rawData?.isRecent && !isComplete
+                    const badgeVal  = isActive ? 'active' : isComplete ? 'complete' : 'waiting'
+
                     return (
-                      <Card key={key} className={`bg-terminal-card border-terminal-border ${isActive ? 'ring-2 ring-terminal-green/30' : ''}`}>
-                        <CardContent className="pt-6 pb-6 space-y-3">
-                          <div className="flex items-start justify-between">
-                            <div className="space-y-1">
-                              <div className="font-mono text-sm text-terminal-text font-bold">
-                                {label}
-                              </div>
-                              <div className="font-mono text-xs text-terminal-dim">
-                                {agent}
-                              </div>
-                            </div>
-                            <div className={`font-mono text-xs font-bold ${
-                              isActive ? 'text-yellow-500' : 
-                              isComplete ? 'text-terminal-green' : 
-                              'text-terminal-dim'
-                            }`}>
-                              {isActive ? '⚡ Active' : isComplete ? '✓ Complete' : '⏳ Pending'}
-                            </div>
+                      <Card
+                        key={key}
+                        className={`transition-all duration-200 ${isActive ? 'ring-2 ring-terminal-green/30' : ''}`}
+                      >
+                        <CardContent className="p-4">
+                          {/* Header row — mirrors SubagentCard */}
+                          <div className="flex items-start justify-between gap-2 mb-3">
+                            <h3 className="font-mono text-sm font-semibold text-terminal-text flex-1">
+                              {label}
+                            </h3>
+                            <Badge
+                              variant="outline"
+                              className={`text-xs font-mono shrink-0 ${phaseColor(badgeVal)} ${isActive ? 'animate-pulse-status' : ''}`}
+                            >
+                              {isActive ? 'Active' : isComplete ? 'Complete' : 'Pending'}
+                            </Badge>
                           </div>
-                          
-                          {rawData?.exists && (
-                            <div className="space-y-1 text-xs font-mono text-terminal-dim">
-                              <div>Size: {((rawData.size || 0) / 1024).toFixed(1)} KB</div>
-                              {rawData.ageMinutes !== undefined && (
-                                <div>
-                                  {rawData.ageMinutes === 0 ? 'Just now' : 
-                                   rawData.ageMinutes === 1 ? '1 minute ago' :
-                                   rawData.ageMinutes < 60 ? `${rawData.ageMinutes} minutes ago` :
-                                   `${Math.floor(rawData.ageMinutes / 60)}h ${rawData.ageMinutes % 60}m ago`}
-                                </div>
-                              )}
+
+                          {/* Body rows */}
+                          <div className="space-y-1.5 text-xs font-mono">
+                            <div className="flex items-center gap-2">
+                              <span className="text-terminal-dim">Agent:</span>
+                              <span className="text-terminal-green">{agent}</span>
                             </div>
-                          )}
+
+                            {isComplete && rawData?.modified && (
+                              <div className="flex items-center gap-2 text-terminal-dim">
+                                <span>Completed:</span>
+                                <Timestamp date={rawData.modified} className="text-terminal-green/70" />
+                              </div>
+                            )}
+
+                            {isActive && (
+                              <div className="flex items-center gap-2 text-terminal-dim">
+                                <span>Last updated:</span>
+                                <span className="text-terminal-green">
+                                  {rawData?.ageMinutes === 0 ? 'Just now' :
+                                   rawData?.ageMinutes === 1 ? '1 min ago' :
+                                   `${rawData?.ageMinutes}m ago`}
+                                </span>
+                              </div>
+                            )}
+
+                            {!isComplete && !isActive && (
+                              <div className="text-terminal-amber">Pending</div>
+                            )}
+                          </div>
                         </CardContent>
                       </Card>
                     )
                   })}
                 </div>
-                
-                {/* Activity indicator */}
-                {Object.values(projectState.planningArtifactsRaw || {}).some(a => a.isRecent) && (
-                  <div className="mt-4 p-3 bg-terminal-card border border-terminal-green/30 rounded-md">
-                    <div className="font-mono text-xs text-terminal-green">
-                      ⚡ Active: Artifacts being generated or updated in the last 5 minutes
-                    </div>
-                  </div>
-                )}
               </section>
             )}
 

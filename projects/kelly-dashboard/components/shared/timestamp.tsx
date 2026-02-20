@@ -30,8 +30,8 @@ function formatRelativeTime(timestamp: Date, nowMs: number): string {
 
 function formatAbsoluteTime(timestamp: Date, timeZone: string): string {
   const parts = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
+    year: '2-digit',
+    month: 'numeric',
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
@@ -51,7 +51,8 @@ function formatAbsoluteTime(timestamp: Date, timeZone: string): string {
   const dayPeriod = getPart('dayPeriod')
   const timeZoneName = getPart('timeZoneName')
 
-  return `${month} ${day}, ${year} ${hour}:${minute}:${second} ${dayPeriod} ${timeZoneName}`
+  // e.g. "2/19/26 7:37:11 PM CST"
+  return `${month}/${day}/${year} ${hour}:${minute}:${second} ${dayPeriod} ${timeZoneName}`
 }
 
 export function Timestamp({ date, className = '' }: TimestampProps) {
@@ -83,9 +84,8 @@ export function Timestamp({ date, className = '' }: TimestampProps) {
   const relative = formatRelativeTime(timestamp, nowMs)
 
   return (
-    <span className={`inline-flex items-baseline gap-1 ${className}`} title={absolute}>
-      <span>{absolute}</span>
-      <span className="text-xs opacity-70">({relative})</span>
+    <span className={className} title={relative}>
+      {absolute}
     </span>
   )
 }
