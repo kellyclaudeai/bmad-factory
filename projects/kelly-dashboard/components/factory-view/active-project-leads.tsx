@@ -15,6 +15,7 @@ type Session = {
   projectTitle?: string;
   projectDescription?: string;
   status: string;
+  phase?: string;
   lastActivity: string;
   model?: string;
   tokens?: { input: number; output: number };
@@ -143,9 +144,14 @@ function ProjectLeadCard({ session }: { session: Session }) {
             </div>
             <Badge
               variant="outline"
-              className={`text-xs font-mono ${getStatusColor(status)}`}
+              className={`text-xs font-mono ${
+                session.phase === 'qa' ? 'bg-blue-500/10 text-blue-400 border-blue-500' :
+                status === 'active' ? 'bg-terminal-green/10 text-terminal-green border-terminal-green' :
+                status === 'waiting' ? 'bg-terminal-amber/10 text-terminal-amber border-terminal-amber' :
+                getStatusColor(status)
+              }`}
             >
-              {status === "awaiting-qa" ? "⏳ AWAITING QA" : status.toUpperCase()}
+              {(session.phase || status).toUpperCase()}
             </Badge>
           </div>
         </CardHeader>

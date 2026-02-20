@@ -13,6 +13,7 @@ interface Session {
   agentType: string
   projectId?: string
   status: string
+  phase?: string
   lastActivity: string
   model: string
   tokens?: { input: number; output: number }
