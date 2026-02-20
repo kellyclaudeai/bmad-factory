@@ -1,4 +1,5 @@
 import { InputHTMLAttributes, forwardRef } from "react";
+import { cn } from "@/lib/utils/cn";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -7,7 +8,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, className = "", ...props }, ref) => {
+  ({ label, error, helperText, className, ...props }, ref) => {
     const hasError = !!error;
 
     return (
@@ -15,7 +16,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={props.id}
-            className="mb-1 block text-sm font-medium text-gray-900"
+            className="mb-1 block text-xs font-semibold font-mono uppercase tracking-wide text-secondary"
           >
             {label}
           </label>
@@ -30,27 +31,25 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 ? `${props.id}-helper`
                 : undefined
           }
-          className={`
-            w-full rounded border px-3 py-2 text-base text-gray-900
-            transition-colors
-            focus:outline-none focus:ring-2 focus:ring-offset-1
-            disabled:cursor-not-allowed disabled:opacity-50
-            ${
-              hasError
-                ? "border-error focus:border-error focus:ring-error"
-                : "border-gray-400 focus:border-primary-brand focus:ring-primary-brand"
-            }
-            ${className}
-          `}
+          className={cn(
+            "w-full rounded-md border px-3 py-2",
+            "bg-surface-3 text-primary text-sm font-sans placeholder:text-muted",
+            "outline-none transition-all",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            hasError
+              ? "border-error focus:border-error focus:ring-1 focus:ring-error"
+              : "border-border focus:border-accent focus:ring-1 focus:ring-accent",
+            className
+          )}
           {...props}
         />
         {error && (
-          <p id={`${props.id}-error`} className="mt-1 text-sm text-error">
+          <p id={`${props.id}-error`} className="mt-1 text-xs text-error font-mono">
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p id={`${props.id}-helper`} className="mt-1 text-sm text-gray-600">
+          <p id={`${props.id}-helper`} className="mt-1 text-xs text-muted">
             {helperText}
           </p>
         )}

@@ -46,8 +46,8 @@ export default function ChannelHeader({
   }, [channelName]);
 
   return (
-    <header className="flex items-center justify-between border-b border-gray-300 bg-white px-4 py-3">
-      <h1 className="truncate text-lg font-semibold text-gray-900"># {channelName}</h1>
+    <header className="flex items-center justify-between border-b border-border bg-surface-2 px-4 py-3">
+      <h1 className="truncate font-mono text-lg font-semibold text-primary"># {channelName}</h1>
 
       {canManageChannel ? (
         <div className="relative flex-shrink-0" ref={menuRef}>
@@ -69,13 +69,13 @@ export default function ChannelHeader({
           {isMenuOpen ? (
             <div
               role="menu"
-              className="absolute right-0 z-20 mt-2 w-44 rounded border border-gray-300 bg-white p-1 shadow-lg"
+              className="absolute right-0 z-20 mt-2 w-44 rounded border border-border bg-surface-3 p-1 shadow-lg"
             >
               {canRenameChannel ? (
                 <button
                   type="button"
                   role="menuitem"
-                  className="w-full rounded px-3 py-2 text-left text-sm text-gray-900 transition-colors hover:bg-gray-100"
+                  className="w-full rounded px-3 py-2 text-left text-sm text-primary transition-colors hover:bg-surface-4"
                   onClick={() => {
                     setIsMenuOpen(false);
                     onRenameChannel();
@@ -89,7 +89,7 @@ export default function ChannelHeader({
                 <button
                   type="button"
                   role="menuitem"
-                  className="w-full rounded px-3 py-2 text-left text-sm text-error transition-colors hover:bg-red-50"
+                  className="w-full rounded px-3 py-2 text-left text-sm text-error transition-colors hover:bg-error-subtle"
                   onClick={() => {
                     setIsMenuOpen(false);
                     onDeleteChannel();

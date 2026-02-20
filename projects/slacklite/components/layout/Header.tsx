@@ -79,7 +79,7 @@ export function Header() {
         titleTag="h3"
         size="sm"
       >
-        <p className="text-base font-normal text-gray-700">
+        <p className="text-base font-normal text-secondary">
           Are you sure you want to sign out?
         </p>
 

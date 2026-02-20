@@ -332,6 +332,13 @@ export function useRealtimeMessages(
         },
       );
 
+      // BUG ROOT CAUSE: database.rules.json validates writes at messages/$workspaceId/$channelId with
+      //   root.child('users').child(auth.uid).child('workspaceId').val() == $workspaceId
+      // but the app NEVER writes user data to the RTDB /users/ path — user data lives only in Firestore.
+      // Therefore root.child('users').child(auth.uid).child('workspaceId').val() always returns null,
+      // making null == $workspaceId always false, and EVERY RTDB message write is PERMISSION_DENIED.
+      // Fix: write workspaceId to RTDB users/{uid} at workspace join/create (story 12.2).
+
       // DIAGNOSTIC: log full RTDB write context so we can confirm workspaceId/channelId are populated
       console.log('[DIAG][RTDB write] path:', `messages/${normalizedWorkspaceId}/${normalizedRTDBChannelId}/${serverMessageId}`, 'workspaceId:', normalizedWorkspaceId, 'channelId:', normalizedRTDBChannelId, 'userId:', optimisticMessage.userId, 'payload:', payload);
 

@@ -259,27 +259,27 @@ export default function DirectMessagePage() {
 
   if (!user) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-gray-600">Please sign in to view messages.</p>
+      <div className="flex h-full items-center justify-center bg-surface-2">
+        <p className="text-muted">Please sign in to view messages.</p>
       </div>
     );
   }
 
   if (dmId.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-gray-600">Direct message not found.</p>
+      <div className="flex h-full items-center justify-center bg-surface-2">
+        <p className="text-muted">Direct message not found.</p>
       </div>
     );
   }
 
   if (directMessageLoading) {
     return (
-      <div className="flex h-full items-center justify-center py-8">
-        <div role="status" className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="flex h-full items-center justify-center py-8 bg-surface-2">
+        <div role="status" className="flex items-center gap-2 text-sm text-muted">
           <span
             aria-hidden="true"
-            className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"
+            className="h-4 w-4 animate-spin rounded-full border-2 border-border-strong border-t-transparent"
           />
           Loading conversation...
         </div>
@@ -289,39 +289,41 @@ export default function DirectMessagePage() {
 
   if (directMessageError) {
     return (
-      <div className="rounded-lg bg-red-50 p-4">
-        <p className="text-sm text-red-800">Failed to load this conversation. Please try again.</p>
+      <div className="flex h-full items-center justify-center bg-surface-2 p-4">
+        <div className="rounded-lg border border-error/30 bg-surface-3 p-4">
+          <p className="text-sm text-error">Failed to load this conversation. Please try again.</p>
+        </div>
       </div>
     );
   }
 
   if (!directMessage) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-gray-600">Direct message not found.</p>
+      <div className="flex h-full items-center justify-center bg-surface-2">
+        <p className="text-muted">Direct message not found.</p>
       </div>
     );
   }
 
   if (!isParticipant) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-gray-600">You do not have access to this conversation.</p>
+      <div className="flex h-full items-center justify-center bg-surface-2">
+        <p className="text-muted">You do not have access to this conversation.</p>
       </div>
     );
   }
 
   if (otherUserId.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-gray-600">Unable to load conversation participant.</p>
+      <div className="flex h-full items-center justify-center bg-surface-2">
+        <p className="text-muted">Unable to load conversation participant.</p>
       </div>
     );
   }
 
   return (
     <div className="flex h-full flex-col">
-      <header className="border-b border-gray-300 bg-white px-4 py-3">
+      <header className="border-b border-border bg-surface-1 px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="relative">
             <Avatar
@@ -331,23 +333,23 @@ export default function DirectMessagePage() {
               size="sm"
             />
             <span
-              className={`absolute bottom-0 right-0 inline-block h-2.5 w-2.5 rounded-full border-2 border-white ${
-                isOtherUserOnline ? "bg-success" : "bg-gray-600"
+              className={`absolute bottom-0 right-0 inline-block h-2.5 w-2.5 rounded-full border-2 border-surface-1 ${
+                isOtherUserOnline ? "bg-success" : "bg-surface-3"
               }`}
               role="status"
               aria-label={isOtherUserOnline ? "Online" : "Offline"}
             />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900">{otherUserName}</h2>
+          <h2 className="text-xl font-semibold text-primary">{otherUserName}</h2>
         </div>
       </header>
 
-      <div className="relative flex-1">
-        <div className="flex h-full min-h-0 flex-col p-4">
+      <div className="relative flex-1 bg-surface-2">
+        <div className="flex h-full min-h-0 flex-col">
           {sendErrorBanner && (
             <div
               role="alert"
-              className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-error/30 bg-red-50 px-4 py-3"
+              className="mx-4 mt-3 flex items-center justify-between gap-3 rounded-lg border border-error/30 bg-surface-3 px-4 py-3"
             >
               <p className="text-sm text-error">{sendErrorBanner}</p>
               <button
@@ -355,7 +357,7 @@ export default function DirectMessagePage() {
                 onClick={() => {
                   void retryLastSend();
                 }}
-                className="text-sm font-medium text-error underline decoration-error/70 underline-offset-2 hover:text-red-700"
+                className="text-sm font-medium text-error underline decoration-error/70 underline-offset-2 hover:opacity-80"
               >
                 Retry
               </button>
@@ -365,12 +367,12 @@ export default function DirectMessagePage() {
           {firestoreWarningBanner && (
             <div
               role="alert"
-              className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-warning/40 bg-gray-100 px-4 py-3"
+              className="mx-4 mt-3 flex items-center justify-between gap-3 rounded-lg border border-warning/40 bg-surface-3 px-4 py-3"
             >
               <div className="min-w-0">
-                <p className="text-sm text-gray-800">{firestoreWarningBanner.message}</p>
+                <p className="text-sm text-secondary">{firestoreWarningBanner.message}</p>
                 {firestoreWarningBanner.pendingCount > 1 && (
-                  <p className="mt-1 text-xs text-gray-600">
+                  <p className="mt-1 text-xs text-muted">
                     {firestoreWarningBanner.pendingCount} messages are waiting to be saved.
                   </p>
                 )}
@@ -380,7 +382,7 @@ export default function DirectMessagePage() {
                 onClick={() => {
                   void retryFirestoreWrite(firestoreWarningBanner.messageId);
                 }}
-                className="text-sm font-medium text-gray-800 underline decoration-gray-500 underline-offset-2 hover:text-gray-900"
+                className="text-sm font-medium text-secondary underline decoration-border-strong underline-offset-2 hover:text-primary"
               >
                 Retry Save
               </button>
@@ -388,11 +390,11 @@ export default function DirectMessagePage() {
           )}
 
           {loading && (
-            <div className="flex flex-1 items-center justify-center py-8">
-              <div role="status" className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex flex-1 items-center justify-center py-8 bg-surface-2">
+              <div role="status" className="flex items-center gap-2 text-sm text-muted">
                 <span
                   aria-hidden="true"
-                  className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"
+                  className="h-4 w-4 animate-spin rounded-full border-2 border-border-strong border-t-transparent"
                 />
                 Loading messages...
               </div>
@@ -400,14 +402,14 @@ export default function DirectMessagePage() {
           )}
 
           {error && (
-            <div className="rounded-lg bg-red-50 p-4">
-              <p className="text-sm text-red-800">Failed to load messages. Please try again.</p>
+            <div className="mx-4 mt-3 rounded-lg border border-error/30 bg-surface-3 p-4">
+              <p className="text-sm text-error">Failed to load messages. Please try again.</p>
             </div>
           )}
 
           {!loading && !error && messages.length === 0 && (
-            <div className="flex flex-1 items-center justify-center">
-              <p className="text-sm text-gray-600">No messages yet. Say hello!</p>
+            <div className="flex flex-1 items-center justify-center bg-surface-2 text-center px-8">
+              <p className="text-sm text-muted">No messages yet. Say hello!</p>
             </div>
           )}
 
