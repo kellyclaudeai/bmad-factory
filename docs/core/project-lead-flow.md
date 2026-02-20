@@ -439,31 +439,39 @@ PL behavior: idle wait.
 
 #### Stage 4.3: Operator Testing — Fix Path
 
-**Operator decides WHAT goes in. PL decides HOW to implement it.**
+**Operator decides WHAT goes in. PL decides HOW to route it.**
 
-QA feedback is treated like any other development work — it flows through BMAD artifacts and the same Phase 2 story pipeline as greenfield. The only exception is genuine bugs.
+> ⛔ **PL NEVER writes stories or creates story IDs itself.** Story creation is John's job. Dependency graphs are Bob's job. PL is a router — classify the feedback, pick the path, spawn the right agent. That's it.
 
 ```
 1. Receive fix feedback from Kelly
    → Example: "FIX: takeouttrap — Checkout flow confusing, auth broken on mobile"
 
-2. Route the feedback (technical call — operator decides scope, PL decides path):
+2. Route each feedback item through the decision tree:
 
-   BUG PATH — Feedback is a missed implementation or something clearly broken
-   (i.e., a feature was specified and it just doesn't work as described):
-   → Spawn Amelia: fix-qa-feedback
-     → Input: operator feedback verbatim + relevant story/acceptance criteria
-     → Task: Fix the broken behavior, commit, push to dev
-   → No new stories created, but Amelia updates sprint-status.yaml to note the fix
-
-   STORY PATH — Default for all other feedback
-   (new behavior, changed UX, additions, anything that isn't a straight bug):
-   → Spawn John: scope-qa-feedback
-     → Input: operator feedback, existing prd.md, architecture.md, ux-design.md
-     → Output: new story files in _bmad-output/implementation-artifacts/stories/
-     → John updates sprint-status.yaml with new story entries (status: "todo")
-   → Spawn Bob: update dependency-graph.json for new stories
-   → Run new stories through Phase 2 loop (Amelia, dependency-driven, same rules as greenfield)
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ Is it a GENUINE BUG?                                            │
+   │ (feature was specified, it just doesn't work as described)      │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ YES → Amelia: fix-qa-feedback                                   │
+   │   Input: operator feedback verbatim + relevant story/ACs        │
+   │   Output: fix committed, pushed to dev                          │
+   │   No new stories. Amelia notes fix in sprint-status.yaml.       │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ NO → Does it require architecture changes?                      │
+   │   (new services, new data models, new integrations)             │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ YES → Winston first: review-architecture-change                 │
+   │   → Then John: scope-qa-feedback (using Winston's output)       │
+   │   → Then Bob: update-dependency-graph                           │
+   │   → Then Phase 2 loop (Amelia)                                  │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ NO → John: scope-qa-feedback (default story path)               │
+   │   Input: operator feedback + prd.md + architecture.md           │
+   │   Output: new story files + sprint-status.yaml entries          │
+   │   → Then Bob: update-dependency-graph                           │
+   │   → Then Phase 2 loop (Amelia)                                  │
+   └─────────────────────────────────────────────────────────────────┘
 
 3. After all fixes/stories complete:
    → Re-run Phase 3 (Test): pre-deploy gates → deploy → TEA execution
@@ -472,7 +480,7 @@ QA feedback is treated like any other development work — it flows through BMAD
 4. Back to Stage 4.1 (re-notify Kelly, re-enter hold)
 ```
 
-**When in doubt, use the Story Path.** Story creation is cheap. It keeps the work visible in sprint-status.yaml, gives Amelia clear acceptance criteria, and makes the project auditable. Bug Path is the narrow exception — if a button literally doesn't work and the spec said it should, that's a bug. Everything else is a story.
+**When in doubt, use the Story Path (John).** Story creation is cheap. It keeps work visible in sprint-status.yaml, gives Amelia clear ACs, and makes the project auditable. Bug Path is the narrow exception.
 
 #### Stage 4.4: Ship (on operator approval)
 

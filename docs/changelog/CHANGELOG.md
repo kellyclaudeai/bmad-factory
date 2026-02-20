@@ -257,3 +257,10 @@
 - Phase 3 is NOT stories — PL orchestrates Murat directly after all Phase 2 stories done
 - Phase 4 cannot start without test-execution-report.md showing PASS
 - Root cause: Verdict shipped to user QA with zero test artifacts (Phase 3 bypassed)
+
+## [v4.7] 2026-02-19
+### Changed
+- Stage 4.3 routing: PL now has explicit decision tree (Bug→Amelia, Architecture change→Winston→John→Bob, Everything else→John→Bob). PL NEVER writes stories or creates story IDs.
+- John AGENTS.md: forbidden epic clarification — unit tests WITHIN a story are fine; it's stories whose PRIMARY DELIVERABLE is testing that are forbidden
+- Bob AGENTS.md: same unit test clarification
+- project-lead-flow.md: Stage 4.3 rewritten with routing decision tree diagram
