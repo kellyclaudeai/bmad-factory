@@ -1,10 +1,13 @@
 # Project Lead Flow
 
-**Last Updated:** 2026-02-19  
+**Last Updated:** 2026-02-20  
 **Purpose:** Complete specification of Project Lead orchestration across all modes and phases.  
 **Audience:** Used as reference when building/updating Project Lead AGENTS.md.
 
 **Recent Updates:**
+- v5.1 (2026-02-20): **SALLY MOCKUPS MANDATORY.** design-assets.json is no longer optional. Sally MUST use the `frontend-design` skill to build HTML prototypes + Playwright screenshots for every main screen after writing ux-design.md. PL task prompt now explicitly requires this with a pointer to `docs/core/design-workflow.md`. Removed stale "Figma URLs" reference from Sally step.
+- v5.0 (2026-02-20): **DEFAULT TECH STACK.** `docs/core/tech-stack.md` created. Winston must read it before writing architecture.md on every project. Default: Next.js 15 + TypeScript + Tailwind + shadcn/ui + pnpm + Supabase (DB+Auth) + Drizzle + Vercel. Override by specifying in intake.md; document as ADR in architecture.md.
+- v4.9 (2026-02-20): **NO MOCKING IN E2E — REAL EVERYTHING.** Phase 3 E2E tests must use real deployed URL, real Firebase Auth, real credentials. No stubbing `signInWithPopup` or any external service. Console error listener mandatory in every test file (CSP violations = auto-fail). Test credentials must be a dedicated factory test Gmail (NOT kelly@bloomtech.com). If auth project and `test-credentials.md` missing → Murat halts + PL notifies Kelly. Same policy codified in murat-testing/SKILL.md.
 - v4.8 (2026-02-19): **FULL QA FEEDBACK WORKFLOWS IN ALL AGENTS.** John: `scope-qa-feedback` (4th responsibility). Winston: `review-architecture-change` (2nd responsibility). Amelia: `fix-qa-feedback` (Mode 3). Bob: `update-dependency-graph` (4th responsibility). Every agent now knows its QA feedback role — PL routes, agents execute.
 - v4.6 (2026-02-19): **PHASE 3 HARD GATE + FORBIDDEN STORY TYPES.** Phase 3 (TEA) is now an explicit hard gate — cannot be skipped, cannot be substituted by a Phase 2 "Smoke Test" story. John AGENTS.md: forbidden from creating testing/deployment epics. Bob AGENTS.md: must skip any test/deploy stories that slip through from John's epics. Root cause: Verdict shipped with zero test artifacts because story 7.2 "Production Build, Deploy & Smoke Test" was mistaken for Phase 3.
 - v4.1 (2026-02-19): **STATELESS PL + CONTEXT DISCIPLINE.** PL must keep replies to 1-2 lines, never narrate history, rotate session every 25 stories. Prevents 200k token overflow on large projects. See Context Discipline section.
@@ -71,6 +74,23 @@ When a project uses Vercel:
 
 ## Normal Mode Greenfield
 
+### Phase 0: Git Init (MANDATORY — do this first, before anything else)
+
+Every project has its own git repo. The `clawd` workspace ignores `projects/*/` in its `.gitignore`, so project code never bleeds into clawd's history.
+
+```bash
+# Run this immediately after the project directory is created:
+cd /Users/austenallred/clawd/projects/{projectId}
+git init
+git add -A
+git commit -m "feat: initial project setup — {ProjectName}"
+```
+
+- **Default branch:** `main`
+- **No remote needed yet** — local history only until ship time
+- **On ship:** create private GitHub repo + push: `gh repo create austenallred/{projectId} --private --source=. --push`
+- **All repos must be private** — never create a public repo for factory projects
+
 ### Phase 1: Plan
 
 All sequential — each step waits for the previous to complete.
@@ -86,14 +106,16 @@ All sequential — each step waits for the previous to complete.
 2. Sally: create-ux-design
    → Input: prd.md
    → Output: _bmad-output/planning-artifacts/ux-design.md
-   → Optional: _bmad-output/design-assets.json (Figma URLs, see [design-workflow.md](./design-workflow.md))
+   → **MANDATORY:** _bmad-output/design-assets.json + _bmad-output/design-assets/screens/*.html + _bmad-output/design-assets/images/screens/*.png
    → Task MUST include: "YOLO MODE — skip all confirmations, run fully autonomously."
-   → After Sally completes: if design-assets.json exists, read it and set projectState.designAssets (dashboard will display Figma mockups)
+   → Task MUST include explicit instruction: "After writing ux-design.md, read and follow docs/core/design-workflow.md in full. Use the frontend-design skill to build a self-contained HTML prototype for each main screen, screenshot each one with Playwright, and write design-assets.json with the screens record pointing to the PNG paths. This is NOT optional."
+   → After Sally completes: read _bmad-output/design-assets.json and set projectState.designAssets (dashboard displays screen mockups)
 
 3. Winston: create-architecture
    → Input: prd.md, ux-design.md
    → Output: _bmad-output/planning-artifacts/architecture.md
    → Task MUST include: "YOLO MODE — skip all confirmations, run fully autonomously."
+   → **MANDATORY:** Winston must read `docs/core/tech-stack.md` before writing architecture.md. Use the default stack unless intake.md explicitly overrides a layer. Document any deviation as an ADR in architecture.md.
 
 4. John: create-epics-and-stories (SEPARATE from create-prd)
    → Input: prd.md, architecture.md, ux-design.md
@@ -320,6 +342,39 @@ Gate 3: Security Scanning (Phase 2 — skip for now)
 
 **Run the TEA quality suite against the DEPLOYED app.** Failures batched → Amelia remediates → redeploy → re-run.
 
+---
+
+> ### 🚨 E2E TESTING STANDARDS (NON-NEGOTIABLE)
+>
+> **No mocking in E2E tests. Real everything.**
+>
+> E2E tests must exercise the real, deployed app as a real user would. Mocking external services (Firebase Auth, APIs, etc.) in E2E tests defeats their purpose — it's the production environment (CSP headers, real OAuth flows, real network) that catches real bugs.
+>
+> **Rules Murat MUST follow when generating E2E tests:**
+>
+> 1. **No Firebase Auth mocking.** Do NOT stub `signInWithPopup`, `signInWithEmailAndPassword`, or any Firebase Auth method in E2E tests. Use real auth flows with a dedicated test account.
+>
+> 2. **Dedicated test account required.** If the project uses auth, Murat must check for a test credential file at `_bmad-output/test-artifacts/test-credentials.md`. If it doesn't exist, Murat outputs a blocker in `test-strategy.md` and halts — PL must obtain credentials before proceeding. PL notifies Kelly: "Blocked: need test account credentials for E2E auth flows."
+>
+> 3. **Console error assertions mandatory.** Every test file must include a `page.on('console', ...)` listener that captures browser console errors. Any CSP violation, uncaught JS error, or network failure detected in the console automatically fails the test.
+>
+> 4. **Tests run against deployed URL.** `playwright.config.ts` must set `baseURL` to `implementation.qaUrl` (the deployed app), not localhost. E2E tests do NOT spin up a dev server.
+>
+> 5. **Unit/integration tests may use mocks.** Only E2E is held to this standard. Unit and integration tests may mock freely.
+>
+> **Test credential file format** (`_bmad-output/test-artifacts/test-credentials.md`):
+> ```
+> ## Test Account
+> Email: [dedicated test Gmail - NOT kelly@bloomtech.com]
+> Password: [stored in env var TEST_ACCOUNT_PASSWORD]
+> Provider: google / email / etc.
+> Notes: This account is used exclusively for automated E2E testing.
+> ```
+>
+> **Where to get credentials:** Kelly maintains a dedicated factory test Gmail. Ask Kelly via PL message: "Need test credentials for {projectId} E2E auth flows." Kelly will create the credentials file.
+
+---
+
 **Step 3a: Test Generation (one-time, Murat test-generate workflow)**
 
 ```
@@ -327,10 +382,14 @@ Murat: test-generate
   → Input: PRD, architecture.md, acceptance criteria, codebase, tech stack
   → Output:
     - _bmad-output/test-artifacts/test-strategy.md (design + coverage plan)
-    - Playwright config, test helpers, fixtures scaffolded
+    - Playwright config (baseURL = deployed qaUrl, NOT localhost)
+    - test helpers, fixtures scaffolded
     - Comprehensive E2E tests (user flows, auth, CRUD, navigation)
+      ⚠️  Auth flows: REAL credentials, no mocking (see E2E Testing Standards above)
+      ⚠️  Console error listener in every test file (CSP violations = auto-fail)
     - Accessibility checks (axe-core) included in E2E tests
   → Duration: 25-45 min (combined design + scaffold + generate in one pass)
+  → BLOCKER: If project uses auth and test-credentials.md does not exist → halt + notify Kelly
 ```
 
 **Step 3b: Execution + NFR (parallel after test-generate completes)**
