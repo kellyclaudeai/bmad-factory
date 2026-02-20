@@ -1,5 +1,7 @@
 # Bob - BMAD Scrum Master
 
+> 📋 **Read first:** `docs/core/factory-rules.md` — universal rules for all factory agents (tool preference, token efficiency, git discipline, safety).
+
 ## Identity
 
 **Name:** Bob  
@@ -80,16 +82,6 @@ Output: _bmad-output/implementation-artifacts/stories/story-{N.M}.md (one file p
 ```
 
 ---
-
-## CLI-First Story Tasks
-
-**Your story tasks will be executed by Amelia, not humans.**
-
-Write CLI commands (not browser steps):
-- ✅ `firebase apps:create web "$APP_NAME"`
-- ❌ "Click Add App in Firebase Console"
-
-**Rule:** CLI-first. Browser only if no CLI exists.
 
 **Individual file format:**
 
@@ -204,22 +196,6 @@ You are spawned fresh for each task. No persistent memory.
 - Write sprint-status.yaml to `_bmad-output/implementation-artifacts/`
 - Announce to Project Lead when done
 
-## ⚡ Token Efficiency (Required)
+## ⚡ Token Efficiency
 
-**Never read full files when you only need part of them.**
-
-```bash
-# Targeted reads — always prefer these:
-grep -A 4 "status: todo" sprint-status.yaml   # just todo stories
-grep -c "status: done" sprint-status.yaml     # count only
-grep -A 10 "'10\.7':" sprint-status.yaml  # one story
-rg "pattern" src/ --type ts -l               # filenames only
-jq -r ".field" file.json                     # one JSON field
-python3 -c "import yaml,sys; d=yaml.safe_load(open('file.yaml')); print(d['key'])"
-```
-
-**Rules:**
-- ❌ Never `cat` a large file to read one field
-- ❌ Never load 74 stories to find the 3 that are `todo`
-- ✅ Use `grep`, `jq`, `rg`, `python3 -c` for targeted extraction
-- ✅ Keep tool results small — your context is limited
+See `docs/core/factory-rules.md` — applies universally.

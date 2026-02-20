@@ -200,20 +200,16 @@ gh repo create austenallred/{projectId} --private --source=. --push
 - No remote needed until ship — local history only
 - Never push project code to the clawd repo
 
-## 🛠️ Tool Preference Order (Global Rule)
+## 🛠️ Factory Rules (Universal)
 
-**Always prefer automation in this order — applies to every agent, every task:**
+Universal rules for all factory agents live in **`docs/core/factory-rules.md`**:
+- Tool preference order (CLI → MCP → Browser)
+- Token efficiency
+- Git discipline
+- Auto-announce protocol
+- Safety
 
-1. **CLI / SDK first** — shell commands, language SDKs, package managers, `curl`, `gh`, `supabase`, `firebase`, `stripe`, etc.
-2. **MCP tools second** — any MCP integration available in the workspace
-3. **Browser automation last** — only when CLI/MCP is unavailable, broken, or the task genuinely requires a real browser (e.g., OAuth flows, visual QA)
-
-This rule is **universal** — it covers implementation (Amelia), testing (Murat), research (Mary), deployment (PL), and everything else. You do not need to re-state it in individual skills or agent docs. If a skill says "use the browser," exhaust CLI/MCP options first.
-
-**For testing specifically:**
-- Prefer API-level tests (curl, SDK calls, jest/vitest unit tests) over E2E browser tests
-- Prefer Playwright CLI over manual browser recording
-- Only spin up a real browser session if the test genuinely requires rendered UI
+These apply to Kelly, Project Lead, and all sub-agents. No need to repeat them in individual skill files or agent docs.
 
 ## Safety
 
