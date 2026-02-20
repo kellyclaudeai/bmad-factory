@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 
 import ChannelHeader from "@/components/features/channels/ChannelHeader";
 import DeleteChannelModal from "@/components/features/channels/DeleteChannelModal";
@@ -20,6 +20,7 @@ import {
 } from "@/lib/monitoring/performance";
 import { useRealtimeMessages } from "@/lib/hooks/useRealtimeMessages";
 import { deleteChannel, renameChannel } from "@/lib/utils/channels";
+import { getChannelNameFromCache } from "@/lib/utils/channelNameCache";
 import { isGeneralChannelName } from "@/lib/utils/workspace";
 
 const BOTTOM_THRESHOLD_PX = 100;
@@ -27,8 +28,6 @@ const BOTTOM_THRESHOLD_PX = 100;
 function ChannelPageContent() {
   const params = useParams<{ channelId: string }>();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const channelNameFromUrl = searchParams.get("name") ?? "";
   const channelId = typeof params?.channelId === "string" ? params.channelId.trim() : "";
   const { user } = useAuth();
   const workspaceId = typeof user?.workspaceId === "string" ? user.workspaceId.trim() : "";
@@ -38,7 +37,8 @@ function ChannelPageContent() {
     () => channels.find((channel) => channel.channelId === channelId) ?? null,
     [channelId, channels]
   );
-  const channelName = currentChannel?.name ?? (channelNameFromUrl || channelId);
+  const channelNameFromCache = getChannelNameFromCache(channelId);
+  const channelName = currentChannel?.name ?? (channelNameFromCache || channelId);
   const canManageChannel = Boolean(
     user?.uid &&
     currentChannel &&
@@ -91,10 +91,11 @@ function ChannelPageContent() {
     realtimeMessages.forEach((message) => {
       mergedMessages.set(message.messageId, message);
     });
-    return [...mergedMessages.values()].sort(
-      (a, b) =>
-        (a.timestamp?.toMillis?.() ?? 0) - (b.timestamp?.toMillis?.() ?? 0),
-    );
+    return [...mergedMessages.values()].sort((a, b) => {
+      const tDiff = (a.timestamp?.toMillis?.() ?? 0) - (b.timestamp?.toMillis?.() ?? 0);
+      if (tDiff !== 0) return tDiff;
+      return (a.clientTimestamp ?? 0) - (b.clientTimestamp ?? 0); // tiebreaker for same-second timestamps
+    });
   }, [persistedMessages, realtimeMessages]);
 
   const loading = realtimeLoading || persistedLoading;
@@ -456,9 +457,5 @@ function ChannelPageContent() {
 }
 
 export default function ChannelPage() {
-  return (
-    <Suspense fallback={null}>
-      <ChannelPageContent />
-    </Suspense>
-  );
+  return <ChannelPageContent />;
 }

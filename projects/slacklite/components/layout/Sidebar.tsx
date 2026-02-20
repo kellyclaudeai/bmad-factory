@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { firestore } from "@/lib/firebase/client";
 import { createChannel } from "@/lib/utils/channels";
+import { setChannelNameInCache } from "@/lib/utils/channelNameCache";
 
 export const MOBILE_SIDEBAR_WIDTH = 280;
 
@@ -53,8 +54,9 @@ export function Sidebar({
     }
 
     const channelId = await createChannel(firestore, workspaceId, name, user.uid);
+    setChannelNameInCache(channelId, name);
     setIsCreateChannelModalOpen(false);
-    router.push(`/app/channels/${channelId}?name=${encodeURIComponent(name)}`);
+    router.push(`/app/channels/${channelId}`);
   };
 
   const handleOpenInviteTeamModal = () => {

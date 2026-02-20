@@ -99,6 +99,7 @@ export interface Message {
   timestamp: Timestamp;
   createdAt: Timestamp;
   status?: MessageStatus;
+  clientTimestamp?: number; // milliseconds since epoch, set by sender for sort tiebreaking
 }
 
 /**

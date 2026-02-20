@@ -431,6 +431,7 @@ export function useRealtimeMessages(
         text: sanitizedText,
         timestamp: tempTimestamp,
         createdAt: tempTimestamp,
+        clientTimestamp: Date.now(),
         status: "sending",
       };
 

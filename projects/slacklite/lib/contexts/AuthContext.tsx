@@ -59,7 +59,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const isMountedRef = useRef(true);
   const authListenerCleanupRef = useRef<(() => void) | null>(null);
-  const isSigningOutRef = useRef(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -157,7 +156,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      isSigningOutRef.current = true;
       setLoading(true);
 
       try {
@@ -167,12 +165,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearLocalClientState();
         setUser(null);
         initializeAuthStateListener();
-        router.replace("/");
+        if (typeof window !== "undefined") {
+          window.location.href = "/";
+        } else {
+          router.replace("/");
+        }
       } catch (error) {
         console.error("Failed to sign out user.", error);
         throw new Error("Unable to sign out right now. Please try again.");
       } finally {
-        isSigningOutRef.current = false;
         if (isMountedRef.current) {
           setLoading(false);
         }
@@ -192,10 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [cleanupFirebaseListeners, initializeAuthStateListener]);
 
   useEffect(() => {
-    if (loading || user || isSigningOutRef.current) {
-      return;
-    }
-
+    if (loading || user) return;
     if (pathname?.startsWith("/app")) {
       router.replace("/signin");
     }
