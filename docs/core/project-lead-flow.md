@@ -9,6 +9,7 @@
 - v5.0 (2026-02-20): **DEFAULT TECH STACK.** `docs/core/tech-stack.md` created. Winston must read it before writing architecture.md on every project. Default: Next.js 15 + TypeScript + Tailwind + shadcn/ui + pnpm + Supabase (DB+Auth) + Drizzle + Vercel. Override by specifying in intake.md; document as ADR in architecture.md.
 - v4.9 (2026-02-20): **NO MOCKING IN E2E — REAL EVERYTHING.** Phase 3 E2E tests must use real deployed URL, real Firebase Auth, real credentials. No stubbing `signInWithPopup` or any external service. Console error listener mandatory in every test file (CSP violations = auto-fail). Test credentials must be a dedicated factory test Gmail (NOT kelly@bloomtech.com). If auth project and `test-credentials.md` missing → Murat halts + PL notifies Kelly. Same policy codified in murat-testing/SKILL.md.
 - v4.8 (2026-02-19): **FULL QA FEEDBACK WORKFLOWS IN ALL AGENTS.** John: `scope-qa-feedback` (4th responsibility). Winston: `review-architecture-change` (2nd responsibility). Amelia: `fix-qa-feedback` (Mode 3). Bob: `update-dependency-graph` (4th responsibility). Every agent now knows its QA feedback role — PL routes, agents execute.
+- v5.5 (2026-02-20): **PHASE 3 REMEDIATION USES CHANGE FLOW.** Step 5 routes failures through the unified Change Flow instead of hardcoding Amelia. Architectural issues → Winston. UX issues → Sally. Scope gaps → John. Simple bugs stay Amelia-only.
 - v5.4 (2026-02-20): **SPLIT TEST GENERATION FROM EXECUTION.** Step 3 = test-generate (one-time, never re-run). Step 4 = E2E execution + NFR (repeats each remediation cycle). Step 5 = remediation loop. Clearer separation of concerns.
 - v5.3 (2026-02-20): **TECH-STACK-AWARE PRE-DEPLOY GATES.** Gates now read architecture.md to determine actual stack before running checks. TypeScript check no longer hardcoded — adapts to TS, Python, Chrome Extension, etc. Added Gate 3 (unit tests if they exist) and Gate 4 (security scanning). NFR (accessibility + performance) confirmed present in Phase 3b.
 - v5.2 (2026-02-20): **UNIFIED CHANGE FLOW.** QA feedback, brownfield, correct courses all use one pipeline: John → Sally → Winston → Bob → Amelia. Skip who isn't needed. Same order as greenfield. No separate QA feedback flow. No double-John.
@@ -463,21 +464,33 @@ If brownfield project (existing codebase):
 
 #### Step 5: Remediation (Batched — repeats until clean)
 
-**ALL failures batched → Amelia → redeploy → re-run Step 4 only.**
+**ALL failures batched → routed through the Change Flow → redeploy → re-run Step 4.**
+
+The Change Flow already has the right routing logic. Use it here too — don't hardcode Amelia for everything.
 
 ```
 1. Collect ALL failures:
    - E2E test failures (test-execution-report.md)
    - NFR issues (nfr-assessment-report.md)
 
-2. Spawn Amelia: fix-postdeploy
-   → Input: Batched failure report from all TEA outputs
-   → Task: Fix all failures. For each:
-     - Test failures → Fix implementation code (not the tests)
-     - NFR issues → Fix security/performance/accessibility issues
-   → Commit + push to dev
+2. Route failures through the Change Flow at the appropriate depth:
 
-3. Redeploy (Step 2)
+   Implementation bug (code doesn't match AC, simple fix)
+   → Amelia only
+
+   NFR fix with no design/arch impact (add aria-label, fix contrast, cache a query)
+   → Amelia only
+
+   UX/design issue (component needs redesign, flow is confusing)
+   → Sally → Amelia
+
+   Architectural issue (security model wrong, data model needs change, performance requires rethink)
+   → Winston → Bob (new/updated stories) → Amelia
+
+   Misunderstood feature (journey test reveals fundamental scope gap)
+   → John → [Sally/Winston as needed] → Bob → Amelia
+
+3. After fixes committed → Redeploy (Step 2)
 
 4. Re-run Step 4 only (tests already generated — never re-run Step 3)
    → Re-run E2E execution + NFR assessment in parallel

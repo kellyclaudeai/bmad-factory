@@ -279,7 +279,12 @@ Step 4: E2E Execution + NFR (parallel — repeats each remediation cycle)
       - Error path journey test fails
       Both must pass before entering pending-QA hold.
 
-Step 5: Remediation loop (Amelia → redeploy → re-run Step 4, max 3 cycles)
+Step 5: Remediation loop (Change Flow → redeploy → re-run Step 4, max 3 cycles)
+  Route failures through the Change Flow at the right depth:
+  - Simple bug / NFR code fix → Amelia only
+  - UX/design issue → Sally → Amelia
+  - Architectural issue → Winston → Bob → Amelia
+  - Misunderstood feature → John → [Sally/Winston as needed] → Bob → Amelia
 
 If ALL pass (including both journeys) → Phase 4: User QA
 ```
