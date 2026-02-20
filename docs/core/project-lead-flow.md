@@ -186,10 +186,10 @@ CONTINUOUS LOOP (every 60 seconds):
    - If yes AND not already spawned → spawn immediately
 4. Track active spawns (session keys, start times)
 
-UNLIMITED PARALLELISM:
+UNLIMITED PARALLELISM — no cap, spawn ALL ready stories at once:
   - 1 story ready → spawn 1
-  - 5 stories ready → spawn 5 simultaneously
-  - 10+ stories ready → spawn 10+ simultaneously
+  - 10 stories ready → spawn 10 simultaneously
+  - 20 stories ready → spawn 20 simultaneously
   - No waiting for "batches" to complete
 ```
 
