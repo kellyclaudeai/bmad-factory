@@ -315,25 +315,29 @@ FOR EACH story in tech-spec.md (one at a time):
 ### Normal Mode (TEA Module — Murat)
 
 ```
-1. Spawn Murat: automate (generate tests)
-   → agentId: "bmad-bmm-murat"
-   
-2. Spawn Murat: test-review (review quality)
+Step 1: Pre-Deploy Gates
+  → npm run build (must be clean)
+  → npm run lint + tsc --noEmit (zero errors)
+  → Failures → Amelia fix-predeploy → re-run
 
-3. Spawn Murat: trace (requirements traceability)
+Step 2: Deploy
+  → Deploy to Vercel/Firebase/etc.
+  → Verify live URL returns 200
+  → Set implementation.qaUrl in project-registry.json
 
-4. Spawn Murat: nfr-assess (non-functional requirements)
+Step 3a: Test Generation (Murat test-generate — one-time)
+  → Spawn Murat: test-generate
+  → Combined: design + scaffold Playwright + generate E2E tests
+  → Input: PRD, architecture.md, codebase, deployed URL
+  → Output: test-strategy.md + full Playwright E2E suite (axe-core a11y)
+  → Duration: 25-45 min
 
-5. Run all tests: npm test
+Step 3b: Execution + NFR (parallel — after test-generate)
+  → E2E execution against deployed URL → test-execution-report.md
+  → Spawn Murat: nfr-assess → nfr-assessment-report.md
+  → Failures → batch ALL → Amelia fix-postdeploy → redeploy → re-run 3b only
 
-If tests FAIL:
-  → Create fix stories
-  → Bob: Update dependency-graph.json
-  → Back to Phase 2 (implement fixes)
-  → Re-run Phase 3
-
-If tests PASS:
-  → Proceed to Phase 4: User QA
+If PASS → Phase 4: User QA
 ```
 
 ### Fast Mode
@@ -367,8 +371,8 @@ If ALL pass → Phase 4: User QA
 
 3. Notify Kelly:
    sessions_send(
-     sessionKey="agent:main:main",
-     message="🧪 {projectName} ready for user QA: {qaUrl}\n{instructions}"
+     sessionKey="agent:main:matt",
+     message="🧪 {projectName} passed automated testing. Ready for user QA: {qaUrl}"
    )
 ```
 
