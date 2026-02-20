@@ -27,6 +27,7 @@ export function phaseColor(val: string): string {
 
     // 🔵 testing / review
     case "qa":
+    case "testing":      // PL alias — same color
     case "awaiting-qa":
     case "awaiting_qa":
       return "bg-blue-500/10 text-blue-400 border-blue-500";

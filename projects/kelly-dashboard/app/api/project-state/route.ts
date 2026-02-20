@@ -110,6 +110,9 @@ export async function GET(request: Request) {
         currentPhase = "planning";
       }
     }
+    // Normalize legacy phase aliases
+    if (currentPhase === "testing") currentPhase = "qa";
+    if (currentPhase === "implementation") currentPhase = "build";
 
     // Synthesize subagent entries from planning artifacts
     const syntheticSubagents: Array<{

@@ -51,7 +51,14 @@ async function findTranscriptPath(sessionKey: string): Promise<string | null> {
   if (sessionKey.startsWith("agent:")) {
     const parts = sessionKey.split(":");
     const agentType = parts[1];
+    const lastPart = parts[parts.length - 1];
     const sessionsDir = path.join(AGENTS_ROOT, agentType, "sessions");
+
+    // Fast path: if last segment looks like a UUID, try direct file lookup first
+    if (/^[0-9a-f-]{36}$/.test(lastPart)) {
+      const directPath = path.join(sessionsDir, `${lastPart}.jsonl`);
+      try { await fs.access(directPath); return directPath; } catch { /* fall through */ }
+    }
 
     // Look up in sessions.json
     try {

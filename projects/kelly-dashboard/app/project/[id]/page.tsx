@@ -370,39 +370,16 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
       )
     : 0
   
-  const startTimeDisplay = projectStartTime 
-    ? new Date(projectStartTime).toLocaleString('en-US', { 
-        dateStyle: 'medium', 
-        timeStyle: 'short', 
-        timeZone: 'America/Chicago' 
-      }) + ' CST'
+  const startTimeDisplay = projectStartTime
+    ? new Date(projectStartTime).toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'America/Chicago',
+      })
     : null
-
-  // ETA: if we have project-state durations + planned stories, estimate remaining using avg completed duration.
-  const completedDurations = (projectState?.subagents || [])
-    .filter((s) => (s.status || '').toLowerCase() === 'complete' || (s.status || '').toLowerCase() === 'completed')
-    .map((s) => parseDurationToSeconds(s.duration))
-    .filter((n) => n > 0)
-
-  const avgSeconds = completedDurations.length
-    ? completedDurations.reduce((a, b) => a + b, 0) / completedDurations.length
-    : 0
-
-  // Use sprint-status stats (ground truth) when available, fall back to subagent counting
-  const totalPlannedStories = projectState?.stats?.total
-    || (projectState?.phases
-      ? Object.values(projectState.phases).reduce((sum, p) => sum + (p.stories?.length || 0), 0)
-      : 0)
-
-  const completedStories = projectState?.stats?.done
-    || (projectState?.subagents
-      ? projectState.subagents.filter((s) => (s.status || '').toLowerCase() === 'complete' || (s.status || '').toLowerCase() === 'completed').length
-      : 0)
-
-  const inProgressStories = projectState?.stats?.inProgress || liveSubagents.length
-
-  const remainingStories = totalPlannedStories ? Math.max(0, totalPlannedStories - completedStories) : 0
-  const etaSeconds = avgSeconds && remainingStories ? avgSeconds * remainingStories : 0
 
   return (
     <div className="min-h-screen bg-terminal-bg p-8">
@@ -416,26 +393,19 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
 
       <main className="space-y-8">
         <section>
-          <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
-            Runtime + ETA
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {startTimeDisplay && (
               <Card className="bg-terminal-card border-terminal-border">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-mono text-terminal-dim">Start Time</CardTitle>
+                  <CardTitle className="text-sm font-mono text-terminal-dim">Started</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-lg font-mono font-bold text-terminal-green">
                     {startTimeDisplay}
                   </div>
-                  <div className="text-xs font-mono text-terminal-dim mt-1">
-                    {projectState?.startedAt ? 'Build started' : 'Project created'}
-                  </div>
                 </CardContent>
               </Card>
             )}
-            
             <Card className="bg-terminal-card border-terminal-border">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-mono text-terminal-dim">
@@ -445,27 +415,6 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
               <CardContent>
                 <div className="text-2xl font-mono font-bold text-terminal-green">
                   {formatDuration(runtimeSeconds)}
-                </div>
-                <div className="text-xs font-mono text-terminal-dim mt-1">
-                  {projectEndTime ? 'Project completed' : 'Elapsed time from start'}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-terminal-card border-terminal-border">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-mono text-terminal-dim">ETA</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-mono font-bold text-terminal-green">
-                  {projectEndTime ? '✓ Complete' : etaSeconds ? `~${formatDuration(etaSeconds)}` : 'N/A'}
-                </div>
-                <div className="text-xs font-mono text-terminal-dim mt-1">
-                  {projectEndTime 
-                    ? 'Build finished' 
-                    : etaSeconds 
-                      ? `${remainingStories} remaining @ ~${Math.round(avgSeconds)}s/story` 
-                      : 'Insufficient data for estimate'}
                 </div>
               </CardContent>
             </Card>
@@ -593,7 +542,7 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
               <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
                 Subagents (from project-state.json)
               </h2>
-              <SubagentGrid subagents={projectState.subagents} />
+              <SubagentGrid subagents={projectState.subagents} projectId={id} />
             </section>
 
 {/* Queued Stories section removed */}

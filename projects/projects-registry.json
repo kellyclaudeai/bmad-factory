@@ -86,8 +86,9 @@
       "name": "Weather Dashboard",
       "path": "projects/weather-dashboard",
       "plSession": "agent:project-lead:project-weather-dashboard",
-      "phase": "build",
-      "createdAt": "2026-02-19T19:09:00Z"
+      "phase": "qa",
+      "createdAt": "2026-02-19T19:09:00Z",
+      "qaUrl": "https://weather-dash-bmad.web.app"
     }
   ]
 }

@@ -123,26 +123,33 @@ async function readTranscriptPreview(sessionKey: string): Promise<TranscriptPrev
     transcriptPath = path.join(sessionsDir, `${realSessionId}.jsonl`)
     archiveSessionId = realSessionId
   } else if (sessionKey.startsWith('agent:')) {
-    // Handle other agent sessions (like project-lead)
-    // Format: agent:{agent-type}:{project-id}
-    // Example: agent:project-lead:project-kelly-dashboard
+    // Handle other agent sessions (project-lead, bmad workers, etc.)
+    // Format: agent:{agent-type}:{session-id-or-project-id}
     const parts = sessionKey.split(':')
-    const agentType = parts[1] // e.g., "project-lead"
-    
-    // Fetch sessionId from the gateway via API
-    const sessionId = await fetchSessionId(sessionKey)
-    
-    if (sessionId) {
-      sessionsDir = path.join(homeDir, '.openclaw', 'agents', agentType, 'sessions')
-      transcriptPathDisplay = `~/.openclaw/agents/${agentType}/sessions/${sessionId}.jsonl`
-      transcriptPath = path.join(sessionsDir, `${sessionId}.jsonl`)
-      archiveSessionId = sessionId
+    const agentType = parts[1]
+    const lastPart = parts[parts.length - 1]
+    sessionsDir = path.join(homeDir, '.openclaw', 'agents', agentType, 'sessions')
+
+    // Fast path: if last segment is a UUID, it IS the transcript filename
+    const isUuid = /^[0-9a-f-]{36}$/.test(lastPart)
+    if (isUuid) {
+      transcriptPath = path.join(sessionsDir, `${lastPart}.jsonl`)
+      transcriptPathDisplay = `~/.openclaw/agents/${agentType}/sessions/${lastPart}.jsonl`
+      archiveSessionId = lastPart
     } else {
-      // Fallback if we can't fetch sessionId
-      sessionsDir = path.join(homeDir, '.openclaw', 'sessions', sessionKey)
-      transcriptPathDisplay = `~/.openclaw/sessions/${sessionKey}/transcript.jsonl`
-      transcriptPath = path.join(sessionsDir, 'transcript.jsonl')
-      archiveSessionId = sessionKey
+      // Named session key — look up sessionId from sessions.json
+      const sessionId = await fetchSessionId(sessionKey)
+      if (sessionId) {
+        transcriptPathDisplay = `~/.openclaw/agents/${agentType}/sessions/${sessionId}.jsonl`
+        transcriptPath = path.join(sessionsDir, `${sessionId}.jsonl`)
+        archiveSessionId = sessionId
+      } else {
+        // Last resort fallback
+        sessionsDir = path.join(homeDir, '.openclaw', 'sessions', sessionKey)
+        transcriptPathDisplay = `~/.openclaw/sessions/${sessionKey}/transcript.jsonl`
+        transcriptPath = path.join(sessionsDir, 'transcript.jsonl')
+        archiveSessionId = sessionKey
+      }
     }
   } else {
     // Fallback for other session key formats

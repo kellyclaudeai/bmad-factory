@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { SubagentCard } from './subagent-card'
 
@@ -21,6 +21,8 @@ interface Subagent {
 
 interface SubagentGridProps {
   subagents: Subagent[]
+  /** If provided, polls /api/active-subagents every 20s to catch newly-spawned agents */
+  projectId?: string
 }
 
 interface Section {
@@ -31,23 +33,44 @@ interface Section {
   emptyMessage: string
 }
 
-export function SubagentGrid({ subagents }: SubagentGridProps) {
+export function SubagentGrid({ subagents, projectId }: SubagentGridProps) {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     now: true,
     next: false,
     history: false,
   })
-  
-  // Group subagents by status
-  // NOW: Currently active subagents (running right now)
-  const nowSubagents = subagents.filter(
-    (s) => s.status === 'active'
-  )
-  
-  // HISTORY: Completed subagents with duration and status
-  const historySubagents = subagents.filter(
-    (s) => s.status === 'complete'
-  )
+  const [liveActive, setLiveActive] = useState<Subagent[]>([])
+
+  // Poll for live active subagents every 20s
+  useEffect(() => {
+    if (!projectId) return
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ''
+
+    async function fetchLive() {
+      try {
+        const res = await fetch(`${baseUrl}/api/active-subagents?projectId=${projectId}`, { cache: 'no-store' })
+        if (res.ok) {
+          const data = await res.json()
+          setLiveActive(data.subagents || [])
+        }
+      } catch { /* ignore */ }
+    }
+
+    fetchLive()
+    const interval = setInterval(fetchLive, 20_000)
+    return () => clearInterval(interval)
+  }, [projectId])
+
+  // Merge: live overrides prop-based actives (dedup by sessionKey)
+  const liveKeys = new Set(liveActive.map((s) => s.sessionKey).filter(Boolean))
+  const mergedSubagents = [
+    ...liveActive,
+    ...subagents.filter((s) => !s.sessionKey || !liveKeys.has(s.sessionKey)),
+  ]
+
+  // Group by status
+  const nowSubagents = mergedSubagents.filter((s) => s.status === 'active')
+  const historySubagents = mergedSubagents.filter((s) => s.status === 'complete')
   
   // NEXT: Queued/pending stories that haven't started
   const nextSubagents = subagents.filter(
