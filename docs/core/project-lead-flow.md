@@ -149,10 +149,12 @@ All sequential — each step waits for the previous to complete.
    → Input: epics.md, architecture.md
    → Output: _bmad-output/implementation-artifacts/dependency-graph.json
 
-8. Bob: create-story (LOOP for each story in epics.md)
+8. Bob: create-story (ONE spawn — writes ALL stories sequentially in one session)
+   → Spawn Bob ONCE with /bmad-bmm-create-story; Bob reads epics.md and writes every story file in sequence
    → Input: epics.md, architecture.md, prd.md, ux-design.md, design-assets.json (if exists)
-   → Output: _bmad-output/implementation-artifacts/stories/story-{N.M}.md
+   → Output: _bmad-output/implementation-artifacts/stories/story-{N.M}.md (all stories)
    → Stories include design_references field when design-assets.json exists (see [design-workflow.md](./design-workflow.md))
+   → ⚡ One session = ~15 min regardless of story count (vs one spawn per story = 90+ min for 30 stories)
 ```
 
 ### Phase 2: Implement — Dependency-Driven Parallelization
@@ -521,7 +523,7 @@ sessions_send(
 
 6-7. Bob: Update sprint-planning + dependency-graph.json (add new stories)
 
-8. Bob: create-story (LOOP for each NEW story only)
+8. Bob: create-story (ONE spawn — writes all NEW stories sequentially in one session)
 ```
 
 ### Phase 2-4: Same as Normal Mode Greenfield
