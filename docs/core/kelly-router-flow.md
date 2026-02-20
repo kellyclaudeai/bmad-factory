@@ -170,8 +170,8 @@ sessions_spawn({ agentId: "project-lead", task: "..." })
 
 ### Constraints
 1. **ALL build/change requests must be routed to Project Lead** (including factory work)
-2. Kelly Router must **not** spawn implementation/coding "doer" subagents directly (Barry, Amelia, Quinn, etc.)
-3. If request feels small/fast, still route to Project Lead (PL may choose Barry Fast Track internally)
+2. Kelly Router must **not** spawn implementation/coding "doer" subagents directly (Amelia, Quinn, etc.)
+3. If a request feels small, still route to Project Lead — PL determines the right implementation path
 4. Kelly *may* spawn lightweight research/analysis helpers (Mary) **only** when task is not making code changes and not managing a project pipeline
 5. Canonical project lifecycle lives in `projects/project-registry.json`. BMAD artifacts track stories.
 
@@ -392,7 +392,7 @@ Orchestrator sessions (Project Lead, Research Lead) can freeze when:
 
 ## Anti-Patterns (Don't Do This)
 
-❌ **Don't spawn Barry/Amelia/Quinn directly** — Route to Project Lead instead  
+❌ **Don't spawn Amelia/Quinn directly** — Route to Project Lead instead  
 ❌ **Don't duplicate registry data in kelly state** — Kelly tracks operations only  
 ❌ **Don't make architectural changes without logging** — Update changelog immediately  
 ❌ **Don't respond to every group chat message** — Quality > quantity  

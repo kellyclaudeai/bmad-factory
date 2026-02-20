@@ -7,6 +7,7 @@
 **Recent Updates:**
 - v4.1 (2026-02-19): **STATELESS PL + CONTEXT DISCIPLINE.** PL must keep replies to 1-2 lines, never narrate history, rotate session every 25 stories. Prevents 200k token overflow on large projects. See Context Discipline section.
 - v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. (Proposed, not yet implemented)
+- v4.4 (2026-02-19): **FAST MODE REMOVED.** Factory runs Normal Mode only: Greenfield or Brownfield. Barry Fast Track eliminated. QA feedback tracked via registry qaRounds[] only (no separate qa-feedback.md artifact).
 - v4.3 (2026-02-19): **PENDING-QA STATE + PL HOLDS SESSION.** After Phase 3 TEA passes, PL sets `state: "pending-qa"` and enters an idle hold — the session stays alive (lock file held) until Kelly signals SHIP, FIX, or PAUSE. PL MUST NOT exit or mark shipped on its own. Only the operator (via Kelly) can trigger ship. Dashboard shows the live PL session as "AWAITING QA".
 - v4.2 (2026-02-19): **PHASE NAMING + TEA STREAMLINED.** Phase 3 renamed "Test" (was "Post-Deploy Verification/QA"). TEA simplified: TD+TF+TA combined into single Murat "test-generate" pass. Removed RV (test review) and TR (traceability) — redundant overhead for MVP factory. New TEA: test-generate → E2E execution + NR in parallel.
 - v3.3 (2026-02-19): **CODE REVIEW DISABLED.** Stories now go dev → done directly (skipping code-review Amelia). Rationale: 80%+ reviews pass, adds 5-10 min overhead per story, Phase 3 TEA testing more thorough. Can re-enable once factory proven.
@@ -45,7 +46,7 @@ Project Lead owns a single project from intake to ship. One PL session per proje
 
 - Winston writes: `gcloud projects create "$PROJECT_ID"` (not "Navigate to Firebase Console")
 - Bob writes: `firebase apps:create web` (not "Click Add App button")
-- Amelia/Barry execute: CLI tools first, browser only if no CLI exists
+- Amelia executes: CLI tools first, browser only if no CLI exists
 
 **Lightest rule:** CLI-first. Browser only if no CLI exists.
 
@@ -409,20 +410,17 @@ PL behavior: idle wait.
 1. Receive fix feedback from Kelly
    → Example: "FIX: takeouttrap — Checkout flow confusing, auth broken on mobile"
 
-2. Log to _bmad-output/qa-feedback.md (append):
-   ## QA Round {N} — {date}
-   **Feedback:** {operator feedback verbatim}
-   **Path:** [Amelia direct | New stories]
-   **Status:** in-progress
+2. Append to registry qaRounds[]:
+   { round: N, date: now, feedback: "...", path: TBD, status: "in-progress" }
 
-3. PL routing decision (technical call only):
+3. PL routing decision (technical call only — operator decides what, PL decides how):
 
    ROUTE A — No new stories needed (bug, missed requirement, obvious gap):
    → Spawn Amelia: fix-qa-feedback
-     → Input: operator feedback + qa-feedback.md context
+     → Input: operator feedback verbatim
      → Task: Fix all reported issues, commit, push to dev
 
-   ROUTE B — New stories needed (requires planning, new architecture, significant scope):
+   ROUTE B — New stories needed (new architecture, significant new surface area):
    → Spawn John: scope-qa-feedback
      → Input: operator feedback, existing prd.md, architecture.md
      → Output: new story files in _bmad-output/implementation-artifacts/stories/
@@ -433,7 +431,7 @@ PL behavior: idle wait.
 4. After fixes complete: Re-run Phase 3 (Test) — pre-deploy gates → deploy → TEA execution
    (test-generate NOT re-run unless new major flows added — Murat reuses existing test suite)
 
-5. Update qa-feedback.md: mark round status → "addressed"
+5. Update qaRounds[N].status → "addressed", set addressedAt
 
 6. Back to Stage 4.1 (re-notify Kelly, re-enter hold)
 ```
@@ -524,71 +522,6 @@ sessions_send(
 
 ---
 
-## Fast Mode Greenfield
-
-### Phase 1: Plan
-
-```
-1. Barry: quick-spec
-   → Input: intake.md
-   → Output: _bmad-output/quick-flow/tech-spec.md
-   → Contains: Stories as flat numbered list (1, 2, 3...)
-```
-
-### Phase 2: Implement
-
-**Sequential execution (one story at a time):**
-
-```
-FOR EACH story in tech-spec.md:
-  1. Spawn Barry: quick-dev
-     → git pull, implement, git commit, git push to dev
-  2. WAIT for completion before next story
-```
-
-### Phase 3: Test (Fast Mode — Barry Projects)
-
-**Pre-Deploy Gates + Deploy only. No automated test suite.** User QA is the primary quality gate for Barry projects.
-
-```
-1. Pre-Deploy Gates (same as Normal Mode Step 1):
-   → Build verification (npm run build)
-   → Lint/type checking
-   → If FAIL: Barry remediates → re-run
-
-2. Deploy (same as Normal Mode Step 2)
-
-3. NO TEA suite for Fast Mode
-   → No test-generate, no E2E, no NFR
-   → Fast Mode prioritizes speed — User QA is the quality gate
-```
-
-### Phase 4: User QA
-
-Same as Normal Mode. Barry handles remediation (Stage 4.3 Fix Path) instead of Amelia.
-**PL must set `state: "pending-qa"`, notify Kelly, and hold** — same as Normal Mode Stages 4.1–4.2. PL session stays alive until Kelly sends SHIP/FIX/PAUSE signal. No skipping even in Fast Mode.
-
----
-
-## Fast Mode Brownfield
-
-### Phase 1: Plan
-
-```
-0. generate-project-context (if not exists)
-   → Output: _bmad-output/project-context.md
-
-1. Barry: quick-spec (APPEND mode)
-   → Read existing tech-spec.md
-   → ADD new stories starting at N+1
-```
-
-### Phase 2-4: Same as Fast Mode Greenfield
-
-**Tracking:** n+1 approach — tech-spec.md tracks last story number, new features continue numbering.
-
----
-
 ## State Management
 
 ### projects/project-registry.json (Project Lead updates)
@@ -647,12 +580,11 @@ jq '.projects |= map(
 1. **Dependency-graph.json is the authority** for story ordering — not artificial batches
 2. **Spawn immediately** when dependencies satisfy — don't wait for groups
 3. **Update registry at lifecycle transitions** — Kelly reads for monitoring
-4. **One subagent per story** in Normal Mode: dev-story only (code-review disabled as of v3.3)
-5. **One subagent per story** in Fast Mode: quick-dev only
-6. **Detect dead subagents** — no completion = likely dead, respawn
-7. **BMAD tracks story status** — sprint-status.yaml is source of truth
-8. **All work on `dev` branch** — merge to `main` only at Ship
-9. **Stay stateless** — terse replies only, all state in files, rotate session every 25 stories
+4. **One subagent per story** — dev-story only (code-review disabled as of v3.3)
+5. **Detect dead subagents** — no completion = likely dead, respawn
+6. **BMAD tracks story status** — sprint-status.yaml is source of truth
+7. **All work on `dev` branch** — merge to `main` only at Ship
+8. **Stay stateless** — terse replies only, all state in files, rotate session every 25 stories
 
 ## Context Discipline (v4.1 - 2026-02-19)
 

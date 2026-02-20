@@ -237,7 +237,6 @@ Array tracking each round of operator QA feedback (pre-ship). PL appends on each
 ```
 - **path** — `amelia-direct` (no new stories) or `new-stories` (John + Bob involved)
 - **status** — `in-progress` | `addressed`
-- Full narrative detail lives in `_bmad-output/qa-feedback.md` (human-readable log)
 
 ## Actor Responsibilities
 
