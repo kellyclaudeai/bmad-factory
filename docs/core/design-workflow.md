@@ -39,16 +39,22 @@ _bmad-output/
 {
   "aesthetic": "one-line description of the visual direction",
   "screens": {
-    "home": "screens/home.png",
-    "detail": "screens/detail.png"
+    "home-desktop":   "screens/home-desktop.png",
+    "home-mobile":    "screens/home-mobile.png",
+    "detail-desktop": "screens/detail-desktop.png",
+    "detail-mobile":  "screens/detail-mobile.png"
   },
   "prototypes": {
-    "home": "screens/home.html",
+    "home":   "screens/home.html",
     "detail": "screens/detail.html"
   },
-  "tokens": "design-tokens.json"
+  "tokens": "design-tokens.json",
+  "viewports": "mobile+desktop"
 }
 ```
+Keys use `-desktop` / `-mobile` suffixes. Dashboard splits into Desktop Designs (top) and Mobile Designs (below) using these suffixes. Fixed-viewport projects (Chrome extensions) use `"viewports": "mobile-only"` and omit `-desktop` keys.
+
+**Path format for `screens`:** relative to `_bmad-output/design-assets/images/`. The dashboard API (`/api/design-image`) prepends `{projectRoot}/_bmad-output/design-assets/images/` automatically — so use `screens/name.png`, NOT `design-assets/images/screens/name.png`. Wrong prefix = path doubling = broken images.
 
 ---
 
@@ -59,7 +65,8 @@ Bob reads `_bmad-output/design-assets.json` before writing stories. For every UI
 ```yaml
 design_references:
   prototype: "_bmad-output/design-assets/screens/home.html"
-  screenshot: "screens/home.png"
+  screenshot_desktop: "screens/home-desktop.png"
+  screenshot_mobile: "screens/home-mobile.png"
   aesthetic: "brutalist monochrome with neon accents"
   tokens: "_bmad-output/design-assets/design-tokens.json"
 ```
