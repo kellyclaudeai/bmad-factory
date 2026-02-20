@@ -273,18 +273,19 @@ Step 3: Test Generation (Murat test-generate — ONE TIME ONLY, never re-run)
 Step 4: E2E Execution + NFR (parallel — repeats each remediation cycle)
   → E2E execution against deployed URL → test-execution-report.md
   → Spawn Murat: nfr-assess → nfr-assessment-report.md
-  → Failures → batch ALL → Amelia fix-postdeploy → redeploy → re-run Step 4 only
+  → Failures → batch ALL → route through Step 5 (Change Flow) → redeploy → re-run Step 4
   ⚠️  HARD BLOCKERS (do NOT proceed to Phase 4):
       - Happy path journey test fails
       - Error path journey test fails
       Both must pass before entering pending-QA hold.
 
-Step 5: Remediation loop (Change Flow → redeploy → re-run Step 4, max 3 cycles)
-  Route failures through the Change Flow at the right depth:
+Step 5: Remediation loop (this IS the brownfield Change Flow — same pipeline, max 3 cycles)
+  Treat every failure as a brownfield change. Route through the Change Flow:
   - Simple bug / NFR code fix → Amelia only
   - UX/design issue → Sally → Amelia
   - Architectural issue → Winston → Bob → Amelia
   - Misunderstood feature → John → [Sally/Winston as needed] → Bob → Amelia
+  After fixes: redeploy → re-run Step 4. Repeat until clean.
 
 If ALL pass (including both journeys) → Phase 4: User QA
 ```

@@ -464,9 +464,9 @@ If brownfield project (existing codebase):
 
 #### Step 5: Remediation (Batched — repeats until clean)
 
-**ALL failures batched → routed through the Change Flow → redeploy → re-run Step 4.**
+**Phase 3 remediation IS the brownfield Change Flow. Same pipeline, same routing, same agents.**
 
-The Change Flow already has the right routing logic. Use it here too — don't hardcode Amelia for everything.
+Treat every test/NFR failure as a brownfield change. Batch all failures, classify depth, run the Change Flow:
 
 ```
 1. Collect ALL failures:
