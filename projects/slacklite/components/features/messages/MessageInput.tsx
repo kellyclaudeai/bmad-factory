@@ -97,6 +97,7 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
     setText("");
     setIsFocused(false);
     setRateLimitError("");
+    setSendError("");
     if (rateLimitErrorTimeoutRef.current !== null) {
       window.clearTimeout(rateLimitErrorTimeoutRef.current);
       rateLimitErrorTimeoutRef.current = null;
@@ -150,15 +151,19 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
     }
 
     recordMessage();
+    setSendError("");
     // DIAGNOSTIC: log channelId and sanitized text length before calling onSend
     console.log('[DIAG][MessageInput] onSend called — channelId:', channelId, 'textLength:', sanitizedText.length);
     void Promise.resolve(onSend(sanitizedText))
       .then((result) => {
         console.log('[DIAG][MessageInput] onSend SUCCESS — channelId:', channelId, 'result:', result);
+        setSendError("");
       })
-      .catch((sendError: unknown) => {
-        // DIAGNOSTIC: surface errors that were previously silently swallowed
-        console.error('[DIAG][MessageInput] onSend FAILED — channelId:', channelId, 'error:', sendError);
+      .catch((err: unknown) => {
+        // Surface errors that were previously silently swallowed
+        const errorMessage = err instanceof Error ? err.message : "Failed to send message. Please try again.";
+        console.error('[DIAG][MessageInput] onSend FAILED — channelId:', channelId, 'error:', err);
+        setSendError(errorMessage);
       });
     setText("");
 
@@ -278,6 +283,16 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
           role="alert"
         >
           {rateLimitError}
+        </div>
+      )}
+
+      {/* Send error */}
+      {sendError && (
+        <div
+          className="mt-2 bg-error-subtle border border-error text-error text-sm rounded-md px-3 py-2 font-mono"
+          role="alert"
+        >
+          {sendError}
         </div>
       )}
     </div>
