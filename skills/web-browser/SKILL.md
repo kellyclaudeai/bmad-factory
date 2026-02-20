@@ -93,8 +93,22 @@ curl -sSf http://127.0.0.1:18800/json/version
 2) **Snapshot discipline**
    - After every navigation/action, re-check state before continuing.
 
-3) **Escalate only for true blockers**
-   - MFA / OS prompts / CAPTCHA.
+3) **Save all passwords to Keychain immediately**
+   - Any password created during browser automation must be saved before continuing:
+   ```bash
+   security add-generic-password -a "kelly-{service}" -s "kelly-{service}-credentials" -w "{password}"
+   ```
+   - Use the factory default password from Keychain unless the service requires a unique one.
+   - Log the account in `docs/core/factory-accounts.md` (service + username, no password).
+
+4) **Auth priority order**
+   - Google OAuth (`kelly@bloomtech.com`) → email+password → ask operator
+   - See `docs/core/shared-factory-rules.md` → "Factory Credentials" for full details.
+
+5) **Escalate only for true blockers**
+   - MFA / SMS codes / payment info.
+   - hCaptcha/reCAPTCHA that resists automation (try clicking it first — many are just checkboxes).
+   - Email verification → handle autonomously via Gmail (already logged in).
 
 ## Tool Reference (OpenClaw browser tool)
 
