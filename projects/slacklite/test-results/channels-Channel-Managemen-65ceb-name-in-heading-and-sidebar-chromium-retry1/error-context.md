@@ -1,0 +1,72 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e3]:
+    - complementary "Workspace sidebar" [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e7]:
+          - generic [ref=e9]: SW
+          - paragraph [ref=e10]: SlackLite Workspace
+        - generic [ref=e11]:
+          - region "Channels" [ref=e12]:
+            - generic [ref=e13]:
+              - heading "Channels" [level=2] [ref=e14]
+              - generic [ref=e15]:
+                - button "Invite Team" [ref=e16] [cursor=pointer]
+                - button "+ New Channel" [ref=e17] [cursor=pointer]
+            - list "Channels" [ref=e18]:
+              - listitem [ref=e19]:
+                - link "Channel general" [ref=e20] [cursor=pointer]:
+                  - /url: /app/channels/xs9LnOXn7V8prozJZTd3
+                  - generic [ref=e21]: "# general"
+          - region "Direct Messages" [ref=e22]:
+            - generic [ref=e23]:
+              - heading "Direct Messages" [level=2] [ref=e24]
+              - button "+ New DM" [ref=e25] [cursor=pointer]
+            - paragraph [ref=e26]: No direct messages yet. Click a team member to start chatting.
+          - region "Members (1)" [ref=e27]:
+            - button "Members (1)" [expanded] [ref=e29] [cursor=pointer]:
+              - generic [ref=e30]: Members (1)
+              - generic [ref=e31]: ▾
+            - alert [ref=e33]: Failed to load members.
+    - dialog [ref=e34]:
+      - generic [ref=e36]:
+        - button "Close modal" [ref=e37] [cursor=pointer]:
+          - img [ref=e38]
+        - generic [ref=e40]:
+          - heading "Create a Channel" [level=3] [ref=e41]
+          - generic [ref=e42]: Missing or insufficient permissions.
+          - generic [ref=e43]:
+            - generic [ref=e44]: Name
+            - generic [ref=e45]:
+              - generic [ref=e46]: "#"
+              - textbox "Name" [ref=e48]:
+                - /placeholder: channel-name
+                - text: ch-1771587609091-mq87w
+            - paragraph [ref=e49]: Lowercase, no spaces. Use - for multiple words.
+          - generic [ref=e50]:
+            - button "Cancel" [ref=e51] [cursor=pointer]
+            - button "Create" [ref=e52] [cursor=pointer]
+    - generic [ref=e53]:
+      - banner [ref=e54]:
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - paragraph [ref=e57]: SlackLite
+            - paragraph [ref=e58]: chan-rename-1771587605799-ndy66
+          - button "Sign Out" [ref=e59] [cursor=pointer]
+      - main [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - heading "# general" [level=1] [ref=e64]
+            - button "Channel settings" [ref=e66] [cursor=pointer]: ⚙
+          - generic [ref=e70]:
+            - paragraph [ref=e71]: No messages yet
+            - paragraph [ref=e72]: Be the first to send a message in this channel!
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - textbox "Type a message..." [ref=e75]
+              - button "Send" [disabled] [ref=e76]
+            - paragraph [ref=e77]: Enter to send · Shift+Enter for newline
+```

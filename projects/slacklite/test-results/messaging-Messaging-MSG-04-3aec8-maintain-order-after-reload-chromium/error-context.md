@@ -2,40 +2,64 @@
 
 ```yaml
 - generic [active] [ref=e1]:
-  - alert [ref=e2]
-  - generic [ref=e3]:
-    - complementary "Workspace sidebar" [ref=e4]:
-      - generic [ref=e5]:
-        - generic [ref=e7]:
-          - generic [ref=e9]: SW
-          - paragraph [ref=e10]: SlackLite Workspace
-        - generic [ref=e11]:
-          - region "Channels" [ref=e12]:
-            - generic [ref=e13]:
-              - heading "Channels" [level=2] [ref=e14]
-              - generic [ref=e15]:
-                - button "Invite Team" [ref=e16] [cursor=pointer]
-                - button "+ New Channel" [ref=e17] [cursor=pointer]
-            - paragraph [ref=e18]: No channels yet. Create one to get started.
-          - region "Direct Messages" [ref=e19]:
-            - generic [ref=e20]:
-              - heading "Direct Messages" [level=2] [ref=e21]
-              - button "+ New DM" [ref=e22] [cursor=pointer]
-            - paragraph [ref=e23]: No direct messages yet. Click a team member to start chatting.
-          - region "Members (0)" [ref=e24]:
-            - button "Members (0)" [expanded] [ref=e26] [cursor=pointer]:
-              - generic [ref=e27]: Members (0)
-              - generic [ref=e28]: ▾
-            - paragraph [ref=e30]: No other members yet. Invite your team!
-    - generic [ref=e31]:
-      - banner [ref=e32]:
-        - generic [ref=e33]:
-          - generic [ref=e34]:
-            - paragraph [ref=e35]: SlackLite
-            - paragraph [ref=e36]: msg-order-1771585495411-24d7z
-          - button "Sign Out" [ref=e37] [cursor=pointer]
-      - main [ref=e39]:
-        - generic [ref=e40]:
-          - heading "Loading your channels..." [level=1] [ref=e41]
-          - paragraph [ref=e42]: "Setting up your workspace and redirecting you to #general."
+  - generic [ref=e2]:
+    - complementary "Workspace sidebar" [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e6]:
+          - generic [ref=e8]: SW
+          - paragraph [ref=e9]: SlackLite Workspace
+        - generic [ref=e10]:
+          - region "Channels" [ref=e11]:
+            - generic [ref=e12]:
+              - heading "Channels" [level=2] [ref=e13]
+              - generic [ref=e14]:
+                - button "Invite Team" [ref=e15] [cursor=pointer]
+                - button "+ New Channel" [ref=e16] [cursor=pointer]
+            - list "Channels" [ref=e17]:
+              - listitem [ref=e18]:
+                - link "Channel general" [ref=e19] [cursor=pointer]:
+                  - /url: /app/channels/W2FCl6L9AFaFOkv1A8H0
+                  - generic [ref=e20]: "# general"
+          - region "Direct Messages" [ref=e21]:
+            - generic [ref=e22]:
+              - heading "Direct Messages" [level=2] [ref=e23]
+              - button "+ New DM" [ref=e24] [cursor=pointer]
+            - paragraph [ref=e25]: No direct messages yet. Click a team member to start chatting.
+          - region "Members (1)" [ref=e26]:
+            - button "Members (1)" [expanded] [ref=e28] [cursor=pointer]:
+              - generic [ref=e29]: Members (1)
+              - generic [ref=e30]: ▾
+            - alert [ref=e32]: Failed to load members.
+    - generic [ref=e33]:
+      - banner [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - paragraph [ref=e37]: SlackLite
+            - paragraph [ref=e38]: msg-order-1771587778081-ff6vn
+          - button "Sign Out" [ref=e39] [cursor=pointer]
+      - main [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - heading "# general" [level=1] [ref=e44]
+            - button "Channel settings" [ref=e46] [cursor=pointer]: ⚙
+          - generic [ref=e52]:
+            - generic "Message from msg-order-1771587778081-ff6vn at 1 min ago" [ref=e55]:
+              - generic [ref=e57]: m
+              - generic [ref=e58]:
+                - generic [ref=e59]:
+                  - generic [ref=e60]: msg-order-1771587778081-ff6vn
+                  - generic [ref=e61]: 1 min ago
+                - paragraph [ref=e62]: order-first-1771587781468
+            - generic "Continued message from msg-order-1771587778081-ff6vn at 5:43 AM" [ref=e65]:
+              - generic [ref=e67]: 5:43 AM
+              - paragraph [ref=e69]: order-second-1771587781468
+            - generic "Continued message from msg-order-1771587778081-ff6vn at 5:43 AM" [ref=e72]:
+              - generic [ref=e74]: 5:43 AM
+              - paragraph [ref=e76]: order-third-1771587781468
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - textbox "Type a message..." [ref=e79]
+              - button "Send" [disabled] [ref=e80]
+            - paragraph [ref=e81]: Enter to send · Shift+Enter for newline
+  - alert [ref=e82]
 ```

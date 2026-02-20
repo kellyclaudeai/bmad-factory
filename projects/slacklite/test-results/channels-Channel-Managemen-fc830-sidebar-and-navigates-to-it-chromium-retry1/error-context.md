@@ -32,7 +32,7 @@
         - generic [ref=e33]:
           - generic [ref=e34]:
             - paragraph [ref=e35]: SlackLite
-            - paragraph [ref=e36]: msg-persist-1771587745456-yld6j
+            - paragraph [ref=e36]: chan-create-1771587528346-va39d
           - button "Sign Out" [ref=e37] [cursor=pointer]
       - main [ref=e39]:
         - generic [ref=e40]:

@@ -420,7 +420,7 @@ export function useRealtimeMessages(
         throw new Error("Missing channel or user details.");
       }
 
-      const tempId = `temp_${Date.now()}`;
+      const tempId = `temp_${crypto.randomUUID()}`;
       const tempTimestamp = Timestamp.now();
       const optimisticMessage: Message = {
         messageId: tempId,

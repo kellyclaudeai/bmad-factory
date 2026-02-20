@@ -59,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const isMountedRef = useRef(true);
   const authListenerCleanupRef = useRef<(() => void) | null>(null);
+  const isSigningOutRef = useRef(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -103,6 +104,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         return;
       }
+
+      // Re-set loading=true while we fetch user data after auth state change.
+      // Prevents create-workspace from seeing user=null + loading=false briefly.
+      setLoading(true);
 
       try {
         await syncServerSession(firebaseUser);
@@ -152,6 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
+      isSigningOutRef.current = true;
       setLoading(true);
 
       try {
@@ -166,6 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error("Failed to sign out user.", error);
         throw new Error("Unable to sign out right now. Please try again.");
       } finally {
+        isSigningOutRef.current = false;
         if (isMountedRef.current) {
           setLoading(false);
         }
@@ -185,7 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [cleanupFirebaseListeners, initializeAuthStateListener]);
 
   useEffect(() => {
-    if (loading || user) {
+    if (loading || user || isSigningOutRef.current) {
       return;
     }
 

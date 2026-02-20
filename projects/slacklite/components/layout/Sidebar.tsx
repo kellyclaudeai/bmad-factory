@@ -54,7 +54,7 @@ export function Sidebar({
 
     const channelId = await createChannel(firestore, workspaceId, name, user.uid);
     setIsCreateChannelModalOpen(false);
-    router.push(`/app/channels/${channelId}`);
+    router.push(`/app/channels/${channelId}?name=${encodeURIComponent(name)}`);
   };
 
   const handleOpenInviteTeamModal = () => {

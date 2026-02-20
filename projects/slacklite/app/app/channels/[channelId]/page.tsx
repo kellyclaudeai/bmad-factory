@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 import ChannelHeader from "@/components/features/channels/ChannelHeader";
 import DeleteChannelModal from "@/components/features/channels/DeleteChannelModal";
@@ -24,9 +24,11 @@ import { isGeneralChannelName } from "@/lib/utils/workspace";
 
 const BOTTOM_THRESHOLD_PX = 100;
 
-export default function ChannelPage() {
+function ChannelPageContent() {
   const params = useParams<{ channelId: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const channelNameFromUrl = searchParams.get("name") ?? "";
   const channelId = typeof params?.channelId === "string" ? params.channelId.trim() : "";
   const { user } = useAuth();
   const workspaceId = typeof user?.workspaceId === "string" ? user.workspaceId.trim() : "";
@@ -36,7 +38,7 @@ export default function ChannelPage() {
     () => channels.find((channel) => channel.channelId === channelId) ?? null,
     [channelId, channels]
   );
-  const channelName = currentChannel?.name ?? channelId;
+  const channelName = currentChannel?.name ?? (channelNameFromUrl || channelId);
   const canManageChannel = Boolean(
     user?.uid &&
     currentChannel &&
@@ -450,5 +452,13 @@ export default function ChannelPage() {
         onDelete={handleDeleteChannel}
       />
     </div>
+  );
+}
+
+export default function ChannelPage() {
+  return (
+    <Suspense fallback={null}>
+      <ChannelPageContent />
+    </Suspense>
   );
 }
