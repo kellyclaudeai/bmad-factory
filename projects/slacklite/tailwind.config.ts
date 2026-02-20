@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,41 +10,49 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        primary: "#4A154B",
-        "primary-brand": "#4A154B",
-        "primary-light": "#611F69",
-        "primary-dark": "#350D36",
-        success: "#2EB67D",
-        error: "#E01E5A",
-        warning: "#ECB22E",
-        info: "#36C5F0",
-        white: "#FFFFFF",
-        gray: {
-          900: "#1D1C1D",
-          800: "#2C2B2C",
-          700: "#616061",
-          600: "#868686",
-          500: "#A0A0A0",
-          400: "#D1D1D1",
-          300: "#E8E8E8",
-          200: "#F2F2F2",
-          100: "#F8F8F8",
+        base: "var(--color-base)",
+        surface: {
+          1: "var(--color-surface-1)",
+          2: "var(--color-surface-2)",
+          3: "var(--color-surface-3)",
+          4: "var(--color-surface-4)",
         },
+        border: {
+          DEFAULT: "var(--color-border)",
+          strong: "var(--color-border-strong)",
+        },
+        accent: {
+          DEFAULT: "var(--color-accent)",
+          hover: "var(--color-accent-hover)",
+          subtle: "var(--color-accent-subtle)",
+          dim: "var(--color-accent-dim)",
+        },
+        primary: "var(--color-text-primary)",
+        secondary: "var(--color-text-secondary)",
+        muted: "var(--color-text-muted)",
+        disabled: "var(--color-text-disabled)",
+        inverse: "var(--color-text-inverse)",
+        error: {
+          DEFAULT: "var(--color-error)",
+          subtle: "var(--color-error-subtle)",
+        },
+        warning: {
+          DEFAULT: "var(--color-warning)",
+          subtle: "var(--color-warning-subtle)",
+        },
+        info: {
+          DEFAULT: "var(--color-info)",
+          subtle: "var(--color-info-subtle)",
+        },
+        online: "var(--color-online)",
+        offline: "var(--color-offline)",
       },
       fontFamily: {
-        sans: [
-          "var(--font-inter)",
-          "Inter",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          '"Segoe UI"',
-          "Roboto",
-          '"Helvetica Neue"',
-          "Arial",
-          "sans-serif",
-        ],
+        sans: ["IBM Plex Sans", "sans-serif"],
+        mono: ["IBM Plex Mono", "monospace"],
+      },
+      borderRadius: {
+        DEFAULT: "6px",
       },
       fontSize: {
         xs: ["0.75rem", { lineHeight: "1rem" }], // 12/16
@@ -78,4 +86,6 @@ export default {
     },
   },
   plugins: [],
-} satisfies Config;
+};
+
+export default config;
