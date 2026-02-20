@@ -137,10 +137,12 @@ export async function GET(request: Request) {
     let currentPhase = "unknown";
     if (project.state === "in-progress") {
       if (sprintStatus) {
-        currentPhase = "implementation"; // Phase 2 or later
-      } else if (Object.values(planningArtifacts).some(a => a.exists)) {
-        currentPhase = "planning"; // Phase 1
+        currentPhase = "implementation"; // Phase 2+
+      } else {
+        currentPhase = "planning"; // Phase 1 — with or without artifacts
       }
+    } else if (project.state === "pending-qa") {
+      currentPhase = "awaiting-qa";
     } else if (project.state === "discovery") {
       currentPhase = "discovery";
     } else if (project.state === "shipped") {
