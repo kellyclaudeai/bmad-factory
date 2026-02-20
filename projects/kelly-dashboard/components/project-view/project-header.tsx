@@ -8,7 +8,7 @@ type ProjectHeaderProps = {
 }
 
 function getStageStatus(stage: string): 'healthy' | 'warning' | 'critical' {
-  const lowerStage = stage.toLowerCase()
+  const lowerStage = (stage || '').toLowerCase()
   
   if (lowerStage?.includes('complete') || lowerStage?.includes('shipped')) {
     return 'healthy'

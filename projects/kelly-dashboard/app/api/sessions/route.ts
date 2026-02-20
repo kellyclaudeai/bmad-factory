@@ -18,6 +18,7 @@ type FrontendSession = {
   status: string; // 'active' | 'waiting' | 'awaiting-qa' | 'paused'
   phase?: string; // planning | implementation | qa | shipped — matches detail page badge
   lastActivity: string;
+  startedAt?: string;
   model?: string;
   tokens?: { input: number; output: number };
   channel?: string;
@@ -161,6 +162,7 @@ async function buildProjectLeadSessions(): Promise<FrontendSession[]> {
       status,
       phase: project.phase,
       lastActivity,
+      startedAt: project.createdAt,
       displayName: project.name || project.id,
     });
   }

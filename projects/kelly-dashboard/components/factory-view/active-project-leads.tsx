@@ -18,6 +18,7 @@ type Session = {
   status: string;
   phase?: string;
   lastActivity: string;
+  startedAt?: string;
   model?: string;
   tokens?: { input: number; output: number };
   duration?: number;
@@ -40,6 +41,30 @@ function formatRelativeTime(isoTimestamp: string): string {
   return `${diffDays}d ago`;
 }
 
+
+/** "2/19/26 7:37 PM CST" — shorthand, no seconds */
+function formatShortDate(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "—";
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  const parts = new Intl.DateTimeFormat("en-US", {
+    year: "2-digit", month: "numeric", day: "numeric",
+    hour: "numeric", minute: "2-digit",
+    hour12: true, timeZone: tz, timeZoneName: "short",
+  }).formatToParts(d);
+  const p = (t: string) => parts.find((x) => x.type === t)?.value ?? "";
+  return `${p("month")}/${p("day")}/${p("year")} ${p("hour")}:${p("minute")} ${p("dayPeriod")} ${p("timeZoneName")}`;
+}
+
+/** HH:MM elapsed since `iso` (e.g. "02:34") */
+function formatRuntime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  if (diffMs < 0) return "0:00";
+  const totalMin = Math.floor(diffMs / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return `${h}:${String(m).padStart(2, "0")}`;
+}
 
 function humanizeProjectId(projectId: string): string {
   return projectId
@@ -77,17 +102,6 @@ function getSessionShortName(sessionKey: string): string {
   return parts[2] || sessionKey;
 }
 
-function getPlatformLabel(session: Session): string {
-  const dn = (session.displayName || "").trim();
-  if (dn && (dn === "openclaw-tui" || dn === "heartbeat")) return dn;
-
-  const ch = (session.lastChannel || session.channel || "").trim();
-  if (ch) return ch;
-
-  if (dn) return dn;
-
-  return "unknown";
-}
 
 function ProjectLeadCard({ session }: { session: Session }) {
   const projectId = session.projectId || session.sessionId?.slice(0, 8) || session.sessionKey?.split(':').pop()?.slice(0, 8) || 'unknown';
@@ -96,7 +110,6 @@ function ProjectLeadCard({ session }: { session: Session }) {
   const status = session.status || "active";
   const relativeTime = formatRelativeTime(session.lastActivity);
   const sessionName = getSessionShortName(session.sessionKey);
-  const platform = getPlatformLabel(session);
 
   return (
     <Link
@@ -133,36 +146,27 @@ function ProjectLeadCard({ session }: { session: Session }) {
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-terminal-dim font-mono">Model</span>
-            <span className="text-terminal-text font-mono">{session.model || "unknown"}</span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-terminal-dim font-mono">Last Activity</span>
-            <span
-              className="text-terminal-text font-mono"
-              title={new Date(session.lastActivity).toLocaleString()}
-            >
-              {relativeTime}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-terminal-dim font-mono">Session</span>
-            <span className="text-terminal-text font-mono">{sessionName}</span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-terminal-dim font-mono">Platform</span>
-            <span className="text-terminal-text font-mono">{platform}</span>
-          </div>
-          {session.tokens && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-terminal-dim font-mono">Tokens</span>
-              <span className="text-terminal-text font-mono">
-                {(session.tokens.input + session.tokens.output).toLocaleString()}
-              </span>
+        <CardContent className="space-y-1.5">
+          {session.startedAt && (
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-terminal-dim font-mono">Start Time</span>
+              <span className="text-terminal-text font-mono">{formatShortDate(session.startedAt)}</span>
             </div>
           )}
+          {session.startedAt && (
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-terminal-dim font-mono">Total Runtime</span>
+              <span className="text-terminal-text font-mono">{formatRuntime(session.startedAt)}</span>
+            </div>
+          )}
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-terminal-dim font-mono">Last Activity</span>
+            <span className="text-terminal-text font-mono">{relativeTime}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-terminal-dim font-mono">Session-ID</span>
+            <span className="text-terminal-text font-mono">{sessionName}</span>
+          </div>
         </CardContent>
       </Card>
     </Link>
