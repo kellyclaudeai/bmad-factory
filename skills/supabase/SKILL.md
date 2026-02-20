@@ -5,6 +5,14 @@ description: Set up and use Supabase for factory projects. Covers CLI project cr
 
 # Supabase (Factory Reference)
 
+## CLI-First Rule
+
+**Always prefer CLI + Management API over the Supabase dashboard.** Every setup step should be automatable. If no CLI exists for a step, use the **web-browser skill** (Playwright CDP) as fallback — never ask a human to click through a dashboard manually.
+
+- CLI: `supabase` CLI + Supabase Management API (`api.supabase.com/v1/...`)
+- Fallback: `web-browser` skill → automated browser via CDP
+- Last resort: document the manual step clearly so a human can do it once
+
 ## When to choose Supabase over Firebase
 
 - Project needs **SQL / relational data** (joins, complex queries, full-text search)
@@ -26,11 +34,18 @@ supabase stop
 ## Create a new Supabase project (CLI)
 
 ```bash
-# Create project via dashboard (one-time, no CLI equivalent for project creation)
+# Create project via Supabase Management API (CLI-first)
+curl -X POST https://api.supabase.com/v1/projects \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"my-project","organization_id":"<org-id>","plan":"free","region":"us-east-1","db_pass":"<strong-password>"}'
+
 # Then link locally:
 supabase link --project-ref <project-ref>
 supabase db pull        # pull remote schema to local
 ```
+
+**Fallback:** If Management API unavailable or org-id unknown → use **web-browser skill** to create via https://supabase.com/dashboard/new/_
 
 ## Environment Variables (Next.js)
 
@@ -66,10 +81,23 @@ export const createClient = () =>
 
 **Default for all factory projects: Google OAuth + Email/Password. Both must be implemented. No exceptions unless intake.md explicitly specifies otherwise.**
 
-Enable both in Supabase dashboard → Auth → Providers:
-- **Email** → enabled, confirm email ON
-- **Google** → enabled, add Client ID + Secret from Google Cloud Console (OAuth 2.0 credentials)
-  - Authorized redirect URI: `https://<ref>.supabase.co/auth/v1/callback`
+Enable both via Management API (CLI-first):
+```bash
+# Enable email provider
+curl -X PUT "https://api.supabase.com/v1/projects/<ref>/config/auth" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"external_email_enabled":true,"mailer_autoconfirm":false}'
+
+# Enable Google OAuth (requires Client ID + Secret from Google Cloud Console)
+curl -X PUT "https://api.supabase.com/v1/projects/<ref>/config/auth" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"external_google_enabled":true,"external_google_client_id":"<id>","external_google_secret":"<secret>"}'
+```
+- Google OAuth credentials: Google Cloud Console → APIs & Credentials → OAuth 2.0 Client IDs
+- Authorized redirect URI to add: `https://<ref>.supabase.co/auth/v1/callback`
+- **Fallback:** If API fails → use **web-browser skill** → Supabase dashboard → Auth → Providers
 
 ```ts
 // Email + password
@@ -210,12 +238,17 @@ Supabase sends auth emails (confirm signup, password reset, magic link) using it
 
 ### 1. Set Site URL (critical — fixes localhost links in emails)
 
-Supabase dashboard → Auth → URL Configuration:
-- **Site URL:** `https://your-app.vercel.app` ← MUST be production URL, not localhost
-- **Redirect URLs (add all):**
-  - `https://your-app.vercel.app/**`
-  - `https://*-yourteam.vercel.app/**` (covers preview deployments)
-  - `http://localhost:3000/**` (local dev)
+**CLI-first via Management API:**
+```bash
+curl -X PUT "https://api.supabase.com/v1/projects/<ref>/config/auth" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "site_url": "https://your-app.vercel.app",
+    "uri_allow_list": "https://your-app.vercel.app/**,https://*-yourteam.vercel.app/**,http://localhost:3000/**"
+  }'
+```
+**Fallback:** Supabase dashboard → Auth → URL Configuration → set Site URL + Redirect URLs manually (or use web-browser skill to automate).
 
 If Site URL is left as `localhost`, every confirmation/reset email will have broken links in production.
 
