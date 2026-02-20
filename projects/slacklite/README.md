@@ -87,11 +87,72 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Deployed via **Firebase App Hosting** (SSR on Cloud Run). Do **not** use Vercel — daily limit exhausted. Do **not** use static Firebase Hosting — it breaks middleware and API routes.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Prerequisites
+
+```bash
+npm install -g firebase-tools@latest
+firebase login
+```
+
+Ensure the project is set:
+
+```bash
+firebase use slacklite-prod
+```
+
+If `firebase.json` is missing the `apphosting` section, run:
+
+```bash
+firebase init apphosting
+```
+
+### Deploy
+
+```bash
+cd /Users/austenallred/clawd/projects/slacklite
+
+# Build and verify locally first
+pnpm build
+
+# Deploy to Firebase App Hosting (Cloud Run)
+firebase deploy --only apphosting --project slacklite-prod
+```
+
+### Live URL
+
+- **Primary (Cloud Run / Firebase App Hosting):** https://slacklite--slacklite-prod.us-central1.hosted.app
+
+### Firebase Project
+
+Firebase project: `slacklite-prod`
+
+```bash
+firebase use   # Verify active project
+```
+
+### Environment Variables
+
+Required `NEXT_PUBLIC_FIREBASE_*` vars and Admin SDK secrets must be configured in `apphosting.yaml` (as secret references or direct values). See `apphosting.yaml` for the full list.
+
+### Auth Authorized Domains
+
+The live Cloud Run URL must be added to Firebase Auth → Settings → Authorized Domains:
+
+```
+https://console.firebase.google.com/project/slacklite-prod/authentication/settings
+```
+
+Add: `slacklite--slacklite-prod.us-central1.hosted.app`
+
+### Do NOT
+
+- ❌ Do NOT add `output: 'export'` to `next.config.mjs` — breaks SSR and API routes
+- ❌ Do NOT deploy to Vercel — daily deployment limit exhausted
+- ❌ Do NOT use `firebase deploy --only hosting` — static hosting breaks SSR/middleware
 
 ## Performance Monitoring
 
