@@ -403,16 +403,39 @@ PL behavior: idle wait.
 
 #### Stage 4.3: Operator Testing — Fix Path
 
+**Operator decides WHAT goes in. PL decides HOW to implement it.**
+
 ```
 1. Receive fix feedback from Kelly
    → Example: "FIX: takeouttrap — Checkout flow confusing, auth broken on mobile"
 
-2. Spawn Amelia: fix-qa-feedback
-   → Input: Operator feedback (specific issues)
-   → Task: Fix all reported issues, commit, push to dev
+2. Log to _bmad-output/qa-feedback.md (append):
+   ## QA Round {N} — {date}
+   **Feedback:** {operator feedback verbatim}
+   **Path:** [Amelia direct | New stories]
+   **Status:** in-progress
 
-3. After fixes: Re-run Phase 3 (Test) — pre-deploy gates → deploy → test execution + NFR
-4. If clean: Back to Stage 4.1 (re-notify Kelly, re-enter hold)
+3. PL routing decision (technical call only):
+
+   ROUTE A — No new stories needed (bug, missed requirement, obvious gap):
+   → Spawn Amelia: fix-qa-feedback
+     → Input: operator feedback + qa-feedback.md context
+     → Task: Fix all reported issues, commit, push to dev
+
+   ROUTE B — New stories needed (requires planning, new architecture, significant scope):
+   → Spawn John: scope-qa-feedback
+     → Input: operator feedback, existing prd.md, architecture.md
+     → Output: new story files in _bmad-output/implementation-artifacts/stories/
+     → Update sprint-status.yaml with new stories
+   → Spawn Bob: update dependency-graph for new stories
+   → Run new stories through Phase 2 (Amelia, dependency-driven)
+
+4. After fixes complete: Re-run Phase 3 (Test) — pre-deploy gates → deploy → TEA execution
+   (test-generate NOT re-run unless new major flows added — Murat reuses existing test suite)
+
+5. Update qa-feedback.md: mark round status → "addressed"
+
+6. Back to Stage 4.1 (re-notify Kelly, re-enter hold)
 ```
 
 #### Stage 4.4: Ship (on operator approval)

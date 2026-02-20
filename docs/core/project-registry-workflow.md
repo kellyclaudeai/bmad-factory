@@ -213,7 +213,7 @@ Project Lead's workspace and deployment info:
 - **repo** - Git repository URL (optional)
 
 ### followup
-Array of post-ship work items:
+Array of post-ship work items (operator-designated, never auto-populated by PL):
 ```json
 {
   "type": "enhancement|fix",
@@ -222,6 +222,22 @@ Array of post-ship work items:
   "addedAt": "2026-02-18T12:00:00Z"
 }
 ```
+
+### qaRounds
+Array tracking each round of operator QA feedback (pre-ship). PL appends on each FIX signal:
+```json
+{
+  "round": 1,
+  "date": "2026-02-19T19:46:00Z",
+  "feedback": "Add Google sign-in, fix mobile nav padding",
+  "path": "amelia-direct",
+  "status": "addressed",
+  "addressedAt": "2026-02-19T20:30:00Z"
+}
+```
+- **path** — `amelia-direct` (no new stories) or `new-stories` (John + Bob involved)
+- **status** — `in-progress` | `addressed`
+- Full narrative detail lives in `_bmad-output/qa-feedback.md` (human-readable log)
 
 ## Actor Responsibilities
 
