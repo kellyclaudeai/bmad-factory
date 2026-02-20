@@ -131,7 +131,10 @@ async function getProjectState(projectId: string): Promise<ProjectState | null> 
       } : undefined,
       // Keep raw planning artifacts data for detailed display
       planningArtifactsRaw: data.planningArtifacts,
-      subagents: data.subagents || [] // Populated from API (synthetic for Phase 1, real for Phase 2+)
+      subagents: data.subagents || [], // Populated from API (synthetic for Phase 1, real for Phase 2+)
+      devServerUrl: data.devServerUrl ?? null,
+      qaUrl: data.qaUrl ?? null,
+      deployedUrl: data.deployedUrl ?? null,
     }
   } catch (error) {
     console.error('Failed to fetch project state:', error)
