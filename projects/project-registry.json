@@ -260,7 +260,7 @@
     {
       "id": "slacklite",
       "name": "SlackLite",
-      "state": "in-progress",
+      "state": "pending-qa",
       "paused": false,
       "pausedReason": null,
       "researchDir": "ideas/slack-lite-2026-02-18-2310",
@@ -269,7 +269,7 @@
       "discoveryStrategy": "manual-intake",
       "timeline": {
         "discoveredAt": "2026-02-19T05:10:53+0000",
-        "lastUpdated": "2026-02-20T01:08:28Z",
+        "lastUpdated": "2026-02-20T01:48:07Z",
         "startedAt": "2026-02-19T05:11:24Z"
       },
       "intake": {
@@ -289,7 +289,8 @@
       "implementation": {
         "projectDir": "/Users/austenallred/clawd/projects/slacklite",
         "plSession": "agent:project-lead:project-slacklite",
-        "qaUrl": "https://slacklite-r3vwdr5la-kelly-1224s-projects.vercel.app"
+        "qaUrl": "https://slacklite-r3vwdr5la-kelly-1224s-projects.vercel.app",
+        "sprintProgress": "74/74 stories done (100%)"
       },
       "followup": [],
       "projectId": "slacklite",
@@ -329,7 +330,7 @@
     {
       "id": "quick-poll",
       "name": "Quick Poll",
-      "state": "in-progress",
+      "state": "pending-qa",
       "paused": false,
       "pausedReason": null,
       "surfacedForQA": false,
@@ -339,7 +340,7 @@
       "timeline": {
         "discoveredAt": "2026-02-19T23:55:04Z",
         "startedAt": "2026-02-19T23:55:04Z",
-        "lastUpdated": "2026-02-20T01:08:28Z",
+        "lastUpdated": "2026-02-20T01:48:07Z",
         "completedAt": null,
         "deployedAt": null
       },
