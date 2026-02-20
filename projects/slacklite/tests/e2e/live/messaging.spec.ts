@@ -136,14 +136,14 @@ test.describe("Messaging", () => {
 
     // Verify order: msg1 appears before msg2 appears before msg3 in the DOM
     const positions = await page.evaluate(([t1, t2, t3]) => {
-      const all = document.querySelectorAll("*");
+      const rows = document.querySelectorAll('[data-testid="virtualized-message-row"]');
       const pos: Record<string, number> = {};
       let i = 0;
-      for (const el of all) {
-        const text = el.textContent ?? "";
-        if (text.includes(t1) && !pos[t1]) pos[t1] = i;
-        if (text.includes(t2) && !pos[t2]) pos[t2] = i;
-        if (text.includes(t3) && !pos[t3]) pos[t3] = i;
+      for (const el of rows) {
+        const text = el.textContent?.trim() ?? "";
+        if (text.includes(t1) && pos[t1] === undefined) pos[t1] = i;
+        if (text.includes(t2) && pos[t2] === undefined) pos[t2] = i;
+        if (text.includes(t3) && pos[t3] === undefined) pos[t3] = i;
         i++;
       }
       return pos;

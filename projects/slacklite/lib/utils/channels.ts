@@ -1,6 +1,5 @@
 import {
   collection,
-  collectionGroup,
   deleteDoc,
   doc,
   getDocs,
@@ -44,8 +43,7 @@ export async function createChannel(
 
   const existingChannelSnapshot = await getDocs(
     query(
-      collectionGroup(firestore, "channels"),
-      where("workspaceId", "==", normalizedWorkspaceId),
+      collection(firestore, "workspaces", normalizedWorkspaceId, "channels"),
       where("name", "==", normalizedName),
       limit(1),
     ),

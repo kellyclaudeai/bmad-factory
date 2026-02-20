@@ -197,11 +197,11 @@ test.describe("Real-Time Messaging (v2 dual-source: RTDB + Firestore)", () => {
 
         // Verify order in Tab B
         const positions = await pageB.evaluate(([t1, t2, t3]) => {
-          const all = document.querySelectorAll("*");
+          const rows = document.querySelectorAll('[data-testid="virtualized-message-row"]');
           const pos: Record<string, number> = {};
           let i = 0;
-          for (const el of all) {
-            const text = el.textContent ?? "";
+          for (const el of rows) {
+            const text = el.textContent?.trim() ?? "";
             if (text.includes(t1) && pos[t1] === undefined) pos[t1] = i;
             if (text.includes(t2) && pos[t2] === undefined) pos[t2] = i;
             if (text.includes(t3) && pos[t3] === undefined) pos[t3] = i;
