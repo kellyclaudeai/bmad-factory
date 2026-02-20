@@ -1,6 +1,7 @@
 "use client";
 
 import { useAutoRefresh } from "@/components/shared/auto-refresh";
+import { phaseColor } from "@/lib/phase-colors";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,25 +37,6 @@ function formatRelativeTime(isoTimestamp: string): string {
   return `${diffDays}d ago`;
 }
 
-function getStatusColor(status: string): string {
-  switch (status.toLowerCase()) {
-    case "active":
-    case "planning":
-    case "implementation":
-      return "bg-terminal-green/10 text-terminal-green border-terminal-green";
-    case "qa":
-    case "awaiting-qa":
-    case "awaiting_qa":
-      return "bg-blue-500/10 text-blue-400 border-blue-500";
-    case "idle":
-    case "waiting":
-      return "bg-terminal-amber/10 text-terminal-amber border-terminal-amber";
-    case "paused":
-      return "bg-yellow-500/10 text-yellow-400 border-yellow-500";
-    default:
-      return "bg-terminal-text/10 text-terminal-text border-terminal-text";
-  }
-}
 
 function getAgentDisplayName(agentType: string): string {
   if (agentType === "bmad-bmm-barry") return "Barry";
@@ -123,7 +105,7 @@ function AgentCard({ session }: { session: Session }) {
             </span>
             <Badge
               variant="outline"
-              className={`text-xs font-mono ${getStatusColor(session.phase || session.status)}`}
+              className={`text-xs font-mono ${phaseColor(session.phase || session.status)}`}
             >
               {(session.phase || session.status).toUpperCase()}
             </Badge>

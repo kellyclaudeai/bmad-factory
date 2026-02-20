@@ -1,6 +1,7 @@
 "use client";
 
 import { useAutoRefresh } from "@/components/shared/auto-refresh";
+import { phaseColor } from "@/lib/phase-colors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,19 +34,6 @@ function formatDuration(seconds: number): string {
   return remM ? `${h}h ${remM}m` : `${h}h`;
 }
 
-function getStatusColor(status: string): string {
-  switch (status.toLowerCase()) {
-    case "active":
-      return "bg-terminal-green/10 text-terminal-green border-terminal-green";
-    case "complete":
-    case "completed":
-      return "bg-terminal-dim/10 text-terminal-dim border-terminal-dim";
-    case "failed":
-      return "bg-terminal-red/10 text-terminal-red border-terminal-red";
-    default:
-      return "bg-terminal-text/10 text-terminal-text border-terminal-text";
-  }
-}
 
 function ResearchCard({ session }: { session: ResearchSession }) {
   const topic = session.topic || "Research Session";
@@ -94,7 +82,7 @@ function ResearchCard({ session }: { session: ResearchSession }) {
             </div>
             <Badge
               variant="outline"
-              className={`text-xs font-mono ${getStatusColor(status)}`}
+              className={`text-xs font-mono ${phaseColor(status)}`}
             >
               {status.toUpperCase()}
             </Badge>

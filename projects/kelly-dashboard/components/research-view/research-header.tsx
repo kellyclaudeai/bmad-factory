@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { phaseColor } from "@/lib/phase-colors";
 
 interface ResearchHeaderProps {
   topic: string;
@@ -8,19 +9,6 @@ interface ResearchHeaderProps {
   model?: string;
 }
 
-function getStatusColor(status: string): string {
-  switch (status.toLowerCase()) {
-    case "active":
-      return "bg-terminal-green/10 text-terminal-green border-terminal-green";
-    case "complete":
-    case "completed":
-      return "bg-terminal-dim/10 text-terminal-dim border-terminal-dim";
-    case "failed":
-      return "bg-terminal-red/10 text-terminal-red border-terminal-red";
-    default:
-      return "bg-terminal-text/10 text-terminal-text border-terminal-text";
-  }
-}
 
 function formatDuration(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) return "0s";
@@ -55,7 +43,7 @@ export function ResearchHeader({ topic, status, startedAt, duration, model }: Re
           <div className="flex items-center gap-3 flex-wrap">
             <Badge
               variant="outline"
-              className={`font-mono ${getStatusColor(status)}`}
+              className={`font-mono ${phaseColor(status)}`}
             >
               {status.toUpperCase()}
             </Badge>
