@@ -9,6 +9,7 @@
 - v5.0 (2026-02-20): **DEFAULT TECH STACK.** `docs/core/tech-stack.md` created. Winston must read it before writing architecture.md on every project. Default: Next.js 15 + TypeScript + Tailwind + shadcn/ui + pnpm + Supabase (DB+Auth) + Drizzle + Vercel. Override by specifying in intake.md; document as ADR in architecture.md.
 - v4.9 (2026-02-20): **NO MOCKING IN E2E — REAL EVERYTHING.** Phase 3 E2E tests must use real deployed URL, real Firebase Auth, real credentials. No stubbing `signInWithPopup` or any external service. Console error listener mandatory in every test file (CSP violations = auto-fail). Test credentials must be a dedicated factory test Gmail (NOT kelly@bloomtech.com). If auth project and `test-credentials.md` missing → Murat halts + PL notifies Kelly. Same policy codified in murat-testing/SKILL.md.
 - v4.8 (2026-02-19): **FULL QA FEEDBACK WORKFLOWS IN ALL AGENTS.** John: `scope-qa-feedback` (4th responsibility). Winston: `review-architecture-change` (2nd responsibility). Amelia: `fix-qa-feedback` (Mode 3). Bob: `update-dependency-graph` (4th responsibility). Every agent now knows its QA feedback role — PL routes, agents execute.
+- v5.3 (2026-02-20): **TECH-STACK-AWARE PRE-DEPLOY GATES.** Gates now read architecture.md to determine actual stack before running checks. TypeScript check no longer hardcoded — adapts to TS, Python, Chrome Extension, etc. Added Gate 3 (unit tests if they exist) and Gate 4 (security scanning). NFR (accessibility + performance) confirmed present in Phase 3b.
 - v5.2 (2026-02-20): **UNIFIED CHANGE FLOW.** QA feedback, brownfield, correct courses all use one pipeline: John → Sally → Winston → Bob → Amelia. Skip who isn't needed. Same order as greenfield. No separate QA feedback flow. No double-John.
 - v4.6 (2026-02-19): **PHASE 3 HARD GATE + FORBIDDEN STORY TYPES.** Phase 3 (TEA) is now an explicit hard gate — cannot be skipped, cannot be substituted by a Phase 2 "Smoke Test" story. John AGENTS.md: forbidden from creating testing/deployment epics. Bob AGENTS.md: must skip any test/deploy stories that slip through from John's epics. Root cause: Verdict shipped with zero test artifacts because story 7.2 "Production Build, Deploy & Smoke Test" was mistaken for Phase 3.
 - v4.1 (2026-02-19): **STATELESS PL + CONTEXT DISCIPLINE.** PL must keep replies to 1-2 lines, never narrate history, rotate session every 25 stories. Prevents 200k token overflow on large projects. See Context Discipline section.
@@ -278,20 +279,34 @@ Story COMPLETE when dev work finishes
 
 **Fast, cheap checks before deploying.** Failures batched → Amelia remediates → re-run gates.
 
+**Read architecture.md to determine the actual tech stack before running gates. Commands vary by stack.**
+
 ```
 Gate 1: Build Verification
-  → npm run build (or equivalent)
+  → Run the project's build command (check architecture.md / package.json)
+  → TypeScript/Next.js:  pnpm build / npm run build
+  → Vite/React:          pnpm build
+  → Python/FastAPI:      pip check + import validation
+  → Chrome Extension:    pnpm build / webpack
   → Must produce clean build with zero errors
 
 Gate 2: Lint & Type Checking
-  → npm run lint (ESLint/Biome)
-  → npx tsc --noEmit (TypeScript strict check)
+  → Run the project's lint command (check package.json scripts)
+  → If TypeScript project:  npx tsc --noEmit (zero type errors required)
+  → If ESLint configured:   npm run lint / pnpm lint
+  → If Biome configured:    biome check
+  → If Python:              ruff check / flake8
   → Zero errors required (warnings OK)
 
-Gate 3: Security Scanning (Phase 2 — skip for now)
-  → npm audit --audit-level=high
-  → Dependency vulnerability check
-  → Known CVE scanning
+Gate 3: Unit Tests (if test suite exists)
+  → Check for test script in package.json / pytest / etc.
+  → If tests exist: run them. Failures are blockers.
+  → If no tests exist: skip (note in gate report)
+
+Gate 4: Security Scanning
+  → npm audit --audit-level=high (Node projects)
+  → pip-audit (Python projects)
+  → Dependency vulnerability check — high/critical CVEs are blockers
 ```
 
 **On failure:**
