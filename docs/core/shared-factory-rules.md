@@ -96,15 +96,28 @@ python3 -c "import yaml,sys; d=yaml.safe_load(open('file.yaml')); print(d['key']
 
 ## 🔑 API Keys & Third-Party Credentials
 
-**Kelly and Project Lead are authorized to self-serve free-tier API keys without asking the operator.**
+**All agents are authorized to self-serve free-tier API keys without asking the operator.**
 
-Rules:
-- ✅ Free tier signup with no payment info required → do it autonomously (use browser automation)
-- ✅ Accounts created with the factory email/credentials (check `TOOLS.md` for factory accounts)
-- ✅ Once obtained, set immediately in Vercel/env via CLI
+### Factory Credentials
+
+**Email:** `kelly@bloomtech.com`  
+**Password:** Retrieved from macOS Keychain — never hardcoded in files or committed to git:
+```bash
+security find-generic-password -a "kelly-factory" -s "kelly-factory-credentials" -w
+```
+
+**Auth priority order (always try in this order):**
+1. **Google OAuth** — use `kelly@bloomtech.com` Google account (already logged in via openclaw browser profile)
+2. **Email + password** — `kelly@bloomtech.com` + keychain password above
+3. **Ask operator** — only if neither works (e.g., site blocks Google OAuth + requires SMS verification)
+
+### Rules
+- ✅ Free tier signup with no payment info required → do it autonomously (use browser automation + factory credentials)
+- ✅ Once obtained, set immediately via CLI: `vercel env add KEY_NAME` or equivalent
 - ⚠️ Paid tier or credit card required → stop and ask the operator first
-- ⚠️ OAuth apps requiring manual approval flows (e.g., Google OAuth consent screen) → ask operator
-- Never store raw API keys in git. Always set via `vercel env add` or equivalent CLI.
+- ⚠️ Email verification link required → ask operator to click the link, then continue autonomously
+- ⚠️ MFA / 2FA / SMS code → ask operator
+- ❌ Never store raw API keys in git or in any file committed to version control
 
 ---
 
