@@ -104,20 +104,20 @@ export default function RenameChannelModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <h3 className="mb-4 text-xl font-semibold text-gray-900">Rename Channel</h3>
+      <h3 className="mb-4 text-xl font-semibold text-primary">Rename Channel</h3>
 
       {errorMessage && (
-        <div className="mb-4 rounded bg-error px-4 py-3 text-sm text-white">
+        <div className="mb-4 rounded bg-error-subtle border border-error px-4 py-3 text-sm text-error">
           {errorMessage}
         </div>
       )}
 
       <div className="mb-4">
-        <label htmlFor="rename-channel-name" className="mb-2 block text-sm font-medium text-gray-900">
+        <label htmlFor="rename-channel-name" className="mb-2 block text-xs font-semibold font-mono uppercase tracking-wide text-secondary">
           Name
         </label>
         <div className="flex items-center">
-          <span className="mr-2 text-gray-700">#</span>
+          <span className="mr-2 text-muted">#</span>
           <Input
             id="rename-channel-name"
             value={name}
@@ -128,7 +128,7 @@ export default function RenameChannelModal({
             disabled={isRenaming}
           />
         </div>
-        <p className="mt-2 text-xs text-gray-700">
+        <p className="mt-2 text-xs text-muted">
           Lowercase, no spaces. Use - for multiple words.
         </p>
       </div>

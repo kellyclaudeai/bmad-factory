@@ -59,15 +59,15 @@ export default function DeleteChannelModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <h3 className="mb-4 text-xl font-semibold text-gray-900">Delete Channel</h3>
+      <h3 className="mb-4 text-xl font-semibold text-primary">Delete Channel</h3>
 
       {errorMessage ? (
-        <div className="mb-4 rounded bg-error px-4 py-3 text-sm text-white">
+        <div className="mb-4 rounded bg-error-subtle border border-error px-4 py-3 text-sm text-error">
           {errorMessage}
         </div>
       ) : null}
 
-      <p className="mb-6 text-sm text-gray-800">
+      <p className="mb-6 text-sm text-secondary">
         Are you sure you want to delete <strong>#{channel?.name ?? ""}</strong>? This cannot be
         undone.
       </p>

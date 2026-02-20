@@ -179,14 +179,14 @@ export default function InviteTeamModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <h3 className="mb-4 text-xl font-semibold text-gray-900">
+      <h3 className="mb-4 text-xl font-semibold text-primary">
         Invite Team Members
       </h3>
 
       <div className="mb-4">
         <label
           htmlFor="invite-team-emails"
-          className="mb-2 block text-sm font-medium text-gray-900"
+          className="mb-2 block text-xs font-semibold font-mono uppercase tracking-wide text-secondary"
         >
           Email Addresses
         </label>
@@ -200,13 +200,13 @@ export default function InviteTeamModal({
             }
           }}
           placeholder="alex@example.com, jordan@example.com"
-          className={`min-h-[96px] w-full rounded border px-3 py-2 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+          className={`min-h-[96px] w-full rounded-md border bg-surface-3 px-3 py-2 text-sm text-primary placeholder:text-muted outline-none transition-all focus:ring-1 ${
             errorMessage
               ? "border-error focus:border-error focus:ring-error"
-              : "border-gray-400 focus:border-primary-brand focus:ring-primary-brand"
+              : "border-border focus:border-accent focus:ring-accent"
           }`}
         />
-        <p className="mt-2 text-xs text-gray-700">
+        <p className="mt-2 text-xs text-muted">
           Separate multiple emails with commas or spaces.
         </p>
         {errorMessage ? (
@@ -217,7 +217,7 @@ export default function InviteTeamModal({
       </div>
 
       <div className="mb-6">
-        <p className="mb-2 text-sm font-medium text-gray-900">
+        <p className="mb-2 text-sm font-medium text-secondary">
           Or share this invite link:
         </p>
         <div className="flex gap-2">
@@ -225,7 +225,7 @@ export default function InviteTeamModal({
             type="text"
             value={inviteLink || "Generating invite link..."}
             readOnly
-            className="w-full rounded border border-gray-400 bg-gray-100 px-3 py-2 text-sm text-gray-800"
+            className="w-full rounded-md border border-border bg-surface-3 px-3 py-2 text-sm text-muted outline-none"
           />
           <Button
             type="button"
