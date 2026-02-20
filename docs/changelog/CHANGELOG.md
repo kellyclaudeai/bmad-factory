@@ -4,6 +4,7 @@
 
 **Format:** `YYYY-MM-DD HH:MM CST | Component | What Changed | Why`
 
+2026-02-19 19:31 CST | PL Flow | PL session holds alive in pending-qa until operator ships | PL no longer exits after Phase 3 TEA. Stays in idle hold (lock file kept) waiting for Kelly's SHIP/FIX/PAUSE signal. Dashboard shows live session as "AWAITING QA". PL handles ship registry update on SHIP signal from Kelly.
 2026-02-19 19:04 CST | Dashboard + PL Flow | Added `pending-qa` registry state + dashboard support | Projects were disappearing from dashboard when PL session ended. Now projects stay visible as "AWAITING QA" (purple badge) until operator explicitly approves and ships them. PL must set `pending-qa` after Phase 3 TEA passes. Only operator can move to `shipped`.
 
 ---
