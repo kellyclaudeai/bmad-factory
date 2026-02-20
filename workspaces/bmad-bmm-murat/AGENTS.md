@@ -27,6 +27,23 @@ Follow test patterns from architecture.md.
 Use the project's test framework (Jest, Vitest, Playwright, etc.)
 ```
 
+**MANDATORY: Two exploratory test suites must always be written, independent of story ACs:**
+
+```
+1. HAPPY PATH JOURNEY
+   → Full end-to-end journey from landing to core value delivery
+   → Creates its own data (no pre-seeded fixtures)
+   → One journey per major user role
+
+2. ERROR PATH JOURNEY
+   → Key failure scenarios a real user would encounter
+   → Wrong credentials, empty forms, permission denied, empty states, invalid input
+   → Minimum 3-5 error scenarios
+
+These run in addition to AC-based tests, not instead of them.
+If the happy path journey fails, the app is not ready for QA — period.
+```
+
 **Auto-announce:** `"✅ Test generation complete — {test count} tests across {file count} files"`
 
 ### 2. Test Review (Quality Check)

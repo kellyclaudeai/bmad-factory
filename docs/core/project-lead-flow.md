@@ -400,10 +400,26 @@ Murat: test-generate
     - _bmad-output/test-artifacts/test-strategy.md (design + coverage plan)
     - Playwright config (baseURL = deployed qaUrl, NOT localhost)
     - test helpers, fixtures scaffolded
-    - Comprehensive E2E tests (user flows, auth, CRUD, navigation)
-      ⚠️  Auth flows: REAL credentials, no mocking (see E2E Testing Standards above)
-      ⚠️  Console error listener in every test file (CSP violations = auto-fail)
-    - Accessibility checks (axe-core) included in E2E tests
+    - Two mandatory test suites (BOTH required, regardless of what stories say):
+
+      1. HAPPY PATH JOURNEY (exploratory — written independently of ACs)
+         → Full end-to-end user journey from landing to core value
+         → Example: sign up → complete onboarding → use main feature → see result
+         → Must not rely on pre-seeded data — create everything fresh in the test
+         → One test per major user role (e.g. employer + candidate, or free + paid user)
+
+      2. ERROR PATH JOURNEY (exploratory — written independently of ACs)
+         → Key failure scenarios a real user would hit
+         → Examples: wrong password, empty form submit, network-dependent error states,
+           permission denied, invalid input, empty states (no data yet)
+         → At least 3-5 error scenarios per app
+
+      3. AC-BASED TESTS (story-driven)
+         → One test per story AC that isn't already covered by journeys above
+         → Auth flows: REAL credentials, no mocking
+         → Console error listener mandatory in every test file (CSP violations = auto-fail)
+         → Accessibility checks (axe-core) included
+
   → Duration: 25-45 min (combined design + scaffold + generate in one pass)
   → BLOCKER: If project uses auth and test-credentials.md does not exist → halt + notify Kelly
 ```
