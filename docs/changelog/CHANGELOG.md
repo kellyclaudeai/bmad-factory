@@ -250,3 +250,10 @@
 
 **Note:** This log started 2026-02-18. Earlier entries reconstructed from git history and memory files.
 22:05 CST | Bob Story Creation | One session writes all stories sequentially | Was: one spawn per story (~90 min for 30 stories). Now: one spawn writes all (~15 min flat)
+
+## [v4.6] 2026-02-19
+### Added
+- Phase 3 (TEA) is now a HARD GATE in both project-lead-flow.md and PL AGENTS.md
+- Phase 3 is NOT stories — PL orchestrates Murat directly after all Phase 2 stories done
+- Phase 4 cannot start without test-execution-report.md showing PASS
+- Root cause: Verdict shipped to user QA with zero test artifacts (Phase 3 bypassed)

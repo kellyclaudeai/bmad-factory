@@ -5,6 +5,7 @@
 **Audience:** Used as reference when building/updating Project Lead AGENTS.md.
 
 **Recent Updates:**
+- v4.6 (2026-02-19): **PHASE 3 HARD GATE + FORBIDDEN STORY TYPES.** Phase 3 (TEA) is now an explicit hard gate — cannot be skipped, cannot be substituted by a Phase 2 "Smoke Test" story. John AGENTS.md: forbidden from creating testing/deployment epics. Bob AGENTS.md: must skip any test/deploy stories that slip through from John's epics. Root cause: Verdict shipped with zero test artifacts because story 7.2 "Production Build, Deploy & Smoke Test" was mistaken for Phase 3.
 - v4.1 (2026-02-19): **STATELESS PL + CONTEXT DISCIPLINE.** PL must keep replies to 1-2 lines, never narrate history, rotate session every 25 stories. Prevents 200k token overflow on large projects. See Context Discipline section.
 - v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP + frontend-design skill for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. ✅ Implemented (Figma MCP configured, all agents updated)
 - v4.5 (2026-02-19): **QA FEEDBACK = STORY FLOW.** QA feedback from the operator creates new stories and updates BMAD artifacts — same pipeline as greenfield Phase 2. Bug exception only: if feedback is a missed implementation or something clearly broken (not new behavior), Amelia fixes directly without story creation. No qaRounds[] in registry — feedback is tracked in BMAD artifacts like everything else.
@@ -239,6 +240,11 @@ Story COMPLETE when dev work finishes
 - Increment version suffix on retry (e.g., `story-2.4-v1`, `story-2.4-v2`)
 
 ### Phase 3: Test
+
+> ⛔ **HARD GATE — MANDATORY. CANNOT BE SKIPPED.**
+> Phase 3 is NOT implemented as stories. Bob does NOT create test stories. Murat is NOT spawned by Amelia as a dev task. Project Lead directly orchestrates Phase 3 after ALL Phase 2 stories are `done`. You CANNOT set `phase = "qa"` or proceed to Phase 4 without `_bmad-output/test-artifacts/test-execution-report.md` existing and showing PASS.
+>
+> **A Phase 2 story named "Smoke Test", "Deploy", or "Production Build" is NOT Phase 3.** If that story completed, ignore it — Phase 3 still requires Murat's full test-generate → E2E execution. This is what happened with Verdict: story 7.2 "Production Build, Deploy & Smoke Test" was marked done in Phase 2, PL skipped Phase 3, and the project shipped with zero real tests.
 
 **Goal:** Ship a working, tested deployment. Pre-deploy catches build/lint issues cheaply. Post-deploy runs the TEA quality suite against the real deployed app.
 
