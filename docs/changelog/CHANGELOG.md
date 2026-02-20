@@ -264,3 +264,11 @@
 - John AGENTS.md: forbidden epic clarification — unit tests WITHIN a story are fine; it's stories whose PRIMARY DELIVERABLE is testing that are forbidden
 - Bob AGENTS.md: same unit test clarification
 - project-lead-flow.md: Stage 4.3 rewritten with routing decision tree diagram
+
+## [v4.8] 2026-02-19
+### Added
+- John AGENTS.md: `scope-qa-feedback` as 4th responsibility (Phase 4 → Phase 2 loop)
+- Winston AGENTS.md: `review-architecture-change` as 2nd responsibility (triggered before John for arch changes)
+- Amelia AGENTS.md: `fix-qa-feedback` as Mode 3 (direct bug fix path, no story creation)
+- Bob AGENTS.md: `update-dependency-graph` as 4th responsibility (after John creates QA feedback stories)
+- Every agent now has an explicit QA feedback workflow — PL routes, agents execute

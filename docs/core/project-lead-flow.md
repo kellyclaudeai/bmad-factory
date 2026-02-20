@@ -5,6 +5,7 @@
 **Audience:** Used as reference when building/updating Project Lead AGENTS.md.
 
 **Recent Updates:**
+- v4.8 (2026-02-19): **FULL QA FEEDBACK WORKFLOWS IN ALL AGENTS.** John: `scope-qa-feedback` (4th responsibility). Winston: `review-architecture-change` (2nd responsibility). Amelia: `fix-qa-feedback` (Mode 3). Bob: `update-dependency-graph` (4th responsibility). Every agent now knows its QA feedback role — PL routes, agents execute.
 - v4.6 (2026-02-19): **PHASE 3 HARD GATE + FORBIDDEN STORY TYPES.** Phase 3 (TEA) is now an explicit hard gate — cannot be skipped, cannot be substituted by a Phase 2 "Smoke Test" story. John AGENTS.md: forbidden from creating testing/deployment epics. Bob AGENTS.md: must skip any test/deploy stories that slip through from John's epics. Root cause: Verdict shipped with zero test artifacts because story 7.2 "Production Build, Deploy & Smoke Test" was mistaken for Phase 3.
 - v4.1 (2026-02-19): **STATELESS PL + CONTEXT DISCIPLINE.** PL must keep replies to 1-2 lines, never narrate history, rotate session every 25 stories. Prevents 200k token overflow on large projects. See Context Discipline section.
 - v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP + frontend-design skill for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. ✅ Implemented (Figma MCP configured, all agents updated)
