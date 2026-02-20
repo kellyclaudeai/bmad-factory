@@ -14,6 +14,7 @@ import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { Button, Input } from "@/components/ui";
 import { auth, firestore } from "@/lib/firebase/client";
 import { trackAuthTime } from "@/lib/monitoring/performance";
+import { syncServerSession } from "@/lib/utils/session";
 import { validateEmail as validateEmailInput } from "@/lib/utils/validation";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -157,6 +158,7 @@ function SignUpContent() {
         isOnline: false,
       });
 
+      await syncServerSession(firebaseUser);
       authOutcome = "success";
       router.replace(redirectPath ?? "/create-workspace");
     } catch (error) {
@@ -176,7 +178,7 @@ function SignUpContent() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <span className="font-mono text-2xl font-semibold text-accent">SlackLite</span>
-          <p className="mt-2 text-sm text-secondary">Create your account</p>
+          <h1 className="mt-2 text-sm text-secondary">Create your account</h1>
         </div>
 
         {/* Auth card */}
@@ -258,7 +260,7 @@ function SignUpContent() {
                 ? `/signin?next=${encodeURIComponent(redirectPath)}`
                 : "/signin"
             }
-            className="text-accent transition-colors hover:text-accent-hover"
+            className="underline text-accent transition-colors hover:text-accent-hover"
           >
             Sign in
           </Link>

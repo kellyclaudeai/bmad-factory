@@ -1,14 +1,35 @@
 /**
  * Shared helpers for live-URL Playwright E2E tests.
  *
- * These tests run against the deployed Vercel QA URL and use real Firebase Auth.
+ * These tests run against the deployed Firebase App Hosting URL and use real Firebase Auth.
  * No emulators, no local dev server.
+ *
+ * v2 additions:
+ *  - checkOxideDarkBackground(): assert element has a dark (non-white) computed bg
+ *  - checkEmeraldAccent(): assert element has emerald (#34D399) computed bg
+ *  - getLuminance(): compute RGB luminance for dark-mode assertions
+ *  - isDarkBackground(): returns true if computed bg has luminance < 0.5
  */
 import { expect, type Page, type BrowserContext, type Browser } from "@playwright/test";
 
 export const TEST_PASSWORD = "Playwright#2026!";
 export const APP_CHANNEL_URL_RE = /\/app\/channels\/[^/?#]+/;
 export const APP_DM_URL_RE = /\/app\/dms\/[^/?#]+/;
+
+// ---------------------------------------------------------------------------
+// Oxide Dark design tokens (from ux-design.md)
+// ---------------------------------------------------------------------------
+
+/** The deepest background in the Oxide Dark palette (#0C0E14) */
+export const OXIDE_BASE = "#0c0e14";
+/** Primary sidebar background (#141720) */
+export const OXIDE_SURFACE_1 = "#141720";
+/** Main content background (#1B1F2E) */
+export const OXIDE_SURFACE_2 = "#1b1f2e";
+/** Emerald accent (#34D399) */
+export const OXIDE_EMERALD = "#34d399";
+/** Luminance threshold: above this is "light" (bad on dark surfaces) */
+const LIGHT_LUMINANCE_THRESHOLD = 0.7;
 
 // ---------------------------------------------------------------------------
 // Unique ID helpers
@@ -31,7 +52,7 @@ export function newAccount(prefix = "test"): TestAccount {
     email: `${prefix}-${id}@slacklite-e2e.dev`,
     password: TEST_PASSWORD,
     displayName: `${prefix}-${id.slice(0, 8)}`,
-    workspaceName: `WS-${prefix}-${id.slice(0, 8)}`,
+    workspaceName: `WS${Date.now()}`,
   };
 }
 
@@ -138,6 +159,143 @@ export async function openSession(
   await page.goto(path);
   await waitForMessagingSurface(page);
   return { context, page };
+}
+
+// ---------------------------------------------------------------------------
+// Oxide Dark theme helpers (v2)
+// ---------------------------------------------------------------------------
+
+/**
+ * Parses a CSS rgb/rgba color string into [r, g, b] (0–255).
+ * Returns null if the string cannot be parsed.
+ */
+function parseRgb(color: string): [number, number, number] | null {
+  const match = color.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if (!match) return null;
+  return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+}
+
+/**
+ * Computes relative luminance of an RGB triplet (0–1 scale).
+ * https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
+ */
+export function getLuminance(r: number, g: number, b: number): number {
+  const toLinear = (c: number) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+}
+
+/**
+ * Returns the computed background-color luminance of a CSS selector.
+ * Walks up the DOM tree to find the first non-transparent background.
+ * Returns null if no opaque background is found.
+ */
+export async function getEffectiveBgLuminance(page: Page, selector: string): Promise<number | null> {
+  return page.evaluate((sel) => {
+    function toLinear(c: number): number {
+      const s = c / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    }
+    function luminance(r: number, g: number, b: number): number {
+      return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+    }
+
+    let el: Element | null = document.querySelector(sel);
+    while (el && el !== document.documentElement) {
+      const bg = getComputedStyle(el).backgroundColor;
+      const match = bg.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?/);
+      if (match) {
+        const alpha = match[4] !== undefined ? parseFloat(match[4]) : 1;
+        if (alpha > 0.05) {
+          return luminance(parseInt(match[1]), parseInt(match[2]), parseInt(match[3]));
+        }
+      }
+      el = el.parentElement;
+    }
+    return null;
+  }, selector);
+}
+
+/**
+ * Asserts that the body/root background is dark (luminance < threshold).
+ * Oxide Dark uses #0C0E14 as the deepest bg (luminance ≈ 0.003).
+ */
+export async function assertBodyIsDark(page: Page): Promise<void> {
+  const lum = await page.evaluate(() => {
+    function toLinear(c: number): number {
+      const s = c / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    }
+    const bg = getComputedStyle(document.body).backgroundColor;
+    const match = bg.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (!match) return null;
+    const r = parseInt(match[1]), g = parseInt(match[2]), b = parseInt(match[3]);
+    return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+  });
+  // Oxide Dark body should be very dark (luminance < 0.05)
+  expect(lum, `Body background should be dark — Oxide Dark theme requires dark backgrounds. Got luminance: ${lum}`).not.toBeNull();
+  expect(lum! < LIGHT_LUMINANCE_THRESHOLD, `Body luminance ${lum} is too light for Oxide Dark (threshold: ${LIGHT_LUMINANCE_THRESHOLD})`).toBe(true);
+}
+
+/**
+ * Returns the computed background-color hex of the body element.
+ */
+export async function getBodyBgColor(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const bg = getComputedStyle(document.body).backgroundColor;
+    const match = bg.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (!match) return "unknown";
+    const r = parseInt(match[1]).toString(16).padStart(2, "0");
+    const g = parseInt(match[2]).toString(16).padStart(2, "0");
+    const b = parseInt(match[3]).toString(16).padStart(2, "0");
+    return `#${r}${g}${b}`;
+  });
+}
+
+/**
+ * Checks whether the emerald accent color (#34D399) is present anywhere
+ * on the page (computed background or color of visible elements).
+ * Returns the count of elements using emerald.
+ */
+export async function countEmeraldElements(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const TARGET_R = 52, TARGET_G = 211, TARGET_B = 153; // #34D399
+    const TOLERANCE = 20;
+    let count = 0;
+    const all = document.querySelectorAll("*");
+    for (const el of all) {
+      const style = getComputedStyle(el);
+      for (const prop of ["backgroundColor", "color", "borderColor"]) {
+        const val = (style as any)[prop] as string;
+        const match = val.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+        if (match) {
+          const r = parseInt(match[1]), g = parseInt(match[2]), b = parseInt(match[3]);
+          if (
+            Math.abs(r - TARGET_R) <= TOLERANCE &&
+            Math.abs(g - TARGET_G) <= TOLERANCE &&
+            Math.abs(b - TARGET_B) <= TOLERANCE
+          ) {
+            count++;
+            break;
+          }
+        }
+      }
+    }
+    return count;
+  });
+}
+
+/**
+ * Returns true if IBM Plex fonts are loaded via document.fonts API.
+ */
+export async function isIbmPlexLoaded(page: Page): Promise<boolean> {
+  return page.evaluate(async () => {
+    await document.fonts.ready;
+    const fonts = [...document.fonts];
+    return fonts.some((f) => f.family.toLowerCase().includes("ibm plex") || f.family.toLowerCase().includes("ibm+plex"));
+  });
 }
 
 // ---------------------------------------------------------------------------

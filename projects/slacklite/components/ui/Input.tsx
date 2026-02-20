@@ -33,7 +33,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           }
           className={cn(
             "w-full rounded-md border px-3 py-2",
-            "bg-surface-3 text-primary text-sm font-sans placeholder:text-muted",
+            "bg-surface-3 text-primary text-base font-sans placeholder:text-muted",
             "outline-none transition-all",
             "disabled:cursor-not-allowed disabled:opacity-50",
             hasError
@@ -49,7 +49,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           </p>
         )}
         {helperText && !error && (
-          <p id={`${props.id}-helper`} className="mt-1 text-xs text-muted">
+          <p id={`${props.id}-helper`} className="mt-1 text-xs text-secondary">
             {helperText}
           </p>
         )}

@@ -1,13 +1,17 @@
 /**
- * Direct Messages (DM) flows — live QA URL tests.
+ * Direct Messages (DM) flows — live QA URL tests (v2).
+ *
+ * v2 note: The same persistence fix that affected channel messages applies to DMs.
+ * The channel page subscribes to both RTDB + Firestore; the DM page follows the
+ * same pattern. DM persistence is tested via reload.
  *
  * Covers:
- *  - Start a DM from sidebar member list → DM view opens
- *  - DM appears for the other user in their sidebar
- *  - Send a DM message — sender sees it immediately
+ *  DM-01: Workspace member list / DMs section is visible in sidebar
+ *  DM-02: Clicking a member opens a DM conversation view
+ *  DM-03: DM message persists after page reload (v2 persistence fix)
  *
- * NOTE: Real-time DM delivery between two simultaneous sessions (User A → User B)
- * is covered in realtime.spec.ts because it requires two browser contexts.
+ * NOTE: Real-time DM delivery between two simultaneous sessions is covered in
+ * realtime.spec.ts because it requires two browser contexts.
  */
 import { expect, test } from "@playwright/test";
 import {
@@ -19,73 +23,116 @@ import {
 } from "./helpers";
 
 test.describe("Direct Messages", () => {
-  test("workspace member list is visible in sidebar", async ({ page }) => {
+  // -------------------------------------------------------------------------
+  // DM-01: DMs section visible in sidebar
+  // -------------------------------------------------------------------------
+  test("DM-01 workspace member list or DMs section is visible in sidebar", async ({ page }) => {
     const account = newAccount("dm-sidebar");
     await signUpAndCreateWorkspace(page, account);
 
-    // The sidebar should show members section
-    // Members section shows current user at minimum
-    const memberSection = page.getByText(/Members|People|Direct Messages/i).first();
+    // The sidebar should show a members/DMs section
+    const memberSection = page
+      .getByText(/Members|People|Direct Messages|DMs/i)
+      .first();
     await expect(memberSection).toBeVisible({ timeout: 10_000 });
   });
 
-  test("clicking a member opens a DM conversation view", async ({ page, browser }) => {
-    // We need two accounts in the same workspace.
-    // Strategy: Account A creates workspace → generates invite → Account B accepts.
-    // Since invite flow may be complex, we test this with a single user DM-ing themselves
-    // if the app supports it, or skip if DM requires two separate members.
+  // -------------------------------------------------------------------------
+  // DM-02: Clicking a member opens a DM conversation view
+  // -------------------------------------------------------------------------
+  test("DM-02 clicking a member opens a DM conversation view", async ({ page }) => {
     const accountA = newAccount("dm-opena");
     await signUpAndCreateWorkspace(page, accountA);
     await waitForMessagingSurface(page);
 
-    // Look for a member button in the sidebar (should show at least the workspace owner)
-    // The member display name is typically the email prefix or display name
-    // Try clicking on any member button (there may be only 1 — the current user)
-    const memberButtons = page.getByRole("button", { name: new RegExp(accountA.email.split("@")[0], "i") });
+    // Look for the current user's name/avatar in sidebar member list
+    const emailPrefix = accountA.email.split("@")[0];
+    const memberButtons = page.getByRole("button", {
+      name: new RegExp(emailPrefix, "i"),
+    });
 
-    const hasMemberButton = await memberButtons.first().isVisible({ timeout: 5_000 }).catch(() => false);
+    const hasMemberButton = await memberButtons
+      .first()
+      .isVisible({ timeout: 5_000 })
+      .catch(() => false);
 
     if (hasMemberButton) {
       await memberButtons.first().click();
+
       // Should navigate to a DM URL
       const currentUrl = page.url();
-      const isDmUrl = APP_DM_URL_RE.test(currentUrl) || /\/dms\/|\/dm\//.test(currentUrl);
-      
+      const isDmUrl =
+        APP_DM_URL_RE.test(currentUrl) ||
+        /\/dms\/|\/dm\//.test(currentUrl);
+
       if (isDmUrl) {
         await waitForMessagingSurface(page);
-        // Send a message in DM
+
+        // Send a DM message
         const dmText = `dm-self-${Date.now()}`;
         await sendMessage(page, dmText);
         await expect(page.getByText(dmText, { exact: true })).toBeVisible({ timeout: 8_000 });
       } else {
-        // Check if we navigated somewhere else — the app may redirect DM-ing self differently
         test.info().annotations.push({
           type: "note",
-          description: `Member button clicked but URL is ${currentUrl} — DM redirect pattern may differ`,
+          description: `Member button clicked but URL is ${currentUrl} — may need multiple workspace members to enable DMs`,
         });
       }
     } else {
-      test.skip(true, "Single-user workspace has no other members to DM — requires invite flow first");
+      test.skip(
+        true,
+        "Single-user workspace has no other visible members — requires invite flow first"
+      );
     }
   });
 
-  test("DM sends a message and it appears in the conversation", async ({ page }) => {
-    // This test requires navigating directly to a DM URL if we know one,
-    // OR going through the member → DM flow. Use the invite flow to get two users.
-    // If invite unavailable, we check DM UI is at least reachable.
-    const account = newAccount("dm-send");
+  // -------------------------------------------------------------------------
+  // DM-03: DM message persists after page reload (v2 persistence fix)
+  // -------------------------------------------------------------------------
+  test("DM-03 DM message persists after page reload [v2 persistence fix]", async ({ page }) => {
+    const account = newAccount("dm-persist");
     await signUpAndCreateWorkspace(page, account);
     await waitForMessagingSurface(page);
 
-    // Check if there's a DM section in the sidebar
-    const dmSection = page.getByText(/Direct Messages|DMs/i).first();
-    const dmSectionVisible = await dmSection.isVisible({ timeout: 5_000 }).catch(() => false);
+    const emailPrefix = account.email.split("@")[0];
+    const memberButton = page.getByRole("button", {
+      name: new RegExp(emailPrefix, "i"),
+    });
 
-    if (!dmSectionVisible) {
-      test.skip(true, "DM section not visible — feature may require multiple members");
+    const hasMemberButton = await memberButton
+      .first()
+      .isVisible({ timeout: 5_000 })
+      .catch(() => false);
+
+    if (!hasMemberButton) {
+      test.skip(true, "No member button found — DM flow requires visible workspace members");
     }
 
-    // At least verify the DM area is accessible
-    await expect(dmSection).toBeVisible();
+    await memberButton.first().click();
+
+    const currentUrl = page.url();
+    const isDmUrl =
+      APP_DM_URL_RE.test(currentUrl) || /\/dms\/|\/dm\//.test(currentUrl);
+
+    if (!isDmUrl) {
+      test.skip(true, `Not on a DM URL (${currentUrl}) — skipping persistence check`);
+    }
+
+    await waitForMessagingSurface(page);
+
+    const dmText = `dm-persist-v2-${Date.now()}`;
+    await sendMessage(page, dmText);
+    await expect(page.getByText(dmText, { exact: true })).toBeVisible({ timeout: 5_000 });
+
+    // Reload the DM page
+    await page.reload();
+    await waitForMessagingSurface(page);
+
+    // Message MUST still appear — verifies Firestore/RTDB persistence in DMs
+    await expect(
+      page.getByText(dmText, { exact: true }),
+      `DM message "${dmText}" must persist after page reload. ` +
+      `This verifies the v2 persistence fix applies to DM conversations as well.`
+    ).toBeVisible({ timeout: 15_000 });
   });
 });

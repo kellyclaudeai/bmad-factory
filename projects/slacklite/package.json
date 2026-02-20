@@ -47,6 +47,7 @@
     "web-vitals": "^5.1.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.1",
     "@axe-core/react": "^4.11.1",
     "@eslint/eslintrc": "3.3.3",
     "@firebase/rules-unit-testing": "^4.0.1",

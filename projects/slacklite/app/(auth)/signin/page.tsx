@@ -156,7 +156,7 @@ function SignInContent() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <span className="font-mono text-2xl font-semibold text-accent">SlackLite</span>
-          <p className="mt-2 text-sm text-secondary">Sign in to your workspace</p>
+          <h1 className="mt-2 text-sm text-secondary">Sign in</h1>
         </div>
 
         {/* Auth card */}
@@ -217,7 +217,7 @@ function SignInContent() {
                 ? `/signup?next=${encodeURIComponent(redirectPath)}`
                 : "/signup"
             }
-            className="text-accent transition-colors hover:text-accent-hover"
+            className="underline text-accent transition-colors hover:text-accent-hover"
           >
             Sign up
           </Link>

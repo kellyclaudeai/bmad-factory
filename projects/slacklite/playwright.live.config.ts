@@ -4,9 +4,10 @@
  */
 import { defineConfig } from "@playwright/test";
 
+// v2: Firebase App Hosting (Cloud Run SSR) — replaces Vercel deployment
 const QA_URL =
   process.env.PLAYWRIGHT_BASE_URL ??
-  "https://slacklite-r3vwdr5la-kelly-1224s-projects.vercel.app";
+  "https://slacklite--slacklite-prod.us-central1.hosted.app";
 
 export default defineConfig({
   testDir: "./tests/e2e/live",

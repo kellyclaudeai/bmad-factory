@@ -97,7 +97,7 @@
       "name": "SentinelHire",
       "path": "projects/sentinel-hire",
       "plSession": "agent:project-lead:sentinel-hire",
-      "phase": "implementation",
+      "phase": "testing",
       "createdAt": "2026-02-19T23:54:00-06:00"
     },
     {
@@ -105,7 +105,7 @@
       "name": "SlackLite v2",
       "path": "projects/slacklite-v2",
       "plSession": "agent:project-lead:project-slacklite-v2",
-      "phase": "implementation",
+      "phase": "test",
       "createdAt": "2026-02-20T01:38:00-06:00"
     }
   ]

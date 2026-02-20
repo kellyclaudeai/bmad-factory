@@ -65,7 +65,7 @@ export default function LandingPage() {
             The team chat you{" "}
             <span className="text-accent">actually</span> want to use.
           </h1>
-          <p className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-secondary">
+          <p className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-primary">
             Channels, DMs, and real-time messaging — without the enterprise
             bloat. Built for teams of 5 to 50.
           </p>
@@ -101,7 +101,7 @@ export default function LandingPage() {
                 <h2 className="mb-3 text-base font-semibold text-primary">
                   {feature.title}
                 </h2>
-                <p className="text-sm leading-relaxed text-secondary">
+                <p className="text-sm leading-relaxed text-primary">
                   {feature.description}
                 </p>
               </article>
@@ -119,7 +119,7 @@ export default function LandingPage() {
           <h2 className="mb-4 text-4xl font-semibold tracking-tight text-primary">
             Your team deserves better tools.
           </h2>
-          <p className="mb-10 text-base text-secondary">
+          <p className="mb-10 text-base text-primary">
             Free to start. No credit card required.
           </p>
           <Link href="/signup">
