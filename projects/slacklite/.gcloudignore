@@ -1,0 +1,42 @@
+.gcloudignore
+.git
+.gitignore
+
+# Node
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Build output
+.next/
+out/
+coverage/
+
+# Local env files
+.env*.local
+.env.development
+.env.test
+
+# Debug
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor
+.DS_Store
+.vscode/
+.idea/
+
+# Test artifacts
+playwright-report/
+test-results/
+
+# BMAD artifacts (large, not needed for build)
+_bmad-output/
+memory/
+docs/
