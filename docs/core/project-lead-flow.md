@@ -7,6 +7,7 @@
 **Recent Updates:**
 - v4.1 (2026-02-19): **STATELESS PL + CONTEXT DISCIPLINE.** PL must keep replies to 1-2 lines, never narrate history, rotate session every 25 stories. Prevents 200k token overflow on large projects. See Context Discipline section.
 - v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. (Proposed, not yet implemented)
+- v4.2 (2026-02-19): **PHASE NAMING + TEA STREAMLINED.** Phase 3 renamed "Test" (was "Post-Deploy Verification/QA"). TEA simplified: TD+TF+TA combined into single Murat "test-generate" pass. Removed RV (test review) and TR (traceability) — redundant overhead for MVP factory. New TEA: test-generate → E2E execution + NR in parallel.
 - v3.3 (2026-02-19): **CODE REVIEW DISABLED.** Stories now go dev → done directly (skipping code-review Amelia). Rationale: 80%+ reviews pass, adds 5-10 min overhead per story, Phase 3 TEA testing more thorough. Can re-enable once factory proven.
 - v3.2 (2026-02-19): Restructured Phase 3 into Pre-Deploy Gates → Deploy → Post-Deploy Verification. Full TEA suite (TD, TF, TA, RV, TR, NR) runs against deployed app. Failures batched → Amelia remediates → redeploy → re-run. Removed correct-course routing for QA failures (direct to Amelia).
 - v3.1 (2026-02-18): Automated E2E test generation via Murat trace + automate workflows.
@@ -201,9 +202,9 @@ Story COMPLETE when dev work finishes
 - Log failed attempts in daily memory notes with failure reason
 - Increment version suffix on retry (e.g., `story-2.4-v1`, `story-2.4-v2`)
 
-### Phase 3: Pre-Deploy Gates → Deploy → Post-Deploy Verification
+### Phase 3: Test
 
-**Goal:** Ship a working, tested deployment. Pre-deploy catches build/lint issues cheaply. Post-deploy runs the full TEA quality suite against the real deployed app.
+**Goal:** Ship a working, tested deployment. Pre-deploy catches build/lint issues cheaply. Post-deploy runs the TEA quality suite against the real deployed app.
 
 ---
 
@@ -262,51 +263,24 @@ Gate 3: Security Scanning (Phase 2 — skip for now)
 
 ---
 
-#### Step 3: Post-Deploy Verification (Full TEA Suite)
+#### Step 3: Test (TEA Suite)
 
-**Run the complete TEA quality suite against the DEPLOYED app.** Failures batched → Amelia remediates → redeploy → re-run.
+**Run the TEA quality suite against the DEPLOYED app.** Failures batched → Amelia remediates → redeploy → re-run.
 
-**Sequential test design + framework (one-time setup):**
-
-```
-TEA TD — Test Design (Murat test-design workflow)
-  → Input: PRD, architecture.md, story acceptance criteria
-  → Output: _bmad-output/test-artifacts/test-strategy.md
-  → What: Design test strategy/plan from requirements and codebase
-  → Duration: 10-20 min
-
-TEA TF — Test Framework (Murat framework workflow)
-  → Input: Test strategy, project tech stack
-  → Output: Playwright config, test helpers, fixtures scaffolded
-  → What: Scaffold E2E test framework (Playwright for web apps)
-  → Duration: 10-15 min
-```
-
-**Test generation + traceability (one-time, reusable):**
+**Step 3a: Test Generation (one-time, Murat test-generate workflow)**
 
 ```
-TEA TA — Test Automation (Murat automate workflow)
-  → Input: Codebase + planning artifacts + test strategy
-  → Output: Comprehensive E2E tests in project
-    - User flow tests (auth, CRUD, navigation)
-    - Integration tests (API calls, state management)
-    - Accessibility checks included in E2E tests
-  → Duration: 15-30 min
-
-TEA RV — Test Review (Murat test-review workflow)
-  → Input: Generated test files + acceptance criteria
-  → Output: Quality report, gap analysis
-  → What: Review generated test quality, identify missing coverage
-  → Duration: 10-15 min
-  
-TEA TR — Traceability (Murat trace workflow)
-  → Input: PRD, tests, acceptance criteria
-  → Output: _bmad-output/test-artifacts/requirements-matrix.md
-  → What: Map every requirement to test(s), identify coverage gaps
-  → Duration: 15-25 min
+Murat: test-generate
+  → Input: PRD, architecture.md, acceptance criteria, codebase, tech stack
+  → Output:
+    - _bmad-output/test-artifacts/test-strategy.md (design + coverage plan)
+    - Playwright config, test helpers, fixtures scaffolded
+    - Comprehensive E2E tests (user flows, auth, CRUD, navigation)
+    - Accessibility checks (axe-core) included in E2E tests
+  → Duration: 25-45 min (combined design + scaffold + generate in one pass)
 ```
 
-**After tests generated, run execution + NFR in parallel:**
+**Step 3b: Execution + NFR (parallel after test-generate completes)**
 
 ```
 Parallel spawn:
@@ -314,23 +288,17 @@ Parallel spawn:
      → Run Playwright tests against live URL (implementation.qaUrl)
      → Reports pass/fail per test
      → Screenshot evidence for failures
-     → Includes accessibility checks (axe-core via Playwright)
      → Duration: 5-15 min
      → Output: _bmad-output/test-artifacts/test-execution-report.md
 
-  B. TEA NR — NFR Assessment (Murat nfr workflow):
+  B. Murat: nfr workflow — NFR Assessment:
      → Security: Auth vulnerabilities, XSS/CSRF, API exposure
      → Performance: Load time, bundle size, database queries
      → Accessibility: WCAG compliance (supplementary to E2E checks)
      → Duration: 25-35 min
      → Output: _bmad-output/test-artifacts/nfr-assessment-report.md
 
-  C. Lighthouse / Performance Assessment (Phase 2 — skip for now):
-     → Run against deployed URL
-     → Performance, SEO, Best Practices scores
-     → Duration: 5 min
-
-Wait for ALL to complete before proceeding.
+Wait for BOTH to complete before proceeding.
 ```
 
 **Regression tests (brownfield only):**
@@ -350,22 +318,19 @@ If brownfield project (existing codebase):
 1. Collect ALL failures:
    - E2E test failures (test-execution-report.md)
    - NFR issues (nfr-assessment-report.md)
-   - Traceability gaps (requirements not covered by tests)
 
 2. Spawn Amelia: fix-postdeploy
    → Input: Batched failure report from all TEA outputs
    → Task: Fix all failures. For each:
      - Test failures → Fix implementation code (not the tests)
      - NFR issues → Fix security/performance/accessibility issues
-     - Traceability gaps → Implement missing functionality
    → Commit + push to dev
 
 3. Redeploy (Step 2)
 
-4. Re-run Post-Deploy Verification (Step 3)
-   → Only re-run execution (tests already generated)
-   → Re-run NFR assessment
-   → Duration: 10-20 min (much faster — no test generation)
+4. Re-run Step 3b only (tests already generated — skip test-generate)
+   → Re-run E2E execution + NFR assessment in parallel
+   → Duration: 10-20 min (much faster)
 
 5. Repeat until clean (max 3 cycles, escalate to Kelly if stuck)
 ```
@@ -373,29 +338,25 @@ If brownfield project (existing codebase):
 **Timeline:**
 - Pre-Deploy Gates: 2-5 min
 - Deployment: 2-5 min
-- Post-Deploy First Pass:
-  - TEA TD (design): 10-20 min
-  - TEA TF (framework): 10-15 min
-  - TEA TA (automate): 15-30 min
-  - TEA RV (review): 10-15 min
-  - TEA TR (traceability): 15-25 min
+- Test First Pass:
+  - Murat test-generate (design + scaffold + generate): 25-45 min
   - E2E execution + NFR (parallel): 25-35 min
-- **Total first pass: ~85-150 min**
+- **Total first pass: ~55-90 min**
 - **Re-runs (execution only): 10-20 min** (tests already generated)
 - Remediation per cycle: 15-30 min
 
-**Key principle:** First pass is expensive (test generation). Re-runs are cheap (just execution). Invest upfront, iterate fast.
+**Key principle:** First pass generates tests once. Re-runs are cheap (just execution). Invest upfront, iterate fast.
 
 ### Phase 4: User QA
 
-**When Post-Deploy Verification passes**, the app is already deployed (from Phase 3 Step 2). Notify the user for human testing.
+**When Phase 3 (Test) passes**, the app is already deployed (from Phase 3 Step 2). Notify the user for human testing.
 
 #### Stage 4.1: Notify Kelly
 
 ```javascript
 sessions_send(
   sessionKey="agent:main",
-  message="🧪 Project {projectName} ready for user QA: {qaUrl}\n\nAll TEA tests passing. Deployed at: {deployedUrl}"
+  message="🧪 Project {projectName} passed automated testing. Ready for user QA: {qaUrl}\n\nDeployed at: {deployedUrl}"
 )
 ```
 
@@ -436,7 +397,7 @@ Operator: "pause {project}"
    → Input: Operator feedback (specific issues)
    → Task: Fix all reported issues, commit, push to dev
 
-3. After fixes: Re-run Phase 3 (Pre-Deploy → Deploy → Post-Deploy Verification)
+3. After fixes: Re-run Phase 3 (Test) — pre-deploy gates → deploy → test execution + NFR
 4. If clean: Back to Phase 4 (User QA retry)
 ```
 
@@ -524,9 +485,9 @@ FOR EACH story in tech-spec.md:
   2. WAIT for completion before next story
 ```
 
-### Phase 3: Fast Quality Gate (Barry Projects)
+### Phase 3: Test (Fast Mode — Barry Projects)
 
-**Pre-Deploy Gates only.** User QA is the primary quality gate for Barry projects.
+**Pre-Deploy Gates + Deploy only. No automated test suite.** User QA is the primary quality gate for Barry projects.
 
 ```
 1. Pre-Deploy Gates (same as Normal Mode Step 1):
@@ -536,9 +497,9 @@ FOR EACH story in tech-spec.md:
 
 2. Deploy (same as Normal Mode Step 2)
 
-3. NO Post-Deploy Verification for Fast Mode
-   → No TEA suite, no E2E, no NFR
-   → Fast Mode prioritizes speed — User QA catches functional bugs
+3. NO TEA suite for Fast Mode
+   → No test-generate, no E2E, no NFR
+   → Fast Mode prioritizes speed — User QA is the quality gate
 ```
 
 ### Phase 4: User QA
@@ -587,7 +548,7 @@ jq '.projects |= map(
 
 **When to update:**
 - Project start (`discovery` → `in-progress`, set projectDir + startedAt)
-- QA ready (set `implementation.qaUrl`, update `lastUpdated`)
+- Test phase complete (set `implementation.qaUrl`, update `lastUpdated`)
 - Ship (`in-progress` → `shipped`, set deployedUrl + shippedAt)
 - Pause/resume (set `paused` + `pausedReason`)
 

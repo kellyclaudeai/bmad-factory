@@ -341,7 +341,7 @@ Array of post-ship work items:
 
 **Changes needed:**
 - **Project Startup**: Read registry entry, update to in-progress
-- **Phase 3 (Quality Gate)**: Update qaUrl when preview deployed
+- **Phase 3 (Test)**: Update qaUrl when preview deployed
 - **Phase 4 (User QA)**: Update to shipped when production deployed
 - **Followup Mode**: Check registry for followup items, update state transitions
 
