@@ -38,19 +38,19 @@ export default function FactoryView() {
         </CollapsibleSection>
 
         <CollapsibleSection
-          id="shipped-projects"
-          title="Shipped Projects"
-          defaultCollapsed={true}
-        >
-          <ShippedProjects />
-        </CollapsibleSection>
-
-        <CollapsibleSection
           id="ready-to-start"
           title="Ready to Start Projects"
           defaultCollapsed={true}
         >
           <ReadyToStartProjects />
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          id="shipped-projects"
+          title="Shipped Projects"
+          defaultCollapsed={true}
+        >
+          <ShippedProjects />
         </CollapsibleSection>
       </main>
     </div>

@@ -181,7 +181,7 @@ async function buildProjectLeadSessions(): Promise<FrontendSession[]> {
       agentType: 'project-lead',
       projectId: project.id,
       status,
-      phase: project.phase,
+      phase: project.phase === 'implementing' || project.phase === 'implementation' ? 'build' : project.phase,
       lastActivity,
       startedAt: project.createdAt,
       displayName: project.name || project.id,

@@ -20,6 +20,8 @@ export function phaseColor(val: string): string {
   switch ((val || "").toLowerCase()) {
     // 🟢 actively shipping
     case "build":
+    case "implementing":
+    case "implementation":
     case "active":
       return "bg-terminal-green/10 text-terminal-green border-terminal-green";
 
@@ -71,5 +73,6 @@ export function phaseColor(val: string): string {
 export function displayPhase(val: string): string {
   const v = (val || "").toLowerCase();
   if (v === "qa" || v === "testing" || v === "awaiting-qa" || v === "awaiting_qa") return "QA";
+  if (v === "implementing" || v === "implementation") return "BUILD";
   return v.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }

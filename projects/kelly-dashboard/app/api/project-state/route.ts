@@ -197,12 +197,17 @@ export async function GET(request: Request) {
     } catch { /* not yet */ }
 
     try {
-      const implFiles = await fs.readdir(implArtifactsDir);
+      // Stories may be directly in implArtifactsDir OR in a stories/ subdir
+      const storiesSubdir = path.join(implArtifactsDir, "stories");
+      let storyDir = implArtifactsDir;
+      try { await fs.stat(storiesSubdir); storyDir = storiesSubdir; } catch { /* use parent */ }
+
+      const implFiles = await fs.readdir(storyDir);
       const storyFiles = implFiles.filter(f => /^story-\d+\.\d+\.md$/.test(f));
       storyFileCount = storyFiles.length;
       for (const sf of storyFiles) {
         try {
-          const st = await fs.stat(path.join(implArtifactsDir, sf));
+          const st = await fs.stat(path.join(storyDir, sf));
           if (!latestStoryMtime || st.mtime > latestStoryMtime) latestStoryMtime = st.mtime;
         } catch { /* skip */ }
       }
