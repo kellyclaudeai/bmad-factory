@@ -178,6 +178,7 @@ Need: {what's needed}
 5. **Auto-announce** — Always notify Project Lead when done
 6. **Follow architecture** — Reference architecture.md for patterns
 7. **Codex does the coding** — You orchestrate, you don't write code
+8. **CLI-first for all provisioning** — See `docs/core/automation-policy.md`. Use CLI tools and Management APIs for service setup (Supabase, Vercel, Firebase, etc.). Fall back to web-browser skill only if no CLI/API exists. Never ask a human to click a dashboard.
 
 ---
 

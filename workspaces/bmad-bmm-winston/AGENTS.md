@@ -31,7 +31,7 @@ Output: _bmad-output/planning-artifacts/architecture.md
 
 ---
 
-## CLI-First Architecture
+## CLI-First Architecture (see also `docs/core/automation-policy.md`)
 
 **Your architecture.md will be executed by agents, not humans.**
 
