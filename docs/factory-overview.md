@@ -15,7 +15,7 @@ Kelly [persistent main session]
   │    └─→ Mary, Carson, Victor, Maya, Quinn (CIS agents)
   │
   └─→ Project Lead [session per project]
-       └─→ BMAD agents (John, Sally, Winston, Bob, Amelia, Murat, Barry)
+       └─→ BMAD agents (John, Sally, Winston, Bob, Amelia, Murat)
 ```
 
 **Routing rules:**
@@ -33,10 +33,8 @@ Kelly [persistent main session]
 |------|------|----------|-------|
 | **Normal Greenfield** | New project | John, Sally, Winston, Bob, Amelia, Murat | 10-50+ stories |
 | **Normal Brownfield** | Existing codebase | Same as above (+ document-project if non-BMAD) | 10-50+ stories |
-| **Fast Greenfield** | New project, small scope | Barry | 1-15 stories |
-| **Fast Brownfield** | Existing codebase, small scope | Barry | 1-15 stories |
 
-**Mode selection:** Default Normal Greenfield. User explicitly indicates Fast or Brownfield.
+**Mode selection:** Default Normal Greenfield. User explicitly indicates Brownfield.
 
 ---
 
@@ -124,12 +122,6 @@ SHIP:
 | `document-project` | Analyze existing non-BMAD codebase (one-time) |
 | `generate-project-context` | Create concise project-context.md |
 
-### Fast Mode (Quick Flow)
-| Workflow | Agent | Purpose |
-|----------|-------|---------|
-| `quick-spec` | Barry (QF) | Create lean tech spec |
-| `quick-dev` | Barry (QF) | Implement from spec |
-
 ### Custom Factory Logic (Not BMAD)
 | Logic | Agent | Purpose |
 |-------|-------|---------|
@@ -159,7 +151,6 @@ sessions_send({
 ```
 sessions_spawn({ agentId: "bmad-bmm-john", task: "create-prd", ... })
 sessions_spawn({ agentId: "bmad-bmm-amelia", task: "dev-story for story-1.1.md", ... })
-sessions_spawn({ agentId: "bmad-qf-barry", task: "quick-spec", ... })
 ```
 
 ---
@@ -170,9 +161,8 @@ sessions_spawn({ agentId: "bmad-qf-barry", task: "quick-spec", ... })
 2. **4 Phases:** Plan → Implement → Test → User QA → Ship
 3. **Fail loops** at every phase after Plan
 4. **Normal Mode:** Full BMAD + dependency-based parallelization (unlimited parallel spawns)
-5. **Fast Mode:** Barry (quick-spec + quick-dev) + sequential
-6. **Brownfield:** Read existing artifacts, add new epics/stories
-7. **Story complete:** dev-story AND code-review both pass
-8. **Git:** All work on `dev`, merge to `main` at Ship only
-9. **Bob creates dependency-graph.json** (custom factory logic, not BMAD)
-10. **John runs check-implementation-readiness** (gate before Bob)
+5. **Brownfield:** Read existing artifacts, add new epics/stories
+6. **Story complete:** dev-story done (code-review disabled as of v3.3)
+7. **Git:** All work on `dev`, merge to `main` at Ship only
+8. **Bob creates dependency-graph.json** (custom factory logic, not BMAD)
+9. **John runs check-implementation-readiness** (gate before Bob)

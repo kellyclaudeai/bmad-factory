@@ -36,7 +36,7 @@ fi
 
 ### 1. **Check for New Completions (CRITICAL)**
 
-This is the PRIMARY purpose of heartbeat - detect when Barry/Amelia finish stories and notify Kelly.
+This is the PRIMARY purpose of heartbeat - detect when Amelia finishes stories and notify Kelly.
 
 ```bash
 # Load paths from project context
@@ -102,7 +102,6 @@ fi
        - Winston (Architecture): 5-10 minutes
        - Bob (Parallelization): 8-15 minutes
        - Amelia (Story implementation): 3-12 minutes
-       - Barry (Story implementation): 1-5 minutes
        - Murat (TEA audit): 5-15 minutes
      - **If runtime > 1.5x expected (45-60 min for stories):**
        - Check if process still alive via `ps -p <pid>`
@@ -135,10 +134,8 @@ fi
    - Bob completed but no individual Story-N.M.md files (only stories-parallel.json)?
      - Immediately restart Bob with explicit instruction
      - Do NOT proceed to implementation stage
-   - Barry completed planning but no stories-parallel.json?
-     - Restart Barry with explicit instruction to create stories-parallel.json
    - Story completed but build failed?
-     - Route to Barry for quick fix or Amelia for complex fix
+     - Route to Amelia for fix
      - Continue with other runnable stories (don't block pipeline)
 
 6. **Update tracking:**
@@ -176,7 +173,7 @@ Need: [what I need from Kelly/user]
 - If restart also stalls >15 min → escalate to Kelly
 
 **Example 2: Completion gap**
-- Barry announced "Story 3 complete" at 17:45
+- Amelia announced "Story 3 complete" at 17:45
 - It's now 17:52 (7 minutes later)
 - Next story (Story 4) not started yet
 - Action: Read dependency graph, spawn Story 4 now

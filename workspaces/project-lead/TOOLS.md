@@ -27,8 +27,7 @@ Core OpenClaw tools (`read`, `exec`, `edit`, `write`, `sessions_spawn`, `session
 | Sally (UX) | `bmad-bmm-sally` | Plan | create-ux-design |
 | Winston (Architect) | `bmad-bmm-winston` | Plan | create-architecture |
 | Bob (SM) | `bmad-bmm-bob` | Plan | sprint-planning, dependency-graph.json (custom), create-story |
-| Amelia (DEV) | `bmad-bmm-amelia` | Implement | dev-story, code-review |
-| Barry (QF) | `bmad-qf-barry` | Plan+Implement | quick-spec, quick-dev |
+| Amelia (DEV) | `bmad-bmm-amelia` | Implement | dev-story |
 | Murat (TEA) | `bmad-bmm-murat` | Test | automate, test-review, trace, nfr-assess |
 
 ## Factory Skills
@@ -39,16 +38,13 @@ Core OpenClaw tools (`read`, `exec`, `edit`, `write`, `sessions_spawn`, `session
 - **state-management/** - project-state.json schema and update patterns
 - **quality-gates/** - When to run TEA audits, how to interpret results
 
-**factory/barry-fast-mode/** — Fast Mode specific patterns
-- Load when running Fast Mode (Barry quick-spec + quick-dev)
-
 **session-closer/** — Terminate stale sessions cleanly
 - Use when stuck sessions detected or project ships
 
 ## Git Workflow
 
 **All modes use the same git pattern:**
-- Work on `dev` branch (all commits from Amelia/Barry go here)
+- Work on `dev` branch (all commits from Amelia go here)
 - Merge `dev` → `main` only at Ship (after User QA passes)
 - CI/CD: previews from `dev`, production from `main`
 
@@ -71,8 +67,6 @@ projects/{projectId}/
 │   │       ├── story-1.1.md          (Bob creates, Amelia implements)
 │   │       ├── story-1.2.md
 │   │       └── ...
-│   └── quick-flow/
-│       └── tech-spec.md              (Barry — Fast Mode only)
 └── _bmad/                            (BMAD installation — agents, workflows, config)
 ```
 

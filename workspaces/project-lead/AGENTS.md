@@ -47,7 +47,7 @@ fi
 
 ```
 Phase 1: Plan    → Spawn planning agents sequentially
-Phase 2: Implement → Spawn Amelia/Barry in parallel (dependency-based)
+Phase 2: Implement → Spawn Amelia in parallel (dependency-based)
 Phase 3: Test    → Spawn Murat (TEA) for test generation & verification
 Phase 4: User QA → Deploy, surface to operator, handle feedback
 
@@ -85,7 +85,7 @@ SHIP: Merge dev → main, deploy production
 cd ${projectDir}
 git checkout -b dev 2>/dev/null || git checkout dev
 
-# PER-STORY (Phase 2 — Amelia/Barry handle this)
+# PER-STORY (Phase 2 — Amelia handles this)
 # Each agent: git pull origin dev → implement → git commit → git push origin dev
 
 # SHIP (after User QA passes)
@@ -188,27 +188,6 @@ git push origin main
 2-8. Same as Normal Greenfield, but all personas read project-knowledge/ for context
 ```
 
-### Fast Mode Greenfield
-
-```
-1. Barry: quick-spec
-   → spawn bmad-qf-barry with /bmad-bmm-quick-spec  
-   → Input: intake.md
-   → Output: _bmad-output/quick-flow/tech-spec.md
-   → Contains: Stories as flat numbered list (1, 2, 3, 4, 5...)
-```
-
-### Fast Mode Brownfield
-
-```
-0. generate-project-context (if not exists)
-   → Output: _bmad-output/project-context.md
-
-1. Barry: quick-spec (APPEND mode)
-   → Read existing tech-spec.md, ADD new stories starting at N+1
-   → Output: Updated tech-spec.md
-```
-
 ---
 
 ## Phase 2: Implement
@@ -232,26 +211,19 @@ LOOP (every 60 seconds):
      - 10+ stories ready → spawn 10+ Amelias simultaneously
 
   5. When Amelia completes a story:
-     - Story goes through dev-story → code-review (two sequential subagents)
-     - On code-review pass: Update sprint-status.yaml (status = "done")
-     - On code-review fail: Re-run dev-story → code-review
+     - Update sprint-status.yaml (status = "done") — code-review disabled as of v3.3
 
   LOOP ENDS when: ALL stories in sprint-status.yaml have status "done"
 ```
 
-**Per-Story Flow (two sequential Amelia subagents):**
+**Per-Story Flow (single Amelia subagent — code-review disabled as of v3.3):**
 
 ```
 1. Spawn Amelia: dev-story
    → git pull origin dev
    → Implement story
    → git add -A && git commit -m "feat(N.M): {story title}" && git push origin dev
-   → Update sprint-status.yaml (status = "review")
-
-2. Spawn Amelia: code-review (SEPARATE subagent)
-   → Adversarial review (find issues)
-   → Option A: Auto-fix → git commit + push → status = "done" ✅
-   → Option B: Review Follow-ups needed → status = "in-progress" → re-run dev-story
+   → Update sprint-status.yaml (status = "done")
 ```
 
 **Spawn template (dev-story):**
@@ -272,40 +244,6 @@ Branch: dev
 No confirmations needed — run autonomously.`,
   label: `amelia-dev-{N.M}-${projectId}`
 })
-```
-
-**Spawn template (code-review):**
-```typescript
-sessions_spawn({
-  agentId: "bmad-bmm-amelia",
-  task: `Code review Story {N.M}: {title}
-
-Project: ${projectDir}
-Story file: ${storyDir}/story-{N.M}.md
-Branch: dev
-
-1. git pull origin dev
-2. Execute /bmad-bmm-code-review workflow for story {N.M}
-3. If fixes made: git add -A && git commit -m "fix({N.M}): code review fixes" && git push origin dev
-4. Update sprint-status.yaml: story {N.M} status = "done" (if passes) or "in-progress" (if needs rework)
-
-No confirmations needed — run autonomously.`,
-  label: `amelia-review-{N.M}-${projectId}`
-})
-```
-
-### Fast Mode — Sequential Execution
-
-```
-FOR EACH story in tech-spec.md (one at a time):
-
-1. Spawn Barry: quick-dev
-   → git pull origin dev
-   → Implement story
-   → git add -A && git commit -m "feat({N}): {title}" && git push origin dev
-   → Announces: "✅ Story {N} complete. {remaining} left."
-
-2. WAIT for Barry to complete before spawning next story
 ```
 
 ---
@@ -338,17 +276,6 @@ Step 3b: Execution + NFR (parallel — after test-generate)
   → Failures → batch ALL → Amelia fix-postdeploy → redeploy → re-run 3b only
 
 If PASS → Phase 4: User QA
-```
-
-### Fast Mode
-
-```
-1. npm run build (build check)
-2. npm test (existing tests)
-3. Smoke test
-
-If ANY fail → Barry fixes → re-test
-If ALL pass → Phase 4: User QA
 ```
 
 ---
@@ -419,7 +346,7 @@ You are **autonomous by default**. Do NOT wait for permission for routine operat
 
 ### ✅ Handle Immediately (No Approval Needed)
 - **Stuck sessions:** Subagent runs >2x expected time with no output → restart it
-- **Failed builds:** Re-run or route to Amelia/Barry for fixes
+- **Failed builds:** Re-run or route to Amelia for fixes
 - **Missing artifacts:** Regenerate if you have the context
 - **Story completion:** Verify, update status, spawn next stories
 - **Quality gates:** Run TEA audits, code reviews per config
@@ -453,7 +380,6 @@ Need: [what you need from Kelly/user]
 - Winston: 5-10 min
 - Bob: 8-15 min (more for large story counts)
 - Amelia: 3-12 min per story
-- Barry: 3-8 min per story
 - Murat: 5-15 min per workflow
 
 ### Self-Healing Actions
@@ -616,7 +542,7 @@ Without BMAD templates, agents improvise formats instead of following convention
 **Spawn pattern:**
 ```typescript
 sessions_spawn({
-  agentId: "bmad-{module}-{name}",   // e.g., "bmad-bmm-john", "bmad-qf-barry"
+  agentId: "bmad-{module}-{name}",   // e.g., "bmad-bmm-john", "bmad-bmm-amelia"
   task: `{workflow description}
 
 Project: ${projectDir}

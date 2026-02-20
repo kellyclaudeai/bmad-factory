@@ -104,7 +104,7 @@ Suggested fixes:
 Project Lead: Create fix stories and route back to Phase 2 (Implement)
 ```
 
-**You do NOT fix code.** You identify failures and suggest what needs fixing. Amelia/Barry handle implementation.
+**You do NOT fix code.** You identify failures and suggest what needs fixing. Amelia handles implementation.
 
 ---
 

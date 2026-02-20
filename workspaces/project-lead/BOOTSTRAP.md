@@ -32,7 +32,7 @@ fi
 ```
 
 **Why this matters:**
-- BMAD workflows (Amelia, Barry, Murat) use git for commits and validation
+- BMAD workflows (Amelia, Murat) use git for commits and validation
 - Without an initial commit, BMAD will block indefinitely on git operations
 - **Learned from fleai-market v4:** Story 1.4 ran 5h+ because git had no commits, BMAD workflow blocked on git operations
 
@@ -46,7 +46,7 @@ npx bmad-method install --tools codex,claude-code --modules bmm,tea --yes
 ```
 
 **What this does:**
-- Installs BMM (BMAD Method Module) - core workflows (John, Sally, Winston, Bob, Amelia, Barry)
+- Installs BMM (BMAD Method Module) - core workflows (John, Sally, Winston, Bob, Amelia)
 - Installs TEA (Test Architect Enterprise) - advanced test workflows (Murat)
 - Installs for both Codex (global `~/.codex/prompts/`) and Claude Code (local `.claude/commands/`)
 

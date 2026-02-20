@@ -83,7 +83,7 @@ Output: _bmad-output/implementation-artifacts/stories/story-{N.M}.md (one file p
 
 ## CLI-First Story Tasks
 
-**Your story tasks will be executed by agents (Amelia/Barry), not humans.**
+**Your story tasks will be executed by Amelia, not humans.**
 
 Write CLI commands (not browser steps):
 - ✅ `firebase apps:create web "$APP_NAME"`

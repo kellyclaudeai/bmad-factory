@@ -10,7 +10,7 @@
 **[project-lead-flow.md](project-lead-flow.md)** — Complete project lifecycle  
 - 4 modes: Normal Greenfield, Fast Track, Resume, Brownfield
 - 4 phases: Planning, Implementation, Testing, User QA
-- Sub-agents: John, Sally, Winston, Bob, Amelia, Barry, Murat
+- Sub-agents: John, Sally, Winston, Bob, Amelia, Murat
 
 ### Product Discovery
 **[research-lead-flow.md](research-lead-flow.md)** — Autonomous product idea generation  

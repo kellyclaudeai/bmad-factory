@@ -49,7 +49,7 @@ Kelly-Improver works on:
 **Project Lead**
 - Mode selection (Normal, Fast Track, Resume, Brownfield)
 - Phase transitions (Planning → Implementation → Testing → QA)
-- Sub-agent coordination (John, Sally, Winston, Bob, Amelia, Barry, Murat)
+- Sub-agent coordination (John, Sally, Winston, Bob, Amelia, Murat)
 - User QA workflow
 
 **Research Lead**
