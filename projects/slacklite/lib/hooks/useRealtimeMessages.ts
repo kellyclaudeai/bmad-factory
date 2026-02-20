@@ -416,14 +416,18 @@ export function useRealtimeMessages(
         return "";
       }
 
+      if (normalizedWorkspaceId.length === 0) {
+        console.error('[sendMessage] Cannot send: workspaceId is undefined or empty. User context:', { userId: normalizedUserId, workspaceId });
+        throw new Error('workspaceId is required to send a message');
+      }
+
       if (
-        normalizedWorkspaceId.length === 0 ||
         normalizedFirestoreChannelId.length === 0 ||
         normalizedRTDBChannelId.length === 0 ||
         normalizedUserId.length === 0 ||
         normalizedUserName.length === 0
       ) {
-        throw new Error("Missing workspace, channel, or user details.");
+        throw new Error("Missing channel or user details.");
       }
 
       const tempId = `temp_${Date.now()}`;
