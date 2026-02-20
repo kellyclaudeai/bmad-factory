@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 
-import { formatTimestamp, formatTimeShort } from "@/lib/utils/formatting";
+import { formatRelativeTime, formatTimeShort } from "@/lib/utils/formatting";
 import type { Message } from "@/lib/types/models";
 
 export interface MessageItemProps {
   message: Message;
-  /** True when this message is the first in a consecutive author group. */
-  isGroupStart: boolean;
+  /** True when this message is the first in a consecutive author group. Defaults to true. */
+  isGroupStart?: boolean;
   /** Callback invoked when the user clicks "Retry" on a failed message. */
   onRetry?: () => void;
 }
@@ -30,7 +30,7 @@ function MessageActions({ message }: { message: Message }) {
   );
 }
 
-export default function MessageItem({ message, isGroupStart, onRetry }: MessageItemProps) {
+export default function MessageItem({ message, isGroupStart = true, onRetry }: MessageItemProps) {
   const [, setTick] = useState(0);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
@@ -45,7 +45,7 @@ export default function MessageItem({ message, isGroupStart, onRetry }: MessageI
     };
   }, []);
 
-  const formattedTimestamp = formatTimestamp(message.timestamp);
+  const formattedTimestamp = formatRelativeTime(message.timestamp);
   const formattedTimeShort = formatTimeShort(message.timestamp);
   const isTruncated = message.text.length > TRUNCATED_MESSAGE_LENGTH;
   const displayText =
