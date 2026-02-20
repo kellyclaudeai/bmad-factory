@@ -32,7 +32,7 @@
         - generic [ref=e33]:
           - generic [ref=e34]:
             - paragraph [ref=e35]: SlackLite
-            - paragraph [ref=e36]: msg-send-1771585365700-76bly
+            - paragraph [ref=e36]: msg-empty-1771585537942-2hlyd
           - button "Sign Out" [ref=e37] [cursor=pointer]
       - main [ref=e39]:
         - generic [ref=e40]:

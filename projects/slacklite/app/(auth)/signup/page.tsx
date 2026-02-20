@@ -158,7 +158,7 @@ function SignUpContent() {
       });
 
       authOutcome = "success";
-      router.replace(redirectPath ?? "/create-workspace");
+      router.replace(redirectPath ?? "/create-workspace?new=1");
     } catch (error) {
       setErrorMessage(getSignUpErrorMessage(error));
     } finally {
@@ -176,7 +176,7 @@ function SignUpContent() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <span className="font-mono text-2xl font-semibold text-accent">SlackLite</span>
-          <h1 className="mt-2 text-sm text-secondary">Create your account</h1>
+          <p className="mt-2 text-sm text-secondary">Create Account</p>
         </div>
 
         {/* Auth card */}
@@ -184,6 +184,7 @@ function SignUpContent() {
           className="rounded-lg border border-border bg-surface-2 p-8 shadow-xl"
           aria-label="Sign up form"
         >
+          <h1 className="mb-4 text-xl font-semibold text-primary">Create Account</h1>
           <form
             className="flex flex-col gap-4"
             onSubmit={handleSubmit}

@@ -2,29 +2,40 @@
 
 ```yaml
 - generic [active] [ref=e1]:
-  - main [ref=e2]:
-    - generic [ref=e3]:
-      - generic [ref=e4]:
-        - text: SlackLite
-        - heading "Create your account" [level=1] [ref=e5]
-      - region "Sign up form" [ref=e6]:
-        - form "Sign up form" [ref=e7]:
-          - alert [ref=e8]: Sign up failed. Please try again.
-          - generic [ref=e9]:
-            - generic [ref=e10]: Email Address
-            - textbox "Email address" [ref=e11]:
-              - /placeholder: you@company.com
-              - text: msg-durable-1771582329595-m54l5@slacklite-e2e.dev
-          - generic [ref=e12]:
-            - generic [ref=e13]: Password
-            - textbox "Password" [ref=e14]:
-              - /placeholder: ••••••••
-              - text: Playwright#2026!
-            - paragraph [ref=e15]: Minimum 8 characters
-          - button "Create Account" [ref=e16] [cursor=pointer]
-      - paragraph [ref=e17]:
-        - text: Already have an account?
-        - link "Sign in" [ref=e18] [cursor=pointer]:
-          - /url: /signin
-  - alert [ref=e19]
+  - alert [ref=e2]
+  - generic [ref=e3]:
+    - complementary "Workspace sidebar" [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e7]:
+          - generic [ref=e9]: SW
+          - paragraph [ref=e10]: SlackLite Workspace
+        - generic [ref=e11]:
+          - region "Channels" [ref=e12]:
+            - generic [ref=e13]:
+              - heading "Channels" [level=2] [ref=e14]
+              - generic [ref=e15]:
+                - button "Invite Team" [ref=e16] [cursor=pointer]
+                - button "+ New Channel" [ref=e17] [cursor=pointer]
+            - paragraph [ref=e18]: No channels yet. Create one to get started.
+          - region "Direct Messages" [ref=e19]:
+            - generic [ref=e20]:
+              - heading "Direct Messages" [level=2] [ref=e21]
+              - button "+ New DM" [ref=e22] [cursor=pointer]
+            - paragraph [ref=e23]: No direct messages yet. Click a team member to start chatting.
+          - region "Members (0)" [ref=e24]:
+            - button "Members (0)" [expanded] [ref=e26] [cursor=pointer]:
+              - generic [ref=e27]: Members (0)
+              - generic [ref=e28]: ▾
+            - paragraph [ref=e30]: No other members yet. Invite your team!
+    - generic [ref=e31]:
+      - banner [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - paragraph [ref=e35]: SlackLite
+            - paragraph [ref=e36]: msg-durable-1771585426257-z8p7v
+          - button "Sign Out" [ref=e37] [cursor=pointer]
+      - main [ref=e39]:
+        - generic [ref=e40]:
+          - heading "Loading your channels..." [level=1] [ref=e41]
+          - paragraph [ref=e42]: "Setting up your workspace and redirecting you to #general."
 ```

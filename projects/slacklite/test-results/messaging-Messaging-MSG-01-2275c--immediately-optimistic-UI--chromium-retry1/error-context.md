@@ -1,7 +1,7 @@
 # Page snapshot
 
 ```yaml
-- generic [ref=e1]:
+- generic [active] [ref=e1]:
   - alert [ref=e2]
   - generic [ref=e3]:
     - complementary "Workspace sidebar" [ref=e4]:
@@ -32,18 +32,10 @@
         - generic [ref=e33]:
           - generic [ref=e34]:
             - paragraph [ref=e35]: SlackLite
-            - paragraph [ref=e36]: msg-send-1771582302827-1tqbx
+            - paragraph [ref=e36]: msg-send-1771585386907-ig3dk
           - button "Sign Out" [ref=e37] [cursor=pointer]
       - main [ref=e39]:
         - generic [ref=e40]:
-          - heading "# FSmygZMbSP4S2bxWadTJ" [level=1] [ref=e42]
-          - generic [ref=e46]:
-            - paragraph [ref=e47]: No messages yet
-            - paragraph [ref=e48]: Be the first to send a message in this channel!
-          - generic [ref=e49]:
-            - generic [ref=e50]:
-              - textbox "Type a message..." [active] [ref=e51]
-              - button "Send" [disabled] [ref=e52]
-            - paragraph [ref=e53]: Enter to send · Shift+Enter for newline
-            - alert [ref=e54]: workspaceId is required to send a message
+          - heading "Loading your channels..." [level=1] [ref=e41]
+          - paragraph [ref=e42]: "Setting up your workspace and redirecting you to #general."
 ```

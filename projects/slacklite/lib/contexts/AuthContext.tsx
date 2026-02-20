@@ -39,6 +39,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: (options?: SignOutOptions) => Promise<void>;
+  refreshUserData: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -128,6 +129,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, [cleanupFirebaseListeners]);
 
+  const refreshUserData = useCallback(async () => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser || !isMountedRef.current) return;
+    try {
+      const userSnapshot = await getDoc(doc(firestore, "users", firebaseUser.uid));
+      const userData = (userSnapshot.data() as FirestoreUserData | undefined) ?? {};
+      if (isMountedRef.current) {
+        setUser(mergeUser(firebaseUser, userData));
+      }
+    } catch (error) {
+      console.error("Failed to refresh user data.", error);
+    }
+  }, []);
+
   const signOut = useCallback(
     async (options?: SignOutOptions) => {
       if (!options?.skipConfirmation && typeof window !== "undefined") {
@@ -198,8 +213,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signUp,
       signOut,
+      refreshUserData,
     }),
-    [loading, signIn, signOut, signUp, user],
+    [loading, signIn, signOut, signUp, user, refreshUserData],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

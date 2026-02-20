@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button, Input } from "@/components/ui";
 import { useAuth } from "@/lib/contexts/AuthContext";
@@ -44,9 +44,11 @@ function getWorkspaceCreationErrorMessage(error: unknown): string {
   return DEFAULT_CREATION_ERROR_MESSAGE;
 }
 
-export default function CreateWorkspacePage() {
+function CreateWorkspaceContent() {
   const router = useRouter();
-  const { user, loading: isAuthLoading } = useAuth();
+  const searchParams = useSearchParams();
+  const isNewSignup = searchParams.get("new") === "1";
+  const { user, loading: isAuthLoading, refreshUserData } = useAuth();
   const [workspaceName, setWorkspaceName] = useState("");
   const [nameError, setNameError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -71,13 +73,14 @@ export default function CreateWorkspacePage() {
       return;
     }
 
-    if (existingWorkspaceId.length > 0) {
+    // Only redirect to /app if NOT coming from a fresh signup
+    if (!isNewSignup && existingWorkspaceId.length > 0) {
       router.replace("/app");
       return;
     }
 
     setIsCheckingWorkspace(false);
-  }, [existingWorkspaceId, isAuthLoading, router, user]);
+  }, [existingWorkspaceId, isAuthLoading, isNewSignup, router, user]);
 
   const workspaceNameValidationResult = validateWorkspaceNameInput(workspaceName);
   const canSubmit =
@@ -125,6 +128,7 @@ export default function CreateWorkspacePage() {
         userId: user.uid,
       });
 
+      await refreshUserData();
       router.replace(`/app/channels/${defaultChannelId}`);
     } catch (error) {
       setErrorMessage(getWorkspaceCreationErrorMessage(error));
@@ -210,5 +214,23 @@ export default function CreateWorkspacePage() {
         </section>
       </div>
     </main>
+  );
+}
+
+export default function CreateWorkspacePage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-base px-4 py-10">
+          <div className="w-full max-w-[480px] rounded-lg border border-border bg-surface-2 p-8 shadow-xl">
+            <p className="text-center text-sm text-secondary">
+              Loading workspace setup...
+            </p>
+          </div>
+        </main>
+      }
+    >
+      <CreateWorkspaceContent />
+    </Suspense>
   );
 }

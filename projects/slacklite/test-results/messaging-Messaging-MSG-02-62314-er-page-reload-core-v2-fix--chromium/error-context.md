@@ -32,11 +32,11 @@
         - generic [ref=e33]:
           - generic [ref=e34]:
             - paragraph [ref=e35]: SlackLite
-            - paragraph [ref=e36]: msg-persist-1771582312049-287it
+            - paragraph [ref=e36]: msg-persist-1771585408265-k2fg3
           - button "Sign Out" [ref=e37] [cursor=pointer]
       - main [ref=e39]:
         - generic [ref=e40]:
-          - heading "# undsqfMWFmPE0dnCWqyy" [level=1] [ref=e42]
+          - heading "# tS9aPjINRSkY4WwJJPMU" [level=1] [ref=e42]
           - generic [ref=e46]:
             - paragraph [ref=e47]: No messages yet
             - paragraph [ref=e48]: Be the first to send a message in this channel!
