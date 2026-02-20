@@ -16,7 +16,7 @@ type FrontendSession = {
   agentType: string;
   projectId?: string;
   status: string; // 'active' | 'waiting' | 'awaiting-qa' | 'paused'
-  phase?: string; // planning | implementation | qa | shipped — matches detail page badge
+  phase?: string; // planning | build | qa | shipped — matches detail page badge
   lastActivity: string;
   startedAt?: string;
   model?: string;
@@ -31,7 +31,7 @@ type RegistryProject = {
   name?: string;
   path?: string;
   plSession?: string;
-  phase?: string; // planning | implementation | qa | shipped | paused
+  phase?: string; // planning | build | qa | shipped | paused
   createdAt?: string;
 };
 

@@ -19,7 +19,7 @@ type RegistryProject = {
   name?: string;
   path?: string;       // relative to clawd workspace root
   plSession?: string;
-  phase?: string;      // planning | implementation | qa | shipped | paused
+  phase?: string;      // planning | build | qa | shipped | paused
   createdAt?: string;
 };
 
@@ -105,7 +105,7 @@ export async function GET(request: Request) {
       if (project.phase && project.phase !== "unknown") {
         currentPhase = project.phase;
       } else if (sprintStatus) {
-        currentPhase = "implementation";
+        currentPhase = "build";
       } else {
         currentPhase = "planning";
       }

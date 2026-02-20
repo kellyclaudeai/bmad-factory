@@ -2,13 +2,13 @@
  * Canonical phase/status → badge color mapping.
  * Single source of truth — import this everywhere instead of defining locally.
  *
- * Phase values:   planning | implementation | qa | shipped | paused
+ * Phase values:   planning | build | qa | shipped | paused
  * Status values:  active | waiting | awaiting-qa (from sessions API)
  * Research vals:  complete | completed | failed
  *
  * Semantic intent:
  *   🟡 planning    — early, not building yet
- *   🟢 implementation / active — actively shipping
+ *   🟢 build / active — actively shipping
  *   🔵 qa          — testing / review
  *   🟡 waiting     — idle between turns
  *   🔴 paused / failed — stopped, needs attention
@@ -17,7 +17,7 @@
 export function phaseColor(val: string): string {
   switch ((val || "").toLowerCase()) {
     // 🟢 actively shipping
-    case "implementation":
+    case "build":
     case "active":
       return "bg-terminal-green/10 text-terminal-green border-terminal-green";
 

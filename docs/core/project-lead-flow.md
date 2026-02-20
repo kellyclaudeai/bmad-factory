@@ -61,7 +61,7 @@ When a project uses Vercel:
 1. **Disable git auto-deploy immediately.** Every `git push` from Amelia's stories triggers a deploy. With 20-80 stories each pushing commits, you'll blow through 100 in hours.
    - Set via Vercel dashboard → Project Settings → Git → disable "Deploy on Push"
    - Or: don't link the git repo to Vercel at all. Use CLI-only deploys.
-2. **Zero deploys during Phase 2.** Amelia must NEVER run `vercel` CLI or push to a Vercel-connected branch during implementation. Stories are `git push`-only to `dev`.
+2. **Zero deploys during Phase 2.** Amelia must NEVER run `vercel` CLI or push to a Vercel-connected branch during the build phase. Stories are `git push`-only to `dev`.
 3. **Single deploy in Phase 3 Step 2.** One intentional `vercel --prod` at the start of Phase 3. That's it.
 4. **If limit is hit:** Fall back to Firebase Hosting (`firebase deploy --only hosting`) for QA. Re-deploy to Vercel when limit resets (24h rolling window).
 
@@ -108,7 +108,7 @@ All sequential — each step waits for the previous to complete.
    
    **NOT PASS** (CONCERNS / FAIL / NEEDS WORK / NOT READY) → Remediation Loop
    - Do NOT proceed to Bob until gate check returns PASS
-   - ANY documented concerns require fixes before implementation
+   - ANY documented concerns require fixes before the build phase
    - Prevents shipping with known issues or technical debt
    
    **Remediation Loop (for NOT PASS):**
@@ -566,7 +566,7 @@ jq '.projects |= map(
 ## Kelly Communication
 
 **PL → Kelly notifications:**
-- Phase transitions (planning complete, implementation started, etc.)
+- Phase transitions (planning complete, build started, etc.)
 - All stories complete → entering test phase
 - Test results (pass/fail)
 - Ready for User QA (with qaUrl)

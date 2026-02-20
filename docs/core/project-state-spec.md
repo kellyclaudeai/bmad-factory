@@ -141,7 +141,7 @@ Three files, each with a distinct owner and purpose. No overlap.
 
 ```
 planning        Phase 1 — PRD, UX design, architecture, epics/stories
-implementation  Phase 2 — Amelia/Barry building stories
+build  Phase 2 — Amelia/Barry building stories
 qa              Phase 3+4 — Murat automated testing + user QA
 shipped         Done — merged to main, live in production
 paused          Any phase — explicitly paused, will resume
@@ -149,8 +149,8 @@ paused          Any phase — explicitly paused, will resume
 
 **No hardcoded phase ordering.** PL starts at whichever phase is appropriate:
 - Greenfield projects start at `planning`
-- Brownfield/improvement work can start at `implementation` (if stories already defined) or `qa`
-- Bug fixes can start at `implementation`
+- Brownfield/improvement work can start at `build` (if stories already defined) or `qa`
+- Bug fixes can start at `build`
 
 Active subagents (e.g., Murat running vs no subagents) tell the detailed story within a phase — the phase itself is coarse-grained.
 
@@ -177,7 +177,7 @@ The old design used `project-registry.json` (singular) as the sole state file wi
 
 | Old (registry) | New location |
 |----------------|-------------|
-| `state: in-progress` | `project-state.json` → `phase: planning/implementation/qa` |
+| `state: in-progress` | `project-state.json` → `phase: planning/build/qa` |
 | `state: pending-qa` | `project-state.json` → `phase: qa` |
 | `state: shipped` | `project-state.json` → `phase: shipped` |
 | `surfacedForQA` | Removed — dashboard derives from `phase: qa` |

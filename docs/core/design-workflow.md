@@ -33,7 +33,7 @@ Phase 1 (Planning):
 4. Bob references Figma URLs in story specs
 5. Project Lead updates project-state.json with designAssets
 
-Phase 2 (Implementation):
+Phase 2 (Build):
 6. Amelia reads story + design_references
 7. Amelia uses Figma MCP to extract specs
 8. Amelia implements with visual fidelity

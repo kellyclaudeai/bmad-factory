@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { ProjectHeader } from '@/components/project-view/project-header'
-import { ProjectMetrics } from '@/components/project-view/project-metrics'
 import { SubagentGrid } from '@/components/project-view/subagent-grid'
 import { QueuedStories } from '@/components/project-view/queued-stories'
 import { LogsSection } from '@/components/subagent-view/logs-section'
@@ -431,7 +430,7 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
                     {startTimeDisplay}
                   </div>
                   <div className="text-xs font-mono text-terminal-dim mt-1">
-                    {projectState?.startedAt ? 'Implementation started' : 'Project created'}
+                    {projectState?.startedAt ? 'Build started' : 'Project created'}
                   </div>
                 </CardContent>
               </Card>
@@ -463,7 +462,7 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
                 </div>
                 <div className="text-xs font-mono text-terminal-dim mt-1">
                   {projectEndTime 
-                    ? 'Implementation finished' 
+                    ? 'Build finished' 
                     : etaSeconds 
                       ? `${remainingStories} remaining @ ~${Math.round(avgSeconds)}s/story` 
                       : 'Insufficient data for estimate'}
@@ -589,13 +588,6 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
                 </div>
               </section>
             )}
-
-            <section>
-              <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
-                Project Metrics
-              </h2>
-              <ProjectMetrics subagents={projectState.subagents} phases={projectState.phases} />
-            </section>
 
             <section>
               <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
