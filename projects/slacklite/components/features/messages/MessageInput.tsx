@@ -152,17 +152,13 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
 
     recordMessage();
     setSendError("");
-    // DIAGNOSTIC: log channelId and sanitized text length before calling onSend
-    console.log('[DIAG][MessageInput] onSend called — channelId:', channelId, 'textLength:', sanitizedText.length);
     void Promise.resolve(onSend(sanitizedText))
-      .then((result) => {
-        console.log('[DIAG][MessageInput] onSend SUCCESS — channelId:', channelId, 'result:', result);
+      .then(() => {
         setSendError("");
       })
       .catch((err: unknown) => {
         // Surface errors that were previously silently swallowed
         const errorMessage = err instanceof Error ? err.message : "Failed to send message. Please try again.";
-        console.error('[DIAG][MessageInput] onSend FAILED — channelId:', channelId, 'error:', err);
         setSendError(errorMessage);
       });
     setText("");
