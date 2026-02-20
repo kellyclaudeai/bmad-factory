@@ -134,7 +134,7 @@ service cloud.firestore {
         // Messages: All workspace members can read/create, author can update/delete
         match /messages/{messageId} {
           allow read: if isWorkspaceMember(workspaceId);
-          allow create: if isWorkspaceMember(workspaceId) && 
+          allow create: if request.auth != null &&
                           request.resource.data.userId == request.auth.uid &&
                           request.resource.data.workspaceId == workspaceId &&
                           hasValidMessageText(request.resource.data);

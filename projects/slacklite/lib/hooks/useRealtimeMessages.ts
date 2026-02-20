@@ -524,6 +524,14 @@ export function useRealtimeMessages(
       normalizedFirestoreChannelId.length === 0 ||
       normalizedRTDBChannelId.length === 0
     ) {
+      console.warn(
+        '[useRealtimeMessages] Skipping subscription — missing required IDs',
+        {
+          workspaceId: normalizedWorkspaceId || '(empty)',
+          firestoreChannelId: normalizedFirestoreChannelId || '(empty)',
+          rtdbChannelId: normalizedRTDBChannelId || '(empty)',
+        },
+      );
       setLoading(false);
       return;
     }

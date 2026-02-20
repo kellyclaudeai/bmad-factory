@@ -11,7 +11,9 @@ import MessageList from "@/components/features/messages/MessageList";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { firestore } from "@/lib/firebase/client";
 import { useChannels } from "@/lib/hooks/useChannels";
+import { useMessages } from "@/lib/hooks/useMessages";
 import { useWorkspaceOwnerId } from "@/lib/hooks/useWorkspaceOwnerId";
+import type { Message } from "@/lib/types/models";
 import {
   consumeChannelSwitchStart,
   trackChannelSwitch,
@@ -52,9 +54,9 @@ export default function ChannelPage() {
         ? user.email.split("@")[0]
         : "Unknown";
   const {
-    messages,
-    loading,
-    error,
+    messages: realtimeMessages,
+    loading: realtimeLoading,
+    error: realtimeError,
     sendMessage,
     retryMessage,
     sendErrorBanner,
@@ -71,6 +73,30 @@ export default function ChannelPage() {
         }
       : null
   );
+  const {
+    messages: persistedMessages,
+    loading: persistedLoading,
+    error: persistedError,
+  } = useMessages(channelId);
+
+  // Merge Firestore (persisted) and RTDB (real-time) messages using a Map keyed
+  // on messageId so the same message from both sources is never duplicated.
+  const messages = useMemo((): Message[] => {
+    const mergedMessages = new Map<string, Message>();
+    persistedMessages.forEach((message) => {
+      mergedMessages.set(message.messageId, message);
+    });
+    realtimeMessages.forEach((message) => {
+      mergedMessages.set(message.messageId, message);
+    });
+    return [...mergedMessages.values()].sort(
+      (a, b) =>
+        (a.timestamp?.toMillis?.() ?? 0) - (b.timestamp?.toMillis?.() ?? 0),
+    );
+  }, [persistedMessages, realtimeMessages]);
+
+  const loading = realtimeLoading || persistedLoading;
+  const error = realtimeError ?? persistedError;
   const [isChannelSwitching, setIsChannelSwitching] = useState(false);
   const [showNewMessagesBadge, setShowNewMessagesBadge] = useState(false);
   const [isRenameChannelModalOpen, setIsRenameChannelModalOpen] = useState(false);

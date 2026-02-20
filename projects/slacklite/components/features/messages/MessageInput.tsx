@@ -62,6 +62,7 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [rateLimitError, setRateLimitError] = useState("");
+  const [sendError, setSendError] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const rateLimitErrorTimeoutRef = useRef<number | null>(null);
   const { canSendMessage, recordMessage } = useRateLimit();
