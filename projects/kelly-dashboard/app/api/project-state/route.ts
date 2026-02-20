@@ -1,7 +1,34 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import yaml from "yaml";
+
+const AMELIA_SESSIONS_DIR = path.join(os.homedir(), ".openclaw", "agents", "bmad-bmm-amelia", "sessions");
+
+// Scan Amelia transcripts for a story ID mention — fallback when session_id not in sprint-status
+async function findSessionForStory(storyId: string): Promise<string | null> {
+  try {
+    const files = await fs.readdir(AMELIA_SESSIONS_DIR);
+    const jsonlFiles = files.filter(f => f.endsWith(".jsonl") && !f.includes("deleted") && !f.includes("frozen") && !f.includes("overflow"));
+    const needle = `story-${storyId}.md`;
+    const needle2 = `Story ${storyId}`;
+    for (const file of jsonlFiles) {
+      try {
+        const fpath = path.join(AMELIA_SESSIONS_DIR, file);
+        const fd = await fs.open(fpath, "r");
+        const buf = Buffer.alloc(4096);
+        await fd.read(buf, 0, 4096, 0);
+        await fd.close();
+        const head = buf.toString("utf8");
+        if (head.includes(needle) || head.includes(needle2)) {
+          return file.replace(".jsonl", "");
+        }
+      } catch { continue; }
+    }
+  } catch { /* no sessions dir */ }
+  return null;
+}
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -162,6 +189,7 @@ export async function GET(request: Request) {
         createdAt: projectStateData?.createdAt || project.createdAt,
         shippedAt: projectStateData?.shippedAt || null,
       },
+      devServerUrl: projectStateData?.devServerUrl || null,
       qaUrl: projectStateData?.qaUrl || null,
       deployedUrl: projectStateData?.deployedUrl || null,
       plSession: project.plSession,
@@ -177,18 +205,26 @@ export async function GET(request: Request) {
         ...syntheticSubagents,
         // Generate completed subagent entries from sprint-status done stories only
         ...(sprintStatus?.stories
-          ? Object.entries(sprintStatus.stories)
-              .filter(([, s]: [string, any]) => s?.status === "done")
-              .map(([id, s]: [string, any]) => ({
-                id: `story-${id}`,
-                story: id,
-                storyTitle: s?.title || `Story ${id}`,
-                persona: s?.completed_by ? `${s.completed_by} (Dev)` : "Amelia (Dev)",
-                task: `implement-story-${id}`,
-                status: "complete" as const,
-                startedAt: s?.started_at,
-                completedAt: s?.completed_at || s?.reviewed_at,
-              }))
+          ? await Promise.all(
+              Object.entries(sprintStatus.stories)
+                .filter(([, s]: [string, any]) => s?.status === "done")
+                .map(async ([id, s]: [string, any]) => {
+                  // session_id written by Amelia on completion; fall back to transcript scan
+                  const sessionUuid = s?.session_id || await findSessionForStory(id);
+                  const sessionKey = sessionUuid ? `agent:bmad-bmm-amelia:${sessionUuid}` : undefined;
+                  return {
+                    id: `story-${id}`,
+                    story: id,
+                    storyTitle: s?.title || `Story ${id}`,
+                    persona: s?.completed_by ? `${s.completed_by} (Dev)` : "Amelia (Dev)",
+                    task: `implement-story-${id}`,
+                    status: "complete" as const,
+                    startedAt: s?.started_at,
+                    completedAt: s?.completed_at || s?.reviewed_at,
+                    sessionKey,
+                  };
+                })
+            )
           : []),
       ],
       

@@ -24,6 +24,7 @@ type ProjectState = {
   startedAt?: string
   completedAt?: string
   implementationCompletedAt?: string
+  devServerUrl?: string | null
   qaUrl?: string | null
   deployedUrl?: string | null
   phases?: Record<string, { name: string; stories: number[]; status: string }>
@@ -424,44 +425,51 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
         </section>
 
         {/* ── Test Links ─────────────────────────────────────────────────── */}
-        {projectState && (projectState.qaUrl || projectState.deployedUrl) && (
+        {projectState && (projectState.devServerUrl || projectState.qaUrl || projectState.deployedUrl) && (
           <section>
             <h2 className="text-xl font-mono font-bold text-terminal-green mb-4">
-              Test Links
+              {projectState.currentPhase === 'shipped' ? 'Links' : 'Test Links'}
             </h2>
             <div className="flex flex-col gap-3">
-              {/* Local dev server — show only during qa (not shipped) */}
-              {projectState.currentPhase !== 'shipped' &&
-               projectState.qaUrl?.startsWith('http://localhost') && (
-                <a
-                  href={projectState.qaUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 rounded-md border border-terminal-border bg-terminal-card hover:border-terminal-green transition-colors group"
-                >
-                  <span className="font-mono text-xs text-terminal-dim w-20 shrink-0">Local Dev</span>
-                  <span className="font-mono text-sm text-terminal-green group-hover:underline truncate">
-                    {projectState.qaUrl}
-                  </span>
-                </a>
-              )}
+              {/* Local dev server — show only when not shipped */}
+              {projectState.currentPhase !== 'shipped' && (() => {
+                const localUrl = projectState.devServerUrl ||
+                  (projectState.qaUrl?.startsWith('http://localhost') ? projectState.qaUrl : null)
+                return localUrl ? (
+                  <a
+                    href={localUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 rounded-md border border-terminal-border bg-terminal-card hover:border-terminal-green transition-colors group"
+                  >
+                    <span className="font-mono text-xs text-terminal-dim w-24 shrink-0">Local Dev</span>
+                    <span className="font-mono text-sm text-terminal-green group-hover:underline truncate">
+                      {localUrl}
+                    </span>
+                  </a>
+                ) : null
+              })()}
 
-              {/* Deployed / QA preview URL */}
-              {(projectState.deployedUrl || (!projectState.qaUrl?.startsWith('http://localhost') && projectState.qaUrl)) && (
-                <a
-                  href={projectState.deployedUrl || projectState.qaUrl || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 rounded-md border border-terminal-border bg-terminal-card hover:border-blue-400 transition-colors group"
-                >
-                  <span className="font-mono text-xs text-terminal-dim w-20 shrink-0">
-                    {projectState.currentPhase === 'shipped' ? 'Deployed' : 'QA Preview'}
-                  </span>
-                  <span className="font-mono text-sm text-blue-400 group-hover:underline truncate">
-                    {projectState.deployedUrl || projectState.qaUrl}
-                  </span>
-                </a>
-              )}
+              {/* Deployed / QA preview — always show when available; persists after ship */}
+              {(() => {
+                const extUrl = projectState.deployedUrl ||
+                  (!projectState.qaUrl?.startsWith('http://localhost') ? projectState.qaUrl : null)
+                return extUrl ? (
+                  <a
+                    href={extUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 rounded-md border border-terminal-border bg-terminal-card hover:border-blue-400 transition-colors group"
+                  >
+                    <span className="font-mono text-xs text-terminal-dim w-24 shrink-0">
+                      {projectState.currentPhase === 'shipped' ? 'Deployed' : 'QA Preview'}
+                    </span>
+                    <span className="font-mono text-sm text-blue-400 group-hover:underline truncate">
+                      {extUrl}
+                    </span>
+                  </a>
+                ) : null
+              })()}
             </div>
           </section>
         )}
