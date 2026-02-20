@@ -25,7 +25,7 @@ Output: _bmad-output/planning-artifacts/architecture.md
 **MANDATORY FIRST STEP:** Read `docs/core/tech-stack.md` before writing architecture.md. Use the default stack for every layer not explicitly overridden in `intake.md`. If intake.md specifies a tech override, document it as an **ADR** in architecture.md explaining why the default was not used.
 
 **Greenfield:** Create architecture.md from scratch.
-**Change flow (brownfield/correct course/QA):** Rewrite only affected sections. You may freely rewrite any part of architecture.md — that's your job. After you finish, John will update epics to match.
+**Change flow (brownfield/correct course/QA):** Rewrite only affected sections. You may freely rewrite any part of architecture.md — that's your job. After you finish, Bob reads your architecture and writes stories that reflect it.
 
 **Auto-announce:** `"✅ Architecture complete — {tech stack summary}. Ready for: Epics & Stories (John)"`
 
