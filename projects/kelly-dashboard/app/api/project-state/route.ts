@@ -141,7 +141,8 @@ export async function GET(request: Request) {
     if (currentPhase === "testing") currentPhase = "qa";
     if (currentPhase === "implementation") currentPhase = "build";
 
-    // Synthesize subagent entries from planning artifacts
+    // Synthesize subagent entries from planning + implementation artifacts
+    // (shown regardless of current phase — these are historical, always show once done)
     const syntheticSubagents: Array<{
       id: string;
       story: string;
@@ -154,29 +155,112 @@ export async function GET(request: Request) {
       duration?: string;
     }> = [];
 
-    if (currentPhase === "planning") {
-      const artifactAgents: Record<string, { persona: string; task: string; title: string }> = {
-        "prd.md": { persona: "John (PM)", task: "create-prd", title: "Product Requirements Document" },
-        "ux-design.md": { persona: "Sally (UX)", task: "create-ux-design", title: "UX Design Specification" },
-        "architecture.md": { persona: "Winston (Architect)", task: "create-architecture", title: "Technical Architecture" },
-        "epics.md": { persona: "John (PM)", task: "create-epics-and-stories", title: "Epics & Stories" },
-      };
+    // ── Phase 1: John + Sally + Winston planning docs ─────────────────────────
+    const artifactAgents: Record<string, { persona: string; task: string; title: string }> = {
+      "prd.md":          { persona: "John (PM)",          task: "create-prd",              title: "Product Requirements Document" },
+      "ux-design.md":    { persona: "Sally (UX)",          task: "create-ux-design",         title: "UX Design Specification" },
+      "architecture.md": { persona: "Winston (Architect)", task: "create-architecture",      title: "Technical Architecture" },
+      "epics.md":        { persona: "John (PM)",          task: "create-epics-and-stories", title: "Epics & Stories" },
+    };
 
-      for (const [fileName, agentInfo] of Object.entries(artifactAgents)) {
-        const artifact = planningArtifacts[fileName];
-        if (artifact?.exists && artifact.modified) {
-          syntheticSubagents.push({
-            id: `planning-${fileName}`,
-            story: fileName.replace(".md", ""),
-            storyTitle: agentInfo.title,
-            persona: agentInfo.persona,
-            task: agentInfo.task,
-            status: "complete", // artifact exists = agent finished; live status comes from lock files via active-subagents API
-            completedAt: artifact.modified,
-            startedAt: artifact.modified, // Approximation - we don't have true start time
-          });
-        }
+    for (const [fileName, agentInfo] of Object.entries(artifactAgents)) {
+      const artifact = planningArtifacts[fileName];
+      if (artifact?.exists && artifact.modified) {
+        syntheticSubagents.push({
+          id: `planning-${fileName}`,
+          story: fileName.replace(".md", ""),
+          storyTitle: agentInfo.title,
+          persona: agentInfo.persona,
+          task: agentInfo.task,
+          status: "complete",
+          completedAt: artifact.modified,
+          startedAt: artifact.modified,
+        });
       }
+    }
+
+    // ── Phase 1→2: John implementation readiness check ───────────────────────
+    // Inferred: all 4 planning docs exist + sprint-status.yaml was created (means John passed)
+    const allPlanningDocsExist = Object.values(planningArtifacts).every(a => a.exists);
+    const implArtifactsDir = path.join(projectDir, "_bmad-output/implementation-artifacts");
+    let sprintStatusStats: { mtime: Date } | null = null;
+    let dependencyGraphStats: { mtime: Date } | null = null;
+    let storyFileCount = 0;
+    let latestStoryMtime: Date | null = null;
+
+    try {
+      sprintStatusStats = await fs.stat(path.join(implArtifactsDir, "sprint-status.yaml"));
+    } catch { /* not yet */ }
+
+    try {
+      dependencyGraphStats = await fs.stat(path.join(implArtifactsDir, "dependency-graph.json"));
+    } catch { /* not yet */ }
+
+    try {
+      const implFiles = await fs.readdir(implArtifactsDir);
+      const storyFiles = implFiles.filter(f => /^story-\d+\.\d+\.md$/.test(f));
+      storyFileCount = storyFiles.length;
+      for (const sf of storyFiles) {
+        try {
+          const st = await fs.stat(path.join(implArtifactsDir, sf));
+          if (!latestStoryMtime || st.mtime > latestStoryMtime) latestStoryMtime = st.mtime;
+        } catch { /* skip */ }
+      }
+    } catch { /* no dir yet */ }
+
+    if (allPlanningDocsExist && sprintStatusStats) {
+      // John readiness check: infer completedAt = ~1 minute before sprint-status was written
+      const readinessMtime = new Date(sprintStatusStats.mtime.getTime() - 60_000);
+      syntheticSubagents.push({
+        id: "john-readiness-check",
+        story: "readiness-check",
+        storyTitle: "Implementation Readiness Check",
+        persona: "John (PM)",
+        task: "check-implementation-readiness",
+        status: "complete",
+        completedAt: readinessMtime.toISOString(),
+        startedAt: readinessMtime.toISOString(),
+      });
+    }
+
+    // ── Phase 2 setup: Bob's 3 outputs ────────────────────────────────────────
+    if (sprintStatusStats) {
+      syntheticSubagents.push({
+        id: "bob-sprint-planning",
+        story: "sprint-planning",
+        storyTitle: "Sprint Planning",
+        persona: "Bob (Sprint Planner)",
+        task: "sprint-planning",
+        status: "complete",
+        completedAt: sprintStatusStats.mtime.toISOString(),
+        startedAt: sprintStatusStats.mtime.toISOString(),
+      });
+    }
+
+    if (dependencyGraphStats) {
+      syntheticSubagents.push({
+        id: "bob-dependency-graph",
+        story: "dependency-graph",
+        storyTitle: "Dependency Graph",
+        persona: "Bob (Sprint Planner)",
+        task: "create-dependency-graph",
+        status: "complete",
+        completedAt: dependencyGraphStats.mtime.toISOString(),
+        startedAt: dependencyGraphStats.mtime.toISOString(),
+      });
+    }
+
+    if (storyFileCount > 0 && latestStoryMtime) {
+      syntheticSubagents.push({
+        id: "bob-story-files",
+        story: "story-files",
+        storyTitle: `Story Files (${storyFileCount} stories)`,
+        persona: "Bob (Sprint Planner)",
+        task: "create-story-files",
+        status: "complete",
+        completedAt: latestStoryMtime.toISOString(),
+        startedAt: latestStoryMtime.toISOString(),
+      });
     }
 
     // Combine registry + project-state.json + BMAD artifact data
