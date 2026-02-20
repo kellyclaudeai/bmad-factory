@@ -522,10 +522,10 @@ PL behavior: idle wait.
    → John (scope, add epics) → Sally (UX update) → Bob → Amelia
 
    Change with arch impact
-   → John (scope, add epics) → Winston (arch update) → John (epics update) → Bob → Amelia
+   → John (scope, add epics) → Winston (arch update) → Bob → Amelia
 
    Full change
-   → John → Sally → Winston → John (epics update) → Bob → Amelia
+   → John → Sally → Winston → Bob → Amelia
 
 3. After all fixes/stories complete:
    → Re-run Phase 3 (Test): pre-deploy gates → deploy → TEA execution
@@ -581,8 +581,8 @@ Skip agents who aren't affected. Never reorder them.
 | Bug / missed impl (was specified, just broken) | Amelia only |
 | Small change, no design/arch impact | Bob → Amelia |
 | Change with UX impact | John → Sally → Bob → Amelia |
-| Change with arch impact | John → Winston → John (epics update) → Bob → Amelia |
-| Full change (stack swap, major feature, complex feedback) | John → Sally → Winston → John (epics update) → Bob → Amelia |
+| Change with arch impact | John → Winston → Bob → Amelia |
+| Full change (stack swap, major feature, complex feedback) | John → Sally → Winston → Bob → Amelia |
 
 **Key rules:**
 - John always runs first to scope the change (PRD/epics edit, additive only — never rewrites existing epics)

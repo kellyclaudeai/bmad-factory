@@ -323,10 +323,10 @@ IF USER REJECTS (FAIL):
     → John (scope) → Sally → Bob → Amelia
 
   Change with arch impact
-    → John (scope) → Winston (arch) → John (epics update) → Bob → Amelia
+    → John (scope) → Winston (arch) → Bob → Amelia
 
   Full change
-    → John → Sally → Winston → John (epics update) → Bob → Amelia
+    → John → Sally → Winston → Bob → Amelia
 
   → After fixes: re-run Phase 3 → Phase 4 (re-QA)
 ```

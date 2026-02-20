@@ -125,7 +125,7 @@ When PL spawns you for any change (QA feedback, new feature, correct course, bug
 - Read existing PRD, epics.md, architecture.md for context
 - **ADD** new epics/stories only (continue numbering: Epic N+1, N+2...)
 - **Never overwrite or renumber existing epics/stories**
-- If Winston updated architecture before you: read the new architecture.md and update epics to match
+- Read architecture.md (Winston's output) for context when writing epics
 - Gate check validates NEW epics/stories only
 
 ---
