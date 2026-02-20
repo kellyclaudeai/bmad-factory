@@ -579,14 +579,31 @@ sessions_send(
   - Sprint Change Proposal identifies needed changes (PRD, architecture, epics)
   - Then proceed to Phase 1 with clear plan
 
+### Correct Course Order of Operations
+
+**Rule: determine what changed, then sequence accordingly.**
+
+| Change Type | Who goes first | Sequence |
+|-------------|---------------|----------|
+| Requirements changed (new/different features) | John | John (PRD edit) → Sally (UX edit if needed) → Winston (arch edit if needed) → John (epics) → Bob → Amelia |
+| Tech stack changed (same features, different how) | Winston | Winston (arch rewrite) → John (epics update) → Bob → Amelia |
+| Bug / missed implementation | Amelia directly | Amelia fixes → no planning needed |
+| Both requirements + tech changed | John | John (PRD edit) → Winston (arch edit) → John (epics) → Bob → Amelia |
+
+**Key principle:** John always writes/updates epics *after* the architecture is settled — never before. Winston always works from an up-to-date PRD — never before John has clarified requirements.
+
+**Skip agents who have nothing to change.** If UX isn't affected, don't spawn Sally. If architecture isn't affected, don't spawn Winston. Only touch what changed.
+
 ### Phase 1: Plan
 
 ```
 0. Detect existing _bmad-output/ → read existing artifacts
+   → Determine change type (requirements / tech / both) → route per table above
 
 1-3. John/Sally/Winston: Read existing PRD/UX/Architecture
      → Update in EDIT mode ONLY if changes needed
      → Skip if no changes
+     → Follow order-of-operations table above
 
 4. John: create-epics-and-stories (ADD to existing epics.md)
    → Continue numbering: Epic N+1, N+2...
