@@ -249,3 +249,4 @@
 ---
 
 **Note:** This log started 2026-02-18. Earlier entries reconstructed from git history and memory files.
+22:05 CST | Bob Story Creation | One session writes all stories sequentially | Was: one spawn per story (~90 min for 30 stories). Now: one spawn writes all (~15 min flat)
