@@ -39,20 +39,23 @@ function formatRelativeTime(isoTimestamp: string): string {
   return `${diffDays}d ago`;
 }
 
-function getStatusColor(status: string): string {
-  switch (status.toLowerCase()) {
+function getStatusColor(val: string): string {
+  switch (val.toLowerCase()) {
     case "active":
+    case "planning":
+    case "implementation":
       return "bg-terminal-green/10 text-terminal-green border-terminal-green";
+    case "qa":
     case "awaiting-qa":
     case "awaiting_qa":
-      return "bg-purple-500/10 text-purple-400 border-purple-500";
+      return "bg-blue-500/10 text-blue-400 border-blue-500";
     case "idle":
     case "waiting":
       return "bg-terminal-amber/10 text-terminal-amber border-terminal-amber";
-    case "completed":
+    case "paused":
+      return "bg-yellow-500/10 text-yellow-400 border-yellow-500";
+    case "shipped":
       return "bg-terminal-dim/10 text-terminal-dim border-terminal-dim";
-    case "failed":
-      return "bg-terminal-red/10 text-terminal-red border-terminal-red";
     default:
       return "bg-terminal-text/10 text-terminal-text border-terminal-text";
   }
@@ -144,12 +147,7 @@ function ProjectLeadCard({ session }: { session: Session }) {
             </div>
             <Badge
               variant="outline"
-              className={`text-xs font-mono ${
-                session.phase === 'qa' ? 'bg-blue-500/10 text-blue-400 border-blue-500' :
-                status === 'active' ? 'bg-terminal-green/10 text-terminal-green border-terminal-green' :
-                status === 'waiting' ? 'bg-terminal-amber/10 text-terminal-amber border-terminal-amber' :
-                getStatusColor(status)
-              }`}
+              className={`text-xs font-mono ${getStatusColor(session.phase || status)}`}
             >
               {(session.phase || status).toUpperCase()}
             </Badge>

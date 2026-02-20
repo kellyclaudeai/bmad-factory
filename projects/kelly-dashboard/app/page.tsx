@@ -47,7 +47,7 @@ export default function FactoryView() {
 
         <CollapsibleSection
           id="ready-to-start"
-          title="Ready to Start"
+          title="Ready to Start Projects"
           defaultCollapsed={true}
         >
           <ReadyToStartProjects />
