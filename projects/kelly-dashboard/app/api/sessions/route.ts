@@ -19,6 +19,9 @@ type FrontendSession = {
   phase?: string; // planning | build | qa | shipped — matches detail page badge
   lastActivity: string;
   startedAt?: string;
+  devServerUrl?: string | null;
+  qaUrl?: string | null;
+  deployedUrl?: string | null;
   model?: string;
   tokens?: { input: number; output: number };
   channel?: string;
@@ -101,6 +104,22 @@ async function getSessionFileInfo(agentName: string, sessionId: string): Promise
   }
 }
 
+/** Read just the URL fields from a project's project-state.json (cheap — only needs 3 fields) */
+async function loadProjectUrls(projectId: string): Promise<{ devServerUrl?: string | null; qaUrl?: string | null; deployedUrl?: string | null }> {
+  try {
+    const statePath = path.join(PROJECTS_ROOT, projectId, 'project-state.json');
+    const raw = await fs.readFile(statePath, 'utf8');
+    const data = JSON.parse(raw);
+    return {
+      devServerUrl: data.devServerUrl ?? null,
+      qaUrl: data.qaUrl ?? null,
+      deployedUrl: data.deployedUrl ?? null,
+    };
+  } catch {
+    return {};
+  }
+}
+
 /**
  * PRIMARY: Build project-lead cards from registry.
  * Registry is the source of truth for project state.
@@ -153,6 +172,8 @@ async function buildProjectLeadSessions(): Promise<FrontendSession[]> {
       status = 'waiting'; // PL idle between turns (subagent running)
     }
 
+    const urls = await loadProjectUrls(project.id);
+
     sessions.push({
       sessionKey,
       sessionId: sessionId || `registry-${project.id}`,
@@ -164,6 +185,7 @@ async function buildProjectLeadSessions(): Promise<FrontendSession[]> {
       lastActivity,
       startedAt: project.createdAt,
       displayName: project.name || project.id,
+      ...urls,
     });
   }
 
