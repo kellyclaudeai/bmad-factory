@@ -179,7 +179,7 @@ export async function GET(request: Request) {
             storyTitle: agentInfo.title,
             persona: agentInfo.persona,
             task: agentInfo.task,
-            status: artifact.isRecent ? "active" : "complete",
+            status: "complete", // artifact exists = agent finished; live status comes from lock files via active-subagents API
             completedAt: artifact.modified,
             startedAt: artifact.modified, // Approximation - we don't have true start time
           });
