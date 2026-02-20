@@ -64,6 +64,13 @@ export const createClient = () =>
 
 ## Auth
 
+**Default for all factory projects: Google OAuth + Email/Password. Both must be implemented. No exceptions unless intake.md explicitly specifies otherwise.**
+
+Enable both in Supabase dashboard → Auth → Providers:
+- **Email** → enabled, confirm email ON
+- **Google** → enabled, add Client ID + Secret from Google Cloud Console (OAuth 2.0 credentials)
+  - Authorized redirect URI: `https://<ref>.supabase.co/auth/v1/callback`
+
 ```ts
 // Email + password
 await supabase.auth.signUp({ email, password })
@@ -72,11 +79,8 @@ await supabase.auth.signInWithPassword({ email, password })
 // Google OAuth
 await supabase.auth.signInWithOAuth({
   provider: 'google',
-  options: { redirectTo: `${origin}/auth/callback` }
+  options: { redirectTo: `${window.location.origin}/auth/callback` }
 })
-
-// Magic link
-await supabase.auth.signInWithOtp({ email })
 
 // Sign out
 await supabase.auth.signOut()
@@ -84,6 +88,8 @@ await supabase.auth.signOut()
 // Get session (server)
 const { data: { session } } = await supabase.auth.getSession()
 ```
+
+**Login page must include both:** email/password form + "Continue with Google" button. Google button uses `signInWithOAuth`, form uses `signInWithPassword`. Sign up page same pattern.
 
 **Auth callback route** (`app/auth/callback/route.ts`):
 ```ts
