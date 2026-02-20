@@ -20,7 +20,7 @@ security find-generic-password -a "kelly-factory" -s "kelly-factory-credentials"
 | Service | Username | Email | Notes |
 |---------|----------|-------|-------|
 | The Movie Database (TMDB) | kellyfactory | kelly@bloomtech.com | Free Developer plan. API key in Vercel as `TMDB_API_KEY`. |
-| Watchmode API | — | kelly@bloomtech.com | Signup pending — hCaptcha blocked automation. Form pre-filled at https://api.watchmode.com/requestApiKey |
+| Watchmode API | kelly@bloomtech.com | kelly@bloomtech.com | Free plan. 1,000 calls/month. API key in Vercel as `WATCHMODE_API_KEY`. |
 
 ---
 
@@ -29,7 +29,7 @@ security find-generic-password -a "kelly-factory" -s "kelly-factory-credentials"
 | Project | Key Name | Service | Set Via |
 |---------|----------|---------|---------|
 | reelrolla | `TMDB_API_KEY` | TMDB | `vercel env add` |
-| reelrolla | `WATCHMODE_API_KEY` | Watchmode | Pending |
+| reelrolla | `WATCHMODE_API_KEY` | Watchmode | `vercel env add` ✅ |
 
 ---
 

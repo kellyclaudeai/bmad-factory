@@ -126,6 +126,7 @@ This covers: TMDB, Watchmode, Supabase, Vercel, any other service that sends a v
 ### Rules
 - ✅ Free tier signup with no payment info required → do it autonomously (browser + factory credentials + Gmail verification)
 - ✅ After creating any account or setting any API key → log it in `docs/core/factory-accounts.md` (username + service + project only — no passwords or raw keys)
+- ✅ Whenever a new password is created for a service → save it to macOS Keychain immediately: `security add-generic-password -a "kelly-{service}" -s "kelly-{service}-credentials" -w "{password}"` — use the factory password from Keychain by default unless the service requires a unique password
 - ✅ Once obtained, set immediately via CLI: `vercel env add KEY_NAME` or equivalent
 - ⚠️ Paid tier or credit card required → stop and ask the operator first
 - ⚠️ MFA / 2FA / SMS code → ask operator (we don't have SMS access)
