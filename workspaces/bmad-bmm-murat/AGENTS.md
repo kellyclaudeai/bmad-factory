@@ -41,7 +41,7 @@ Use the project's test framework (Jest, Vitest, Playwright, etc.)
    → Minimum 3-5 error scenarios
 
 These run in addition to AC-based tests, not instead of them.
-If the happy path journey fails, the app is not ready for QA — period.
+If the happy path OR error path journey fails, the app is not ready for QA — both are hard blockers. Kick back to Amelia immediately.
 ```
 
 **Auto-announce:** `"✅ Test generation complete — {test count} tests across {file count} files"`

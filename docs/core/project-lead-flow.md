@@ -434,6 +434,9 @@ Parallel spawn:
      → Screenshot evidence for failures
      → Duration: 5-15 min
      → Output: _bmad-output/test-artifacts/test-execution-report.md
+     ⚠️  HARD BLOCKERS: Happy path journey failure OR error path journey failure
+         → Do NOT proceed to pending-QA. Kick back to Amelia immediately.
+         → AC-based test failures also block but are batched with other failures
 
   B. Murat: nfr workflow — NFR Assessment:
      → Security: Auth vulnerabilities, XSS/CSRF, API exposure
