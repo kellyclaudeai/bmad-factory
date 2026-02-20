@@ -48,6 +48,20 @@ Project Lead owns a single project from intake to ship. One PL session per proje
 
 ---
 
+## ⚠️ Vercel Deploy Limit (Free Tier)
+
+**Vercel free plan: 100 deployments/day hard limit.**
+
+When a project uses Vercel:
+1. **Disable git auto-deploy immediately.** Every `git push` from Amelia's stories triggers a deploy. With 20-80 stories each pushing commits, you'll blow through 100 in hours.
+   - Set via Vercel dashboard → Project Settings → Git → disable "Deploy on Push"
+   - Or: don't link the git repo to Vercel at all. Use CLI-only deploys.
+2. **Zero deploys during Phase 2.** Amelia must NEVER run `vercel` CLI or push to a Vercel-connected branch during implementation. Stories are `git push`-only to `dev`.
+3. **Single deploy in Phase 3 Step 2.** One intentional `vercel --prod` at the start of Phase 3. That's it.
+4. **If limit is hit:** Fall back to Firebase Hosting (`firebase deploy --only hosting`) for QA. Re-deploy to Vercel when limit resets (24h rolling window).
+
+---
+
 ## Normal Mode Greenfield
 
 ### Phase 1: Plan
@@ -137,6 +151,8 @@ All sequential — each step waits for the previous to complete.
 ```
 
 ### Phase 2: Implement — Dependency-Driven Parallelization
+
+**🚫 NO VERCEL DEPLOYS IN PHASE 2.** Amelia's stories `git push` to dev only. If Vercel git auto-deploy is enabled, every push burns a daily deploy slot. Disable it before Phase 2 starts (see Vercel Deploy Limit section above).
 
 **No artificial batching or waves.** Spawn stories as soon as their dependencies are satisfied.
 
@@ -244,13 +260,14 @@ Gate 3: Security Scanning (Phase 2 — skip for now)
 
 #### Step 2: Deployment
 
-**Deploy after pre-deploy gates pass.**
+**Deploy after pre-deploy gates pass. This is the ONE intentional deploy for the project.**
 
 ```
-1. Deploy to production/preview environment:
-   - Vercel: Push to dev triggers deploy, or `vercel --prod`
-   - Firebase Hosting: `firebase deploy --only hosting`
-   - Other: Project-specific deploy command
+1. Check Vercel limit first (free tier: 100/day rolling):
+   - Run: vercel --prod
+   - If error "api-deployments-free-per-day" → fall back to Firebase Hosting
+   - Firebase fallback: firebase deploy --only hosting (no daily limit)
+   - NOTE: Never use "push to dev triggers deploy" — git auto-deploy must be disabled
 
 2. Verify deployment accessible:
    - Confirm live URL returns 200
