@@ -4,6 +4,8 @@
 
 **Format:** `YYYY-MM-DD HH:MM CST | Component | What Changed | Why`
 
+2026-02-19 19:04 CST | Dashboard + PL Flow | Added `pending-qa` registry state + dashboard support | Projects were disappearing from dashboard when PL session ended. Now projects stay visible as "AWAITING QA" (purple badge) until operator explicitly approves and ships them. PL must set `pending-qa` after Phase 3 TEA passes. Only operator can move to `shipped`.
+
 ---
 
 ## 2026-02-19

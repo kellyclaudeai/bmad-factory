@@ -118,6 +118,38 @@ discovery → in-progress → pending-qa → shipped → followup → shipped
       "followup": []
     },
     {
+      "id": "quickpoll-2026-02-19-1200",
+      "name": "QuickPoll",
+      "state": "pending-qa",
+      "paused": false,
+      "pausedReason": null,
+      "surfacedForQA": false,
+      "researchDir": null,
+      
+      "timeline": {
+        "discoveredAt": "2026-02-19T12:00:00Z",
+        "startedAt": "2026-02-19T12:30:00Z",
+        "lastUpdated": "2026-02-19T18:00:00Z"
+      },
+      
+      "intake": {
+        "problem": "Need a simple no-auth polling app",
+        "solution": "Public poll creation, sharing, and live results",
+        "targetAudience": "Anyone who needs quick polls without login",
+        "keyFeatures": ["Create poll", "Share link", "Vote", "Live results"]
+      },
+      
+      "implementation": {
+        "projectDir": "quickpoll",
+        "plSession": "agent:project-lead:project-quickpoll",
+        "qaUrl": "https://quickpoll-20260219.web.app",
+        "deployedUrl": null,
+        "repo": "https://github.com/kellyclaudeai/quickpoll"
+      },
+      
+      "followup": []
+    },
+    {
       "id": "benchmarkiq-2026-02-17-1802",
       "name": "BenchmarkIQ",
       "state": "discovery",

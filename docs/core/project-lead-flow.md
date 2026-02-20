@@ -27,11 +27,13 @@ Project Lead owns a single project from intake to ship. One PL session per proje
 
 **Registry updates (PL responsibility):**
 - **Project start:** `discovery` → `in-progress` (set `implementation.projectDir`, `timeline.startedAt`)
-- **QA ready:** Set `implementation.qaUrl`, update `timeline.lastUpdated`
-- **Ship:** `in-progress` → `shipped` (set `implementation.deployedUrl`, `timeline.shippedAt`)
+- **QA ready:** `in-progress` → `pending-qa` (set `implementation.qaUrl`, `timeline.lastUpdated`, notify Kelly)
 - **Followup:** `shipped` → `followup` (add entries to `followup[]`)
 - **Followup done:** `followup` → `shipped`
 - **Pause/Resume:** Set `paused: true/false` with `pausedReason`
+
+**Registry updates (Operator/Kelly responsibility — PL cannot do these):**
+- **Ship:** `pending-qa` → `shipped` (set `implementation.deployedUrl`, `timeline.shippedAt`) — **operator approval required**
 
 **Dependency authority:** Bob's `dependency-graph.json` (or `stories-parallelization.json`) in `_bmad-output/implementation-artifacts/`. Each story has individual `dependsOn` arrays.
 
@@ -400,7 +402,8 @@ Update project-registry.json:
 ```bash
 git checkout main && git merge dev && git push origin main
 # CI/CD deploys to production from main
-# Project Lead updates project-registry.json: state="shipped", timeline.shippedAt, implementation.deployedUrl
+# Kelly (not PL) updates project-registry.json: state="shipped", timeline.shippedAt, implementation.deployedUrl
+# PL MUST NOT mark shipped — operator approval required
 ```
 
 **SCENARIO B: User Pauses → PAUSE**
@@ -526,6 +529,7 @@ FOR EACH story in tech-spec.md:
 ### Phase 4: User QA
 
 Same as Normal Mode. Barry handles remediation instead of Amelia.
+**PL must still set `state: "pending-qa"` and notify Kelly** — same as Normal Mode Stage 4.1. No skipping this step even in Fast Mode.
 
 ---
 
@@ -569,8 +573,8 @@ jq '.projects |= map(
 
 **When to update:**
 - Project start (`discovery` → `in-progress`, set projectDir + startedAt)
-- Test phase complete (set `implementation.qaUrl`, update `lastUpdated`)
-- Ship (`in-progress` → `shipped`, set deployedUrl + shippedAt)
+- Test phase complete (`in-progress` → `pending-qa`, set `implementation.qaUrl`, update `lastUpdated`, notify Kelly)
+- Ship (`pending-qa` → `shipped`, set deployedUrl + shippedAt) — **operator/Kelly only, not PL**
 - Pause/resume (set `paused` + `pausedReason`)
 
 ### _bmad-output/implementation-artifacts/ (BMAD tracks)

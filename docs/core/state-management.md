@@ -32,7 +32,7 @@ All OpenClaw agents (Kelly Router, Project Lead, Research Lead, sub-agents) use 
 **Schema:** See `docs/core/project-registry-workflow.md`
 
 **Key fields:**
-- `state` — Lifecycle phase (discovery | in-progress | shipped | followup)
+- `state` — Lifecycle phase (discovery | in-progress | pending-qa | shipped | followup)
 - `paused` — Boolean + reason (operator can pause at any time)
 - `surfacedForQA` — Has Kelly announced this project's QA URL?
 - `timeline` — Timestamps (discoveredAt, startedAt, shippedAt, lastUpdated)
@@ -115,7 +115,7 @@ After updating, reply NO_REPLY.
 **Why unified:** All agents use the same state structure now. No agent-specific divisions needed.
 
 **What agents do:**
-- **Kelly Router:** Update memory with operational notes (announcements, checks, escalations). Update registry only for `surfacedForQA` changes.
+- **Kelly Router:** Update memory with operational notes (announcements, checks, escalations). Update registry for `surfacedForQA` changes and `pending-qa` → `shipped` transitions (operator approval required before shipping).
 - **Project Lead:** Update registry project entry (state, timeline, implementation). Update memory with decisions and progress.
 - **Research Lead:** Update registry discovery entry (if created). Update memory with research progress.
 - **Sub-agents:** Update memory with work completed and decisions made.
