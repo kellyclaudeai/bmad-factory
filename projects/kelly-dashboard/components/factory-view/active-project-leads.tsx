@@ -149,44 +149,6 @@ function ProjectLeadCard({ session }: { session: Session }) {
             </Badge>
           </div>
         </CardHeader>
-
-        {/* URL links — shown when available, right under the heading */}
-        {(() => {
-          const localUrl = session.devServerUrl ||
-            (session.qaUrl?.startsWith('http://localhost') ? session.qaUrl : null)
-          const extUrl = session.deployedUrl ||
-            (!session.qaUrl?.startsWith('http://localhost') ? session.qaUrl : null)
-          if (!localUrl && !extUrl) return null
-          return (
-            <div className="px-6 pb-3 flex flex-col gap-1.5">
-              {localUrl && (
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(localUrl, '_blank', 'noopener') }}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); window.open(localUrl, '_blank', 'noopener') } }}
-                  className="flex items-center gap-2 text-xs font-mono cursor-pointer group"
-                >
-                  <span className="text-terminal-dim w-20 shrink-0">Local Dev</span>
-                  <span className="text-terminal-green group-hover:underline truncate">{localUrl}</span>
-                </div>
-              )}
-              {extUrl && (
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(extUrl, '_blank', 'noopener') }}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); window.open(extUrl, '_blank', 'noopener') } }}
-                  className="flex items-center gap-2 text-xs font-mono cursor-pointer group"
-                >
-                  <span className="text-terminal-dim w-20 shrink-0">{session.phase === 'shipped' ? 'Deployed' : 'QA Preview'}</span>
-                  <span className="text-blue-400 group-hover:underline truncate">{extUrl}</span>
-                </div>
-              )}
-            </div>
-          )
-        })()}
-
         <CardContent className="space-y-1.5">
           {session.startedAt && (
             <div className="flex items-center justify-between text-xs">

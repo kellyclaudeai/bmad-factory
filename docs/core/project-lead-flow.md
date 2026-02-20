@@ -220,15 +220,14 @@ Story COMPLETE when dev work finishes
 
 ```
 1. Spawn Amelia: dev-story
-   → Status → "review"
-
-2. Spawn Amelia: code-review (SEPARATE subagent)
-   → Adversarial review
-   → Option A: Auto-fix → status = "done"
-   → Option B: Create review follow-ups → status = "in-progress" → loop
+   → Implement story
+   → git commit + push
+   → Write status = "done" + session_id to sprint-status.yaml
+   → Announce completion to PL
 ```
 
-**To re-enable:** Update PL workflow to spawn code-review subagent after dev-story completion.
+**Code review disabled (v3.3).** Dev → done directly. No review subagent.
+**To re-enable:** Add code-review spawn after dev-story, update status flow to review → done.
 
 **Subagent death handling:**
 - If an Amelia session dies, PL detects (no completion announcement) and respawns

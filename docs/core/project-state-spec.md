@@ -136,6 +136,21 @@ Three files, each with a distinct owner and purpose. No overlap.
 
 **Owner:** Bob creates it during sprint planning. Amelia updates story status as she completes stories.
 
+**Story schema (per entry):**
+```yaml
+- id: "3.6"                          # story ID (e.g., "1.1", "3.6")
+  title: "CurrentConditions Hero"    # story title
+  epic: 3                            # epic number
+  status: done                       # todo | in-progress | review | done
+  depends_on: ["1.1", "2.3"]        # story IDs that must be done first
+  started_at: "2026-02-19"          # ISO date when Amelia began
+  completed_at: "2026-02-19"        # ISO date when marked done
+  session_id: "8bffe4fa-cfbe-..."   # UUID of Amelia session — written on completion
+                                     # used by dashboard to link logs to completed story cards
+```
+
+`session_id` is written by Amelia when she marks a story done (lock file trick: her own `.jsonl.lock` filename IS her UUID). Dashboard uses it to link completed subagent cards to their transcripts. Falls back to transcript scan if missing.
+
 **Not duplicated in project-state.json** — PL derives `sprintSummary` counts from this file and writes the summary into project-state.json. Dashboard reads the summary from project-state.json for the progress bar; reads sprint-status.yaml only for the full story grid view.
 
 ---
