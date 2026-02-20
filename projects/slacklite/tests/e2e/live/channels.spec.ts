@@ -95,6 +95,11 @@ test.describe("Channel Management", () => {
 
     if (renameButtonVisible) {
       await renameButton.click();
+      // Settings button opens a dropdown — click the "Rename Channel" menu item
+      const renameMenuItem = page.getByRole("menuitem", { name: /rename channel/i });
+      if (await renameMenuItem.isVisible({ timeout: 2_000 }).catch(() => false)) {
+        await renameMenuItem.click();
+      }
       const nameInput = page.getByLabel(/name/i).first();
       await nameInput.clear();
       await nameInput.fill(renamedName);
