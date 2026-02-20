@@ -1,0 +1,36 @@
+# Factory Accounts Registry
+
+> Inventory of accounts created for the Kelly Software Factory.
+> **Credentials are NOT stored here** — passwords are in macOS Keychain (`kelly-factory` service).
+> This file is committed to git. Never add passwords, tokens, or API keys here.
+
+---
+
+## Account Lookup
+
+To retrieve the factory password:
+```bash
+security find-generic-password -a "kelly-factory" -s "kelly-factory-credentials" -w
+```
+
+---
+
+## Registered Accounts
+
+| Service | Username | Email | Notes |
+|---------|----------|-------|-------|
+| The Movie Database (TMDB) | kellyfactory | kelly@bloomtech.com | Free Developer plan. API key in Vercel as `TMDB_API_KEY`. |
+| Watchmode API | — | kelly@bloomtech.com | Signup pending — hCaptcha blocked automation. Form pre-filled at https://api.watchmode.com/requestApiKey |
+
+---
+
+## API Keys in Use (by project)
+
+| Project | Key Name | Service | Set Via |
+|---------|----------|---------|---------|
+| reelrolla | `TMDB_API_KEY` | TMDB | `vercel env add` |
+| reelrolla | `WATCHMODE_API_KEY` | Watchmode | Pending |
+
+---
+
+_Update this file whenever a new account is created or an API key is added to a project._
