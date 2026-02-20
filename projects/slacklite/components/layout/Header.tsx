@@ -49,11 +49,11 @@ export function Header() {
 
   return (
     <>
-      <header className="h-16 border-b border-gray-300 bg-white">
+      <header className="h-16 border-b border-border bg-surface-2">
         <div className="mx-auto flex h-full w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="min-w-0">
-            <p className="truncate text-base font-semibold text-gray-900">SlackLite</p>
-            <p className="truncate text-sm font-normal text-gray-700">{userLabel}</p>
+            <p className="truncate font-mono text-base font-semibold text-primary">SlackLite</p>
+            <p className="truncate font-mono text-sm font-normal text-muted">{userLabel}</p>
           </div>
 
           <Button

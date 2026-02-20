@@ -1,0 +1,22 @@
+.gcloudignore
+.git
+.gitignore
+
+# Node
+node_modules/
+.pnp
+
+# Build output
+.next/
+out/
+
+# Local env files
+.env*.local
+.env.development
+
+# Debug
+*.log
+
+# Editor
+.DS_Store
+.vscode/

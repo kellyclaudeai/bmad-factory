@@ -9,7 +9,6 @@ import {
   useState,
 } from "react";
 
-import { Button } from "@/components/ui/Button";
 import { useRateLimit } from "@/lib/hooks/useRateLimit";
 import { sanitizeMessageText, validateMessageText } from "@/lib/utils/validation";
 
@@ -69,6 +68,7 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
 
   const trimmedText = text.trim();
   const isOverLimit = text.length > MAX_MESSAGE_LENGTH;
+  const isAtLimit = text.length >= MAX_MESSAGE_LENGTH;
   const showCounter = text.length > COUNTER_THRESHOLD;
   const isRateLimited = !canSendMessage();
   const isSendDisabled = trimmedText.length === 0 || isOverLimit || isRateLimited;
@@ -149,7 +149,16 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
     }
 
     recordMessage();
-    void Promise.resolve(onSend(sanitizedText)).catch(() => undefined);
+    // DIAGNOSTIC: log channelId and sanitized text length before calling onSend
+    console.log('[DIAG][MessageInput] onSend called — channelId:', channelId, 'textLength:', sanitizedText.length);
+    void Promise.resolve(onSend(sanitizedText))
+      .then((result) => {
+        console.log('[DIAG][MessageInput] onSend SUCCESS — channelId:', channelId, 'result:', result);
+      })
+      .catch((sendError: unknown) => {
+        // DIAGNOSTIC: surface errors that were previously silently swallowed
+        console.error('[DIAG][MessageInput] onSend FAILED — channelId:', channelId, 'error:', sendError);
+      });
     setText("");
 
     if (textareaRef.current) {
@@ -194,9 +203,20 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
     [handleSend, isMobile],
   );
 
+  // Build container border/ring classes based on state
+  const containerBorderClasses = isAtLimit
+    ? "border-error ring-1 ring-error"
+    : isFocused
+      ? "border-accent ring-1 ring-accent"
+      : "border-border";
+
   return (
-    <div className="border-t-2 border-gray-300 p-4" data-channel-id={channelId}>
-      <div className="flex items-end gap-3">
+    <div className="px-4 py-3 bg-surface-2 flex-shrink-0" data-channel-id={channelId}>
+      {/* Input container */}
+      <div
+        className={`flex items-end gap-2 bg-surface-3 border rounded-md px-3 py-2 transition-all ${containerBorderClasses}`}
+      >
+        {/* Textarea */}
         <textarea
           ref={textareaRef}
           value={text}
@@ -211,37 +231,53 @@ export function MessageInput({ channelId, onSend }: MessageInputProps) {
             resizeTextarea(event.currentTarget, { isFocused: false, isMobile });
           }}
           placeholder="Type a message..."
-          className={`${isMobile ? "min-h-[60px]" : "min-h-[44px]"} max-h-[200px] flex-1 resize-none overflow-y-auto rounded-lg border-2 border-gray-500 p-3 text-base text-gray-900 focus:border-primary-brand focus:outline-none focus:ring-2 focus:ring-primary-brand focus:ring-offset-1`}
+          maxLength={MAX_MESSAGE_LENGTH}
+          className="flex-1 bg-transparent text-primary placeholder:text-muted text-sm font-sans resize-none outline-none leading-relaxed overflow-hidden"
           style={{ height: `${getMinTextareaHeight(isMobile)}px` }}
           rows={1}
         />
-        <Button
-          variant="primary"
+
+        {/* Character counter — only shown at COUNTER_THRESHOLD+ */}
+        {showCounter && (
+          <span
+            className={`text-xs font-mono flex-shrink-0 self-end pb-0.5 ${isAtLimit ? "text-error" : "text-muted"}`}
+          >
+            {MAX_MESSAGE_LENGTH - text.length}
+          </span>
+        )}
+
+        {/* Send button */}
+        <button
+          type="button"
           onClick={handleSend}
           disabled={isSendDisabled}
-          className={isMobile ? "h-11 w-11 flex-shrink-0 p-0" : ""}
           aria-label={isMobile ? "Send message" : undefined}
+          className={`flex-shrink-0 self-end px-3 py-1.5 rounded text-sm font-semibold transition-colors bg-accent hover:bg-accent-hover text-inverse disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent${isMobile ? " h-9 w-9 p-0" : ""}`}
         >
           {isMobile ? "→" : "Send"}
-        </Button>
+        </button>
       </div>
 
-      {showCounter && (
-        <p className={`mt-2 text-sm ${isOverLimit ? "text-error" : "text-gray-700"}`}>
-          {text.length} / {MAX_MESSAGE_LENGTH}
-        </p>
-      )}
+      {/* Helper text */}
+      <p className="text-muted text-xs font-mono mt-1.5 px-0.5">
+        Enter to send · Shift+Enter for newline
+      </p>
 
+      {/* Over-limit error */}
       {isOverLimit && (
-        <p className="mt-1 text-sm text-error" role="alert">
+        <p className="text-error text-xs font-mono mt-1 px-0.5" role="alert">
           {MESSAGE_TOO_LONG_ERROR}
         </p>
       )}
 
+      {/* Rate limit / send failure */}
       {rateLimitError && (
-        <p className="mt-1 text-sm text-error" role="alert">
+        <div
+          className="mt-2 bg-error-subtle border border-error text-error text-sm rounded-md px-3 py-2 font-mono"
+          role="alert"
+        >
           {rateLimitError}
-        </p>
+        </div>
       )}
     </div>
   );

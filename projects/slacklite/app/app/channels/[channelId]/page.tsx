@@ -272,8 +272,8 @@ export default function ChannelPage() {
 
   if (!user) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-gray-600">Please sign in to view messages.</p>
+      <div className="flex h-full items-center justify-center bg-surface-2">
+        <p className="text-muted">Please sign in to view messages.</p>
       </div>
     );
   }
@@ -300,12 +300,12 @@ export default function ChannelPage() {
       />
 
       {/* Message List */}
-      <div className="relative flex-1">
-        <div className="flex h-full min-h-0 flex-col p-4">
+      <div className="relative flex-1 bg-surface-2">
+        <div className="flex h-full min-h-0 flex-col">
           {sendErrorBanner && (
             <div
               role="alert"
-              className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-error/30 bg-red-50 px-4 py-3"
+              className="mx-4 mt-3 flex items-center justify-between gap-3 rounded-lg border border-error/30 bg-surface-3 px-4 py-3"
             >
               <p className="text-sm text-error">{sendErrorBanner}</p>
               <button
@@ -313,7 +313,7 @@ export default function ChannelPage() {
                 onClick={() => {
                   void retryLastSend();
                 }}
-                className="text-sm font-medium text-error underline decoration-error/70 underline-offset-2 hover:text-red-700"
+                className="text-sm font-medium text-error underline decoration-error/70 underline-offset-2 hover:opacity-80"
               >
                 Retry
               </button>
@@ -323,12 +323,12 @@ export default function ChannelPage() {
           {firestoreWarningBanner && (
             <div
               role="alert"
-              className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-warning/40 bg-gray-100 px-4 py-3"
+              className="mx-4 mt-3 flex items-center justify-between gap-3 rounded-lg border border-warning/40 bg-surface-3 px-4 py-3"
             >
               <div className="min-w-0">
-                <p className="text-sm text-gray-800">{firestoreWarningBanner.message}</p>
+                <p className="text-sm text-secondary">{firestoreWarningBanner.message}</p>
                 {firestoreWarningBanner.pendingCount > 1 && (
-                  <p className="mt-1 text-xs text-gray-600">
+                  <p className="mt-1 text-xs text-muted">
                     {firestoreWarningBanner.pendingCount} messages are waiting to be saved.
                   </p>
                 )}
@@ -338,7 +338,7 @@ export default function ChannelPage() {
                 onClick={() => {
                   void retryFirestoreWrite(firestoreWarningBanner.messageId);
                 }}
-                className="text-sm font-medium text-gray-800 underline decoration-gray-500 underline-offset-2 hover:text-gray-900"
+                className="text-sm font-medium text-secondary underline decoration-border-strong underline-offset-2 hover:text-primary"
               >
                 Retry Save
               </button>
@@ -346,11 +346,11 @@ export default function ChannelPage() {
           )}
 
           {(loading || isChannelSwitching) && (
-            <div className="flex flex-1 items-center justify-center py-8">
-              <div role="status" className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex flex-1 items-center justify-center py-8 bg-surface-2">
+              <div role="status" className="flex items-center gap-2 text-sm text-muted">
                 <span
                   aria-hidden="true"
-                  className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"
+                  className="h-4 w-4 animate-spin rounded-full border-2 border-border-strong border-t-transparent"
                 />
                 Loading messages...
               </div>
@@ -358,16 +358,16 @@ export default function ChannelPage() {
           )}
 
           {error && (
-            <div className="rounded-lg bg-red-50 p-4">
-              <p className="text-sm text-red-800">Failed to load messages. Please try again.</p>
+            <div className="mx-4 mt-3 rounded-lg border border-error/30 bg-surface-3 p-4">
+              <p className="text-sm text-error">Failed to load messages. Please try again.</p>
             </div>
           )}
 
           {!loading && !error && messages.length === 0 && (
-            <div className="flex flex-1 items-center justify-center">
+            <div className="flex flex-1 items-center justify-center bg-surface-2">
               <div className="text-center">
-                <p className="text-lg font-medium text-gray-900">No messages yet</p>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="text-sm text-muted mb-1">No messages yet</p>
+                <p className="text-xs font-mono text-disabled">
                   Be the first to send a message in this channel!
                 </p>
               </div>

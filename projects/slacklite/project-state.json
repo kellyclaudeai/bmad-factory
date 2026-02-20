@@ -33,5 +33,7 @@
     "testStrategy": "_bmad-output/implementation-artifacts/test-strategy.md",
     "scheduledRedeploy": "2026-02-20T15:30:00Z (Vercel limit resets)",
     "cronJobId": "700bc94c-98ca-4e47-96e9-e4d578f7f955"
-  }
+  },
+  "deployedUrl": "https://slacklite-286897557836.us-central1.run.app",
+  "qaUrl": "https://slacklite-286897557836.us-central1.run.app"
 }

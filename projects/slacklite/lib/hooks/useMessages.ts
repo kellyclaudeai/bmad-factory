@@ -169,15 +169,18 @@ export function useMessages(
     loadingMoreRef.current = false;
 
     if (workspaceId.length === 0 || normalizedTargetId.length === 0) {
+      // DIAGNOSTIC: log when subscription is skipped due to missing IDs
+      console.warn('[DIAG][useMessages] Subscription skipped — workspaceId:', workspaceId || '(empty)', 'targetId:', normalizedTargetId || '(empty)', 'user?.workspaceId:', user?.workspaceId ?? '(undefined)');
       setLoading(false);
       setHasMore(false);
       return;
     }
 
-    const messagesRef = collection(
-      firestore,
-      getMessagesCollectionPath(workspaceId, normalizedTargetId, normalizedTargetType),
-    );
+    const messagesCollectionPath = getMessagesCollectionPath(workspaceId, normalizedTargetId, normalizedTargetType);
+    // DIAGNOSTIC: log the Firestore query path being subscribed to
+    console.log('[DIAG][useMessages] Subscribing to Firestore path:', messagesCollectionPath, 'workspaceId:', workspaceId, 'targetId:', normalizedTargetId, 'targetType:', normalizedTargetType);
+
+    const messagesRef = collection(firestore, messagesCollectionPath);
     const messagesQuery = query(
       messagesRef,
       orderBy("timestamp", "desc"),
@@ -187,6 +190,8 @@ export function useMessages(
     const unsubscribeFirestore = onSnapshot(
       messagesQuery,
       (snapshot) => {
+        // DIAGNOSTIC: log snapshot results so we know if Firestore is returning data
+        console.log('[DIAG][useMessages] onSnapshot fired — docs:', snapshot.docs.length, 'fromCache:', snapshot.metadata.fromCache, 'path:', messagesCollectionPath);
         const newestMessages = mapMessages(snapshot.docs).reverse();
         const newestMessageIds = new Set(newestMessages.map((message) => message.messageId));
 
@@ -211,6 +216,8 @@ export function useMessages(
         setLoading(false);
       },
       (snapshotError) => {
+        // DIAGNOSTIC: log Firestore listener errors — this is where permission denials surface
+        console.error('[DIAG][useMessages] Firestore onSnapshot ERROR — path:', messagesCollectionPath, 'workspaceId:', workspaceId, 'targetId:', normalizedTargetId, 'error:', snapshotError);
         setError(snapshotError);
         setLoading(false);
       },

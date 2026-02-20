@@ -245,7 +245,7 @@ export function AppShell({
 
   return (
     <div
-      className="relative flex h-screen overflow-hidden bg-gray-100 text-gray-900"
+      className="relative flex h-screen overflow-hidden bg-base text-primary"
       data-testid="app-shell"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -280,13 +280,13 @@ export function AppShell({
         isGestureDragging={isGestureDragging}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col bg-surface-2">
         <Header />
 
         <div className="flex min-h-0 flex-1">
-          <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">{children}</main>
+          <main className="min-w-0 flex-1 overflow-y-auto bg-surface-2 p-4 sm:p-6 lg:p-8">{children}</main>
           {rightPanel ? (
-            <aside className="hidden w-72 flex-none border-l border-gray-300 bg-white xl:block">
+            <aside className="hidden w-72 flex-none border-l border-border bg-surface-2 xl:block">
               {rightPanel}
             </aside>
           ) : null}

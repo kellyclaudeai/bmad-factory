@@ -123,7 +123,7 @@ export function ChannelList({ onChannelSelect }: ChannelListProps) {
   if (loading) {
     return (
       <div className="px-2 py-3">
-        <div role="status" className="flex items-center gap-2 text-sm text-gray-600">
+        <div role="status" className="flex items-center gap-2 text-sm text-muted">
           <span
             aria-hidden="true"
             className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"
@@ -144,7 +144,7 @@ export function ChannelList({ onChannelSelect }: ChannelListProps) {
 
   if (sortedChannels.length === 0) {
     return (
-      <p className="px-2 py-3 text-sm text-gray-700">
+      <p className="px-2 py-3 font-mono text-sm text-muted">
         No channels yet. Create one to get started.
       </p>
     );
@@ -178,19 +178,19 @@ export function ChannelList({ onChannelSelect }: ChannelListProps) {
                   : `Channel ${channel.name}`
               }
               className={`
-                flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-sm transition-colors
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-brand
+                flex w-full items-center justify-between py-1.5 text-left font-mono text-sm transition-colors
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent
                 ${
                   isActive
-                    ? "border-l-4 border-primary-brand bg-gray-300 font-semibold text-gray-900"
-                    : "text-gray-800 hover:bg-gray-200"
+                    ? "border-l-2 border-accent bg-accent-subtle pl-[14px] pr-2 text-primary"
+                    : "border-l-2 border-transparent pl-[14px] pr-2 text-secondary hover:bg-surface-3 hover:text-primary"
                 }
               `}
             >
               <span className="truncate"># {channel.name}</span>
               <div className="ml-2 flex flex-shrink-0 items-center gap-2">
                 {formattedLastMessageAt ? (
-                  <span className="text-xs text-gray-600">{formattedLastMessageAt}</span>
+                  <span className="text-xs text-muted">{formattedLastMessageAt}</span>
                 ) : null}
                 {unreadCount > 0 ? (
                   <Badge size="sm" className="flex-shrink-0">

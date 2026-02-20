@@ -51,14 +51,14 @@ interface SpinnerProps {
 
 function Spinner({
   label = "Loading messages...",
-  className = "text-sm text-gray-600",
+  className = "text-sm text-muted",
   indicatorClassName = "h-4 w-4",
 }: SpinnerProps = {}) {
   return (
     <div role="status" className={`flex items-center gap-2 ${className}`}>
       <span
         aria-hidden="true"
-        className={`${indicatorClassName} animate-spin rounded-full border-2 border-gray-400 border-t-transparent`}
+        className={`${indicatorClassName} animate-spin rounded-full border-2 border-border-strong border-t-transparent`}
       />
       {label}
     </div>
@@ -166,10 +166,10 @@ const MessageRow = memo(function MessageRow({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-2">
-              <span className="font-semibold text-gray-900">{message.userName || "Unknown"}</span>
+              <span className="font-semibold text-primary">{message.userName || "Unknown"}</span>
               <span
                 className={`text-xs ${
-                  message.status === "failed" ? "text-error" : "text-gray-500"
+                  message.status === "failed" ? "text-error" : "text-muted"
                 }`}
               >
                 {message.status === "sending"
@@ -177,7 +177,7 @@ const MessageRow = memo(function MessageRow({
                   : formatMessageTimestamp(message.timestamp)}
               </span>
             </div>
-            <p className="mt-1 whitespace-pre-wrap break-words text-sm text-gray-800">
+            <p className="mt-1 whitespace-pre-wrap break-words text-sm text-secondary">
               {message.text}
             </p>
             {message.status === "failed" && (
@@ -416,32 +416,36 @@ export default function MessageList({
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex h-full items-center justify-center bg-surface-2">
         <Spinner />
       </div>
     );
   }
 
   if (error) {
-    return <div className="p-4 text-center text-error">Failed to load messages</div>;
+    return (
+      <div className="flex h-full items-center justify-center bg-surface-2 p-4 text-center text-error">
+        Failed to load messages
+      </div>
+    );
   }
 
   if (messages.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center text-gray-500">
-        <p>No messages yet</p>
-        <p className="text-sm">Start the conversation!</p>
+      <div className="flex h-full flex-col items-center justify-center bg-surface-2 text-center px-8">
+        <p className="text-muted text-sm mb-1">No messages yet</p>
+        <p className="text-disabled text-xs font-mono">Send the first message below</p>
       </div>
     );
   }
 
   return (
-    <div ref={containerRef} className="relative h-full min-h-0">
+    <div ref={containerRef} className="relative h-full min-h-0 bg-surface-2">
       {loadingMore ? (
-        <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-md bg-white/95 px-3 py-1 shadow">
+        <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-md bg-surface-3/95 px-3 py-1 shadow">
           <Spinner
             label="Loading older messages..."
-            className="text-xs text-gray-600"
+            className="text-xs text-muted"
             indicatorClassName="h-3 w-3"
           />
         </div>

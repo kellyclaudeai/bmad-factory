@@ -87,9 +87,26 @@
       "name": "Verdict",
       "path": "projects/verdict",
       "plSession": "agent:project-lead:project-verdict",
-      "phase": "qa",
+      "phase": "shipped",
       "createdAt": "2026-02-19T21:22:00-06:00",
-      "deployedUrl": "https://verdict-mvp.web.app"
+      "deployedUrl": "https://verdict-mvp.web.app",
+      "shippedAt": "2026-02-20T06:16:46.557091Z"
+    },
+    {
+      "id": "sentinel-hire",
+      "name": "SentinelHire",
+      "path": "projects/sentinel-hire",
+      "plSession": "agent:project-lead:sentinel-hire",
+      "phase": "implementation",
+      "createdAt": "2026-02-19T23:54:00-06:00"
+    },
+    {
+      "id": "slacklite-v2",
+      "name": "SlackLite v2",
+      "path": "projects/slacklite-v2",
+      "plSession": "agent:project-lead:project-slacklite-v2",
+      "phase": "implementation",
+      "createdAt": "2026-02-20T01:38:00-06:00"
     }
   ]
 }

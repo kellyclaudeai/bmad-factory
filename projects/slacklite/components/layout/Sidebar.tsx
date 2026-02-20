@@ -69,7 +69,7 @@ export function Sidebar({
   return (
     <>
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[280px] flex-none border-r border-gray-300 bg-white transform ${
+        className={`fixed inset-y-0 left-0 z-50 w-[280px] flex-none border-r border-border bg-surface-1 transform ${
           isGestureDragging ? "" : "transition-transform duration-200 ease-in-out"
         } lg:static lg:z-auto lg:w-[250px] lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-[280px]"
@@ -82,10 +82,10 @@ export function Sidebar({
         aria-label="Workspace sidebar"
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between border-b border-gray-300 px-3 py-3">
+          <div className="flex items-center justify-between border-b border-border px-3 py-3">
             <div className="flex min-w-0 items-center gap-2">
               <Avatar alt={workspaceName} fallbackText={workspaceName} size="sm" />
-              <p className="truncate text-sm font-semibold text-gray-900">{workspaceName}</p>
+              <p className="truncate font-mono text-sm font-semibold text-accent">{workspaceName}</p>
             </div>
             <Button
               type="button"
@@ -104,7 +104,7 @@ export function Sidebar({
               <div className="mb-2 flex items-center justify-between gap-2 px-1">
                 <h2
                   id="channels-title"
-                  className="text-xs font-semibold uppercase tracking-wide text-gray-600"
+                  className="text-xs font-semibold uppercase tracking-widest text-muted"
                 >
                   Channels
                 </h2>
@@ -136,7 +136,7 @@ export function Sidebar({
               <div className="mb-2 flex items-center justify-between gap-2 px-1">
                 <h2
                   id="dms-title"
-                  className="text-xs font-semibold uppercase tracking-wide text-gray-600"
+                  className="text-xs font-semibold uppercase tracking-widest text-muted"
                 >
                   Direct Messages
                 </h2>

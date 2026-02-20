@@ -31,7 +31,9 @@ type ProjectState = {
     figma_file_url?: string
     color_system?: string
     typography?: string
+    /** values are relative image paths within _bmad-output/design-assets/images/ */
     components?: Record<string, string>
+    /** values are relative image paths within _bmad-output/design-assets/images/ */
     screens?: Record<string, string>
   } | null
   phases?: Record<string, { name: string; stories: number[]; status: string }>
@@ -142,6 +144,7 @@ async function getProjectState(projectId: string): Promise<ProjectState | null> 
       devServerUrl: data.devServerUrl ?? null,
       qaUrl: data.qaUrl ?? null,
       deployedUrl: data.deployedUrl ?? null,
+      designAssets: data.designAssets ?? null,
     }
   } catch (error) {
     console.error('Failed to fetch project state:', error)
@@ -490,19 +493,19 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
               Design Mockups
             </h2>
             <div className="space-y-6">
-              {/* Screens — full-width Figma embeds */}
+              {/* Screens — exported PNG images */}
               {projectState.designAssets.screens && Object.keys(projectState.designAssets.screens).length > 0 && (
                 <div>
                   <h3 className="text-sm font-mono text-terminal-dim uppercase tracking-wider mb-3">Screens</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(projectState.designAssets.screens).map(([name, url]) => (
+                    {Object.entries(projectState.designAssets.screens).map(([name, file]) => (
                       <div key={name} className="space-y-2">
                         <p className="text-xs font-mono text-terminal-dim capitalize">{name.replace(/_/g, ' ')}</p>
-                        <div className="rounded-lg overflow-hidden border border-terminal-border bg-terminal-card aspect-video">
-                          <iframe
-                            src={`https://www.figma.com/embed?embed_host=openclaw&url=${encodeURIComponent(url)}`}
-                            className="w-full h-full"
-                            allowFullScreen
+                        <div className="rounded-lg overflow-hidden border border-terminal-border bg-terminal-card">
+                          <img
+                            src={`/api/design-image?projectId=${id}&file=${encodeURIComponent(file)}`}
+                            alt={name.replace(/_/g, ' ')}
+                            className="w-full h-auto object-cover"
                           />
                         </div>
                       </div>
@@ -511,19 +514,22 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
                 </div>
               )}
 
-              {/* Components */}
+              {/* Components — exported PNG images */}
               {projectState.designAssets.components && Object.keys(projectState.designAssets.components).length > 0 && (
                 <div>
                   <h3 className="text-sm font-mono text-terminal-dim uppercase tracking-wider mb-3">Components</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {Object.entries(projectState.designAssets.components).map(([name, url]) => (
-                      <a key={name} href={url} target="_blank" rel="noopener noreferrer"
-                        className="group block rounded-lg border border-terminal-border bg-terminal-card p-3 hover:border-terminal-green/50 transition-colors">
-                        <p className="text-xs font-mono text-terminal-dim group-hover:text-terminal-green capitalize truncate">
+                    {Object.entries(projectState.designAssets.components).map(([name, file]) => (
+                      <div key={name} className="rounded-lg overflow-hidden border border-terminal-border bg-terminal-card">
+                        <img
+                          src={`/api/design-image?projectId=${id}&file=${encodeURIComponent(file)}`}
+                          alt={name.replace(/_/g, ' ')}
+                          className="w-full h-auto object-cover"
+                        />
+                        <p className="text-xs font-mono text-terminal-dim capitalize px-2 py-1.5">
                           {name.replace(/_/g, ' ')}
                         </p>
-                        <p className="text-xs font-mono text-terminal-dim/50 mt-1">→ Figma</p>
-                      </a>
+                      </div>
                     ))}
                   </div>
                 </div>

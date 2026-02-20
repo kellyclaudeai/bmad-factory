@@ -210,31 +210,37 @@ export function useRealtimeMessages(
       queuedWrite: QueuedFirestoreWrite,
       options: { captureException: boolean } = { captureException: true },
     ): Promise<void> => {
-      try {
-        const messageDocRef = doc(
-          firestore,
-          `${getFirestoreMessagesCollectionPath(
-            queuedWrite.workspaceId,
-            queuedWrite.channelId,
-            queuedWrite.targetType,
-          )}/${queuedWrite.messageId}`,
-        );
+      const firestoreCollectionPath = getFirestoreMessagesCollectionPath(
+        queuedWrite.workspaceId,
+        queuedWrite.channelId,
+        queuedWrite.targetType,
+      );
+      const firestoreDocPath = `${firestoreCollectionPath}/${queuedWrite.messageId}`;
+      const firestorePayload = {
+        messageId: queuedWrite.messageId,
+        channelId: queuedWrite.channelId,
+        workspaceId: queuedWrite.workspaceId,
+        userId: queuedWrite.userId,
+        userName: queuedWrite.userName,
+        text: queuedWrite.text,
+        timestamp: firestoreServerTimestamp(),
+        createdAt: firestoreServerTimestamp(),
+      };
 
-        await setDoc(messageDocRef, {
-          messageId: queuedWrite.messageId,
-          channelId: queuedWrite.channelId,
-          workspaceId: queuedWrite.workspaceId,
-          userId: queuedWrite.userId,
-          userName: queuedWrite.userName,
-          text: queuedWrite.text,
-          timestamp: firestoreServerTimestamp(),
-          createdAt: firestoreServerTimestamp(),
-        });
+      // DIAGNOSTIC: log full Firestore write context so we can confirm path and workspaceId are correct
+      console.log('[DIAG][Firestore write] path:', firestoreDocPath, 'workspaceId:', queuedWrite.workspaceId, 'channelId:', queuedWrite.channelId, 'targetType:', queuedWrite.targetType, 'userId:', queuedWrite.userId, 'payload keys:', Object.keys(firestorePayload));
+
+      try {
+        const messageDocRef = doc(firestore, firestoreDocPath);
+
+        await setDoc(messageDocRef, firestorePayload);
+        console.log('[DIAG][Firestore write] SUCCESS — messageId:', queuedWrite.messageId);
 
         setFirestoreRetryQueue((previousQueue) =>
           previousQueue.filter((entry) => entry.messageId !== queuedWrite.messageId),
         );
       } catch (firestoreError) {
+        console.error('[DIAG][Firestore write] FAILED — messageId:', queuedWrite.messageId, 'path:', firestoreDocPath, 'error:', firestoreError);
         if (options.captureException) {
           Sentry.captureException(firestoreError, {
             tags: {
@@ -326,9 +332,14 @@ export function useRealtimeMessages(
         },
       );
 
+      // DIAGNOSTIC: log full RTDB write context so we can confirm workspaceId/channelId are populated
+      console.log('[DIAG][RTDB write] path:', `messages/${normalizedWorkspaceId}/${normalizedRTDBChannelId}/${serverMessageId}`, 'workspaceId:', normalizedWorkspaceId, 'channelId:', normalizedRTDBChannelId, 'userId:', optimisticMessage.userId, 'payload:', payload);
+
       try {
         await set(nextMessageRef, payload);
+        console.log('[DIAG][RTDB write] SUCCESS — messageId:', serverMessageId);
       } catch (rtdbWriteError) {
+        console.error('[DIAG][RTDB write] FAILED — messageId:', serverMessageId, 'error:', rtdbWriteError);
         pendingServerIdsByTempIdRef.current.delete(optimisticMessage.messageId);
         tempIdsByServerIdRef.current.delete(serverMessageId);
         rollbackOptimisticMessage(optimisticMessage.messageId);
