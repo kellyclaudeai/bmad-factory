@@ -6,7 +6,7 @@
 
 **Recent Updates:**
 - v4.1 (2026-02-19): **STATELESS PL + CONTEXT DISCIPLINE.** PL must keep replies to 1-2 lines, never narrate history, rotate session every 25 stories. Prevents 200k token overflow on large projects. See Context Discipline section.
-- v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. (Proposed, not yet implemented)
+- v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP + frontend-design skill for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. ✅ Implemented (Figma MCP configured, all agents updated)
 - v4.5 (2026-02-19): **QA FEEDBACK = STORY FLOW.** QA feedback from the operator creates new stories and updates BMAD artifacts — same pipeline as greenfield Phase 2. Bug exception only: if feedback is a missed implementation or something clearly broken (not new behavior), Amelia fixes directly without story creation. No qaRounds[] in registry — feedback is tracked in BMAD artifacts like everything else.
 - v4.4 (2026-02-19): **FAST MODE REMOVED.** Factory runs Normal Mode only: Greenfield or Brownfield. Barry Fast Track eliminated.
 - v4.3 (2026-02-19): **PENDING-QA STATE + PL HOLDS SESSION.** After Phase 3 TEA passes, PL sets `state: "pending-qa"` and enters an idle hold — the session stays alive (lock file held) until Kelly signals SHIP, FIX, or PAUSE. PL MUST NOT exit or mark shipped on its own. Only the operator (via Kelly) can trigger ship. Dashboard shows the live PL session as "AWAITING QA".
@@ -86,6 +86,7 @@ All sequential — each step waits for the previous to complete.
    → Output: _bmad-output/planning-artifacts/ux-design.md
    → Optional: _bmad-output/design-assets.json (Figma URLs, see [design-workflow.md](./design-workflow.md))
    → Task MUST include: "YOLO MODE — skip all confirmations, run fully autonomously."
+   → After Sally completes: if design-assets.json exists, read it and set projectState.designAssets (dashboard will display Figma mockups)
 
 3. Winston: create-architecture
    → Input: prd.md, ux-design.md
