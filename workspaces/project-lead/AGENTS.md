@@ -263,21 +263,23 @@ Step 2: Deploy
   → Verify live URL returns 200
   → Set implementation.qaUrl in project-registry.json
 
-Step 3a: Test Generation (Murat test-generate — one-time)
+Step 3: Test Generation (Murat test-generate — ONE TIME ONLY, never re-run)
   → Spawn Murat: test-generate
-  → Combined: design + scaffold Playwright + generate E2E tests
+  → Writes: happy path journey + error path journey + AC-based tests
   → Input: PRD, architecture.md, codebase, deployed URL
   → Output: test-strategy.md + full Playwright E2E suite (axe-core a11y)
   → Duration: 25-45 min
 
-Step 3b: Execution + NFR (parallel — after test-generate)
+Step 4: E2E Execution + NFR (parallel — repeats each remediation cycle)
   → E2E execution against deployed URL → test-execution-report.md
   → Spawn Murat: nfr-assess → nfr-assessment-report.md
-  → Failures → batch ALL → Amelia fix-postdeploy → redeploy → re-run 3b only
+  → Failures → batch ALL → Amelia fix-postdeploy → redeploy → re-run Step 4 only
   ⚠️  HARD BLOCKERS (do NOT proceed to Phase 4):
       - Happy path journey test fails
       - Error path journey test fails
       Both must pass before entering pending-QA hold.
+
+Step 5: Remediation loop (Amelia → redeploy → re-run Step 4, max 3 cycles)
 
 If ALL pass (including both journeys) → Phase 4: User QA
 ```

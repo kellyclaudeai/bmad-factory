@@ -9,6 +9,7 @@
 - v5.0 (2026-02-20): **DEFAULT TECH STACK.** `docs/core/tech-stack.md` created. Winston must read it before writing architecture.md on every project. Default: Next.js 15 + TypeScript + Tailwind + shadcn/ui + pnpm + Supabase (DB+Auth) + Drizzle + Vercel. Override by specifying in intake.md; document as ADR in architecture.md.
 - v4.9 (2026-02-20): **NO MOCKING IN E2E — REAL EVERYTHING.** Phase 3 E2E tests must use real deployed URL, real Firebase Auth, real credentials. No stubbing `signInWithPopup` or any external service. Console error listener mandatory in every test file (CSP violations = auto-fail). Test credentials must be a dedicated factory test Gmail (NOT kelly@bloomtech.com). If auth project and `test-credentials.md` missing → Murat halts + PL notifies Kelly. Same policy codified in murat-testing/SKILL.md.
 - v4.8 (2026-02-19): **FULL QA FEEDBACK WORKFLOWS IN ALL AGENTS.** John: `scope-qa-feedback` (4th responsibility). Winston: `review-architecture-change` (2nd responsibility). Amelia: `fix-qa-feedback` (Mode 3). Bob: `update-dependency-graph` (4th responsibility). Every agent now knows its QA feedback role — PL routes, agents execute.
+- v5.4 (2026-02-20): **SPLIT TEST GENERATION FROM EXECUTION.** Step 3 = test-generate (one-time, never re-run). Step 4 = E2E execution + NFR (repeats each remediation cycle). Step 5 = remediation loop. Clearer separation of concerns.
 - v5.3 (2026-02-20): **TECH-STACK-AWARE PRE-DEPLOY GATES.** Gates now read architecture.md to determine actual stack before running checks. TypeScript check no longer hardcoded — adapts to TS, Python, Chrome Extension, etc. Added Gate 3 (unit tests if they exist) and Gate 4 (security scanning). NFR (accessibility + performance) confirmed present in Phase 3b.
 - v5.2 (2026-02-20): **UNIFIED CHANGE FLOW.** QA feedback, brownfield, correct courses all use one pipeline: John → Sally → Winston → Bob → Amelia. Skip who isn't needed. Same order as greenfield. No separate QA feedback flow. No double-John.
 - v4.6 (2026-02-19): **PHASE 3 HARD GATE + FORBIDDEN STORY TYPES.** Phase 3 (TEA) is now an explicit hard gate — cannot be skipped, cannot be substituted by a Phase 2 "Smoke Test" story. John AGENTS.md: forbidden from creating testing/deployment epics. Bob AGENTS.md: must skip any test/deploy stories that slip through from John's epics. Root cause: Verdict shipped with zero test artifacts because story 7.2 "Production Build, Deploy & Smoke Test" was mistaken for Phase 3.
@@ -391,7 +392,7 @@ Gate 4: Security Scanning
 
 ---
 
-**Step 3a: Test Generation (one-time, Murat test-generate workflow)**
+**Step 3: Test Generation (one-time — never re-run)**
 
 ```
 Murat: test-generate
@@ -400,7 +401,7 @@ Murat: test-generate
     - _bmad-output/test-artifacts/test-strategy.md (design + coverage plan)
     - Playwright config (baseURL = deployed qaUrl, NOT localhost)
     - test helpers, fixtures scaffolded
-    - Two mandatory test suites (BOTH required, regardless of what stories say):
+    - Three mandatory test suites (ALL required):
 
       1. HAPPY PATH JOURNEY (exploratory — written independently of ACs)
          → Full end-to-end user journey from landing to core value
@@ -422,9 +423,12 @@ Murat: test-generate
 
   → Duration: 25-45 min (combined design + scaffold + generate in one pass)
   → BLOCKER: If project uses auth and test-credentials.md does not exist → halt + notify Kelly
+  → One-time only — tests are NOT regenerated on remediation cycles
 ```
 
-**Step 3b: Execution + NFR (parallel after test-generate completes)**
+---
+
+**Step 4: E2E Execution + NFR Assessment (parallel — repeats each remediation cycle)**
 
 ```
 Parallel spawn:
@@ -457,9 +461,9 @@ If brownfield project (existing codebase):
 
 ---
 
-#### Step 4: Remediation (Batched)
+#### Step 5: Remediation (Batched — repeats until clean)
 
-**ALL failures from Post-Deploy Verification batched → Amelia → redeploy → re-run.**
+**ALL failures batched → Amelia → redeploy → re-run Step 4 only.**
 
 ```
 1. Collect ALL failures:
@@ -475,9 +479,9 @@ If brownfield project (existing codebase):
 
 3. Redeploy (Step 2)
 
-4. Re-run Step 3b only (tests already generated — skip test-generate)
+4. Re-run Step 4 only (tests already generated — never re-run Step 3)
    → Re-run E2E execution + NFR assessment in parallel
-   → Duration: 10-20 min (much faster)
+   → Duration: 10-20 min (much faster than first pass)
 
 5. Repeat until clean (max 3 cycles, escalate to Kelly if stuck)
 
@@ -489,14 +493,13 @@ If brownfield project (existing codebase):
 **Timeline:**
 - Pre-Deploy Gates: 2-5 min
 - Deployment: 2-5 min
-- Test First Pass:
-  - Murat test-generate (design + scaffold + generate): 25-45 min
-  - E2E execution + NFR (parallel): 25-35 min
+- Step 3 — Test Generation (one-time): 25-45 min
+- Step 4 — E2E + NFR first pass (parallel): 25-35 min
 - **Total first pass: ~55-90 min**
-- **Re-runs (execution only): 10-20 min** (tests already generated)
+- **Step 4 re-runs (execution only): 10-20 min** (tests already generated)
 - Remediation per cycle: 15-30 min
 
-**Key principle:** First pass generates tests once. Re-runs are cheap (just execution). Invest upfront, iterate fast.
+**Key principle:** Step 3 runs once. Step 4 repeats. Invest upfront in good tests, iterate fast on fixes.
 
 ### Phase 4: User QA
 
