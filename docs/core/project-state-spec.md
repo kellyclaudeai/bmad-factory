@@ -76,6 +76,7 @@ Three files, each with a distinct owner and purpose. No overlap.
   "phase": "planning",
   "createdAt": "2026-02-19T19:09:00Z",
   "shippedAt": null,
+  "devServerUrl": null,
   "qaUrl": null,
   "deployedUrl": null,
   "activeSubagents": [
@@ -108,8 +109,9 @@ Three files, each with a distinct owner and purpose. No overlap.
 - `id`, `name`, `plSession`, `createdAt` — same as registry (PL writes both)
 - `phase` — see Phase Values below
 - `shippedAt` — ISO timestamp when shipped, null until then
-- `qaUrl` — URL for automated + user QA, set at start of `qa` phase
-- `deployedUrl` — production URL after shipping
+- `devServerUrl` — local dev server URL (e.g. `http://localhost:5173`), written by PL as soon as Amelia's first story reports a running dev server; shown as **Local Dev** on the dashboard during build/qa phases
+- `qaUrl` — deployed URL used for QA testing (set after Phase 3 Step 2 deploy)
+- `deployedUrl` — production URL; **never cleared after shipping** — dashboard always shows it
 - `activeSubagents` — agents currently running (PL clears when they complete)
 - `completedSubagents` — append-only history of all agent runs
 - `sprintSummary` — PL derives from sprint-status.yaml and writes here; dashboard reads this, not the raw YAML
@@ -120,8 +122,9 @@ Three files, each with a distinct owner and purpose. No overlap.
 - **On subagent completion:** Move entry from `activeSubagents` to `completedSubagents` (with durationSec)
 - **On phase change:** Update `phase` field here AND in projects-registry.json
 - **On sprint progress:** Update `sprintSummary` after each story completes
-- **On deploy:** Set `qaUrl`
-- **On ship:** Set `phase: shipped`, `shippedAt`, `deployedUrl`
+- **After first Phase 2 story:** Set `devServerUrl` (from Amelia's reported dev server port)
+- **On deploy (Phase 3 Step 2):** Set `qaUrl` AND `deployedUrl` to the deployed URL
+- **On ship:** Set `phase: shipped`, `shippedAt` — `deployedUrl` stays as-is (never clear it)
 
 ---
 

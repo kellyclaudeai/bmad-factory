@@ -203,12 +203,14 @@ export async function GET(request: Request) {
       // Subagents: synthesized from planning artifacts + completed stories from sprint-status
       subagents: [
         ...syntheticSubagents,
-        // Generate completed subagent entries from sprint-status done stories only
+        // Generate completed subagent entries from sprint-status done stories
+        // sprint-status.yaml uses LIST format: stories: [{id, title, status, session_id?, ...}]
         ...(sprintStatus?.stories
           ? await Promise.all(
-              Object.entries(sprintStatus.stories)
-                .filter(([, s]: [string, any]) => s?.status === "done")
-                .map(async ([id, s]: [string, any]) => {
+              (sprintStatus.stories as any[])
+                .filter((s: any) => s?.status === "done")
+                .map(async (s: any) => {
+                  const id = s.id;
                   // session_id written by Amelia on completion; fall back to transcript scan
                   const sessionUuid = s?.session_id || await findSessionForStory(id);
                   const sessionKey = sessionUuid ? `agent:bmad-bmm-amelia:${sessionUuid}` : undefined;
@@ -232,11 +234,10 @@ export async function GET(request: Request) {
       activeSubagents: projectStateData?.activeSubagents || [],
       completedSubagents: projectStateData?.completedSubagents || [],
 
-      // Story status from BMAD (Phase 2+)
-      // sprint-status.yaml uses nested objects: stories: { "1.1": { status: "done", ... }, ... }
-      stories: sprintStatus?.stories
-        ? Object.entries(sprintStatus.stories).map(([id, s]: [string, any]) => ({
-            id,
+      // Story list from sprint-status (list format)
+      stories: (sprintStatus?.stories as any[] | undefined)
+        ? (sprintStatus!.stories as any[]).map((s: any) => ({
+            id: s.id,
             status: s?.status || 'unknown',
             title: s?.title || '',
             epic: s?.epic,
@@ -246,9 +247,9 @@ export async function GET(request: Request) {
       // Sprint summary: prefer project-state.json (PL-maintained), fall back to computing from YAML
       sprintSummary: projectStateData?.sprintSummary || null,
 
-      // Computed stats from sprint-status stories (object format)
+      // Computed stats from sprint-status stories (list format)
       stats: sprintStatus?.stories ? (() => {
-        const entries = Object.values(sprintStatus.stories) as any[];
+        const entries = sprintStatus.stories as any[];
         return {
           total: entries.length,
           done: entries.filter(s => s?.status === "done").length,

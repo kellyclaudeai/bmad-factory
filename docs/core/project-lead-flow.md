@@ -159,6 +159,19 @@ All sequential — each step waits for the previous to complete.
 
 **🚫 NO VERCEL DEPLOYS IN PHASE 2.** Amelia's stories `git push` to dev only. If Vercel git auto-deploy is enabled, every push burns a daily deploy slot. Disable it before Phase 2 starts (see Vercel Deploy Limit section above).
 
+**📋 Dev server URL.** After the first setup story completes, Amelia reports the local dev server URL (e.g. `http://localhost:5173`). PL must immediately write it to `project-state.json`:
+```bash
+# as soon as Amelia's first story finishes and the dev server is running:
+python3 -c "
+import json
+f = 'project-state.json'
+d = json.load(open(f))
+d['devServerUrl'] = 'http://localhost:PORT'  # replace PORT with actual port
+json.dump(d, open(f,'w'), indent=2)
+"
+```
+This shows up as the **Local Dev** link on the Kelly Dashboard project detail page.
+
 **No artificial batching or waves.** Spawn stories as soon as their dependencies are satisfied.
 
 ```
@@ -276,8 +289,17 @@ Gate 3: Security Scanning (Phase 2 — skip for now)
 
 2. Verify deployment accessible:
    - Confirm live URL returns 200
-   - Set `implementation.qaUrl` in project-registry.json
-   - Set `implementation.deployedUrl` if production
+   - Write both fields to `project-state.json` (dashboard reads these):
+     ```bash
+     python3 -c "
+     import json; f='project-state.json'; d=json.load(open(f))
+     d['qaUrl'] = 'DEPLOYED_URL'
+     d['deployedUrl'] = 'DEPLOYED_URL'
+     json.dump(d, open(f,'w'), indent=2)
+     "
+     ```
+   - `qaUrl` = the URL used for QA testing (same as deployed URL)
+   - `deployedUrl` = production URL — **persists in project-state.json forever** so the dashboard always shows it, even after shipping
 
 3. If deploy fails:
    - Batch deployment errors → Amelia fix → redeploy
