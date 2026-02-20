@@ -260,7 +260,7 @@
     {
       "id": "slacklite",
       "name": "SlackLite",
-      "state": "pending-qa",
+      "state": "in-progress",
       "paused": false,
       "pausedReason": null,
       "researchDir": "ideas/slack-lite-2026-02-18-2310",
@@ -288,7 +288,7 @@
       },
       "implementation": {
         "projectDir": "slacklite",
-        "plSession": "agent:project-lead:81d7f501",
+        "plSession": "agent:project-lead:project-slacklite",
         "qaUrl": "https://slacklite-r3vwdr5la-kelly-1224s-projects.vercel.app"
       },
       "followup": [],
@@ -329,7 +329,7 @@
     {
       "id": "quick-poll",
       "name": "Quick Poll",
-      "state": "pending-qa",
+      "state": "in-progress",
       "paused": false,
       "pausedReason": null,
       "surfacedForQA": false,
@@ -370,6 +370,32 @@
       },
       "followup": [],
       "notes": [],
+      "researchDir": null
+    },
+    {
+      "id": "weather-dashboard",
+      "name": "Weather Dashboard",
+      "state": "in-progress",
+      "paused": false,
+      "pausedReason": null,
+      "surfacedForQA": false,
+      "researchSession": null,
+      "researchPhase": null,
+      "discoveryStrategy": null,
+      "timeline": {
+        "createdAt": "2026-02-19T19:09:00Z",
+        "shippedAt": null
+      },
+      "intake": {
+        "path": "projects/weather-dashboard/intake.md"
+      },
+      "implementation": {
+        "qaUrl": null,
+        "deployedUrl": null,
+        "plSession": "agent:project-lead:project-weather-dashboard"
+      },
+      "followup": null,
+      "notes": "Pipeline test \u2014 no auth, no Vercel, Firebase Hosting only, Open-Meteo API",
       "researchDir": null
     }
   ]

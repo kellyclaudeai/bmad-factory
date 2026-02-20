@@ -350,10 +350,11 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
   const relevantSessions = sessions.filter((s) => s.projectId === id)
   const projectLeadSessions = relevantSessions.filter((s) => s.agentType === 'project-lead')
 
+  const plStatus = projectLeadSessions[0]?.status?.toLowerCase() || 'unknown'
   const stage =
     projectState?.currentStage ||
     projectState?.stage ||
-    (projectLeadSessions.some((s) => (s.status || '').toLowerCase() === 'active') ? 'active' : 'unknown')
+    (plStatus === 'active' ? 'active' : plStatus === 'waiting' ? 'waiting' : plStatus === 'awaiting-qa' ? 'awaiting-qa' : 'unknown')
 
   // Runtime: Calculate from project start time (startedAt or createdAt) to now (or completedAt if done)
   const projectStartTime = projectState?.startedAt || projectState?.createdAt
@@ -496,7 +497,12 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
                             {s.model ? ` • Model: ${s.model}` : ''}
                           </div>
                         </div>
-                        <div className="text-terminal-green font-mono text-xs">{(s.status || 'active').toUpperCase()}</div>
+                        <div className={`font-mono text-xs ${
+                          (s.status || 'active') === 'active' ? 'text-terminal-green' :
+                          (s.status || 'active') === 'waiting' ? 'text-yellow-400' :
+                          (s.status || 'active') === 'awaiting-qa' ? 'text-blue-400' :
+                          'text-terminal-dim'
+                        }`}>{(s.status || 'active').toUpperCase()}</div>
                       </div>
                     </CardContent>
                   </Card>
