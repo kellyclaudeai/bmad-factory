@@ -15,7 +15,8 @@ type FrontendSession = {
   label: string;
   agentType: string;
   projectId?: string;
-  status: string; // 'active' | 'waiting' | 'awaiting-qa'
+  status: string; // 'active' | 'waiting' | 'awaiting-qa' | 'paused'
+  phase?: string; // planning | implementation | qa | shipped — matches detail page badge
   lastActivity: string;
   model?: string;
   tokens?: { input: number; output: number };
@@ -116,9 +117,9 @@ async function buildProjectLeadSessions(): Promise<FrontendSession[]> {
 
   const sessions: FrontendSession[] = [];
 
-  // Show all active projects (anything not shipped)
+  // Show only projects being actively worked on (exclude discovery queue and shipped)
   const activeProjects = projects.filter(
-    p => p.phase && p.phase !== 'shipped'
+    p => p.phase && p.phase !== 'shipped' && p.phase !== 'discovery'
   );
 
   for (const project of activeProjects) {
@@ -158,6 +159,7 @@ async function buildProjectLeadSessions(): Promise<FrontendSession[]> {
       agentType: 'project-lead',
       projectId: project.id,
       status,
+      phase: project.phase,
       lastActivity,
       displayName: project.name || project.id,
     });

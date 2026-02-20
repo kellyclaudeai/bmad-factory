@@ -123,12 +123,26 @@ function AgentCard({ session }: { session: Session }) {
               Platform: <span className="text-terminal-text">{platform}</span>
             </div>
           </div>
-          <Badge
-            variant={session.status === 'active' ? 'default' : 'outline'}
-            className={session.status === 'active' ? 'bg-terminal-green text-terminal-bg animate-pulse-status' : ''}
-          >
-            {session.status}
-          </Badge>
+          <div className="flex items-center gap-1.5">
+            {/* Status dot: active=pulse green, waiting=dim, awaiting-qa=blue */}
+            <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${
+              session.status === 'active' ? 'bg-terminal-green animate-pulse' :
+              session.status === 'awaiting-qa' ? 'bg-blue-400' :
+              session.status === 'paused' ? 'bg-yellow-500' :
+              'bg-terminal-dim'
+            }`} />
+            {/* Phase badge: matches detail page */}
+            <Badge
+              variant={(session.phase === 'qa' || session.status === 'active') ? 'default' : 'outline'}
+              className={
+                session.phase === 'qa' ? 'bg-blue-500 text-white border-0' :
+                session.status === 'active' ? 'bg-terminal-green text-terminal-bg border-0' :
+                ''
+              }
+            >
+              {session.phase || session.status}
+            </Badge>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">

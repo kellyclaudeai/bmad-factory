@@ -6,7 +6,7 @@
       "name": "NoteLite",
       "path": "projects/notelite",
       "plSession": "agent:project-lead:project-notelite",
-      "phase": "planning",
+      "phase": "shipped",
       "createdAt": "2026-02-18T20:50:00+0000"
     },
     {
@@ -14,7 +14,7 @@
       "name": "Prepwise",
       "path": "projects/smart-receipt-budgeting-tracker-2026-02-18-1656",
       "plSession": "agent:project-lead:project-smart-receipt-budgeting-tracker-2026-02-18-1656",
-      "phase": "planning",
+      "phase": "discovery",
       "createdAt": "2026-02-18T23:01:18+0000"
     },
     {
@@ -22,7 +22,7 @@
       "name": "ClaimDone",
       "path": "projects/warranty-receipt-tracker-2026-02-18-1733",
       "plSession": "agent:project-lead:project-warranty-receipt-tracker-2026-02-18-1733",
-      "phase": "planning",
+      "phase": "discovery",
       "createdAt": "2026-02-18T17:33:00-06:00"
     },
     {
@@ -30,7 +30,7 @@
       "name": "Ripple",
       "path": "projects/hyper-local-event-discovery-2026-02-18-1824",
       "plSession": "agent:project-lead:project-hyper-local-event-discovery-2026-02-18-1824",
-      "phase": "planning",
+      "phase": "discovery",
       "createdAt": "2026-02-19T00:25:03+0000"
     },
     {
@@ -38,7 +38,7 @@
       "name": "Triage",
       "path": "projects/screenshot-declutter-assistant-2026-02-18-1957",
       "plSession": "agent:project-lead:project-screenshot-declutter-assistant-2026-02-18-1957",
-      "phase": "planning",
+      "phase": "discovery",
       "createdAt": "2026-02-19T01:58:12+0000"
     },
     {
@@ -46,7 +46,7 @@
       "name": "Keeper",
       "path": "projects/gift-idea-tracker-2026-02-18-2114",
       "plSession": "agent:project-lead:project-gift-idea-tracker-2026-02-18-2114",
-      "phase": "planning",
+      "phase": "discovery",
       "createdAt": "2026-02-19T03:19:50+0000"
     },
     {
@@ -54,7 +54,7 @@
       "name": "Bounce",
       "path": "projects/social-conversation-coach-2026-02-18-2113",
       "plSession": "agent:project-lead:project-social-conversation-coach-2026-02-18-2113",
-      "phase": "planning",
+      "phase": "discovery",
       "createdAt": "2026-02-19T03:20:06+0000"
     },
     {
@@ -70,7 +70,7 @@
       "name": "Hindsight",
       "path": "projects/car-maintenance-tracker-2026-02-19-1047",
       "plSession": "agent:project-lead:project-car-maintenance-tracker-2026-02-19-1047",
-      "phase": "planning",
+      "phase": "discovery",
       "createdAt": "2026-02-19T16:54:23+0000"
     },
     {
