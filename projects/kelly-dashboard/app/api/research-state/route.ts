@@ -5,7 +5,7 @@ import path from "node:path";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const REGISTRY_PATH = "/Users/austenallred/clawd/projects/project-registry.json";
+const REGISTRY_PATH = "/Users/austenallred/clawd/projects/projects-registry.json";
 const WORKSPACES_ROOT = "/Users/austenallred/clawd/workspaces";
 
 type RegistryProject = {

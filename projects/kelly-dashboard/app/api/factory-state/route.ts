@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 const REGISTRY_PATH =
   process.env.PROJECT_REGISTRY_PATH ||
-  "/Users/austenallred/clawd/projects/project-registry.json";
+  "/Users/austenallred/clawd/projects/projects-registry.json";
 
 type FactoryStateResponse = {
   active: string[];

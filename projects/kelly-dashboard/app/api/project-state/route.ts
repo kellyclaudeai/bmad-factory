@@ -6,37 +6,21 @@ import yaml from "yaml";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const REGISTRY_PATH = "/Users/austenallred/clawd/projects/project-registry.json";
+const REGISTRY_PATH = "/Users/austenallred/clawd/projects/projects-registry.json";
 const PROJECTS_ROOT = "/Users/austenallred/clawd/projects";
 
 function isSafeProjectId(projectId: string) {
   return /^[A-Za-z0-9][A-Za-z0-9-_]*$/.test(projectId);
 }
 
+// New thin index schema (projects-registry.json v2.0)
 type RegistryProject = {
   id: string;
-  name: string;
-  state: "discovery" | "in-progress" | "shipped" | "followup";
-  paused: boolean;
-  pausedReason?: string;
-  timeline: {
-    discoveredAt?: string;
-    startedAt?: string;
-    shippedAt?: string;
-    lastUpdated?: string;
-  };
-  intake?: {
-    problem: string;
-    solution: string;
-    targetAudience: string;
-    keyFeatures: string[];
-  };
-  implementation?: {
-    projectDir?: string;
-    deployedUrl?: string;
-    qaUrl?: string;
-    repo?: string;
-  };
+  name?: string;
+  path?: string;       // relative to clawd workspace root
+  plSession?: string;
+  phase?: string;      // planning | implementation | qa | shipped | paused
+  createdAt?: string;
 };
 
 type ProjectRegistry = {
@@ -75,78 +59,56 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Project not found in registry" }, { status: 404 });
     }
 
-    // If project has a projectDir, try to read BMAD artifacts
+    // Derive project directory from registry path field
+    const projectPath = project.path || `projects/${project.id}`;
+    const projectDir = path.isAbsolute(projectPath)
+      ? projectPath
+      : path.join(PROJECTS_ROOT, '..', projectPath); // clawd root is parent of PROJECTS_ROOT
+
+    // Try to read project-state.json first (PL-written, authoritative)
+    let projectStateData: Record<string, any> | null = null;
+    try {
+      const psPath = path.join(projectDir, 'project-state.json');
+      projectStateData = JSON.parse(await fs.readFile(psPath, 'utf8'));
+    } catch { /* not yet written by PL */ }
+
+    // Read BMAD artifacts for fallback + planning artifact display
     let sprintStatus = null;
     let planningArtifacts: Record<string, { exists: boolean; size?: number; modified?: string; ageMinutes?: number; isRecent?: boolean }> = {};
-    
-    if (project.implementation?.projectDir) {
-      // Handle both relative and absolute paths
-      let projectPath = project.implementation.projectDir;
-      if (path.isAbsolute(projectPath)) {
-        projectPath = path.relative(PROJECTS_ROOT, projectPath);
-      }
 
-      // Check for sprint-status.yaml (implementation phase)
+    // Check for sprint-status.yaml
+    try {
+      const sprintStatusPath = path.join(projectDir, "_bmad-output/implementation-artifacts/sprint-status.yaml");
+      const sprintYaml = await fs.readFile(sprintStatusPath, "utf8");
+      sprintStatus = yaml.parse(sprintYaml) as SprintStatus;
+    } catch { /* not yet created */ }
+
+    // Check for planning artifacts
+    const artifactNames = ["prd.md", "ux-design.md", "architecture.md", "epics.md"];
+    for (const artifactName of artifactNames) {
       try {
-        const sprintStatusPath = path.join(
-          PROJECTS_ROOT,
-          projectPath,
-          "_bmad-output/implementation-artifacts/sprint-status.yaml"
-        );
-        const sprintYaml = await fs.readFile(sprintStatusPath, "utf8");
-        sprintStatus = yaml.parse(sprintYaml) as SprintStatus;
-      } catch (error) {
-        console.error('Sprint status read error:', error);
-      }
-
-      // Check for planning artifacts (Phase 1)
-      const artifactNames = ["prd.md", "ux-design.md", "architecture.md", "epics.md"];
-      for (const artifactName of artifactNames) {
-        try {
-          // Handle both relative and absolute paths
-          let projectPath = project.implementation.projectDir;
-          if (path.isAbsolute(projectPath)) {
-            projectPath = path.relative(PROJECTS_ROOT, projectPath);
-          }
-          
-          const artifactPath = path.join(
-            PROJECTS_ROOT,
-            projectPath,
-            "_bmad-output/planning-artifacts",
-            artifactName
-          );
-          const stats = await fs.stat(artifactPath);
-          const now = Date.now();
-          const modifiedMs = stats.mtime.getTime();
-          const ageMinutes = Math.floor((now - modifiedMs) / 1000 / 60);
-          
-          planningArtifacts[artifactName] = {
-            exists: true,
-            size: stats.size,
-            modified: stats.mtime.toISOString(),
-            ageMinutes,
-            isRecent: ageMinutes < 5 // Active if modified in last 5 minutes
-          };
-        } catch {
-          planningArtifacts[artifactName] = { exists: false };
-        }
+        const artifactPath = path.join(projectDir, "_bmad-output/planning-artifacts", artifactName);
+        const stats = await fs.stat(artifactPath);
+        const ageMinutes = Math.floor((Date.now() - stats.mtime.getTime()) / 1000 / 60);
+        planningArtifacts[artifactName] = {
+          exists: true, size: stats.size,
+          modified: stats.mtime.toISOString(), ageMinutes, isRecent: ageMinutes < 5
+        };
+      } catch {
+        planningArtifacts[artifactName] = { exists: false };
       }
     }
 
-    // Infer current phase from artifacts
-    let currentPhase = "unknown";
-    if (project.state === "in-progress") {
-      if (sprintStatus) {
-        currentPhase = "implementation"; // Phase 2+
+    // Phase: prefer project-state.json, then registry, then infer from artifacts
+    let currentPhase = projectStateData?.phase || project.phase || "unknown";
+    if (currentPhase === "unknown") {
+      if (project.phase && project.phase !== "unknown") {
+        currentPhase = project.phase;
+      } else if (sprintStatus) {
+        currentPhase = "implementation";
       } else {
-        currentPhase = "planning"; // Phase 1 — with or without artifacts
+        currentPhase = "planning";
       }
-    } else if (project.state === "pending-qa") {
-      currentPhase = "awaiting-qa";
-    } else if (project.state === "discovery") {
-      currentPhase = "discovery";
-    } else if (project.state === "shipped") {
-      currentPhase = "shipped";
     }
 
     // Synthesize subagent entries from planning artifacts
@@ -187,16 +149,19 @@ export async function GET(request: Request) {
       }
     }
 
-    // Combine registry data + BMAD data
+    // Combine registry + project-state.json + BMAD artifact data
     const response = {
       projectId: project.id,
       name: project.name,
-      state: project.state,
-      paused: project.paused,
-      pausedReason: project.pausedReason,
-      timeline: project.timeline,
-      intake: project.intake,
-      implementation: project.implementation,
+      phase: currentPhase,
+      paused: currentPhase === 'paused',
+      timeline: {
+        createdAt: projectStateData?.createdAt || project.createdAt,
+        shippedAt: projectStateData?.shippedAt || null,
+      },
+      qaUrl: projectStateData?.qaUrl || null,
+      deployedUrl: projectStateData?.deployedUrl || null,
+      plSession: project.plSession,
       
       // Current phase inference
       currentPhase,
@@ -224,6 +189,10 @@ export async function GET(request: Request) {
           : []),
       ],
       
+      // Active subagents from project-state.json (PL-written, authoritative)
+      activeSubagents: projectStateData?.activeSubagents || [],
+      completedSubagents: projectStateData?.completedSubagents || [],
+
       // Story status from BMAD (Phase 2+)
       // sprint-status.yaml uses nested objects: stories: { "1.1": { status: "done", ... }, ... }
       stories: sprintStatus?.stories
@@ -235,6 +204,9 @@ export async function GET(request: Request) {
           }))
         : [],
       
+      // Sprint summary: prefer project-state.json (PL-maintained), fall back to computing from YAML
+      sprintSummary: projectStateData?.sprintSummary || null,
+
       // Computed stats from sprint-status stories (object format)
       stats: sprintStatus?.stories ? (() => {
         const entries = Object.values(sprintStatus.stories) as any[];

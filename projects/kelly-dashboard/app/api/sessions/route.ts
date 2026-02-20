@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 const AGENTS_ROOT = '/Users/austenallred/.openclaw/agents';
 const PROJECTS_ROOT = '/Users/austenallred/clawd/projects';
-const REGISTRY_PATH = path.join(PROJECTS_ROOT, 'project-registry.json');
+const REGISTRY_PATH = path.join(PROJECTS_ROOT, 'projects-registry.json');
 
 type FrontendSession = {
   sessionKey: string;
@@ -23,18 +23,14 @@ type FrontendSession = {
   displayName?: string;
 };
 
+// New thin index schema (projects-registry.json v2.0)
 type RegistryProject = {
   id: string;
   name?: string;
-  state?: string;
-  paused?: boolean;
-  timeline?: { lastUpdated?: string; startedAt?: string; createdAt?: string };
-  implementation?: {
-    plSession?: string;
-    projectDir?: string;
-    qaUrl?: string;
-    deployedUrl?: string;
-  };
+  path?: string;
+  plSession?: string;
+  phase?: string; // planning | implementation | qa | shipped | paused
+  createdAt?: string;
 };
 
 // Cache for agent sessions.json reverse maps
@@ -120,22 +116,19 @@ async function buildProjectLeadSessions(): Promise<FrontendSession[]> {
 
   const sessions: FrontendSession[] = [];
 
-  // Show all in-progress and pending-qa projects (not paused, not shipped/followup/discovery)
+  // Show all active projects (anything not shipped)
   const activeProjects = projects.filter(
-    p => (p.state === 'in-progress' || p.state === 'pending-qa') && !p.paused
+    p => p.phase && p.phase !== 'shipped'
   );
 
   for (const project of activeProjects) {
     const sessionKey =
-      project.implementation?.plSession ||
+      project.plSession ||
       `agent:project-lead:project-${project.id}`;
 
-    // Determine status from registry state + lock file
+    // Determine status from registry phase + lock file
     let status: string;
-    let lastActivity = project.timeline?.lastUpdated ||
-      project.timeline?.startedAt ||
-      project.timeline?.createdAt ||
-      new Date().toISOString();
+    let lastActivity = project.createdAt || new Date().toISOString();
 
     const sessionId = sessionKeyToId.get(sessionKey);
     let hasLock = false;
@@ -148,12 +141,14 @@ async function buildProjectLeadSessions(): Promise<FrontendSession[]> {
       }
     }
 
-    if (project.state === 'pending-qa') {
-      status = 'awaiting-qa';
+    if (project.phase === 'qa') {
+      status = hasLock ? 'active' : 'awaiting-qa';
+    } else if (project.phase === 'paused') {
+      status = 'paused';
     } else if (hasLock) {
       status = 'active'; // Mid-LLM-turn right now
     } else {
-      status = 'waiting'; // In-progress but PL idle (waiting for subagent)
+      status = 'waiting'; // PL idle between turns (subagent running)
     }
 
     sessions.push({
