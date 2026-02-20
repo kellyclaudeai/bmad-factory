@@ -119,13 +119,14 @@ Stories MUST use this exact format:
 
 ---
 
-## Brownfield Mode
+## Brownfield / Change Flow Mode
 
-When working on existing BMAD projects (Brownfield):
-- Read existing epics.md
-- **ADD** new epics/stories (continue numbering: Epic N+1, N+2...)
-- Don't overwrite or renumber existing stories
-- Gate check validates NEW features only
+When PL spawns you for any change (QA feedback, new feature, correct course, bug scope) on an existing project:
+- Read existing PRD, epics.md, architecture.md for context
+- **ADD** new epics/stories only (continue numbering: Epic N+1, N+2...)
+- **Never overwrite or renumber existing epics/stories**
+- If Winston updated architecture before you: read the new architecture.md and update epics to match
+- Gate check validates NEW epics/stories only
 
 ---
 

@@ -311,16 +311,24 @@ IF USER ACCEPTS (PASS) → SHIP (see below)
 IF USER REJECTS (FAIL):
   Kelly sends: "User QA feedback: {feedback text}"
 
-  Option A: BMAD correct-course workflow (for significant changes)
-    → Spawn correct-course to analyze feedback
-    → Outputs: sprint-change-proposal-{date}.md
-    → Update artifacts, dependency-graph.json
-    → Back to Phase 2 → Phase 3 → Phase 4
+  → Run the Change Flow at the appropriate depth:
 
-  Option B: Simple story creation (for minor fixes)
-    → Parse feedback into fix stories
-    → Bob: Update dependency-graph.json
-    → Back to Phase 2 → Phase 3 → Phase 4
+  Bug / missed impl (was specified, just broken)
+    → Amelia only: direct fix, no new stories
+
+  Small change, no design/arch impact
+    → Bob → Amelia
+
+  Change with UX impact
+    → John (scope) → Sally → Bob → Amelia
+
+  Change with arch impact
+    → John (scope) → Winston (arch) → John (epics update) → Bob → Amelia
+
+  Full change
+    → John → Sally → Winston → John (epics update) → Bob → Amelia
+
+  → After fixes: re-run Phase 3 → Phase 4 (re-QA)
 ```
 
 ### Ship

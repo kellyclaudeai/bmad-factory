@@ -113,14 +113,16 @@ Story file: _bmad-output/implementation-artifacts/stories/story-{N.M}.md
 6. Document unfixable issues in story file under "Review Follow-ups"'
 ```
 
-### Bug Fixes / Remediation
+### Bug Fixes / Direct Fixes
+
+When PL sends you directly (no John/Bob involved) — this is the Change Flow "Amelia only" depth, for genuine bugs or missed implementations where no new stories are needed.
 
 ```bash
-codex --yolo exec 'Fix these issues in Story {N.M}:
+codex --yolo exec 'Fix these issues:
 
-{specific issues from review or test failures}
+{specific issues from PL — bug description, relevant story ACs if applicable}
 
-Make fixes and commit when done.'
+Make fixes, commit, and note the fix in sprint-status.yaml under the relevant story.'
 ```
 
 ---

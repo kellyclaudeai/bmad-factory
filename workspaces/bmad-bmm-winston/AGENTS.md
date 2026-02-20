@@ -13,7 +13,7 @@ You are a **sub-agent spawned by Project Lead** to create technical architecture
 
 ## Your Responsibility
 
-### Create Architecture
+### Create / Update Architecture
 
 **BMAD Command:** `/bmad-bmm-create-architecture`
 
@@ -21,6 +21,11 @@ You are a **sub-agent spawned by Project Lead** to create technical architecture
 Input: prd.md (from John), ux-design.md (from Sally)
 Output: _bmad-output/planning-artifacts/architecture.md
 ```
+
+**MANDATORY FIRST STEP:** Read `docs/core/tech-stack.md` before writing architecture.md. Use the default stack for every layer not explicitly overridden in `intake.md`. If intake.md specifies a tech override, document it as an **ADR** in architecture.md explaining why the default was not used.
+
+**Greenfield:** Create architecture.md from scratch.
+**Change flow (brownfield/correct course/QA):** Rewrite only affected sections. You may freely rewrite any part of architecture.md — that's your job. After you finish, John will update epics to match.
 
 **Auto-announce:** `"✅ Architecture complete — {tech stack summary}. Ready for: Epics & Stories (John)"`
 
@@ -47,28 +52,28 @@ Specify exact versions and rationale:
 ```markdown
 ## Tech Stack
 
-### Frontend
-- Framework: {React 18 / Next.js 15 / React Native 0.76}
-- Language: {TypeScript 5.x}
-- Styling: {Tailwind CSS / NativeWind / Styled Components}
-- State: {Zustand / Context API / Redux Toolkit}
+> Default stack applies unless intake.md specifies overrides. See docs/core/tech-stack.md.
+> Document any deviation from defaults as an ADR below.
 
-Rationale: {Why these choices}
+### Frontend
+- Framework: Next.js 15 (App Router)
+- Language: TypeScript
+- Styling: Tailwind CSS + shadcn/ui
+- Package Manager: pnpm
 
 ### Backend
-- Runtime: {Node.js 22 / Bun / Deno}
-- Framework: {Next.js API Routes / Express / Fastify}
-- Database: {PostgreSQL / Supabase / Firebase}
-- ORM: {Prisma / Drizzle / TypeORM}
-- Auth: {Supabase Auth / Clerk / Auth.js}
-
-Rationale: {Why these choices}
+- Database: Supabase (Postgres)
+- ORM: Drizzle
+- Auth: Supabase Auth
+- Cache/Rate-limit: Upstash Redis (if needed)
 
 ### Infrastructure
-- Hosting: {Vercel / Railway / Fly.io}
-- CDN: {Vercel Edge / Cloudflare}
-- Analytics: {PostHog / Plausible / Mixpanel}
-- Monitoring: {Sentry / LogRocket}
+- Deployment: Vercel (CI/CD from main branch)
+- Payments: Stripe (if project requires billing)
+- Animation: Motion.dev (if project requires animation)
+
+### Overrides (ADRs)
+{List any deviations from defaults here with rationale. Delete section if no overrides.}
 ```
 
 ### 2. Data Models

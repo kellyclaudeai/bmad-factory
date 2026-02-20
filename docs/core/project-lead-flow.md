@@ -497,41 +497,35 @@ PL behavior: idle wait.
 - `"FIX: {projectId} — {feedback}"` → proceed to Stage 4.3 (Fix)
 - `"PAUSE: {projectId}"` → update registry `paused: true`, stay idle
 
-#### Stage 4.3: Operator Testing — Fix Path
+#### Stage 4.3: Fix Path (Change Flow)
 
 **Operator decides WHAT goes in. PL decides HOW to route it.**
 
-> ⛔ **PL NEVER writes stories or creates story IDs itself.** Story creation is John's job. Dependency graphs are Bob's job. PL is a router — classify the feedback, pick the path, spawn the right agent. That's it.
+> ⛔ **PL NEVER writes stories or creates story IDs itself.** Story creation is John's job. Dependency graphs are Bob's job. PL is a router — classify the depth of change, spawn the right agents. That's it.
+
+**This is just the unified Change Flow applied to QA feedback. Same pipeline, different depth.**
 
 ```
-1. Receive fix feedback from Kelly
-   → Example: "FIX: takeouttrap — Checkout flow confusing, auth broken on mobile"
+1. Receive feedback from Kelly
+   → Example: "FIX: auth broken on mobile" or "ADD: user needs export feature"
 
-2. Route each feedback item through the decision tree:
+2. Classify depth and run the Change Flow:
 
-   ┌─────────────────────────────────────────────────────────────────┐
-   │ Is it a GENUINE BUG?                                            │
-   │ (feature was specified, it just doesn't work as described)      │
-   ├─────────────────────────────────────────────────────────────────┤
-   │ YES → Amelia: fix-qa-feedback                                   │
-   │   Input: operator feedback verbatim + relevant story/ACs        │
-   │   Output: fix committed, pushed to dev                          │
-   │   No new stories. Amelia notes fix in sprint-status.yaml.       │
-   ├─────────────────────────────────────────────────────────────────┤
-   │ NO → Does it require architecture changes?                      │
-   │   (new services, new data models, new integrations)             │
-   ├─────────────────────────────────────────────────────────────────┤
-   │ YES → Winston first: review-architecture-change                 │
-   │   → Then John: scope-qa-feedback (using Winston's output)       │
-   │   → Then Bob: update-dependency-graph                           │
-   │   → Then Phase 2 loop (Amelia)                                  │
-   ├─────────────────────────────────────────────────────────────────┤
-   │ NO → John: scope-qa-feedback (default story path)               │
-   │   Input: operator feedback + prd.md + architecture.md           │
-   │   Output: new story files + sprint-status.yaml entries          │
-   │   → Then Bob: update-dependency-graph                           │
-   │   → Then Phase 2 loop (Amelia)                                  │
-   └─────────────────────────────────────────────────────────────────┘
+   Bug / missed impl (was specified, just broken)
+   → Amelia only: direct fix, no new stories
+   → Amelia notes fix in sprint-status.yaml
+
+   Small change, no design/arch impact
+   → Bob → Amelia
+
+   Change with UX impact
+   → John (scope, add epics) → Sally (UX update) → Bob → Amelia
+
+   Change with arch impact
+   → John (scope, add epics) → Winston (arch update) → John (epics update) → Bob → Amelia
+
+   Full change
+   → John → Sally → Winston → John (epics update) → Bob → Amelia
 
 3. After all fixes/stories complete:
    → Re-run Phase 3 (Test): pre-deploy gates → deploy → TEA execution
@@ -540,7 +534,7 @@ PL behavior: idle wait.
 4. Back to Stage 4.1 (re-notify Kelly, re-enter hold)
 ```
 
-**When in doubt, use the Story Path (John).** Story creation is cheap. It keeps work visible in sprint-status.yaml, gives Amelia clear ACs, and makes the project auditable. Bug Path is the narrow exception.
+**When in doubt, use John.** Story creation is cheap, keeps work visible and auditable. Direct Amelia fix is the narrow exception for clear bugs only.
 
 #### Stage 4.4: Ship (on operator approval)
 
@@ -572,27 +566,31 @@ sessions_send(
 
 **When:** Adding features to existing BMAD project (has `_bmad-output/` directory)
 
-**NEW FEATURE ROUTING:**
-- **Simple features** (well-defined, small scope) → Direct to Phase 1 planning
-- **Complex features** (architectural impact, scope uncertainty) → **correct-course first**
-  - Spawn John: correct-course to analyze impact, recommend approach
-  - Sprint Change Proposal identifies needed changes (PRD, architecture, epics)
-  - Then proceed to Phase 1 with clear plan
+**ALL CHANGES use the unified Change Flow** — new features, QA feedback, bug fixes, correct courses. Same pipeline, different depth. See "The Change Flow (Unified)" section above.
 
-### Correct Course Order of Operations
+### The Change Flow (Unified)
 
-**Rule: determine what changed, then sequence accordingly.**
+**One flow handles everything: QA feedback, new features, bug fixes, correct courses, brownfield additions.** PL classifies depth, runs pipeline at that depth.
 
-| Change Type | Who goes first | Sequence |
-|-------------|---------------|----------|
-| Requirements changed (new/different features) | John | John (PRD edit) → Sally (UX edit if needed) → Winston (arch edit if needed) → John (epics) → Bob → Amelia |
-| Tech stack changed (same features, different how) | Winston | Winston (arch rewrite) → John (epics update) → Bob → Amelia |
-| Bug / missed implementation | Amelia directly | Amelia fixes → no planning needed |
-| Both requirements + tech changed | John | John (PRD edit) → Winston (arch edit) → John (epics) → Bob → Amelia |
+**Fixed order — never changes:** John → Sally → Winston → John (epics) → Bob → Amelia
 
-**Key principle:** John always writes/updates epics *after* the architecture is settled — never before. Winston always works from an up-to-date PRD — never before John has clarified requirements.
+Skip agents who aren't affected. Never reorder them.
 
-**Skip agents who have nothing to change.** If UX isn't affected, don't spawn Sally. If architecture isn't affected, don't spawn Winston. Only touch what changed.
+| Depth | Pipeline |
+|-------|----------|
+| Bug / missed impl (was specified, just broken) | Amelia only |
+| Small change, no design/arch impact | Bob → Amelia |
+| Change with UX impact | John → Sally → Bob → Amelia |
+| Change with arch impact | John → Winston → John (epics update) → Bob → Amelia |
+| Full change (stack swap, major feature, complex feedback) | John → Sally → Winston → John (epics update) → Bob → Amelia |
+
+**Key rules:**
+- John always runs first to scope the change (PRD/epics edit, additive only — never rewrites existing epics)
+- If Winston touches architecture, John runs again after Winston to update epics to match
+- Winston can freely rewrite architecture.md
+- Sally runs only if UX/design is affected
+- Bob always runs before Amelia to update sprint-status + dep graph
+- After Amelia implements: re-run Phase 3 (Test) if major new flows added, otherwise Murat reuses existing suite
 
 ### Phase 1: Plan
 
