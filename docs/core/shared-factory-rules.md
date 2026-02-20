@@ -61,6 +61,31 @@ python3 -c "import yaml,sys; d=yaml.safe_load(open('file.yaml')); print(d['key']
 
 ---
 
+## ✅ QA Gate — All Tests Must Pass
+
+**A project does NOT enter `pending-qa` until 100% of Murat's tests pass.**
+
+- "Minor test infra issues" are not a skip reason — fix them before flipping phase
+- If a test fails, it goes back to Amelia via the Change Flow (Phase 3 Step 5 remediation)
+- No judgment calls on "blocking vs non-blocking" at the test gate — all tests are blocking
+- The only exception: a test explicitly marked `@skip` in the story's acceptance criteria with documented rationale
+
+---
+
+## 🔑 API Keys & Third-Party Credentials
+
+**Kelly and Project Lead are authorized to self-serve free-tier API keys without asking the operator.**
+
+Rules:
+- ✅ Free tier signup with no payment info required → do it autonomously (use browser automation)
+- ✅ Accounts created with the factory email/credentials (check `TOOLS.md` for factory accounts)
+- ✅ Once obtained, set immediately in Vercel/env via CLI
+- ⚠️ Paid tier or credit card required → stop and ask the operator first
+- ⚠️ OAuth apps requiring manual approval flows (e.g., Google OAuth consent screen) → ask operator
+- Never store raw API keys in git. Always set via `vercel env add` or equivalent CLI.
+
+---
+
 ## 📢 Auto-Announce Protocol
 
 Every agent **must announce completion** to the caller (Project Lead or Kelly) when done.
