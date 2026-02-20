@@ -9,7 +9,7 @@ type FactoryState = {
 
 async function getFactoryState(): Promise<FactoryState> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3005';
     const res = await fetch(`${baseUrl}/api/factory-state`, {
       cache: 'no-store',
       next: { revalidate: 0 }

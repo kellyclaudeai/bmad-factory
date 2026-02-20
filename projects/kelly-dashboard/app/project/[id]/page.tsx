@@ -98,7 +98,8 @@ const PROJECTS_ROOT = '/Users/austenallred/clawd/projects'
 async function getProjectState(projectId: string): Promise<ProjectState | null> {
   // NEW: Fetch from project-state API instead of reading file directly
   try {
-    const response = await fetch(`http://localhost:3000/api/project-state?id=${projectId}`, {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3005'
+    const response = await fetch(`${baseUrl}/api/project-state?id=${projectId}`, {
       cache: 'no-store'
     })
     
@@ -114,9 +115,9 @@ async function getProjectState(projectId: string): Promise<ProjectState | null> 
       projectId: data.projectId,
       stage: data.currentPhase || 'unknown',
       currentPhase: data.currentPhase,
-      createdAt: data.timeline?.discoveredAt,
+      createdAt: data.timeline?.discoveredAt || data.timeline?.createdAt,
       updatedAt: data.timeline?.lastUpdated,
-      startedAt: data.timeline?.startedAt,
+      startedAt: data.timeline?.startedAt || data.timeline?.createdAt,
       planningArtifacts: data.planningArtifacts ? {
         prd: data.planningArtifacts['prd.md']?.exists ? 'complete' : 'pending',
         uxDesign: data.planningArtifacts['ux-design.md']?.exists ? 'complete' : 'pending',

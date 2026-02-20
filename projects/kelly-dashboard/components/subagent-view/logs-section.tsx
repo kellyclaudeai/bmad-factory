@@ -74,13 +74,14 @@ async function findArchivedTranscriptPath(sessionsDir: string, sessionId: string
 }
 
 async function fetchSessionId(sessionKey: string): Promise<string | null> {
+  // Read directly from sessions.json — no HTTP needed (server-side)
   try {
-    const response = await fetch(`http://localhost:3000/api/sessions/${encodeURIComponent(sessionKey)}`, {
-      cache: 'no-store',
-    })
-    if (!response.ok) return null
-    const data = await response.json()
-    return data.sessionId || null
+    const parts = sessionKey.split(':')
+    const agentType = parts[1]
+    const sessionsJsonPath = path.join(os.homedir(), '.openclaw', 'agents', agentType, 'sessions', 'sessions.json')
+    const data = JSON.parse(await fs.readFile(sessionsJsonPath, 'utf-8'))
+    const entry = data[sessionKey]
+    return entry?.sessionId || null
   } catch {
     return null
   }
