@@ -97,7 +97,7 @@
       "name": "SentinelHire",
       "path": "projects/sentinel-hire",
       "plSession": "agent:project-lead:sentinel-hire",
-      "phase": "testing",
+      "phase": "qa",
       "createdAt": "2026-02-19T23:54:00-06:00"
     },
     {

@@ -177,6 +177,7 @@ export function ChannelList({ onChannelSelect }: ChannelListProps) {
                   ? `Channel ${channel.name}, ${unreadCount} unread messages`
                   : `Channel ${channel.name}`
               }
+              aria-current={isActive ? "page" : undefined}
               className={`
                 flex w-full items-center justify-between py-1.5 text-left font-mono text-sm transition-colors
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent

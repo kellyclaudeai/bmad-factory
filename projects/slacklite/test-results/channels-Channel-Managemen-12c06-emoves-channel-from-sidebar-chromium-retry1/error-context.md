@@ -1,0 +1,66 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e3]:
+    - complementary "Workspace sidebar" [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e7]:
+          - generic [ref=e9]: SW
+          - paragraph [ref=e10]: SlackLite Workspace
+        - generic [ref=e11]:
+          - region "Channels" [ref=e12]:
+            - generic [ref=e13]:
+              - heading "Channels" [level=2] [ref=e14]
+              - generic [ref=e15]:
+                - button "Invite Team" [ref=e16] [cursor=pointer]
+                - button "+ New Channel" [ref=e17] [cursor=pointer]
+            - paragraph [ref=e18]: No channels yet. Create one to get started.
+          - region "Direct Messages" [ref=e19]:
+            - generic [ref=e20]:
+              - heading "Direct Messages" [level=2] [ref=e21]
+              - button "+ New DM" [ref=e22] [cursor=pointer]
+            - paragraph [ref=e23]: No direct messages yet. Click a team member to start chatting.
+          - region "Members (0)" [ref=e24]:
+            - button "Members (0)" [expanded] [ref=e26] [cursor=pointer]:
+              - generic [ref=e27]: Members (0)
+              - generic [ref=e28]: ▾
+            - paragraph [ref=e30]: No other members yet. Invite your team!
+    - dialog [ref=e31]:
+      - generic [ref=e33]:
+        - button "Close modal" [ref=e34] [cursor=pointer]:
+          - img [ref=e35]
+        - generic [ref=e37]:
+          - heading "Create a Channel" [level=3] [ref=e38]
+          - generic [ref=e39]: Unable to create channel. Please try again.
+          - generic [ref=e40]:
+            - generic [ref=e41]: Name
+            - generic [ref=e42]:
+              - generic [ref=e43]: "#"
+              - textbox "Name" [ref=e45]:
+                - /placeholder: channel-name
+                - text: ch-1771582222002-51bvh
+            - paragraph [ref=e46]: Lowercase, no spaces. Use - for multiple words.
+          - generic [ref=e47]:
+            - button "Cancel" [ref=e48] [cursor=pointer]
+            - button "Create" [ref=e49] [cursor=pointer]
+    - generic [ref=e50]:
+      - banner [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - paragraph [ref=e54]: SlackLite
+            - paragraph [ref=e55]: chan-delete-1771582218529-hrzo0
+          - button "Sign Out" [ref=e56] [cursor=pointer]
+      - main [ref=e58]:
+        - generic [ref=e59]:
+          - heading "# uT5kg9aRTK1rwH8FJAlH" [level=1] [ref=e61]
+          - generic [ref=e65]:
+            - paragraph [ref=e66]: No messages yet
+            - paragraph [ref=e67]: Be the first to send a message in this channel!
+          - generic [ref=e68]:
+            - generic [ref=e69]:
+              - textbox "Type a message..." [ref=e70]
+              - button "Send" [disabled] [ref=e71]
+            - paragraph [ref=e72]: Enter to send · Shift+Enter for newline
+```

@@ -71,7 +71,7 @@ test.describe("Authentication", () => {
     await expect(page).not.toHaveURL(APP_CHANNEL_URL_RE);
     // Landing page should show the main heading
     await expect(
-      page.getByRole("heading", { name: /Lightweight Team Messaging/i })
+      page.getByRole("heading", { name: /the team chat you/i })
     ).toBeVisible({ timeout: 10_000 });
   });
 

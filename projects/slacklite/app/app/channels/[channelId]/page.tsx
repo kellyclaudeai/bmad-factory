@@ -371,7 +371,7 @@ export default function ChannelPage() {
             </div>
           )}
 
-          {(loading || isChannelSwitching) && (
+          {(loading || isChannelSwitching) && messages.length === 0 && (
             <div className="flex flex-1 items-center justify-center py-8 bg-surface-2">
               <div role="status" className="flex items-center gap-2 text-sm text-muted">
                 <span
@@ -400,7 +400,7 @@ export default function ChannelPage() {
             </div>
           )}
 
-          {!loading && !error && messages.length > 0 && (
+          {!error && messages.length > 0 && (
             <div className="min-h-0 flex-1">
               <MessageList
                 messages={messages}

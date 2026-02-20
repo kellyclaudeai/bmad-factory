@@ -14,7 +14,6 @@ import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { Button, Input } from "@/components/ui";
 import { auth, firestore } from "@/lib/firebase/client";
 import { trackAuthTime } from "@/lib/monitoring/performance";
-import { syncServerSession } from "@/lib/utils/session";
 import { validateEmail as validateEmailInput } from "@/lib/utils/validation";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -158,7 +157,6 @@ function SignUpContent() {
         isOnline: false,
       });
 
-      await syncServerSession(firebaseUser);
       authOutcome = "success";
       router.replace(redirectPath ?? "/create-workspace");
     } catch (error) {

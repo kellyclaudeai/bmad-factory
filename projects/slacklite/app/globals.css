@@ -70,3 +70,11 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
 }
+
+/* Prevent iOS Safari auto-zoom on input focus (requires font-size >= 16px) */
+input[type="email"],
+input[type="password"],
+input[type="text"],
+textarea {
+  font-size: 1rem; /* 16px */
+}

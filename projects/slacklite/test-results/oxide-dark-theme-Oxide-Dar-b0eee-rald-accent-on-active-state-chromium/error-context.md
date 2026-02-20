@@ -1,0 +1,48 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e3]:
+    - complementary "Workspace sidebar" [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e7]:
+          - generic [ref=e9]: SW
+          - paragraph [ref=e10]: SlackLite Workspace
+        - generic [ref=e11]:
+          - region "Channels" [ref=e12]:
+            - generic [ref=e13]:
+              - heading "Channels" [level=2] [ref=e14]
+              - generic [ref=e15]:
+                - button "Invite Team" [ref=e16] [cursor=pointer]
+                - button "+ New Channel" [ref=e17] [cursor=pointer]
+            - paragraph [ref=e18]: No channels yet. Create one to get started.
+          - region "Direct Messages" [ref=e19]:
+            - generic [ref=e20]:
+              - heading "Direct Messages" [level=2] [ref=e21]
+              - button "+ New DM" [ref=e22] [cursor=pointer]
+            - paragraph [ref=e23]: No direct messages yet. Click a team member to start chatting.
+          - region "Members (0)" [ref=e24]:
+            - button "Members (0)" [expanded] [ref=e26] [cursor=pointer]:
+              - generic [ref=e27]: Members (0)
+              - generic [ref=e28]: ▾
+            - paragraph [ref=e30]: No other members yet. Invite your team!
+    - generic [ref=e31]:
+      - banner [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - paragraph [ref=e35]: SlackLite
+            - paragraph [ref=e36]: ox-activechan-1771582452325-ionld
+          - button "Sign Out" [ref=e37] [cursor=pointer]
+      - main [ref=e39]:
+        - generic [ref=e40]:
+          - heading "# 3Ix9nZpWxrtPTsdYN2tK" [level=1] [ref=e42]
+          - generic [ref=e46]:
+            - paragraph [ref=e47]: No messages yet
+            - paragraph [ref=e48]: Be the first to send a message in this channel!
+          - generic [ref=e49]:
+            - generic [ref=e50]:
+              - textbox "Type a message..." [ref=e51]
+              - button "Send" [disabled] [ref=e52]
+            - paragraph [ref=e53]: Enter to send · Shift+Enter for newline
+```
