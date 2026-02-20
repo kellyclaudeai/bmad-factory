@@ -185,6 +185,22 @@ Add to `~/.openclaw/workspace-bmad-bmm-bob/AGENTS.md`:
 
 ## Phase 2: Amelia's Figma MCP Usage
 
+### frontend-design Skill (Anthropic Official)
+
+Amelia uses the **`frontend-design`** skill (installed from `anthropics/claude-code`) when writing all UI code. This skill ensures output avoids generic "AI slop" aesthetics (Inter font, purple gradients, cookie-cutter layouts) and instead commits to a bold, distinctive aesthetic direction before touching code.
+
+**Key directives from the skill:**
+- Choose an extreme aesthetic direction (brutally minimal, retro-futuristic, editorial, etc.) and commit to it
+- Use distinctive, characterful fonts — never Inter, Roboto, Arial, or Space Grotesk
+- Unexpected layouts: asymmetry, overlap, diagonal flow, grid-breaking elements
+- CSS animations for high-impact moments; scroll-triggered reveals; hover states that surprise
+- Each project should have a unique visual identity — never converge on safe defaults
+
+**Figma MCP + frontend-design together:**
+Figma provides the *structure and layout spec*. The frontend-design skill provides the *aesthetic execution philosophy*. Amelia uses both: match the layout from Figma, but apply the aesthetic direction from the skill.
+
+---
+
 ### Amelia's New Workflow
 
 **Before implementing a story:**
