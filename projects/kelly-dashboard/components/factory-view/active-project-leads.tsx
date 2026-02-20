@@ -42,6 +42,9 @@ function getStatusColor(status: string): string {
   switch (status.toLowerCase()) {
     case "active":
       return "bg-terminal-green/10 text-terminal-green border-terminal-green";
+    case "awaiting-qa":
+    case "awaiting_qa":
+      return "bg-purple-500/10 text-purple-400 border-purple-500";
     case "idle":
     case "waiting":
       return "bg-terminal-amber/10 text-terminal-amber border-terminal-amber";
@@ -142,7 +145,7 @@ function ProjectLeadCard({ session }: { session: Session }) {
               variant="outline"
               className={`text-xs font-mono ${getStatusColor(status)}`}
             >
-              {status.toUpperCase()}
+              {status === "awaiting-qa" ? "⏳ AWAITING QA" : status.toUpperCase()}
             </Badge>
           </div>
         </CardHeader>

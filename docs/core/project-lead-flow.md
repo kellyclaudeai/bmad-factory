@@ -7,6 +7,7 @@
 **Recent Updates:**
 - v4.1 (2026-02-19): **STATELESS PL + CONTEXT DISCIPLINE.** PL must keep replies to 1-2 lines, never narrate history, rotate session every 25 stories. Prevents 200k token overflow on large projects. See Context Discipline section.
 - v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. (Proposed, not yet implemented)
+- v4.3 (2026-02-19): **PENDING-QA STATE.** After Phase 3 TEA passes, PL sets `state: "pending-qa"` in registry (not `in-progress`). Dashboard shows pending-qa projects as "AWAITING QA" even without a live PL session. Projects stay visible until operator explicitly ships or pauses them. PL MUST NOT mark shipped — only the operator can do that.
 - v4.2 (2026-02-19): **PHASE NAMING + TEA STREAMLINED.** Phase 3 renamed "Test" (was "Post-Deploy Verification/QA"). TEA simplified: TD+TF+TA combined into single Murat "test-generate" pass. Removed RV (test review) and TR (traceability) — redundant overhead for MVP factory. New TEA: test-generate → E2E execution + NR in parallel.
 - v3.3 (2026-02-19): **CODE REVIEW DISABLED.** Stories now go dev → done directly (skipping code-review Amelia). Rationale: 80%+ reviews pass, adds 5-10 min overhead per story, Phase 3 TEA testing more thorough. Can re-enable once factory proven.
 - v3.2 (2026-02-19): Restructured Phase 3 into Pre-Deploy Gates → Deploy → Post-Deploy Verification. Full TEA suite (TD, TF, TA, RV, TR, NR) runs against deployed app. Failures batched → Amelia remediates → redeploy → re-run. Removed correct-course routing for QA failures (direct to Amelia).
@@ -368,7 +369,9 @@ If brownfield project (existing codebase):
 
 **When Phase 3 (Test) passes**, the app is already deployed (from Phase 3 Step 2). Notify the user for human testing.
 
-#### Stage 4.1: Notify Kelly
+#### Stage 4.1: Notify Kelly + Set pending-qa
+
+**CRITICAL:** Set `state: "pending-qa"` in the registry. This keeps the project visible on the dashboard as "AWAITING QA" even after the PL session exits. Do NOT mark as `shipped` — only the operator can do that.
 
 ```javascript
 sessions_send(
@@ -378,6 +381,7 @@ sessions_send(
 ```
 
 Update project-registry.json:
+- **Set `state: "pending-qa"`** (was `in-progress`) — keeps project on dashboard until operator approves
 - Set `surfacedForQA: false` (Kelly will set to true after announcing)
 - Ensure `implementation.qaUrl` is set (should be from Phase 3 deployment)
 

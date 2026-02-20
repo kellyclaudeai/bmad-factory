@@ -34,6 +34,58 @@ type ProjectRegistryEntry = {
 let registryCache: { sessionToProjectId: Map<string, string>; timestamp: number } | null = null;
 const REGISTRY_CACHE_TTL = 30000;
 
+// Per-agent cache: agentName -> { uuidToSessionKey: Map, timestamp }
+const agentSessionsCache = new Map<string, { uuidToSessionKey: Map<string, string>; timestamp: number }>();
+const AGENT_SESSIONS_CACHE_TTL = 15000;
+
+async function loadAgentSessionsJson(agentName: string): Promise<Map<string, string>> {
+  const cached = agentSessionsCache.get(agentName);
+  if (cached && Date.now() - cached.timestamp < AGENT_SESSIONS_CACHE_TTL) {
+    return cached.uuidToSessionKey;
+  }
+
+  const uuidToSessionKey = new Map<string, string>();
+  try {
+    const sessionsJsonPath = path.join(AGENTS_ROOT, agentName, 'sessions', 'sessions.json');
+    const content = await fs.readFile(sessionsJsonPath, 'utf8');
+    const sessionsMap: Record<string, { sessionId: string }> = JSON.parse(content);
+    for (const [sessionKey, entry] of Object.entries(sessionsMap)) {
+      if (entry?.sessionId) {
+        uuidToSessionKey.set(entry.sessionId, sessionKey);
+      }
+    }
+  } catch {
+    // sessions.json might not exist; just return empty map
+  }
+
+  agentSessionsCache.set(agentName, { uuidToSessionKey, timestamp: Date.now() });
+  return uuidToSessionKey;
+}
+
+type RegistryProjectFull = {
+  id: string;
+  name?: string;
+  state?: string;
+  paused?: boolean;
+  timeline?: { lastUpdated?: string; startedAt?: string };
+  implementation?: {
+    plSession?: string;
+    projectDir?: string;
+    qaUrl?: string;
+    deployedUrl?: string;
+  };
+};
+
+async function loadPendingQaProjects(): Promise<RegistryProjectFull[]> {
+  try {
+    const content = await fs.readFile(REGISTRY_PATH, 'utf8');
+    const registry: { projects: RegistryProjectFull[] } = JSON.parse(content);
+    return registry.projects.filter(p => p.state === 'pending-qa' && !p.paused);
+  } catch {
+    return [];
+  }
+}
+
 async function loadRegistryMapping(): Promise<Map<string, string>> {
   if (registryCache && Date.now() - registryCache.timestamp < REGISTRY_CACHE_TTL) {
     return registryCache.sessionToProjectId;
@@ -162,8 +214,15 @@ async function scanSessionFiles(activeMinutes: number): Promise<FrontendSession[
           } catch {
             // Skip metadata if parse fails
           }
+
+          // If JSONL first line doesn't have sessionKey, check sessions.json reverse map
+          // This handles the common case where OpenClaw doesn't embed sessionKey in JSONL
+          if (!realSessionKey) {
+            const uuidToSessionKey = await loadAgentSessionsJson(agentName);
+            realSessionKey = uuidToSessionKey.get(sessionId);
+          }
           
-          // Use real session key if found, otherwise use reconstructed one
+          // Use real session key if found, otherwise fall back to UUID-derived key
           const finalSessionKey = realSessionKey || buildSessionKey(agentName, sessionId);
           const agentType = extractAgentType(agentName);
           const projectId = await extractProjectId(finalSessionKey, registryMapping);
@@ -193,6 +252,26 @@ async function scanSessionFiles(activeMinutes: number): Promise<FrontendSession[
     }
   } catch (error) {
     console.error('Error scanning session files:', error);
+  }
+
+  // Inject synthetic sessions for pending-qa projects (no live session needed)
+  const pendingQaProjects = await loadPendingQaProjects();
+  const liveProjectIds = new Set(sessions.filter(s => s.projectId).map(s => s.projectId!));
+
+  for (const project of pendingQaProjects) {
+    if (liveProjectIds.has(project.id)) continue; // Already shown via live session
+    sessions.push({
+      sessionKey: project.implementation?.plSession || `agent:project-lead:project-${project.id}`,
+      sessionId: `pending-qa-${project.id}`,
+      label: project.name || project.id,
+      agentType: 'project-lead',
+      projectId: project.id,
+      status: 'awaiting-qa',
+      lastActivity: project.timeline?.lastUpdated || project.timeline?.startedAt || new Date().toISOString(),
+      model: undefined,
+      channel: undefined,
+      displayName: project.name || project.id,
+    });
   }
 
   return sessions;

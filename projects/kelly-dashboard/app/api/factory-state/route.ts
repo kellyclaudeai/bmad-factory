@@ -25,7 +25,7 @@ const EMPTY_FACTORY_STATE: FactoryStateResponse = {
 type RegistryProject = {
   id: string;
   name: string;
-  state: "discovery" | "in-progress" | "shipped" | "followup";
+  state: "discovery" | "in-progress" | "pending-qa" | "shipped" | "followup";
   paused: boolean;
 };
 
@@ -50,6 +50,10 @@ function parseProjectRegistry(registry: ProjectRegistry): FactoryStateResponse {
         parsed.queued.push(project.id);
         break;
       case "in-progress":
+        parsed.active.push(project.id);
+        break;
+      case "pending-qa":
+        // Awaiting operator human QA — still "active" on dashboard
         parsed.active.push(project.id);
         break;
       case "shipped":

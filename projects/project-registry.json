@@ -149,7 +149,7 @@
       },
       "intake": {
         "problem": "People are missing out on valuable local experiences (food popups, open mics, niche workshops, pop-up markets, community gatherings) because: 1) They discover them too late (via Instagram stories after events end), 2) Eventbrite focuses on mainstream/paid events not low-key local happenings, 3) No centralized proactive discovery tool for hyper-local hidden gems. Core pain: FOMO (finding out about great local events after they've happened), disconnection from local community, information scattered across Instagram/Facebook groups/local websites.",
-        "solution": "Radar-style map interface showing ONLY events happening in the next 4 hours within configurable radius (0.5-2 miles). No calendars, no planning—pure spontaneity. Push notifications fire at optimal decision moments (e.g., 'Taco popup starting in 30 mins, 0.3mi away'). Users subscribe to event types (food, music, art) and get real-time pings when interests activate nearby. Anti-calendar design—deliberately ephemeral. Events disappear from radar as they end, creating urgency. Novel approach: Radar metaphor for ephemeral local events (never been done), NOW-only view eliminates decision paralysis, visual pulse rings show real-time activity.",
+        "solution": "Radar-style map interface showing ONLY events happening in the next 4 hours within configurable radius (0.5-2 miles). No calendars, no planning\u2014pure spontaneity. Push notifications fire at optimal decision moments (e.g., 'Taco popup starting in 30 mins, 0.3mi away'). Users subscribe to event types (food, music, art) and get real-time pings when interests activate nearby. Anti-calendar design\u2014deliberately ephemeral. Events disappear from radar as they end, creating urgency. Novel approach: Radar metaphor for ephemeral local events (never been done), NOW-only view eliminates decision paralysis, visual pulse rings show real-time activity.",
         "targetAudience": "Urban dwellers (20-40), socially curious, want to explore their neighborhood, interested in food/music/arts/culture. Currently rely on Instagram/word-of-mouth (broken experience). Weekly pain (every weekend, some weeknights). Proven willingness to pay .99/mo for lifestyle apps.",
         "keyFeatures": [
           "Radar Map View (animated radar rings pulsing from user location)",
@@ -260,7 +260,7 @@
     {
       "id": "slacklite",
       "name": "SlackLite",
-      "state": "in-progress",
+      "state": "pending-qa",
       "paused": false,
       "pausedReason": null,
       "researchDir": "ideas/slack-lite-2026-02-18-2310",
@@ -269,7 +269,7 @@
       "discoveryStrategy": "manual-intake",
       "timeline": {
         "discoveredAt": "2026-02-19T05:10:53+0000",
-        "lastUpdated": "2026-02-19T16:32:22Z",
+        "lastUpdated": "2026-02-20T01:08:28Z",
         "startedAt": "2026-02-19T05:11:24Z"
       },
       "intake": {
@@ -325,6 +325,52 @@
       "implementation": null,
       "followup": [],
       "researchDir": "ideas/car-maintenance-tracker-2026-02-19-1047"
+    },
+    {
+      "id": "quick-poll",
+      "name": "Quick Poll",
+      "state": "pending-qa",
+      "paused": false,
+      "pausedReason": null,
+      "surfacedForQA": false,
+      "researchSession": null,
+      "researchPhase": null,
+      "discoveryStrategy": null,
+      "timeline": {
+        "discoveredAt": "2026-02-19T23:55:04Z",
+        "startedAt": "2026-02-19T23:55:04Z",
+        "lastUpdated": "2026-02-20T01:08:28Z",
+        "completedAt": null,
+        "deployedAt": null
+      },
+      "intake": {
+        "problem": "Need a simple, no-auth public polling app for end-to-end pipeline testing.",
+        "solution": "Quick Poll - A simple public polling app where users can create polls, share links, vote, and see live results.",
+        "targetAudience": "Anyone who needs to create and share quick polls without requiring login.",
+        "keyFeatures": [
+          "Create a poll with a question and multiple choice options",
+          "Share a link to the poll",
+          "Anyone can vote (no login required)",
+          "See live vote results after voting"
+        ]
+      },
+      "implementation": {
+        "projectDir": "quick-poll",
+        "plSession": "agent:project-lead:project-quick-poll",
+        "sprintProgress": "21/21 stories done (100%)",
+        "currentStory": null,
+        "qaUrl": null,
+        "localUrl": null,
+        "gitRepo": null,
+        "buildStatus": "passing",
+        "deployment": {
+          "platform": "Firebase Hosting",
+          "productionUrl": null
+        }
+      },
+      "followup": [],
+      "notes": [],
+      "researchDir": null
     }
   ]
 }

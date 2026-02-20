@@ -9,7 +9,7 @@ The software factory manages projects through a clear lifecycle, with all state 
 ## State Machine
 
 ```
-discovery → in-progress → shipped → followup → shipped
+discovery → in-progress → pending-qa → shipped → followup → shipped
     ↓           ↓           ↓          ↓
   paused      paused      paused    paused
 ```
@@ -19,8 +19,9 @@ discovery → in-progress → shipped → followup → shipped
 | State | Description | Owner |
 |-------|-------------|-------|
 | **discovery** | Fresh idea from Research Lead, awaiting operator selection | Research Lead creates, Kelly surfaces |
-| **in-progress** | Active implementation by Project Lead (planning → build → QA) | Project Lead |
-| **shipped** | Deployed, live, stable - User QA passed | Project Lead |
+| **in-progress** | Active implementation by Project Lead (planning → build → test) | Project Lead |
+| **pending-qa** | Automated testing passed, deployed, awaiting operator human QA | Project Lead sets; Operator clears |
+| **shipped** | Operator approved after human QA, live in production | Operator only |
 | **followup** | Post-ship work (fixes, enhancements, new features) | Project Lead |
 | **paused** | User explicitly paused (any phase) - can resume to previous state | Operator/Kelly |
 
@@ -29,7 +30,9 @@ discovery → in-progress → shipped → followup → shipped
 | From | To | Trigger | Actor |
 |------|----|---------| ------|
 | discovery | in-progress | Operator picks idea, PL starts project | Project Lead |
-| in-progress | shipped | User QA passed, deployed to production | Project Lead |
+| in-progress | pending-qa | Phase 3 TEA passes, PL notifies Kelly | Project Lead |
+| pending-qa | shipped | Operator human-tests and approves | Operator only |
+| pending-qa | in-progress | Operator sends project back for fixes | Operator/Kelly |
 | shipped | followup | Operator requests fixes/enhancements | Project Lead |
 | followup | shipped | Followup work complete and deployed | Project Lead |
 | any | paused | Operator pauses (blocked, deprioritized, etc.) | Project Lead |
@@ -151,7 +154,7 @@ discovery → in-progress → shipped → followup → shipped
 ### Top Level
 - **id** - Unique identifier (kebab-case name + optional timestamp)
 - **name** - Human-readable project name
-- **state** - Current lifecycle state (discovery|in-progress|shipped|followup|paused)
+- **state** - Current lifecycle state (discovery|in-progress|pending-qa|shipped|followup|paused)
 - **paused** - Boolean flag (paused state OR any state with pause)
 - **pausedReason** - Why paused (optional, for operator context)
 - **surfacedForQA** - Boolean flag: has Kelly already announced this project's QA URL to operator? Prevents duplicate announcements during heartbeats. Reset to false when project changes state or qaUrl changes.
