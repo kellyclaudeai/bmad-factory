@@ -274,8 +274,12 @@ Step 3b: Execution + NFR (parallel — after test-generate)
   → E2E execution against deployed URL → test-execution-report.md
   → Spawn Murat: nfr-assess → nfr-assessment-report.md
   → Failures → batch ALL → Amelia fix-postdeploy → redeploy → re-run 3b only
+  ⚠️  HARD BLOCKERS (do NOT proceed to Phase 4):
+      - Happy path journey test fails
+      - Error path journey test fails
+      Both must pass before entering pending-QA hold.
 
-If PASS → Phase 4: User QA
+If ALL pass (including both journeys) → Phase 4: User QA
 ```
 
 ---
