@@ -142,69 +142,74 @@ function SignInContent() {
 
   if (isCheckingAuth) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-10">
-        <div className="w-full max-w-[400px] rounded-lg border border-gray-300 bg-white p-6 shadow-sm">
-          <p className="text-center text-sm text-gray-700">Checking session...</p>
+      <main className="flex min-h-screen items-center justify-center bg-base px-4 py-10">
+        <div className="w-full max-w-[400px] rounded-lg border border-border bg-surface-2 p-6 shadow-xl">
+          <p className="text-center text-sm text-secondary">Checking session...</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-10">
-      <section className="w-full max-w-[400px] rounded-lg border border-gray-300 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold text-gray-900">Sign In</h1>
-        <p className="mt-2 text-sm text-gray-700">
-          Enter your email and password to continue.
-        </p>
+    <main className="flex min-h-screen items-center justify-center bg-base px-4 py-10">
+      <div className="w-full max-w-[400px]">
+        {/* Logo */}
+        <div className="mb-8 text-center">
+          <span className="font-mono text-2xl font-semibold text-accent">SlackLite</span>
+          <p className="mt-2 text-sm text-secondary">Sign in to your workspace</p>
+        </div>
 
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
-          <Input
-            id="email"
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              setErrorMessage("");
-              setEmailError(getEmailValidationError(event.target.value));
-            }}
-            autoComplete="email"
-            disabled={isLoading}
-            error={emailError}
-            required
-          />
+        {/* Auth card */}
+        <section className="rounded-lg border border-border bg-surface-2 p-8 shadow-xl">
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+            {/* Error banner */}
+            {errorMessage ? (
+              <div
+                role="alert"
+                className="rounded-md border border-error bg-error-subtle px-4 py-3 text-sm font-mono text-error"
+              >
+                {errorMessage}
+              </div>
+            ) : null}
 
-          <Input
-            id="password"
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete="current-password"
-            disabled={isLoading}
-            required
-          />
+            <Input
+              id="email"
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                setErrorMessage("");
+                setEmailError(getEmailValidationError(event.target.value));
+              }}
+              autoComplete="email"
+              disabled={isLoading}
+              error={emailError}
+              required
+            />
 
-          {errorMessage ? (
-            <p
-              role="alert"
-              className="rounded border border-error/30 bg-error/10 px-3 py-2 text-sm text-error"
+            <Input
+              id="password"
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="current-password"
+              disabled={isLoading}
+              required
+            />
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={!canSubmit}
             >
-              {errorMessage}
-            </p>
-          ) : null}
+              {isLoading ? "Signing in..." : "Sign in"}
+            </Button>
+          </form>
+        </section>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={!canSubmit}
-          >
-            {isLoading ? "Signing in..." : "Sign In"}
-          </Button>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-gray-700">
+        <p className="mt-6 text-center text-sm text-secondary">
           Don&apos;t have an account?{" "}
           <Link
             href={
@@ -212,21 +217,21 @@ function SignInContent() {
                 ? `/signup?next=${encodeURIComponent(redirectPath)}`
                 : "/signup"
             }
-            className="font-medium text-primary-brand transition-colors hover:text-primary-light"
+            className="text-accent transition-colors hover:text-accent-hover"
           >
-            Sign Up
+            Sign up
           </Link>
         </p>
-      </section>
+      </div>
     </main>
   );
 }
 
 function SignInLoadingFallback() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-10">
-      <div className="w-full max-w-[400px] rounded-lg border border-gray-300 bg-white p-6 shadow-sm">
-        <p className="text-center text-sm text-gray-700">Loading sign-in...</p>
+    <main className="flex min-h-screen items-center justify-center bg-base px-4 py-10">
+      <div className="w-full max-w-[400px] rounded-lg border border-border bg-surface-2 p-6 shadow-xl">
+        <p className="text-center text-sm text-secondary">Loading sign-in...</p>
       </div>
     </main>
   );

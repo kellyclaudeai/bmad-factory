@@ -20,6 +20,7 @@ import {
 } from "react-window";
 
 import type { Message } from "@/lib/types/models";
+import MessageItem from "@/components/features/messages/MessageItem";
 
 const ESTIMATED_MESSAGE_HEIGHT_PX = 80;
 const DEFAULT_VIEWPORT_HEIGHT_PX = 600;
@@ -65,15 +66,6 @@ function Spinner({
   );
 }
 
-function formatMessageTimestamp(timestamp: Message["timestamp"]): string {
-  const messageDate = typeof timestamp === "number" ? new Date(timestamp) : timestamp.toDate();
-
-  return messageDate.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 const ListOuterElement = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   function ListOuterElement(props, ref) {
     return <div {...props} ref={ref} data-testid="channel-message-list" />;
@@ -106,12 +98,34 @@ const ListInnerElement = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElemen
   }
 );
 
+/**
+ * Returns true when `curr` should start a new message group.
+ * A new group begins when the author changes or more than 5 minutes
+ * have elapsed since the previous message.
+ */
+function isNewGroup(prev: Message | null | undefined, curr: Message): boolean {
+  if (!prev) return true;
+  if (prev.userId !== curr.userId) return true;
+
+  const prevMs =
+    typeof (prev.timestamp as { toMillis?: () => number }).toMillis === "function"
+      ? (prev.timestamp as unknown as { toMillis: () => number }).toMillis()
+      : (prev.timestamp as unknown as number);
+  const currMs =
+    typeof (curr.timestamp as { toMillis?: () => number }).toMillis === "function"
+      ? (curr.timestamp as unknown as { toMillis: () => number }).toMillis()
+      : (curr.timestamp as unknown as number);
+
+  return currMs - prevMs > 5 * 60 * 1000;
+}
+
 const MessageRow = memo(function MessageRow({
   index,
   style,
   data,
 }: ListChildComponentProps<MessageListItemData>) {
   const message = data.messages[index];
+  const prevMessage = index > 0 ? data.messages[index - 1] : null;
   const rowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -149,53 +163,25 @@ const MessageRow = memo(function MessageRow({
     return null;
   }
 
+  const groupStart = isNewGroup(prevMessage, message);
+
   return (
     <div
       style={style}
       data-testid="virtualized-message-row-container"
       data-message-id={message.messageId}
+      className={message.status === "sending" ? "opacity-70" : undefined}
     >
-      <div
-        ref={rowRef}
-        data-testid="virtualized-message-row"
-        className={`px-4 py-2 ${message.status === "sending" ? "opacity-70" : ""}`}
-      >
-        <div className="flex gap-3">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded bg-primary-brand font-semibold text-white">
-            {message.userName?.charAt(0).toUpperCase() || "?"}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline gap-2">
-              <span className="font-semibold text-primary">{message.userName || "Unknown"}</span>
-              <span
-                className={`text-xs ${
-                  message.status === "failed" ? "text-error" : "text-muted"
-                }`}
-              >
-                {message.status === "sending"
-                  ? "Sending..."
-                  : formatMessageTimestamp(message.timestamp)}
-              </span>
-            </div>
-            <p className="mt-1 whitespace-pre-wrap break-words text-sm text-secondary">
-              {message.text}
-            </p>
-            {message.status === "failed" && (
-              <div className="mt-1 flex items-center gap-2">
-                <span className="text-xs text-error">Failed to send. Retry?</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    data.onRetryMessage?.(message.messageId);
-                  }}
-                  className="text-xs font-medium text-error underline decoration-error/60 underline-offset-2 hover:text-red-700"
-                >
-                  Retry
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+      <div ref={rowRef} data-testid="virtualized-message-row">
+        <MessageItem
+          message={message}
+          isGroupStart={groupStart}
+          onRetry={
+            message.status === "failed" && data.onRetryMessage
+              ? () => data.onRetryMessage!(message.messageId)
+              : undefined
+          }
+        />
       </div>
     </div>
   );

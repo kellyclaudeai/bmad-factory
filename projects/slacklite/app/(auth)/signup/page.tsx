@@ -171,58 +171,62 @@ function SignUpContent() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full items-center justify-center">
-        <section className="w-full rounded-lg border border-gray-300 bg-white p-8 shadow-sm sm:max-w-[400px]">
-          <h1 className="text-center text-xl font-semibold text-gray-900">
-            Create Your Account
-          </h1>
+    <main className="flex min-h-screen items-center justify-center bg-base px-4 py-10">
+      <div className="w-full max-w-[400px]">
+        {/* Logo */}
+        <div className="mb-8 text-center">
+          <span className="font-mono text-2xl font-semibold text-accent">SlackLite</span>
+          <p className="mt-2 text-sm text-secondary">Create your account</p>
+        </div>
 
+        {/* Auth card */}
+        <section
+          className="rounded-lg border border-border bg-surface-2 p-8 shadow-xl"
+          aria-label="Sign up form"
+        >
           <form
-            className="mt-6"
+            className="flex flex-col gap-4"
             onSubmit={handleSubmit}
             aria-label="Sign up form"
             noValidate
           >
-            <div className="mb-4">
-              <Input
-                id="signup-email"
-                type="email"
-                label="Email Address"
-                placeholder="you@company.com"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => handleEmailChange(event.target.value)}
-                error={errors.email}
-                aria-label="Email address"
-                disabled={loading}
-              />
-            </div>
-
-            <div className="mb-4">
-              <Input
-                id="signup-password"
-                type="password"
-                label="Password"
-                placeholder="********"
-                autoComplete="new-password"
-                minLength={MIN_PASSWORD_LENGTH}
-                value={password}
-                onChange={(event) => handlePasswordChange(event.target.value)}
-                error={errors.password}
-                aria-label="Password"
-                disabled={loading}
-              />
-            </div>
-
+            {/* Error banner */}
             {errorMessage ? (
-              <p
+              <div
                 role="alert"
-                className="mb-4 rounded border border-error/30 bg-error/10 px-3 py-2 text-sm text-error"
+                className="rounded-md border border-error bg-error-subtle px-4 py-3 text-sm font-mono text-error"
               >
                 {errorMessage}
-              </p>
+              </div>
             ) : null}
+
+            <Input
+              id="signup-email"
+              type="email"
+              label="Email Address"
+              placeholder="you@company.com"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => handleEmailChange(event.target.value)}
+              error={errors.email}
+              aria-label="Email address"
+              disabled={loading}
+            />
+
+            <Input
+              id="signup-password"
+              type="password"
+              label="Password"
+              placeholder="••••••••"
+              autoComplete="new-password"
+              minLength={MIN_PASSWORD_LENGTH}
+              helperText="Minimum 8 characters"
+              value={password}
+              onChange={(event) => handlePasswordChange(event.target.value)}
+              error={errors.password}
+              aria-label="Password"
+              disabled={loading}
+            />
 
             <Button
               type="submit"
@@ -235,7 +239,7 @@ function SignUpContent() {
                 <>
                   <span
                     aria-hidden="true"
-                    className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white/80 border-t-transparent"
+                    className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-inverse/80 border-t-transparent"
                   />
                   Creating Account...
                 </>
@@ -244,21 +248,21 @@ function SignUpContent() {
               )}
             </Button>
           </form>
-
-          <p className="mt-4 text-center text-base text-gray-700">
-            Already have an account?{" "}
-            <Link
-              href={
-                redirectPath
-                  ? `/signin?next=${encodeURIComponent(redirectPath)}`
-                  : "/signin"
-              }
-              className="font-medium text-primary-brand hover:text-primary-light focus:outline-none focus:underline"
-            >
-              Sign In
-            </Link>
-          </p>
         </section>
+
+        <p className="mt-6 text-center text-sm text-secondary">
+          Already have an account?{" "}
+          <Link
+            href={
+              redirectPath
+                ? `/signin?next=${encodeURIComponent(redirectPath)}`
+                : "/signin"
+            }
+            className="text-accent transition-colors hover:text-accent-hover"
+          >
+            Sign in
+          </Link>
+        </p>
       </div>
     </main>
   );
@@ -266,11 +270,9 @@ function SignUpContent() {
 
 function SignUpLoadingFallback() {
   return (
-    <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full items-center justify-center">
-        <section className="w-full rounded-lg border border-gray-300 bg-white p-8 shadow-sm sm:max-w-[400px]">
-          <p className="text-center text-sm text-gray-700">Loading sign-up...</p>
-        </section>
+    <main className="flex min-h-screen items-center justify-center bg-base px-4 py-10">
+      <div className="w-full max-w-[400px] rounded-lg border border-border bg-surface-2 p-8 shadow-xl">
+        <p className="text-center text-sm text-secondary">Loading sign-up...</p>
       </div>
     </main>
   );

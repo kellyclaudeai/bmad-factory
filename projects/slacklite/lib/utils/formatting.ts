@@ -1,6 +1,42 @@
 import { differenceInCalendarDays, format, isToday, isYesterday } from "date-fns";
 import { Timestamp } from "firebase/firestore";
 
+/**
+ * Returns milliseconds from a Firestore Timestamp or a numeric Unix-ms value.
+ */
+function getMs(timestamp: Timestamp | number | null | undefined): number {
+  if (!timestamp) return 0;
+  if (typeof (timestamp as Timestamp).toMillis === "function") {
+    return (timestamp as Timestamp).toMillis();
+  }
+  return timestamp as number;
+}
+
+/**
+ * Full timestamp: "Today at 2:05 PM", "Yesterday at…", or "Jan 3 at 9:00 AM".
+ * Falls back to empty string for null/undefined.
+ */
+export function formatTimestamp(timestamp: Timestamp | number | null | undefined): string {
+  const ms = getMs(timestamp);
+  if (!ms) return "";
+  const date = new Date(ms);
+  return formatRelativeTime(
+    typeof (timestamp as Timestamp).toDate === "function"
+      ? (timestamp as Timestamp)
+      : Timestamp.fromMillis(ms)
+  );
+}
+
+/**
+ * Short timestamp: "2:05 PM" — used for continuation-message hover labels.
+ */
+export function formatTimeShort(timestamp: Timestamp | number | null | undefined): string {
+  const ms = getMs(timestamp);
+  if (!ms) return "";
+  const date = new Date(ms);
+  return format(date, "h:mm a");
+}
+
 export function formatRelativeTime(timestamp: Timestamp): string {
   const date = timestamp.toDate();
   const now = new Date();

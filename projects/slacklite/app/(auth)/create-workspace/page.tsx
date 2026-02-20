@@ -135,28 +135,36 @@ export default function CreateWorkspacePage() {
 
   if (isAuthLoading || isCheckingWorkspace) {
     return (
-      <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6">
-        <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full items-center justify-center">
-          <section className="w-full max-w-[480px] rounded-lg border border-gray-300 bg-white p-8 shadow-sm">
-            <p className="text-center text-sm text-gray-700">
-              Loading workspace setup...
-            </p>
-          </section>
+      <main className="flex min-h-screen items-center justify-center bg-base px-4 py-10">
+        <div className="w-full max-w-[480px] rounded-lg border border-border bg-surface-2 p-8 shadow-xl">
+          <p className="text-center text-sm text-secondary">
+            Loading workspace setup...
+          </p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full items-center justify-center">
-        <section className="w-full max-w-[480px] rounded-lg border border-gray-300 bg-white p-8 shadow-sm">
-          <h3 className="text-2xl font-semibold text-gray-900">
+    <main className="flex min-h-screen items-center justify-center bg-base px-4 py-10">
+      <div className="w-full max-w-[480px]">
+        {/* Logo */}
+        <div className="mb-8 text-center">
+          <span className="font-mono text-2xl font-semibold text-accent">SlackLite</span>
+          <p className="mt-2 text-sm text-secondary">Set up your workspace</p>
+        </div>
+
+        {/* Auth card */}
+        <section
+          className="rounded-lg border border-border bg-surface-2 p-8 shadow-xl"
+          aria-label="Create workspace form"
+        >
+          <h3 className="mb-6 text-xl font-semibold text-primary">
             Create Your Workspace
           </h3>
 
           <form
-            className="mt-6 space-y-4"
+            className="flex flex-col gap-4"
             onSubmit={handleSubmit}
             aria-label="Create workspace form"
             noValidate
@@ -177,12 +185,12 @@ export default function CreateWorkspacePage() {
             />
 
             {errorMessage ? (
-              <p
+              <div
                 role="alert"
-                className="rounded border border-error/30 bg-error/10 px-3 py-2 text-sm text-error"
+                className="rounded-md border border-error bg-error-subtle px-4 py-3 text-sm font-mono text-error"
               >
                 {errorMessage}
-              </p>
+              </div>
             ) : null}
 
             <Button type="submit" variant="primary" className="w-full" disabled={!canSubmit}>
@@ -190,7 +198,7 @@ export default function CreateWorkspacePage() {
                 <>
                   <span
                     aria-hidden="true"
-                    className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white/80 border-t-transparent"
+                    className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-inverse/80 border-t-transparent"
                   />
                   Creating Workspace...
                 </>
