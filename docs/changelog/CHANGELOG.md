@@ -4,8 +4,8 @@
 
 **Format:** `YYYY-MM-DD HH:MM CST | Component | What Changed | Why`
 
-2026-02-19 19:49 CST | PL Flow | Removed Fast Mode — Normal Mode only (Greenfield + Brownfield) | Barry Fast Track eliminated. Simplifies PL flow significantly. qa-feedback.md artifact removed — tracking via registry qaRounds[] only. Cleaned AGENTS.md + kelly-router-flow.md of Barry references.
-2026-02-19 19:47 CST | PL Flow | QA feedback routing — PL decides how, operator decides what | Stage 4.3 rewritten: PL routes FIX feedback to Amelia-direct (no new stories) or new-stories (John+Bob) based on technical call only. Operator decides scope/priority. qa-feedback.md logs every round. qaRounds[] added to registry schema.
+2026-02-19 19:53 CST | PL Flow | QA feedback uses story pipeline, not registry tracking | Stage 4.3 rewritten (v4.5): QA feedback from operator → stories → BMAD artifacts → Phase 2 (same as greenfield). Bug exception only: if a specified feature is broken, Amelia fixes directly. Removed qaRounds[] from registry schema — BMAD sprint-status.yaml is source of truth for all work including QA rounds.
+2026-02-19 19:49 CST | PL Flow | Removed Fast Mode — Normal Mode only (Greenfield + Brownfield) | Barry Fast Track eliminated. Simplifies PL flow significantly. Cleaned AGENTS.md + kelly-router-flow.md of Barry references.
 2026-02-19 19:31 CST | PL Flow | PL session holds alive in pending-qa until operator ships | PL no longer exits after Phase 3 TEA. Stays in idle hold (lock file kept) waiting for Kelly's SHIP/FIX/PAUSE signal. Dashboard shows live session as "AWAITING QA". PL handles ship registry update on SHIP signal from Kelly.
 2026-02-19 19:04 CST | Dashboard + PL Flow | Added `pending-qa` registry state + dashboard support | Projects were disappearing from dashboard when PL session ended. Now projects stay visible as "AWAITING QA" (purple badge) until operator explicitly approves and ships them. PL must set `pending-qa` after Phase 3 TEA passes. Only operator can move to `shipped`.
 

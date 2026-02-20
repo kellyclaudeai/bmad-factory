@@ -7,7 +7,8 @@
 **Recent Updates:**
 - v4.1 (2026-02-19): **STATELESS PL + CONTEXT DISCIPLINE.** PL must keep replies to 1-2 lines, never narrate history, rotate session every 25 stories. Prevents 200k token overflow on large projects. See Context Discipline section.
 - v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. (Proposed, not yet implemented)
-- v4.4 (2026-02-19): **FAST MODE REMOVED.** Factory runs Normal Mode only: Greenfield or Brownfield. Barry Fast Track eliminated. QA feedback tracked via registry qaRounds[] only (no separate qa-feedback.md artifact).
+- v4.5 (2026-02-19): **QA FEEDBACK = STORY FLOW.** QA feedback from the operator creates new stories and updates BMAD artifacts — same pipeline as greenfield Phase 2. Bug exception only: if feedback is a missed implementation or something clearly broken (not new behavior), Amelia fixes directly without story creation. No qaRounds[] in registry — feedback is tracked in BMAD artifacts like everything else.
+- v4.4 (2026-02-19): **FAST MODE REMOVED.** Factory runs Normal Mode only: Greenfield or Brownfield. Barry Fast Track eliminated.
 - v4.3 (2026-02-19): **PENDING-QA STATE + PL HOLDS SESSION.** After Phase 3 TEA passes, PL sets `state: "pending-qa"` and enters an idle hold — the session stays alive (lock file held) until Kelly signals SHIP, FIX, or PAUSE. PL MUST NOT exit or mark shipped on its own. Only the operator (via Kelly) can trigger ship. Dashboard shows the live PL session as "AWAITING QA".
 - v4.2 (2026-02-19): **PHASE NAMING + TEA STREAMLINED.** Phase 3 renamed "Test" (was "Post-Deploy Verification/QA"). TEA simplified: TD+TF+TA combined into single Murat "test-generate" pass. Removed RV (test review) and TR (traceability) — redundant overhead for MVP factory. New TEA: test-generate → E2E execution + NR in parallel.
 - v3.3 (2026-02-19): **CODE REVIEW DISABLED.** Stories now go dev → done directly (skipping code-review Amelia). Rationale: 80%+ reviews pass, adds 5-10 min overhead per story, Phase 3 TEA testing more thorough. Can re-enable once factory proven.
@@ -406,35 +407,38 @@ PL behavior: idle wait.
 
 **Operator decides WHAT goes in. PL decides HOW to implement it.**
 
+QA feedback is treated like any other development work — it flows through BMAD artifacts and the same Phase 2 story pipeline as greenfield. The only exception is genuine bugs.
+
 ```
 1. Receive fix feedback from Kelly
    → Example: "FIX: takeouttrap — Checkout flow confusing, auth broken on mobile"
 
-2. Append to registry qaRounds[]:
-   { round: N, date: now, feedback: "...", path: TBD, status: "in-progress" }
+2. Route the feedback (technical call — operator decides scope, PL decides path):
 
-3. PL routing decision (technical call only — operator decides what, PL decides how):
-
-   ROUTE A — No new stories needed (bug, missed requirement, obvious gap):
+   BUG PATH — Feedback is a missed implementation or something clearly broken
+   (i.e., a feature was specified and it just doesn't work as described):
    → Spawn Amelia: fix-qa-feedback
-     → Input: operator feedback verbatim
-     → Task: Fix all reported issues, commit, push to dev
+     → Input: operator feedback verbatim + relevant story/acceptance criteria
+     → Task: Fix the broken behavior, commit, push to dev
+   → No new stories created, but Amelia updates sprint-status.yaml to note the fix
 
-   ROUTE B — New stories needed (new architecture, significant new surface area):
+   STORY PATH — Default for all other feedback
+   (new behavior, changed UX, additions, anything that isn't a straight bug):
    → Spawn John: scope-qa-feedback
-     → Input: operator feedback, existing prd.md, architecture.md
+     → Input: operator feedback, existing prd.md, architecture.md, ux-design.md
      → Output: new story files in _bmad-output/implementation-artifacts/stories/
-     → Update sprint-status.yaml with new stories
-   → Spawn Bob: update dependency-graph for new stories
-   → Run new stories through Phase 2 (Amelia, dependency-driven)
+     → John updates sprint-status.yaml with new story entries (status: "todo")
+   → Spawn Bob: update dependency-graph.json for new stories
+   → Run new stories through Phase 2 loop (Amelia, dependency-driven, same rules as greenfield)
 
-4. After fixes complete: Re-run Phase 3 (Test) — pre-deploy gates → deploy → TEA execution
-   (test-generate NOT re-run unless new major flows added — Murat reuses existing test suite)
+3. After all fixes/stories complete:
+   → Re-run Phase 3 (Test): pre-deploy gates → deploy → TEA execution
+   → test-generate NOT re-run unless major new flows added — Murat reuses existing suite
 
-5. Update qaRounds[N].status → "addressed", set addressedAt
-
-6. Back to Stage 4.1 (re-notify Kelly, re-enter hold)
+4. Back to Stage 4.1 (re-notify Kelly, re-enter hold)
 ```
+
+**When in doubt, use the Story Path.** Story creation is cheap. It keeps the work visible in sprint-status.yaml, gives Amelia clear acceptance criteria, and makes the project auditable. Bug Path is the narrow exception — if a button literally doesn't work and the spec said it should, that's a bug. Everything else is a story.
 
 #### Stage 4.4: Ship (on operator approval)
 
