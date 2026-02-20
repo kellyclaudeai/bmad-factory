@@ -501,12 +501,9 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
                             {s.model ? ` • Model: ${s.model}` : ''}
                           </div>
                         </div>
-                        <div className={`font-mono text-xs ${
-                          (s.status || 'active') === 'active' ? 'text-terminal-green' :
-                          (s.status || 'active') === 'waiting' ? 'text-yellow-400' :
-                          (s.status || 'active') === 'awaiting-qa' ? 'text-blue-400' :
-                          'text-terminal-dim'
-                        }`}>{(s.status || 'active').toUpperCase()}</div>
+                        <Badge variant="outline" className={`text-xs font-mono shrink-0 ${phaseColor(s.status || 'active')}`}>
+                          {(s.status || 'active').toUpperCase()}
+                        </Badge>
                       </div>
                     </CardContent>
                   </Card>
