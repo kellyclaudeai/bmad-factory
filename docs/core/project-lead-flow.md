@@ -376,6 +376,10 @@ If brownfield project (existing codebase):
    → Duration: 10-20 min (much faster)
 
 5. Repeat until clean (max 3 cycles, escalate to Kelly if stuck)
+
+6. **When Murat announces completion (pass or fail):**
+   - Move Murat from `activeSubagents` → `completedSubagents` in project-state.json
+   - Murat exits after announcing — do NOT leave in active list
 ```
 
 **Timeline:**
