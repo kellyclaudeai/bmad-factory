@@ -115,7 +115,7 @@ After updating, reply NO_REPLY.
 **Why unified:** All agents use the same state structure now. No agent-specific divisions needed.
 
 **What agents do:**
-- **Kelly Router:** Update memory with operational notes (announcements, checks, escalations). Update registry for `surfacedForQA` changes and `pending-qa` → `shipped` transitions (operator approval required before shipping).
+- **Kelly Router:** Update memory with operational notes (announcements, checks, escalations). Update registry for `surfacedForQA` and `paused` changes. Send SHIP/FIX/PAUSE signals to PL on operator decision. PL handles the actual `pending-qa` → `shipped` registry update.
 - **Project Lead:** Update registry project entry (state, timeline, implementation). Update memory with decisions and progress.
 - **Research Lead:** Update registry discovery entry (if created). Update memory with research progress.
 - **Sub-agents:** Update memory with work completed and decisions made.

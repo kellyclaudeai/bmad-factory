@@ -40,7 +40,54 @@
 - Surface project when `state: "pending-qa"` AND `implementation.qaUrl` present AND `surfacedForQA: false`
 - After surfacing: update registry, set `surfacedForQA: true` to prevent duplicate announcements
 - If project `paused: true`, stop surfacing
-- **Shipping:** Kelly updates registry `pending-qa` → `shipped` only after operator explicitly approves
+
+**Pending-QA: PL Sessions Stay Alive**
+- PL holds its session (lock file) until operator ships or kills the project
+- Dashboard shows the PL as an active session in "AWAITING QA" state
+- Do NOT send heartbeat pings to pending-qa PLs — they are intentionally idle
+
+### 2a. Operator QA Decisions
+
+When the operator makes a QA decision, Kelly signals the PL via `sessions_send` and updates the registry.
+
+**SHIP (operator approves):**
+```javascript
+// 1. Signal the PL
+sessions_send(
+  sessionKey="agent:project-lead:project-{projectId}",
+  message="SHIP: {projectId}"
+)
+// 2. PL handles ship steps and exits — Kelly does NOT update registry here (PL does it in Stage 4.4)
+```
+
+**FIX (operator sends back for fixes):**
+```javascript
+// 1. Signal the PL with specific feedback
+sessions_send(
+  sessionKey="agent:project-lead:project-{projectId}",
+  message="FIX: {projectId} — {operator feedback}"
+)
+// 2. PL re-enters Phase 3 → Phase 4 loop
+```
+
+**PAUSE (operator puts on hold):**
+```python
+# Update registry
+project.paused = True
+project.pausedReason = "{reason}"
+# Signal PL
+sessions_send(
+  sessionKey="agent:project-lead:project-{projectId}",
+  message="PAUSE: {projectId} — {reason}"
+)
+# PL stays alive but marks itself paused
+```
+
+**How Kelly recognizes these operator intents:**
+- "ship {project name/id}" → SHIP
+- "approve {project}" / "looks good" / "deploy {project}" → SHIP
+- "fix {project} — {feedback}" / "reject" / "{project} needs work" → FIX
+- "pause {project}" → PAUSE
 
 ### 3. Session Management
 
@@ -178,8 +225,8 @@ PL responded "all good, testing edge cases". Will re-check in 45 min.
 
 **Kelly writes:**
 - `surfacedForQA` field (QA announcement tracking)
-- `state: "shipped"` + `timeline.shippedAt` on operator approval
-- All other registry fields managed by Research Lead and Project Lead
+- `paused` / `pausedReason` on operator pause
+- All other registry fields managed by Research Lead and Project Lead (PL handles `pending-qa` → `shipped`)
 
 ---
 

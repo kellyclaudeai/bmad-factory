@@ -31,7 +31,7 @@ discovery → in-progress → pending-qa → shipped → followup → shipped
 |------|----|---------| ------|
 | discovery | in-progress | Operator picks idea, PL starts project | Project Lead |
 | in-progress | pending-qa | Phase 3 TEA passes, PL notifies Kelly | Project Lead |
-| pending-qa | shipped | Operator human-tests and approves | Operator only |
+| pending-qa | shipped | Operator approves → Kelly signals PL → PL ships and updates registry | PL (on Kelly's SHIP signal) |
 | pending-qa | in-progress | Operator sends project back for fixes | Operator/Kelly |
 | shipped | followup | Operator requests fixes/enhancements | Project Lead |
 | followup | shipped | Followup work complete and deployed | Project Lead |

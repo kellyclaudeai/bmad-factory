@@ -7,7 +7,7 @@
 **Recent Updates:**
 - v4.1 (2026-02-19): **STATELESS PL + CONTEXT DISCIPLINE.** PL must keep replies to 1-2 lines, never narrate history, rotate session every 25 stories. Prevents 200k token overflow on large projects. See Context Discipline section.
 - v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. (Proposed, not yet implemented)
-- v4.3 (2026-02-19): **PENDING-QA STATE.** After Phase 3 TEA passes, PL sets `state: "pending-qa"` in registry (not `in-progress`). Dashboard shows pending-qa projects as "AWAITING QA" even without a live PL session. Projects stay visible until operator explicitly ships or pauses them. PL MUST NOT mark shipped — only the operator can do that.
+- v4.3 (2026-02-19): **PENDING-QA STATE + PL HOLDS SESSION.** After Phase 3 TEA passes, PL sets `state: "pending-qa"` and enters an idle hold — the session stays alive (lock file held) until Kelly signals SHIP, FIX, or PAUSE. PL MUST NOT exit or mark shipped on its own. Only the operator (via Kelly) can trigger ship. Dashboard shows the live PL session as "AWAITING QA".
 - v4.2 (2026-02-19): **PHASE NAMING + TEA STREAMLINED.** Phase 3 renamed "Test" (was "Post-Deploy Verification/QA"). TEA simplified: TD+TF+TA combined into single Murat "test-generate" pass. Removed RV (test review) and TR (traceability) — redundant overhead for MVP factory. New TEA: test-generate → E2E execution + NR in parallel.
 - v3.3 (2026-02-19): **CODE REVIEW DISABLED.** Stories now go dev → done directly (skipping code-review Amelia). Rationale: 80%+ reviews pass, adds 5-10 min overhead per story, Phase 3 TEA testing more thorough. Can re-enable once factory proven.
 - v3.2 (2026-02-19): Restructured Phase 3 into Pre-Deploy Gates → Deploy → Post-Deploy Verification. Full TEA suite (TD, TF, TA, RV, TR, NR) runs against deployed app. Failures batched → Amelia remediates → redeploy → re-run. Removed correct-course routing for QA failures (direct to Amelia).
@@ -32,8 +32,8 @@ Project Lead owns a single project from intake to ship. One PL session per proje
 - **Followup done:** `followup` → `shipped`
 - **Pause/Resume:** Set `paused: true/false` with `pausedReason`
 
-**Registry updates (Operator/Kelly responsibility — PL cannot do these):**
-- **Ship:** `pending-qa` → `shipped` (set `implementation.deployedUrl`, `timeline.shippedAt`) — **operator approval required**
+**Registry updates (PL does on Kelly's SHIP signal — operator approval required first):**
+- **Ship:** `pending-qa` → `shipped` (set `implementation.deployedUrl`, `timeline.shippedAt`) — only after receiving `"SHIP: {projectId}"` from Kelly
 
 **Dependency authority:** Bob's `dependency-graph.json` (or `stories-parallelization.json`) in `_bmad-output/implementation-artifacts/`. Each story has individual `dependsOn` arrays.
 
@@ -369,11 +369,9 @@ If brownfield project (existing codebase):
 
 ### Phase 4: User QA
 
-**When Phase 3 (Test) passes**, the app is already deployed (from Phase 3 Step 2). Notify the user for human testing.
+**When Phase 3 (Test) passes**, the app is already deployed (from Phase 3 Step 2). Notify Kelly, set pending-qa, then **hold** — the PL session must NOT exit until the operator ships or kills the project.
 
 #### Stage 4.1: Notify Kelly + Set pending-qa
-
-**CRITICAL:** Set `state: "pending-qa"` in the registry. This keeps the project visible on the dashboard as "AWAITING QA" even after the PL session exits. Do NOT mark as `shipped` — only the operator can do that.
 
 ```javascript
 sessions_send(
@@ -383,47 +381,63 @@ sessions_send(
 ```
 
 Update project-registry.json:
-- **Set `state: "pending-qa"`** (was `in-progress`) — keeps project on dashboard until operator approves
+- **Set `state: "pending-qa"`** (was `in-progress`)
 - Set `surfacedForQA: false` (Kelly will set to true after announcing)
-- Ensure `implementation.qaUrl` is set (should be from Phase 3 deployment)
+- Ensure `implementation.qaUrl` is set
 
-#### Stage 4.2: Surfacing (Kelly Heartbeat)
+#### Stage 4.2: HOLD — Wait for Operator Signal
 
-**Every 30-60 minutes**, Kelly scans for projects ready for QA:
+**DO NOT EXIT.** The PL session must stay alive (lock file held) so the project appears on the dashboard as an active session awaiting QA. Kelly will send a message when the operator makes a decision.
 
-1. Read `projects/project-registry.json`
-2. Filter: `state="in-progress"` AND `implementation.qaUrl` present AND `surfacedForQA: false`
-3. Alert operator: `🧪 **{name}** ready for user QA: {implementation.qaUrl}`
-4. Update registry: set `surfacedForQA: true` for that project
-
-#### Stage 4.3: Operator Testing
-
-**SCENARIO A: User Accepts → SHIP**
-```bash
-git checkout main && git merge dev && git push origin main
-# CI/CD deploys to production from main
-# Kelly (not PL) updates project-registry.json: state="shipped", timeline.shippedAt, implementation.deployedUrl
-# PL MUST NOT mark shipped — operator approval required
+```
+PL behavior: idle wait.
+→ Reply to any incoming heartbeat with current status (project name, qaUrl, state=pending-qa).
+→ Do NOT poll the registry in a loop. Just wait for a sessions_send message.
+→ Acceptable wait: hours or days. Do not time out.
 ```
 
-**SCENARIO B: User Pauses → PAUSE**
-```
-Operator: "pause {project}"
-# Kelly updates project-registry.json → paused: true with pausedReason
-```
+**Kelly's signal will be one of:**
+- `"SHIP: {projectId}"` → proceed to Stage 4.4 (Ship)
+- `"FIX: {projectId} — {feedback}"` → proceed to Stage 4.3 (Fix)
+- `"PAUSE: {projectId}"` → update registry `paused: true`, stay idle
 
-**SCENARIO C: User Rejects → FIX**
+#### Stage 4.3: Operator Testing — Fix Path
+
 ```
-1. Project Lead receives operator feedback
-   → Example: "Checkout flow confusing, auth doesn't work on mobile"
+1. Receive fix feedback from Kelly
+   → Example: "FIX: takeouttrap — Checkout flow confusing, auth broken on mobile"
 
 2. Spawn Amelia: fix-qa-feedback
    → Input: Operator feedback (specific issues)
    → Task: Fix all reported issues, commit, push to dev
 
 3. After fixes: Re-run Phase 3 (Test) — pre-deploy gates → deploy → test execution + NFR
-4. If clean: Back to Phase 4 (User QA retry)
+4. If clean: Back to Stage 4.1 (re-notify Kelly, re-enter hold)
 ```
+
+#### Stage 4.4: Ship (on operator approval)
+
+**Triggered by Kelly sending `"SHIP: {projectId}"`**
+
+```bash
+git checkout main && git merge dev && git push origin main
+# CI/CD deploys to production from main
+```
+
+Update project-registry.json:
+- `state: "shipped"`
+- `timeline.shippedAt: (now)`
+- `implementation.deployedUrl: {productionUrl}`
+
+Notify Kelly:
+```javascript
+sessions_send(
+  sessionKey="agent:main",
+  message="🚀 {projectName} is live: {deployedUrl}"
+)
+```
+
+**Then exit cleanly.** The session lock is released only after shipping is confirmed.
 
 ---
 
@@ -528,8 +542,8 @@ FOR EACH story in tech-spec.md:
 
 ### Phase 4: User QA
 
-Same as Normal Mode. Barry handles remediation instead of Amelia.
-**PL must still set `state: "pending-qa"` and notify Kelly** — same as Normal Mode Stage 4.1. No skipping this step even in Fast Mode.
+Same as Normal Mode. Barry handles remediation (Stage 4.3 Fix Path) instead of Amelia.
+**PL must set `state: "pending-qa"`, notify Kelly, and hold** — same as Normal Mode Stages 4.1–4.2. PL session stays alive until Kelly sends SHIP/FIX/PAUSE signal. No skipping even in Fast Mode.
 
 ---
 
@@ -574,7 +588,7 @@ jq '.projects |= map(
 **When to update:**
 - Project start (`discovery` → `in-progress`, set projectDir + startedAt)
 - Test phase complete (`in-progress` → `pending-qa`, set `implementation.qaUrl`, update `lastUpdated`, notify Kelly)
-- Ship (`pending-qa` → `shipped`, set deployedUrl + shippedAt) — **operator/Kelly only, not PL**
+- Ship (`pending-qa` → `shipped`, set deployedUrl + shippedAt) — only after receiving `"SHIP: {projectId}"` from Kelly
 - Pause/resume (set `paused` + `pausedReason`)
 
 ### _bmad-output/implementation-artifacts/ (BMAD tracks)
