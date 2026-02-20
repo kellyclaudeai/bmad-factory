@@ -1,6 +1,10 @@
 ---
 name: frontend-design
-description: Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, or applications. Generates creative, polished code that avoids generic AI aesthetics.
+description: >
+  Create distinctive, production-grade frontend interfaces that avoid generic AI
+  aesthetics. Use when designing or building UI components, pages, layouts, or
+  prototypes. Covers bold aesthetic direction, typography, color, spacing, motion,
+  and interactive element contrast standards.
 license: Complete terms in LICENSE.txt
 ---
 
@@ -23,6 +27,33 @@ Then implement working code (HTML/CSS/JS, React, Vue, etc.) that is:
 - Visually striking and memorable
 - Cohesive with a clear aesthetic point-of-view
 - Meticulously refined in every detail
+
+## Interactive Element Standards (Non-Negotiable)
+
+These apply regardless of aesthetic direction. Beautiful buttons that can't be seen aren't buttons.
+
+### Contrast
+- **Text on backgrounds**: minimum 4.5:1 (WCAG AA). Never use `--text-muted` or equivalent low-contrast tokens as the *default* color for interactive elements.
+- **UI components** (borders, icons, focus rings): minimum 3:1. A border of `rgba(255,255,255,0.1)` on a dark surface fails. Use at least `rgba(255,255,255,0.3)` or a dedicated high-contrast border token.
+- **Icon-only buttons**: icons must be at least `--text-secondary` at rest, never `--text-muted`. If an icon is invisible until hover, it's broken.
+
+### Button resting state
+- Every interactive button must have a **visible affordance at rest** — either a background color, a visible border, or sufficient icon contrast. `border: transparent` + `color: muted` = invisible button.
+- Disabled states should look *inactive*, not invisible. Use reduced opacity on the whole element, not a color that blends into the background.
+
+### Ghost / icon buttons
+- Ghost buttons need a resting border. Use a dedicated `--border-button` token (e.g. `rgba(255,255,255,0.3)`) that clears the 3:1 UI component threshold.
+- Icon buttons in tables or toolbars: default `color: var(--text-secondary)`, hover `color: var(--text-primary)` + background fill. Never transparent-on-transparent.
+
+### Screenshot naming convention (for dashboard rendering)
+When generating mockup screenshots for `design-assets.json`, always suffix filenames with `-mobile` or `-desktop`:
+- `screens/home-mobile.png` — 390px viewport
+- `screens/home-desktop.png` — 1440px viewport
+
+The kelly-dashboard project details page splits designs into "Desktop Designs" and "Mobile Designs" sections using these suffixes. Wrong naming = designs won't appear in the correct section.
+
+### URL generation
+- **Never hardcode domain names** in generated links (invite URLs, share links, canonical references). Always use `window.location.origin` or an environment variable. Hardcoded domains break on staging, preview, and any deployment that isn't the final production domain.
 
 ## Frontend Aesthetics Guidelines
 
