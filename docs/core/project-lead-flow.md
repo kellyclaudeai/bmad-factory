@@ -92,7 +92,7 @@ git add -A
 git commit -m "feat: initial project setup — {ProjectName}"
 ```
 
-**Also set `mode` in project-state.json on creation:**
+**Also set `lifecycle` in project-state.json on creation:**
 ```python
 import json
 f = 'project-state.json'
@@ -615,7 +615,7 @@ PL behavior: idle wait.
 
 #### Stage 4.3: Fix Path (Change Flow)
 
-**When entering Fix Path: set `mode: "qa-feedback"` in project-state.json.**
+**When entering Fix Path: set `lifecycle: "qa-feedback"` in project-state.json.**
 
 **Operator decides WHAT goes in. PL decides HOW to route it.**
 

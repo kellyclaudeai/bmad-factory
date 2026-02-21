@@ -19,6 +19,7 @@ type ProjectState = {
   stage: string
   currentStage?: string
   currentPhase?: string
+  lifecycle?: string | null
   createdAt?: string
   updatedAt?: string
   startedAt?: string
@@ -131,6 +132,7 @@ async function getProjectState(projectId: string): Promise<ProjectState | null> 
       projectId: data.projectId,
       stage: data.currentPhase || 'unknown',
       currentPhase: data.currentPhase,
+      lifecycle: data.lifecycle || null,
       createdAt: data.timeline?.discoveredAt || data.timeline?.createdAt,
       updatedAt: data.timeline?.lastUpdated,
       startedAt: data.timeline?.startedAt || data.timeline?.createdAt,
@@ -423,6 +425,7 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
         projectId={id}
         projectName={projectName}
         stage={stage}
+        lifecycle={projectState?.lifecycle}
       />
 
       {/* no registry-backed project description */}
