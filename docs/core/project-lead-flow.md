@@ -615,7 +615,7 @@ PL behavior: idle wait.
 
 #### Stage 4.3: Fix Path (Change Flow)
 
-**When entering Fix Path: set `lifecycle: "qa-feedback"` in project-state.json.**
+**When entering Fix Path: set `phase: "build"` and `lifecycle: "qa-feedback"` in project-state.json immediately** — before starting Change Flow. Project is no longer in QA once fixes are in progress.
 
 **Operator decides WHAT goes in. PL decides HOW to route it.**
 
