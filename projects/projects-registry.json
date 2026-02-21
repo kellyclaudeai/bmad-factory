@@ -117,14 +117,15 @@
       "name": "ReelRolla",
       "path": "projects/reelrolla",
       "plSession": "agent:project-lead:project-reelrolla",
-      "phase": "pending-qa",
+      "phase": "qa",
       "createdAt": "2026-02-20T12:13:00-06:00",
       "qaUrl": "https://reelrolla.vercel.app",
       "deployedUrl": "https://reelrolla.vercel.app",
       "state": "pending-qa",
       "implementation": {
         "qaUrl": "https://reelrolla.vercel.app"
-      }
+      },
+      "lifecycle": "greenfield"
     },
     {
       "id": "masterpiece-remix",
@@ -138,7 +139,8 @@
       "implementation": {
         "qaUrl": "https://www.homageart.com",
         "projectDir": "/Users/austenallred/clawd/projects/masterpiece-remix"
-      }
+      },
+      "lifecycle": "greenfield"
     },
     {
       "id": "distill",
@@ -155,7 +157,8 @@
       "implementation": {
         "projectDir": "distill",
         "qaUrl": "https://distill-weld.vercel.app"
-      }
+      },
+      "lifecycle": "qa-feedback"
     },
     {
       "id": "sentinel-hire",
@@ -168,7 +171,8 @@
       "implementation": {
         "qaUrl": "https://sentinel-hire.vercel.app",
         "projectDir": "/Users/austenallred/clawd/projects/sentinel-hire"
-      }
+      },
+      "lifecycle": "greenfield"
     }
   ]
 }
