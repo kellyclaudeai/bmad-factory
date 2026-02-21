@@ -124,6 +124,8 @@ Commit to a **bold, specific aesthetic direction** from the ux-design.md tokens 
 
 **Animation direction is part of the design spec.** Your `ux-design.md` must include an "Animation & Motion" section describing: page load behavior, hover/active states, route transitions, and any signature micro-interactions. Amelia implements to this spec using the Motion library. If you don't spec it, it won't happen.
 
+The motion spec applies to **both mobile and desktop** — but note the differences: desktop can use richer parallax and longer durations; mobile must use `transform`/`opacity` only, shorter durations (120-180ms), and always respect `prefers-reduced-motion`. Specify any viewport-specific animation differences in the spec.
+
 ### Step 2 — Build one self-contained HTML prototype per screen
 
 For each main screen identified in ux-design.md:

@@ -180,12 +180,23 @@ When implementing any UI story for a web app:
 3. **Read `skills/responsive-design/SKILL.md`** — every screen must work at both mobile (390px) AND desktop (1440px)
 4. **Implement to Sally's designs** — use `_bmad-output/design-assets/images/screens/` as reference. If a desktop design exists, implement it. If only mobile exists, flag to PL.
 
-**Animation baseline (every web app UI):**
+**Animation baseline (every web app UI — mobile AND desktop):**
 - Page load: staggered fade/slide-in for primary content (CSS or Motion)
 - Interactive elements: hover transitions (scale, color, shadow) — 150-200ms
 - Route/page transitions: at minimum a fade, ideally a directional slide
 - Modals/drawers: entrance/exit animations via AnimatePresence if using Motion
 - Loading states: skeleton screens or subtle pulse animations (no bare spinners)
+
+**Mobile animation rules (performance-first):**
+- Only animate `transform` and `opacity` — never `width`, `height`, `top`, `left` (triggers layout reflow, jank on mobile)
+- Keep durations shorter on mobile: 120-180ms vs 200-300ms desktop
+- No heavy parallax or scroll-linked animations on mobile (CPU cost)
+- Always include `prefers-reduced-motion` media query — wrap all non-essential animations:
+  ```css
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; } }
+  ```
+  Or in Motion: `const shouldAnimate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches`
+- Tap/touch feedback: scale-down on press (`scale: 0.97`, 100ms) feels native and responsive
 
 These are not "nice to have." A UI story is not done if the app feels static and unanimated.
 
