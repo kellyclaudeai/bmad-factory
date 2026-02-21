@@ -128,6 +128,8 @@ This covers: TMDB, Watchmode, Supabase, Vercel, any other service that sends a v
 - ✅ After creating any account or setting any API key → log it in `docs/core/factory-accounts.md` (username + service + project only — no passwords or raw keys)
 - ✅ Whenever a new password is created for a service → save it to macOS Keychain immediately: `security add-generic-password -a "kelly-{service}" -s "kelly-{service}-credentials" -w "{password}"` — use the factory password from Keychain by default unless the service requires a unique password
 - ✅ Once obtained, set immediately via CLI: `vercel env add KEY_NAME` or equivalent
+- ✅ **Database provisioning (Neon, Supabase, etc.)** — create project, get connection string, set in Vercel, run migrations. Do NOT ask operator for credentials that don't exist yet — create them.
+- ✅ **All third-party free-tier services** (Redis/Upstash, storage, email/Resend, etc.) — provision autonomously, set env vars in Vercel. No asking. Only stop if payment info is required.
 - ⚠️ Paid tier or credit card required → stop and ask the operator first
 - ⚠️ MFA / 2FA / SMS code → ask operator (we don't have SMS access)
 - ❌ Never store raw API keys in git or in any file committed to version control
