@@ -80,7 +80,7 @@ When a project uses Vercel:
 
 ## Normal Mode Greenfield
 
-### Phase 0: Git Init (MANDATORY — do this first, before anything else)
+### Phase 0: Git Init + Mode Init (MANDATORY — do this first, before anything else)
 
 Every project has its own git repo. The `clawd` workspace ignores `projects/*/` in its `.gitignore`, so project code never bleeds into clawd's history.
 
@@ -91,6 +91,21 @@ git init
 git add -A
 git commit -m "feat: initial project setup — {ProjectName}"
 ```
+
+**Also set `mode` in project-state.json on creation:**
+```python
+import json
+f = 'project-state.json'
+d = json.load(open(f))
+d['mode'] = 'greenfield'  # Always greenfield on first build
+with open(f, 'w') as fp: json.dump(d, fp, indent=2)
+```
+
+**Mode transitions (PL updates project-state.json when these happen):**
+- Project created → `greenfield`
+- Operator rejects from pending-qa → `qa-feedback`  
+- Project shipped, bug fix needed → `hotfix`
+- Project shipped, new feature requested → `feature`
 
 - **Default branch:** `main`
 - **No remote needed yet** — local history only until ship time
@@ -599,6 +614,8 @@ PL behavior: idle wait.
 - `"PAUSE: {projectId}"` → update registry `paused: true`, stay idle
 
 #### Stage 4.3: Fix Path (Change Flow)
+
+**When entering Fix Path: set `mode: "qa-feedback"` in project-state.json.**
 
 **Operator decides WHAT goes in. PL decides HOW to route it.**
 

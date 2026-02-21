@@ -307,14 +307,20 @@ One line per project. Glanceable. On-demand only — never auto-include in heart
 
 ```
 📊 Quick Update:
-• ReelRolla — Phase 3: Murat running E2E 🔄 · last activity 8m ago
-• Distill — pending-qa ✅ · https://distill-weld.vercel.app
-• SentinelHire — Phase 3: Murat running E2E 🔄 · last activity 2m ago
-• Masterpiece Remix — Phase 2: 44/66 stories 🔄 · last activity 12m ago
-• AnyProject — ⛔ blocked: missing STRIPE_SECRET_KEY · waiting on operator
+• ReelRolla — pending-qa [greenfield] ✅ · https://reelrolla.vercel.app
+• Distill — build [greenfield] 🔄 · last activity 8m ago
+• SentinelHire — pending-qa [qa-feedback] ✅ · https://sentinel-hire.vercel.app
+• Masterpiece Remix — testing [greenfield] 🔄 · last activity 12m ago
+• AnyProject — build [hotfix] ⛔ blocked: missing STRIPE_SECRET_KEY · waiting on operator
 ```
 
-**Fields:** name · phase/step · emoji · last activity (time since PL last spawned a sub-agent) · blocker if present · URL if in QA/shipped
+**Fields:** name · phase · [mode] · emoji · last activity (time since PL last spawned a sub-agent) · blocker if present · URL if in QA/shipped
+
+**Mode values:**
+- `greenfield` — first build, never shipped
+- `qa-feedback` — rejected from QA, iterating
+- `hotfix` — post-ship bug fix
+- `feature` — post-ship new capability
 
 **Emoji key:** ✅ done/passing · 🔄 in progress · ⛔ blocked · ⚠️ needs attention · 🚢 shipped
 
