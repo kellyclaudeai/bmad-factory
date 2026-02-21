@@ -39,3 +39,4 @@ repos/
 
 # Projects have their own git repos — never track project code in clawd
 projects/*/
+docs/core/factory-accounts.md
