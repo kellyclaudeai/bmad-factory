@@ -143,6 +143,24 @@ if (!email || !password) {
 - All authenticated tests must FAIL (not skip) when credentials are absent
 - During Validate: flag any `test.skip` conditioned on env vars as FAKE — automatic REJECT
 
+## ⛔ NO SKIPPING — PERIOD
+
+`test.skip()` is banned in all forms except one:
+
+```typescript
+// ✅ ONLY valid use of skip — documented in the story's AC with explicit rationale:
+test.skip('reason documented in story-N.M.md AC section');
+```
+
+Every other use of `test.skip` — conditional on env vars, feature flags, "not implemented yet", platform checks — is **FAKE**. Auto-REJECT in Validate.
+
+If a feature isn't testable (e.g. Stripe webhooks in CI), the correct approach is:
+1. Write the test
+2. Have it fail with a clear error message explaining what's missing
+3. That failure is a blocker — fix the environment, don't skip the test
+
+100% pass with skips is not 100% pass. Count skips as failures.
+
 **Auto-announce:** `"✅ Test generation complete — {test count} tests across {file count} files"`
 
 ### 2. Test Review (Quality Check)
