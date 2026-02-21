@@ -48,6 +48,8 @@ For each test, ask:
 - **Does any test use `test.skip()` conditioned on an env var or credential check?** → FAKE (auto-REJECT)
 - **Does any test use `if (!hasCredentials) return` or similar silent no-op?** → FAKE (auto-REJECT)
 - If the app has auth: is there at least one test that signs in with real credentials and loads a protected page? If not → REJECT, test suite is incomplete.
+- **Does every page test verify the page actually rendered** — not just that the URL is correct? A test that only checks `toHaveURL` or `not.toHaveURL` without asserting visible content is WEAK. Every page test must assert at least one visible element (h1, key content, or a landmark) AND `waitForLoadState('networkidle')`. URL-only assertions = WEAK.
+- **Is there a console error listener on every test file?** If not, server errors and CSP violations are invisible to the test suite → WEAK.
 
 Score each test: SOLID | WEAK | FAKE
 Verdict: PASS (all SOLID) | REVISE (any WEAK — fix before proceeding) | REJECT (any FAKE — rewrite required)
