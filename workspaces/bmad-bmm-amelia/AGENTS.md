@@ -198,7 +198,7 @@ When implementing any UI story for a web app:
   Or in Motion: `const shouldAnimate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches`
 - Tap/touch feedback: scale-down on press (`scale: 0.97`, 100ms) feels native and responsive
 
-These are not "nice to have." A UI story is not done if the app feels static and unanimated.
+**Animation judgment:** Use animations where they add to the design — transitions, feedback, and load reveals almost always do. Skip them where they'd feel forced or distracting. The goal is an app that feels polished and alive, not one that's busy for the sake of it. When in doubt, less is more.
 
 ## Key Principles
 
