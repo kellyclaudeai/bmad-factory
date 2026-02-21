@@ -311,6 +311,16 @@ Gate 4: Security Scanning
   → npm audit --audit-level=high (Node projects)
   → pip-audit (Python projects)
   → Dependency vulnerability check — high/critical CVEs are blockers
+
+Gate 5: OAuth / Auth Redirect URL Audit (if project has auth)
+  → Check Supabase Auth → URL Configuration:
+      Site URL = production URL (NOT localhost)
+      No localhost entries in Additional Redirect URLs
+  → Check GCP OAuth client → Authorized Redirect URIs:
+      Only Supabase callback URL present (https://{ref}.supabase.co/auth/v1/callback)
+      No localhost URIs
+  → Check env vars: NEXT_PUBLIC_SITE_URL / NEXTAUTH_URL / VITE_SITE_URL = production URL
+  → Localhost in any redirect URI = BLOCKER (causes OAuth → localhost redirect bug in QA)
 ```
 
 **On failure:**
@@ -395,10 +405,14 @@ Gate 4: Security Scanning
 
 ---
 
-**Step 3: Test Generation (one-time — never re-run)**
+**Step 3: Test Generation + Validation (one-time — never re-run)**
+
+> **Two-pass gate.** Murat writes the tests, then a second Murat instance validates them adversarially. Only a PASS verdict from the validator unlocks Step 4. This ensures the test writer's bias (optimizing to pass) is checked by a reviewer whose job is to find holes.
+
+**Step 3a: Write**
 
 ```
-Murat: test-generate
+Murat (Mode: Write):
   → Input: PRD, architecture.md, acceptance criteria, codebase, tech stack
   → Output:
     - _bmad-output/test-artifacts/test-strategy.md (design + coverage plan)
@@ -426,8 +440,33 @@ Murat: test-generate
 
   → Duration: 25-45 min (combined design + scaffold + generate in one pass)
   → BLOCKER: If project uses auth and test-credentials.md does not exist → halt + notify Kelly
-  → One-time only — tests are NOT regenerated on remediation cycles
 ```
+
+**Step 3b: Validate (adversarial)**
+
+```
+Murat (Mode: Validate):
+  → Input: All test files from Step 3a, PRD, architecture.md, story ACs
+  → Output: _bmad-output/test-artifacts/test-validation-report.md
+
+  Validator scores each test: SOLID | WEAK | FAKE
+  Verdict:
+    PASS    → all SOLID → proceed to Step 4
+    REVISE  → any WEAK → Write fixes specific tests → re-run validator
+    REJECT  → any FAKE → Write rewrites flagged tests → re-run validator
+
+  Duration: 10-20 min
+```
+
+**Validation loop:**
+```
+While verdict != PASS:
+  1. Write fixes/rewrites flagged tests
+  2. Validate re-runs (full review of updated suite)
+  3. Max 3 cycles — escalate to Kelly if still REJECT after 3
+```
+
+> **One-time only** — Step 3a (writer) and Step 3b (validator) run once. On remediation cycles (Step 4 failures), only Step 4 re-runs. Tests are NOT regenerated.
 
 ---
 

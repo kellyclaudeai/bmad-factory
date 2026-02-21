@@ -304,5 +304,13 @@ return NextResponse.redirect(`${origin}/dashboard`)
 - Always enable RLS before inserting data — adding it later is a footgun
 - `supabase.auth.getSession()` on server can return stale data — use `getUser()` for security-sensitive checks
 - Drizzle needs direct connection string (not pooled) for migrations; pooled for queries — see `neon` skill for pattern (same applies to Supabase Postgres)
+- **`DATABASE_URL` pooler host is NOT predictable** — do NOT hardcode `aws-0-us-east-1.pooler.supabase.com`. The actual host varies by project (e.g. `aws-1-us-east-1`). Always retrieve from the Supabase dashboard or API:
+  ```bash
+  SUPABASE_TOKEN=$(security find-generic-password -a "supabase" -s "Supabase CLI" -w | sed 's/go-keyring-base64://g' | base64 -d)
+  curl -s "https://api.supabase.com/v1/projects/{ref}/config/database" \
+    -H "Authorization: Bearer $SUPABASE_TOKEN"
+  # Or use: npx supabase db remote get-connection-string --project-ref {ref}
+  ```
+  Use transaction mode (port 6543) + `?pgbouncer=true` for serverless/Vercel. Use session mode (port 5432) or direct connection for migrations.
 - **Forgot password does nothing** → missing `/auth/reset-password` route or missing `redirectTo` in `resetPasswordForEmail` call
 - **Confirmation emails have localhost links** → Site URL not set to production URL in Supabase Auth settings

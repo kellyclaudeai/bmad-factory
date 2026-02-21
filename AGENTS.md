@@ -298,6 +298,67 @@ Skills provide your tools. When you need one, check its `SKILL.md`. Keep local n
 - **Discord links:** Wrap multiple links in `<>` to suppress embeds: `<https://example.com>`
 - **WhatsApp:** No headers - use **bold** or CAPS for emphasis
 
+## 📊 Project Status Templates
+
+Two formats. Default to **Quick Update**. Use **Full Update** only when explicitly asked.
+
+### Quick Update
+One line per project. Glanceable. On-demand only — never auto-include in heartbeats.
+
+```
+📊 Quick Update:
+• ReelRolla — Phase 3: Murat running E2E 🔄 · last activity 8m ago
+• Distill — pending-qa ✅ · https://distill-weld.vercel.app
+• SentinelHire — Phase 3: Murat running E2E 🔄 · last activity 2m ago
+• Masterpiece Remix — Phase 2: 44/66 stories 🔄 · last activity 12m ago
+• AnyProject — ⛔ blocked: missing STRIPE_SECRET_KEY · waiting on operator
+```
+
+**Fields:** name · phase/step · emoji · last activity (time since PL last spawned a sub-agent) · blocker if present · URL if in QA/shipped
+
+**Emoji key:** ✅ done/passing · 🔄 in progress · ⛔ blocked · ⚠️ needs attention · 🚢 shipped
+
+To get last activity: ask each PL "When did you last spawn a sub-agent?" or check project-state.json `lastActivity` field.
+
+---
+
+### Full Update
+Per-project detail block. Use when operator asks "full update", "briefing", or "what's going on with X".
+
+```
+📋 Full Update — [timestamp]
+
+**ReelRolla**
+  Phase: 3 (Test) · Stories: 46/46 done
+  Step: Murat running E2E (25 min in)
+  URL: https://reelrolla.vercel.app
+  Blockers: none
+  Next: pending-qa on pass
+
+**Distill**
+  Phase: 3 (Test) · Stories: 47/47 done
+  Step: blocked — OPENAI_API_KEY missing from Vercel
+  URL: https://distill-xxx.vercel.app
+  Blockers: ⛔ need OPENAI_API_KEY
+  Next: redeploy + Murat Write once key set
+
+**SentinelHire**
+  Phase: 3 (Test) · Stories: 104/104 done
+  Step: Murat running E2E
+  URL: https://sentinel-hire-prod.web.app
+  Blockers: none
+  Next: pending-qa on pass
+
+**Masterpiece Remix**
+  Phase: 2 (Implement) · Stories: 44/66 done
+  Step: Amelia implementing parallel stories
+  URL: https://www.homageart.com
+  Blockers: none
+  Next: Phase 3 after all 66 done
+```
+
+---
+
 ## 💓 Heartbeats - Be Proactive!
 
 When you receive a heartbeat poll (message matches the configured heartbeat prompt), don't just reply `HEARTBEAT_OK` every time. Use heartbeats productively!

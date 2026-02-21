@@ -80,6 +80,32 @@ read /Users/austenallred/clawd/skills/firebase-cli/SKILL.md
 
 ---
 
+## 🛠️ Skill Creation Standards
+
+When creating any skill, the `description` field is the primary trigger — it's what determines when the skill gets loaded. Make it count.
+
+**Required description format:**
+1. **What it does** — one clear sentence
+2. **When to use it** — specific triggers ("Use when implementing X", "Use when building Y")
+3. **What it covers** — key topics/patterns/scenarios included
+4. **What it does NOT cover** — scope boundaries if non-obvious
+
+**Good example:**
+```
+description: Standard authentication UX and implementation patterns for all factory web apps.
+Use whenever implementing signup, login, password reset, or account recovery — regardless of
+auth provider. Defines: required providers, password hints, error messages for every failure
+scenario, account linking rules, recovery flow, and transactional email copy.
+Provider-agnostic — read alongside the provider skill which handles the actual wiring.
+```
+
+**Bad example:**
+```
+description: Auth skill for web apps.
+```
+
+Apply this standard every time a skill is created or updated.
+
 ## 🔒 Skill Security — MANDATORY Before Any ClaWHub Install
 
 **Never `clawhub install` without auditing first.** ClaWHub has had confirmed malicious skill incidents (341 bad actors, Feb 2026).

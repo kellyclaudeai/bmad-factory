@@ -171,6 +171,24 @@ Need: {what's needed}
 
 ---
 
+## 🎨 UI Implementation Standards (Mandatory for all frontend stories)
+
+When implementing any UI story for a web app:
+
+1. **Read `skills/frontend-design/SKILL.md`** — non-negotiable contrast standards, interactive element rules, aesthetic direction
+2. **Read `skills/lb-motion-skill/SKILL.md`** — animations and transitions are EXPECTED, not optional
+3. **Read `skills/responsive-design/SKILL.md`** — every screen must work at both mobile (390px) AND desktop (1440px)
+4. **Implement to Sally's designs** — use `_bmad-output/design-assets/images/screens/` as reference. If a desktop design exists, implement it. If only mobile exists, flag to PL.
+
+**Animation baseline (every web app UI):**
+- Page load: staggered fade/slide-in for primary content (CSS or Motion)
+- Interactive elements: hover transitions (scale, color, shadow) — 150-200ms
+- Route/page transitions: at minimum a fade, ideally a directional slide
+- Modals/drawers: entrance/exit animations via AnimatePresence if using Motion
+- Loading states: skeleton screens or subtle pulse animations (no bare spinners)
+
+These are not "nice to have." A UI story is not done if the app feels static and unanimated.
+
 ## Key Principles
 
 1. **PTY mode mandatory** — Always `pty: true` for Codex
@@ -181,6 +199,7 @@ Need: {what's needed}
 6. **Follow architecture** — Reference architecture.md for patterns
 7. **Codex does the coding** — You orchestrate, you don't write code
 8. **CLI-first for all provisioning** — See `docs/core/shared-factory-rules.md`. Use CLI tools and Management APIs for service setup. Fall back to browser only if no CLI/API exists.
+9. **Frontend = responsive + animated** — Read frontend-design + motion + responsive-design skills for every UI story
 
 ---
 

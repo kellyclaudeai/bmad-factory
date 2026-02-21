@@ -94,6 +94,62 @@ python3 -c "import yaml,sys; d=yaml.safe_load(open('file.yaml')); print(d['key']
 - No judgment calls on "blocking vs non-blocking" at the test gate — all tests are blocking
 - The only exception: a test explicitly marked `@skip` in the story's acceptance criteria with documented rationale
 
+### ⛔ `test.skip()` on credentials = automatic REJECT
+
+The single most common way a test suite reports 100% while hiding real failures:
+
+```typescript
+// ❌ This pattern is FORBIDDEN — silently skips all auth tests when creds aren't set
+const hasCredentials = !!(process.env.TEST_USER_EMAIL && process.env.TEST_USER_PASSWORD)
+test.skip(!hasCredentials, 'No test credentials')
+```
+
+If test credentials are missing, tests must **throw and fail loudly** — not skip silently. A 100% pass rate where every auth test was skipped is worthless. Murat's Validate mode treats any `test.skip` conditioned on env vars as FAKE → automatic REJECT.
+
+**Correct pattern:**
+```typescript
+const email = process.env.TEST_USER_EMAIL
+const password = process.env.TEST_USER_PASSWORD
+if (!email || !password) {
+  throw new Error('TEST_USER_EMAIL and TEST_USER_PASSWORD must be set. See test-credentials.md')
+}
+```
+
+---
+
+## 🔐 Auth & OAuth — Build and Test Standards
+
+### Redirect URL Discipline (Mandatory)
+
+**Every project must have correct redirect URLs configured before Phase 3 testing.** This is a pre-Phase-3 gate.
+
+**Checklist (Amelia / Winston must verify during build):**
+1. **Supabase → Auth → URL Configuration:**
+   - Site URL = production URL (e.g. `https://myapp.vercel.app`) — never `localhost`
+   - Additional Redirect URLs = production URL + any preview patterns (`https://*.vercel.app/**`)
+   - Remove any `localhost` entries before deploy
+2. **GCP / OAuth provider → Authorized Redirect URIs:**
+   - Only Supabase callback: `https://{project-ref}.supabase.co/auth/v1/callback`
+   - No `localhost` URIs in production OAuth clients
+   - Use a separate OAuth client for local dev if needed (never share with prod)
+3. **Env vars in Vercel/hosting:**
+   - `NEXT_PUBLIC_SITE_URL` or equivalent must point to production URL
+   - Any `NEXTAUTH_URL` or redirect base URLs must be production
+
+**Localhost redirect bug** = most common auth failure in QA. If a user hits OAuth and lands on `localhost:3000`, the OAuth client's redirect URI list has a `localhost` entry that's taking precedence. Fix: remove `localhost` from the production OAuth client.
+
+### OAuth E2E Testing Scope
+
+**Full OAuth completion (e.g. Google sign-in to dashboard) CANNOT be automated reliably in Playwright.** Google's consent screen has bot detection and requires a real Google session.
+
+**Correct approach (mandatory):**
+- ✅ **Playwright E2E:** Assert that clicking "Sign in with Google" redirects to `accounts.google.com` (button works, Supabase initiates OAuth correctly)
+- ✅ **Manual QA gate:** Operator confirms Google sign-in completes end-to-end before shipping
+- ❌ Do NOT attempt to automate Google consent screen in Playwright — it will be flaky or fail
+- ❌ Do NOT mock `signInWithPopup` / OAuth token exchange in E2E (masks real integration failures like CSP, redirect misconfiguration)
+
+**Murat must write the OAuth redirect assertion test.** It is not optional just because completion can't be automated.
+
 ---
 
 ## 🔑 API Keys & Third-Party Credentials

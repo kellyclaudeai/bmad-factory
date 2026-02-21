@@ -265,12 +265,28 @@ Step 2: Deploy
   → Verify live URL returns 200
   → Set implementation.qaUrl in project-registry.json
 
-Step 3: Test Generation (Murat test-generate — ONE TIME ONLY, never re-run)
-  → Spawn Murat: test-generate
+Step 3: Test Generation + Validation (TWO PASSES — ONE TIME ONLY, never re-run)
+
+  Step 3a — Write (Murat):
+  → Task message MUST include: "Mode: Write"
   → Writes: happy path journey + error path journey + AC-based tests
   → Input: PRD, architecture.md, codebase, deployed URL
   → Output: test-strategy.md + full Playwright E2E suite (axe-core a11y)
   → Duration: 25-45 min
+
+  Step 3b — Validate (Murat, separate spawn):
+  → Task message MUST include: "Mode: Validate"
+  → Adversarially reviews the test suite from Step 3a
+  → Scores each test: SOLID | WEAK | FAKE
+  → Verdict: PASS | REVISE | REJECT
+  → Output: test-validation-report.md
+  → Duration: 10-20 min
+
+  Validation loop (if REVISE or REJECT):
+  → Write fixes flagged tests → Validate re-runs → repeat
+  → Max 3 cycles. If still REJECT after 3 → escalate to Kelly.
+
+  Only a PASS verdict from Validate unlocks Step 4.
 
 Step 4: E2E Execution + NFR (parallel — repeats each remediation cycle)
   → E2E execution against deployed URL → test-execution-report.md

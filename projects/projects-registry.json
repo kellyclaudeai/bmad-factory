@@ -120,7 +120,11 @@
       "phase": "pending-qa",
       "createdAt": "2026-02-20T12:13:00-06:00",
       "qaUrl": "https://reelrolla.vercel.app",
-      "deployedUrl": "https://reelrolla.vercel.app"
+      "deployedUrl": "https://reelrolla.vercel.app",
+      "state": "pending-qa",
+      "implementation": {
+        "qaUrl": "https://reelrolla.vercel.app"
+      }
     },
     {
       "id": "masterpiece-remix",
@@ -129,7 +133,12 @@
       "plSession": "agent:project-lead:masterpiece-remix",
       "phase": "testing",
       "createdAt": "2026-02-20T18:32:00Z",
-      "description": "Premium single-vendor e-commerce with AI remix tool for public domain masterpieces"
+      "description": "Premium single-vendor e-commerce with AI remix tool for public domain masterpieces",
+      "state": "in-progress",
+      "implementation": {
+        "qaUrl": "https://www.homageart.com",
+        "projectDir": "/Users/austenallred/clawd/projects/masterpiece-remix"
+      }
     },
     {
       "id": "distill",
@@ -137,14 +146,15 @@
       "path": "projects/distill",
       "plSession": "agent:project-lead:project-distill",
       "phase": "qa",
-      "state": "in-progress",
+      "state": "pending-qa",
       "createdAt": "2026-02-20T13:05:00-06:00",
       "timeline": {
         "startedAt": "2026-02-20T13:05:00-06:00",
         "lastUpdated": "2026-02-20T13:56:00-06:00"
       },
       "implementation": {
-        "projectDir": "distill"
+        "projectDir": "distill",
+        "qaUrl": "https://distill-weld.vercel.app"
       }
     },
     {
@@ -152,8 +162,13 @@
       "name": "SentinelHire",
       "path": "projects/sentinel-hire",
       "plSession": "agent:project-lead:sentinel-hire",
-      "phase": "testing",
-      "createdAt": "2026-02-19T23:54:00-06:00"
+      "phase": "qa",
+      "createdAt": "2026-02-19T23:54:00-06:00",
+      "state": "in-progress",
+      "implementation": {
+        "qaUrl": "https://sentinel-hire.vercel.app",
+        "projectDir": "/Users/austenallred/clawd/projects/sentinel-hire"
+      }
     }
   ]
 }

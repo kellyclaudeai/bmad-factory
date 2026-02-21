@@ -110,6 +110,19 @@ curl -sSf http://127.0.0.1:18800/json/version
    - hCaptcha/reCAPTCHA that resists automation (try clicking it first — many are just checkboxes).
    - Email verification → handle autonomously via Gmail (already logged in).
 
+## 🪙 Token Efficiency (MANDATORY)
+
+**Screenshots are expensive — avoid them by default.**
+
+| Action | When to use |
+|--------|-------------|
+| `snapshot` | **Default** — always try snapshot first. Returns aria tree (text only, cheap). |
+| `screenshot` | **Exception only** — use when: visual layout matters, page has no readable aria tree, or confirming a rendered image/chart. |
+
+**Rule:** If snapshot gives you enough info to proceed, never take a screenshot. Only screenshot when you genuinely can't proceed without visual confirmation.
+
+Always pass `compact: true` and reasonable `depth` (3–5) to `snapshot` to keep output small.
+
 ## Tool Reference (OpenClaw browser tool)
 
 All automation goes through the `browser` tool with `profile: "openclaw"` (the CDP profile).
@@ -119,9 +132,9 @@ All automation goes through the `browser` tool with `profile: "openclaw"` (the C
 browser({ action: "navigate", targetUrl: "https://console.firebase.google.com", profile: "openclaw" })
 ```
 
-### Get page state
+### Get page state (PREFERRED — text only, cheap)
 ```typescript
-browser({ action: "snapshot", profile: "openclaw", refs: "aria" })
+browser({ action: "snapshot", profile: "openclaw", compact: true, depth: 4 })
 ```
 
 ### Click, type, fill
@@ -139,8 +152,9 @@ browser({
 })
 ```
 
-### Screenshot
+### Screenshot (EXCEPTION ONLY — expensive, use sparingly)
 ```typescript
+// Only when visual confirmation is truly necessary and snapshot is insufficient
 browser({ action: "screenshot", profile: "openclaw", fullPage: true })
 ```
 

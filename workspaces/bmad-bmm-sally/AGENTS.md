@@ -115,11 +115,14 @@ For each major screen:
 
 After `ux-design.md` is written, read **`docs/core/design-workflow.md`** in full and follow it. Then:
 
-### Step 1 — Read the frontend-design skill
+### Step 1 — Read the frontend-design + motion skills
 ```bash
 read ~/clawd/skills/frontend-design/SKILL.md
+read ~/clawd/skills/lb-motion-skill/SKILL.md
 ```
 Commit to a **bold, specific aesthetic direction** from the ux-design.md tokens (colors, typography, aesthetic). Not generic. Not Inter + purple gradients. Every project gets a distinct visual identity.
+
+**Animation direction is part of the design spec.** Your `ux-design.md` must include an "Animation & Motion" section describing: page load behavior, hover/active states, route transitions, and any signature micro-interactions. Amelia implements to this spec using the Motion library. If you don't spec it, it won't happen.
 
 ### Step 2 — Build one self-contained HTML prototype per screen
 
