@@ -5,34 +5,39 @@ description: Integrate Stripe payments into factory projects. Covers per-project
 
 # Stripe (Factory Reference)
 
-## ⚠️ Per-Project Stripe Accounts (Factory Rule)
+## Factory Stripe Setup (One Account, Per-Project Products)
 
-**Every factory project gets its own Stripe account.** Never share a Stripe account across projects.
+**All factory projects share one Stripe account** (`kelly@bloomtech.com`). Projects are distinguished by product naming conventions and metadata — not separate accounts.
 
-**Why:** Clean revenue separation, separate payouts, separate tax reporting, separate dashboard per product.
+**Why:** Simpler payouts, one dashboard, one tax filing. Products are clearly labeled per project.
 
-### Creating a New Stripe Account
-
-Each project uses a separate Stripe account under the factory email pattern:
+### Naming Convention
 
 ```
-Email: kelly+{projectId}@bloomtech.com
-Business name: {Project Name}
+{ProjectName} — {Tier}
+e.g. "Distill — Pro", "Distill — Unlimited", "ReelRolla — Pro"
 ```
 
-**Setup flow:**
-1. Go to https://dashboard.stripe.com — log out if needed, create new account
-2. Or: use Stripe's "Create new account" from the account switcher (top-left dropdown)
-3. Set business name = project name (e.g. "Distill", "ReelRolla")
-4. Complete activation (bank account for payouts) — skip for test mode development
-5. Get keys from Dashboard → Developers → API keys
-6. Save secret key to Keychain: `security add-generic-password -a "kelly-{projectId}-stripe" -s "kelly-{projectId}-stripe-secret" -w "sk_live_..."`
-7. Log account in `docs/core/factory-accounts.md`
+### Required Metadata on Every Product
 
-**Stripe CLI login per project:**
 ```bash
-stripe login --api-key sk_live_...   # or use STRIPE_SECRET_KEY env var inline
+--metadata[project]={projectId}    # e.g. distill, reelrolla
+--metadata[tier]={tier}            # e.g. pro, unlimited
+--metadata[daily_limit]={n}        # e.g. 10, unlimited
 ```
+
+This lets you filter in the Stripe dashboard by project, and pass limits/context through to webhooks.
+
+### First-Time Setup (one-time per factory deployment)
+
+1. Log in at https://dashboard.stripe.com with `kelly@bloomtech.com`
+2. Get API keys: Dashboard → Developers → API keys
+3. Save to Keychain:
+```bash
+security add-generic-password -a "kelly-stripe" -s "kelly-stripe-secret" -w "sk_live_..."
+security add-generic-password -a "kelly-stripe" -s "kelly-stripe-publishable" -w "pk_live_..."
+```
+4. Log in `docs/core/factory-accounts.md` (git-ignored)
 
 ---
 
@@ -66,18 +71,20 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
 Always create products via CLI, not dashboard clicking. Store price IDs in env vars.
 
 ```bash
-# Create subscription products with clear names + descriptions
+# Create subscription products — always prefix name with project
 stripe products create \
-  --name "Distill Pro" \
+  --name "Distill — Pro" \
   --description "10 distills per day" \
-  --metadata[product_type]=subscription \
-  --metadata[project]=distill
+  --metadata[project]=distill \
+  --metadata[tier]=pro \
+  --metadata[daily_limit]=10
 
 stripe products create \
-  --name "Distill Unlimited" \
+  --name "Distill — Unlimited" \
   --description "Unlimited distills" \
-  --metadata[product_type]=subscription \
-  --metadata[project]=distill
+  --metadata[project]=distill \
+  --metadata[tier]=unlimited \
+  --metadata[daily_limit]=unlimited
 
 # Create prices (monthly subscriptions)
 stripe prices create \
@@ -348,4 +355,4 @@ Any future expiry, any CVC, any zip.
 - **Constructing pooler host manually** → just use the connection string from Supabase dashboard directly.
 - **Using live keys in dev** → use `pk_test_` / `sk_test_` for local dev, `pk_live_` / `sk_live_` for production.
 - **Missing webhook events in registration** → register all 5 key events at setup time, not one-by-one.
-- **Shared Stripe account across projects** → each project must have its own account.
+- **Missing project metadata on products** → always set `metadata[project]`, `metadata[tier]`, `metadata[daily_limit]` so webhooks and dashboard filtering work correctly.
