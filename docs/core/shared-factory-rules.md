@@ -129,21 +129,20 @@ This covers: TMDB, Watchmode, Supabase, Vercel, any other service that sends a v
 - ✅ Whenever a new password is created for a service → save it to macOS Keychain immediately: `security add-generic-password -a "kelly-{service}" -s "kelly-{service}-credentials" -w "{password}"` — use the factory password from Keychain by default unless the service requires a unique password
 - ✅ Once obtained, set immediately via CLI: `vercel env add KEY_NAME` or equivalent
 - ✅ **Database provisioning (Neon, Supabase, etc.)** — create project, get connection string, set in Vercel, run migrations. Do NOT ask operator for credentials that don't exist yet — create them.
-- ✅ **All third-party free-tier services** (Redis/Upstash, storage, email/Resend, etc.) — provision autonomously, set env vars in Vercel. No asking. Only stop if payment info is required.
-- ⚠️ **Paid tier / credit card required** → STOP. Notify Kelly immediately with a single clear blocker message:
-  - What service is needed and why
-  - The cost (monthly/one-time)
-  - Whether a free alternative exists (and if so, why it won't work)
-  - What the operator needs to decide: approve spend, pick a free alternative, or descope the feature
-  - Kelly then surfaces this to the operator as a single decision point — not a research dump, just: "X is blocked, costs $Y/mo, free alternative is Z (but won't work because W). Approve?" Never spend money without explicit operator approval.
+- ✅ **All third-party free-tier services** (Redis/Upstash, storage, email/Resend, etc.) — provision autonomously, set env vars in Vercel. No asking.
+- ⚠️ **Everything costs money and there is genuinely no free path** → STOP. Notify Kelly with one message: what it is and what it costs. Kelly surfaces to operator as a single yes/no. Never spend money without explicit operator approval.
 - ⚠️ MFA / 2FA / SMS code → ask operator (we don't have SMS access)
 - ❌ Never store raw API keys in git or in any file committed to version control
 
 ### The Core Rule (plain language)
 
-> **If it's free: get it yourself. If it costs money: stop and tell Kelly.**
+> **Handle it. Unless it costs money.**
 
-No exceptions. "I couldn't find a free tier" is not a reason to ask the operator to do it manually — it's a reason to find a free alternative or surface the cost decision clearly.
+- Free tier exists? Sign up, provision, set env vars. Done.
+- Free alternative exists? Use it. Don't ask.
+- No free path anywhere? Surface to Kelly. Once. Clearly.
+
+Never ask the operator to do something that doesn't require a credit card.
 
 ---
 
