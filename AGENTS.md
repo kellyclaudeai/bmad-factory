@@ -314,9 +314,9 @@ One line per project. Glanceable. On-demand only — never auto-include in heart
 • AnyProject — build [hotfix] ⛔ blocked: missing STRIPE_SECRET_KEY · waiting on operator
 ```
 
-**Fields:** name · phase · [mode] · emoji · last activity (time since PL last spawned a sub-agent) · blocker if present · URL if in QA/shipped
+**Fields:** name · phase · [lifecycle] · emoji · last activity (time since PL last spawned a sub-agent) · blocker if present · URL if in QA/shipped
 
-**Mode values:**
+**Lifecycle values:**
 - `greenfield` — first build, never shipped
 - `qa-feedback` — rejected from QA, iterating
 - `hotfix` — post-ship bug fix

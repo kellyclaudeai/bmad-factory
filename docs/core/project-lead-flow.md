@@ -97,7 +97,7 @@ git commit -m "feat: initial project setup — {ProjectName}"
 import json
 f = 'project-state.json'
 d = json.load(open(f))
-d['mode'] = 'greenfield'  # Always greenfield on first build
+d['lifecycle'] = 'greenfield'  # Always greenfield on first build
 with open(f, 'w') as fp: json.dump(d, fp, indent=2)
 ```
 
