@@ -307,9 +307,9 @@ One line per project. Glanceable. On-demand only — never auto-include in heart
 
 ```
 📊 Quick Update:
-• ReelRolla — pending-qa [greenfield] ✅ · https://reelrolla.vercel.app
+• ReelRolla — qa [greenfield] ✅ · https://reelrolla.vercel.app
 • Distill — build [greenfield] 🔄 · last activity 8m ago
-• SentinelHire — pending-qa [qa-feedback] ✅ · https://sentinel-hire.vercel.app
+• SentinelHire — qa [qa-feedback] ✅ · https://sentinel-hire.vercel.app
 • Masterpiece Remix — testing [greenfield] 🔄 · last activity 12m ago
 • AnyProject — build [hotfix] ⛔ blocked: missing STRIPE_SECRET_KEY · waiting on operator
 ```
@@ -339,7 +339,7 @@ Per-project detail block. Use when operator asks "full update", "briefing", or "
   Step: Murat running E2E (25 min in)
   URL: https://reelrolla.vercel.app
   Blockers: none
-  Next: pending-qa on pass
+  Next: qa on pass
 
 **Distill**
   Phase: 3 (Test) · Stories: 47/47 done
@@ -353,7 +353,7 @@ Per-project detail block. Use when operator asks "full update", "briefing", or "
   Step: Murat running E2E
   URL: https://sentinel-hire-prod.web.app
   Blockers: none
-  Next: pending-qa on pass
+  Next: qa on pass
 
 **Masterpiece Remix**
   Phase: 2 (Implement) · Stories: 44/66 done

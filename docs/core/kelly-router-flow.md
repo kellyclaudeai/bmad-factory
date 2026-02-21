@@ -26,7 +26,7 @@
 
 **Heartbeat Checks (every 60 seconds)**
 - Read `projects/projects-registry.json` for project lifecycle state
-- Surface projects ready for user QA (state: "pending-qa", has `implementation.qaUrl`)
+- Surface projects ready for user QA (state: "qa", has `implementation.qaUrl`)
 - Detect stalled projects (>60 min no registry updates, not paused)
 - Send status pings to Project Lead if stalled (safety net, not primary monitoring)
 - **Auto-recover frozen PL sessions** (if unresponsive + 400 errors detected)
@@ -37,14 +37,14 @@
 - No persistent operational state file needed (ephemeral session memory is fine)
 
 **QA Surfacing Rules**
-- Surface project when `state: "pending-qa"` AND `implementation.qaUrl` present AND `surfacedForQA: false`
+- Surface project when `state: "qa"` AND `implementation.qaUrl` present AND `surfacedForQA: false`
 - After surfacing: update registry, set `surfacedForQA: true` to prevent duplicate announcements
 - If project `paused: true`, stop surfacing
 
 **Pending-QA: PL Sessions Stay Alive**
 - PL holds its session (lock file) until operator ships or kills the project
 - Dashboard shows the PL as an active session in "AWAITING QA" state
-- Do NOT send heartbeat pings to pending-qa PLs — they are intentionally idle
+- Do NOT send heartbeat pings to qa PLs — they are intentionally idle
 
 ### 2a. Operator QA Decisions
 
@@ -212,13 +212,13 @@ PL responded "all good, testing edge cases". Will re-check in 45 min.
 
 ### projects/projects-registry.json (Research Lead creates, Project Lead updates, Kelly reads/writes)
 **Project lifecycle source of truth:**
-- All projects (discovery → in-progress → pending-qa → shipped → followup)
+- All projects (discovery → in-progress → qa → shipped → followup)
 - Timeline (discoveredAt, startedAt, shippedAt, lastUpdated)
 - Intake (problem, solution, features)
 - Implementation metadata (projectDir, qaUrl, deployedUrl)
 
 **Kelly reads/writes for:**
-- QA surfacing: check `state: "pending-qa"` + `surfacedForQA: false`, then update `surfacedForQA: true` after announcing
+- QA surfacing: check `state: "qa"` + `surfacedForQA: false`, then update `surfacedForQA: true` after announcing
 - Stall detection: check `timeline.lastUpdated`
 - Project filtering: skip `paused: true` projects
 - Shipping: on operator approval, update `state: "shipped"`, `timeline.shippedAt`

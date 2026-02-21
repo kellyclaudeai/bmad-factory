@@ -196,7 +196,7 @@ The old design used `projects-registry.json` (singular) as the sole state file w
 | Old (registry) | New location |
 |----------------|-------------|
 | `state: in-progress` | `project-state.json` → `phase: planning/build/qa` |
-| `state: pending-qa` | `project-state.json` → `phase: qa` |
+| `state: qa` | `project-state.json` → `phase: qa` |
 | `state: shipped` | `project-state.json` → `phase: shipped` |
 | `surfacedForQA` | Removed — dashboard derives from `phase: qa` |
 | `implementation.qaUrl` | `project-state.json` → `qaUrl` |

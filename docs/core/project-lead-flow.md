@@ -20,7 +20,7 @@
 - v4.0 (2026-02-19): **DESIGN WORKFLOW INTEGRATION.** Sally outputs design-assets.json with Figma URLs, Bob adds design_references to stories, Amelia uses Figma MCP + frontend-design skill for visual fidelity. See [design-workflow.md](./design-workflow.md) for full details. ✅ Implemented (Figma MCP configured, all agents updated)
 - v4.5 (2026-02-19): **QA FEEDBACK = STORY FLOW.** QA feedback from the operator creates new stories and updates BMAD artifacts — same pipeline as greenfield Phase 2. Bug exception only: if feedback is a missed implementation or something clearly broken (not new behavior), Amelia fixes directly without story creation. No qaRounds[] in registry — feedback is tracked in BMAD artifacts like everything else.
 - v4.4 (2026-02-19): **FAST MODE REMOVED.** Factory runs Normal Mode only: Greenfield or Brownfield. Barry Fast Track eliminated.
-- v4.3 (2026-02-19): **PENDING-QA STATE + PL HOLDS SESSION.** After Phase 3 TEA passes, PL sets `state: "pending-qa"` and enters an idle hold — the session stays alive (lock file held) until Kelly signals SHIP, FIX, or PAUSE. PL MUST NOT exit or mark shipped on its own. Only the operator (via Kelly) can trigger ship. Dashboard shows the live PL session as "AWAITING QA".
+- v4.3 (2026-02-19): **PENDING-QA STATE + PL HOLDS SESSION.** After Phase 3 TEA passes, PL sets `state: "qa"` and enters an idle hold — the session stays alive (lock file held) until Kelly signals SHIP, FIX, or PAUSE. PL MUST NOT exit or mark shipped on its own. Only the operator (via Kelly) can trigger ship. Dashboard shows the live PL session as "AWAITING QA".
 - v4.2 (2026-02-19): **PHASE NAMING + TEA STREAMLINED.** Phase 3 renamed "Test" (was "Post-Deploy Verification/QA"). TEA simplified: TD+TF+TA combined into single Murat "test-generate" pass. Removed RV (test review) and TR (traceability) — redundant overhead for MVP factory. New TEA: test-generate → E2E execution + NR in parallel.
 - v3.3 (2026-02-19): **CODE REVIEW DISABLED.** Stories now go dev → done directly (skipping code-review Amelia). Rationale: 80%+ reviews pass, adds 5-10 min overhead per story, Phase 3 TEA testing more thorough. Can re-enable once factory proven.
 - v3.2 (2026-02-19): Restructured Phase 3 into Pre-Deploy Gates → Deploy → Post-Deploy Verification. Full TEA suite (TD, TF, TA, RV, TR, NR) runs against deployed app. Failures batched → Amelia remediates → redeploy → re-run. Removed correct-course routing for QA failures (direct to Amelia).
@@ -40,13 +40,13 @@ Project Lead owns a single project from intake to ship. One PL session per proje
 
 **Registry updates (PL responsibility):**
 - **Project start:** `discovery` → `in-progress` (set `implementation.projectDir`, `timeline.startedAt`)
-- **QA ready:** `in-progress` → `pending-qa` (set `implementation.qaUrl`, `timeline.lastUpdated`, notify Kelly)
+- **QA ready:** `in-progress` → `qa` (set `implementation.qaUrl`, `timeline.lastUpdated`, notify Kelly)
 - **Followup:** `shipped` → `followup` (add entries to `followup[]`)
 - **Followup done:** `followup` → `shipped`
 - **Pause/Resume:** Set `paused: true/false` with `pausedReason`
 
 **Registry updates (PL does on Kelly's SHIP signal — operator approval required first):**
-- **Ship:** `pending-qa` → `shipped` (set `implementation.deployedUrl`, `timeline.shippedAt`) — only after receiving `"SHIP: {projectId}"` from Kelly
+- **Ship:** `qa` → `shipped` (set `implementation.deployedUrl`, `timeline.shippedAt`) — only after receiving `"SHIP: {projectId}"` from Kelly
 
 **Dependency authority:** Bob's `dependency-graph.json` (or `stories-parallelization.json`) in `_bmad-output/implementation-artifacts/`. Each story has individual `dependsOn` arrays.
 
@@ -103,7 +103,7 @@ with open(f, 'w') as fp: json.dump(d, fp, indent=2)
 
 **Mode transitions (PL updates project-state.json when these happen):**
 - Project created → `greenfield`
-- Operator rejects from pending-qa → `qa-feedback`  
+- Operator rejects from qa → `qa-feedback`  
 - Project shipped, bug fix needed → `hotfix`
 - Project shipped, new feature requested → `feature`
 
@@ -583,7 +583,7 @@ Treat every test/NFR failure as a brownfield change. Batch all failures, classif
 
 Only when `test-execution-report.md` shows **0 failures** does PL proceed to Phase 4.
 
-#### Stage 4.1: Notify Kelly + Set pending-qa
+#### Stage 4.1: Notify Kelly + Set qa
 
 ```javascript
 sessions_send(
@@ -593,7 +593,7 @@ sessions_send(
 ```
 
 Update projects-registry.json:
-- **Set `state: "pending-qa"`** (was `in-progress`)
+- **Set `state: "qa"`** (was `in-progress`)
 - Set `surfacedForQA: false` (Kelly will set to true after announcing)
 - Ensure `implementation.qaUrl` is set
 
@@ -603,7 +603,7 @@ Update projects-registry.json:
 
 ```
 PL behavior: idle wait.
-→ Reply to any incoming heartbeat with current status (project name, qaUrl, state=pending-qa).
+→ Reply to any incoming heartbeat with current status (project name, qaUrl, state=qa).
 → Do NOT poll the registry in a loop. Just wait for a sessions_send message.
 → Acceptable wait: hours or days. Do not time out.
 ```
@@ -781,8 +781,8 @@ jq '.projects |= map(
 
 **When to update:**
 - Project start (`discovery` → `in-progress`, set projectDir + startedAt)
-- Test phase complete (`in-progress` → `pending-qa`, set `implementation.qaUrl`, update `lastUpdated`, notify Kelly)
-- Ship (`pending-qa` → `shipped`, set deployedUrl + shippedAt) — only after receiving `"SHIP: {projectId}"` from Kelly
+- Test phase complete (`in-progress` → `qa`, set `implementation.qaUrl`, update `lastUpdated`, notify Kelly)
+- Ship (`qa` → `shipped`, set deployedUrl + shippedAt) — only after receiving `"SHIP: {projectId}"` from Kelly
 - Pause/resume (set `paused` + `pausedReason`)
 
 ### _bmad-output/implementation-artifacts/ (BMAD tracks)

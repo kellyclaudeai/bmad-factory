@@ -87,7 +87,7 @@ python3 -c "import yaml,sys; d=yaml.safe_load(open('file.yaml')); print(d['key']
 
 ## ✅ QA Gate — All Tests Must Pass
 
-**A project does NOT enter `pending-qa` until 100% of Murat's tests pass.**
+**A project does NOT enter `qa` until 100% of Murat's tests pass.**
 
 - "Minor test infra issues" are not a skip reason — fix them before flipping phase
 - If a test fails, it goes back to Amelia via the Change Flow (Phase 3 Step 5 remediation)
