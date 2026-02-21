@@ -10,10 +10,12 @@
 
 **Always prefer automation in this order — no exceptions:**
 
-1. **CLI / SDK first** — shell commands, language SDKs, package managers, `curl`, `gh`, `supabase`, `firebase`, `stripe`, etc.
-2. **MCP tools second** — any MCP integration available in the workspace
-3. **Browser automation third** — headless Playwright when CLI/MCP unavailable (see below)
-4. **Ask the operator last** — only for genuine blockers (MFA, email verification codes, payment info)
+1. **CLI / SDK** — shell commands, language SDKs, package managers, `curl`, `gh`, `supabase`, `vercel`, `stripe`, `neon`, etc.
+2. **MCP tools** — any MCP integration installed in the workspace (check before using browser)
+3. **Browser automation** — headless Playwright when CLI/MCP unavailable or insufficient
+4. **Ask the operator** — only for: MFA/2FA codes, payment/credit card required, SMS verification
+
+This order applies to **everything**: provisioning services, getting API keys, running tests, deploying, configuring third-party tools. Never jump to browser if a CLI exists. Never ask the operator if browser automation can do it.
 
 If a skill says "use the browser," exhaust CLI/MCP options first. Do not ask a human to click a dashboard when an API or CLI exists.
 
