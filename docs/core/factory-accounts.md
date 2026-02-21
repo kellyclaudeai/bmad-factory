@@ -21,6 +21,7 @@ security find-generic-password -a "kelly-factory" -s "kelly-factory-credentials"
 |---------|----------|-------|-------|
 | The Movie Database (TMDB) | kellyfactory | kelly@bloomtech.com | Free Developer plan. API key in Vercel as `TMDB_API_KEY`. |
 | Watchmode API | kelly@bloomtech.com | kelly@bloomtech.com | Free plan. 1,000 calls/month. API key in Vercel as `WATCHMODE_API_KEY`. |
+| ReelRolla (test user) | kellyclaude.mps@gmail.com | kellyclaude.mps@gmail.com | Factory E2E test account. Confirmed via Supabase admin API. Password = factory standard (Keychain). |
 
 ---
 
