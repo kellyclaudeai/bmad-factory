@@ -34,8 +34,12 @@ Use the project's test framework (Jest, Vitest, Playwright, etc.)
 ```
 1. HAPPY PATH JOURNEY
    → Full end-to-end journey from landing to core value delivery
+   → Uses the REAL deployed URL — no localhost, no mocking, no stubbing
+   → Signs up or logs in as a REAL test user (from test-credentials.md) — no pre-seeded auth state
+   → Walks every onboarding step if the app has one — do not skip to a logged-in state
    → Creates its own data (no pre-seeded fixtures)
    → One journey per major user role
+   → If this test passes but a human QA tester hits bugs in the same flow → the test was mocked. Rewrite it.
 
 2. ERROR PATH JOURNEY
    → Key failure scenarios a real user would encounter
