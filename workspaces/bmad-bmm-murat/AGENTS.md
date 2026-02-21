@@ -39,6 +39,7 @@ Use the project's test framework (Jest, Vitest, Playwright, etc.)
    → Walks every onboarding step if the app has one — do not skip to a logged-in state
    → Creates its own data (no pre-seeded fixtures)
    → One journey per major user role
+   → **Must start from a fresh browser context with zero cookies/storage** — `browser.newContext()` with no saved state
    → If this test passes but a human QA tester hits bugs in the same flow → the test was mocked. Rewrite it.
 
 2. ERROR PATH JOURNEY
