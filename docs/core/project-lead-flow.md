@@ -5,6 +5,7 @@
 **Audience:** Used as reference when building/updating Project Lead AGENTS.md.
 
 **Recent Updates:**
+- v5.7 (2026-02-20): **HARD GATE: 0 FAILURES TO ENTER PHASE 4.** Explicit gate added before Phase 4 — "minor" or "infra-only" test failures are still blocking. All unit, E2E, and NFR failures route back to Step 5 (Change Flow). Max 3 remediation cycles before escalating to Kelly.
 - v5.1 (2026-02-20): **SALLY MOCKUPS MANDATORY.** design-assets.json is no longer optional. Sally MUST use the `frontend-design` skill to build HTML prototypes + Playwright screenshots for every main screen after writing ux-design.md. PL task prompt now explicitly requires this with a pointer to `docs/core/design-workflow.md`. Removed stale "Figma URLs" reference from Sally step.
 - v5.0 (2026-02-20): **DEFAULT TECH STACK.** `docs/core/tech-stack.md` created. Winston must read it before writing architecture.md on every project. Default: Next.js 15 + TypeScript + Tailwind + shadcn/ui + pnpm + Supabase (DB+Auth) + Drizzle + Vercel. Override by specifying in intake.md; document as ADR in architecture.md.
 - v4.9 (2026-02-20): **NO MOCKING IN E2E — REAL EVERYTHING.** Phase 3 E2E tests must use real deployed URL, real Firebase Auth, real credentials. No stubbing `signInWithPopup` or any external service. Console error listener mandatory in every test file (CSP violations = auto-fail). Test credentials must be a dedicated factory test Gmail (NOT kelly@bloomtech.com). If auth project and `test-credentials.md` missing → Murat halts + PL notifies Kelly. Same policy codified in murat-testing/SKILL.md.
@@ -517,7 +518,16 @@ Treat every test/NFR failure as a brownfield change. Batch all failures, classif
 
 ### Phase 4: User QA
 
-**When Phase 3 (Test) passes**, the app is already deployed (from Phase 3 Step 2). Notify Kelly, set pending-qa, then **hold** — the PL session must NOT exit until the operator ships or kills the project.
+**Phase 3 "passes" means ALL tests are green — zero failures, zero skips without documented rationale.**
+
+> ⛔ **Hard gate:** Do NOT enter Phase 4 if even one test is failing.
+> - Unit test failures → back to Step 5 (Change Flow → Amelia)
+> - E2E test failures → back to Step 5 (Change Flow, route by depth)
+> - NFR failures → back to Step 5 (Change Flow → Amelia/Sally/Winston)
+> - "Minor" or "infra-only" failures → still blocking. Fix them.
+> - Max 3 remediation cycles before escalating to Kelly as a blocker.
+
+Only when `test-execution-report.md` shows **0 failures** does PL proceed to Phase 4.
 
 #### Stage 4.1: Notify Kelly + Set pending-qa
 
