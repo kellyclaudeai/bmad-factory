@@ -307,14 +307,14 @@ One line per project. Glanceable. On-demand only — never auto-include in heart
 
 ```
 📊 Quick Update:
-• ReelRolla — qa [greenfield] ✅ · https://reelrolla.vercel.app
-• Distill — build [greenfield] 🔄 · last activity 8m ago
-• SentinelHire — qa [qa-feedback] ✅ · https://sentinel-hire.vercel.app
-• Masterpiece Remix — testing [greenfield] 🔄 · last activity 12m ago
-• AnyProject — build [hotfix] ⛔ blocked: missing STRIPE_SECRET_KEY · waiting on operator
+• ReelRolla — qa [greenfield] ✅ · 2h ago · https://reelrolla.vercel.app
+• Distill — build [qa-feedback] 🔄 · 8m ago · Murat rewriting auth tests
+• SentinelHire — qa [greenfield] ✅ · 30m ago · https://sentinel-hire.vercel.app
+• Masterpiece — testing [greenfield] 🔄 · 45m ago · E2E running against Vercel URL
+• AnyProject — build [hotfix] ⛔ · 3h ago · blocked: missing STRIPE_SECRET_KEY
 ```
 
-**Fields:** name · phase · [lifecycle] · emoji · last activity (time since PL last spawned a sub-agent) · blocker if present · URL if in QA/shipped
+**Fields:** name · phase · [lifecycle] · emoji · time since last PL activity · one-line status or blocker · URL if in qa/shipped
 
 **Lifecycle values:**
 - `greenfield` — first build, never shipped
