@@ -130,9 +130,15 @@ This covers: TMDB, Watchmode, Supabase, Vercel, any other service that sends a v
 - ✅ Once obtained, set immediately via CLI: `vercel env add KEY_NAME` or equivalent
 - ✅ **Database provisioning (Neon, Supabase, etc.)** — create project, get connection string, set in Vercel, run migrations. Do NOT ask operator for credentials that don't exist yet — create them.
 - ✅ **All third-party free-tier services** (Redis/Upstash, storage, email/Resend, etc.) — provision autonomously, set env vars in Vercel. No asking. Only stop if payment info is required.
-- ⚠️ Paid tier or credit card required → stop and ask the operator first
+- ⚠️ **Paid tier / credit card required** → STOP. Do not proceed. Notify Kelly immediately with: what service is needed, why it's required, what it costs, and whether a free alternative exists. Never spend money without explicit operator approval.
 - ⚠️ MFA / 2FA / SMS code → ask operator (we don't have SMS access)
 - ❌ Never store raw API keys in git or in any file committed to version control
+
+### The Core Rule (plain language)
+
+> **If it's free: get it yourself. If it costs money: stop and tell Kelly.**
+
+No exceptions. "I couldn't find a free tier" is not a reason to ask the operator to do it manually — it's a reason to find a free alternative or surface the cost decision clearly.
 
 ---
 
